@@ -115,6 +115,40 @@ word_t _nn_add_mc(nn_t a, nn_src_t b, nn_src_t c, len_t m, word_t ci);
 #define nn_add_m(axxx, bxxx, cxxx, mxxx) \
    nn_add_mc(axxx, bxxx, cxxx, mxxx, (word_t) 0)
 
+/*
+   Set a = b - c - bi where b and c are both m words in length,
+   bi is a "borrow". Return any borrow. 
+*/
+word_t _nn_sub_mc(nn_t a, nn_src_t b, nn_src_t c, len_t m, word_t bi);
+
+/*
+   Set a = b - c where b and c are both m words in length. Return 
+   any borrow. 
+*/
+#define _nn_sub_m(axxx, bxxx, cxxx, mxxx) \
+   _nn_sub_mc(axxx, bxxx, cxxx, mxxx, (word_t) 0)
+
+/*
+   Set a = b - c - bi where b and c are both m words in length, 
+   writing the borrow to a. If a and b are aliased, the boorow is 
+   subtracted from a[m], otherwise a[m] is set to the borrow.
+*/
+#define nn_sub_mc(axxx, bxxx, cxxx, mxxx, bixxx) \
+   do { \
+      if (axxx == bxxx) \
+         axxx[mxxx] -= _nn_sub_mc(axxx, bxxx, cxxx, mxxx, bixxx); \
+      else \
+         axxx[mxxx] = -_nn_sub_mc(axxx, bxxx, cxxx, mxxx, bixxx); \
+   } while (0)
+
+/*
+   Set a = b - c where b and c are both m words in length, 
+   writing the borrow to a. If a and b are aliased, the borrow is 
+   subtracted from a[m], otherwise a[m] is set to the borrow.
+*/
+#define nn_sub_m(axxx, bxxx, cxxx, mxxx) \
+   nn_sub_mc(axxx, bxxx, cxxx, mxxx, (word_t) 0)
+
 /**********************************************************************
  
     Comparison

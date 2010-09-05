@@ -76,4 +76,19 @@ word_t _nn_add_mc(nn_t a, nn_src_t b, nn_src_t c, len_t m, word_t ci)
    return ci;
 }
 
+word_t _nn_sub_mc(nn_t a, nn_src_t b, nn_src_t c, len_t m, word_t bi)
+{
+   dword_t t;
+   long i;
+
+   for (i = 0; i < m; i++)
+   {
+      t = (dword_t) b[i] - (dword_t) c[i] - (dword_t) bi;
+      a[i] = (word_t) t;
+      bi = -(t >> WORD_BITS);
+   }
+
+   return bi;
+}
+
 
