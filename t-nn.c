@@ -73,5 +73,7 @@ int main(void)
    printf("%ld of %ld tests pass.\n", pass, pass + fail);
 
    randclear(state);
+
+   return 0;
 }
 
