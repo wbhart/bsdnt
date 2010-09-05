@@ -16,7 +16,7 @@ int test_add(void)
    printf("nn_add...");
 
    // test (a + b) + c = a + (b + c)
-   for (i = 0; i < ITER; i++)
+   for (i = 0; i < ITER && result == 1; i++)
    {
       m = randint(100, state);
 
@@ -37,17 +37,22 @@ int test_add(void)
       nn_add_m(r2, b, c, m);
       nn_add_m(r2, r2, a, m);
 
-      if (!nn_equal(r1, r2, m + 1))
+      result = nn_equal(r1, r2, m + 1);
+
+      if (!result)
       {
          printf("FAIL\n");
          printf("m = %ld\n", m);
-         abort();
       }
 
       nn_clear(a);
       nn_clear(b);
       nn_clear(c);
    }
+
+   printf("PASS\n");
+
+   return result;
 }
 
 #define RUN(xxx) \
@@ -65,7 +70,7 @@ int main(void)
    
    RUN(test_add);
 
-   printf("%ld tests of %ld pass.\n", pass, pass + fail);
+   printf("%ld of %ld tests pass.\n", pass, pass + fail);
 
    randclear(state);
 }
