@@ -11,7 +11,8 @@ int test_add(void)
    int result = 1;
    long i;
    nn_t a, b, c, r1, r2;
-   len_t m;
+   len_t m, n;
+   word_t ci;
 
    printf("nn_add...");
 
@@ -51,6 +52,39 @@ int test_add(void)
       nn_clear(r2);
    }
 
+   // test chaining of addition
+   for (i = 0; i < ITER && result == 1; i++)
+   {
+      m = randint(100, state);
+      n = randint(100, state);
+
+      a = nn_init(m + n);
+      b = nn_init(m + n);
+
+      r1 = nn_init(m + n + 1);
+      r2 = nn_init(m + n + 1);
+
+      nn_random(a, state, m + n);
+      nn_random(b, state, m + n);
+      
+      ci = _nn_add_m(r1, a, b, m);
+      nn_add_mc(r1 + m, a + m, b + m, n, ci);
+
+      nn_add_m(r2, a, b, m + n);
+      
+      result = nn_equal(r1, r2, m + n + 1);
+
+      if (!result)
+      {
+         printf("m = %ld, n = %ld\n", m, n);
+      }
+
+      nn_clear(a);
+      nn_clear(b);
+      nn_clear(r1);
+      nn_clear(r2);
+   }
+
    return result;
 }
 
@@ -59,7 +93,8 @@ int test_sub(void)
    int result = 1;
    long i;
    nn_t a, b, c, r1, r2;
-   len_t m;
+   len_t m, n;
+   word_t ci;
 
    printf("nn_sub...");
 
@@ -95,6 +130,39 @@ int test_sub(void)
       nn_clear(a);
       nn_clear(b);
       nn_clear(c);
+      nn_clear(r1);
+      nn_clear(r2);
+   }
+
+   // test chaining of subtraction
+   for (i = 0; i < ITER && result == 1; i++)
+   {
+      m = randint(100, state);
+      n = randint(100, state);
+
+      a = nn_init(m + n);
+      b = nn_init(m + n);
+
+      r1 = nn_init(m + n + 1);
+      r2 = nn_init(m + n + 1);
+
+      nn_random(a, state, m + n);
+      nn_random(b, state, m + n);
+      
+      ci = _nn_sub_m(r1, a, b, m);
+      nn_sub_mc(r1 + m, a + m, b + m, n, ci);
+
+      nn_sub_m(r2, a, b, m + n);
+      
+      result = nn_equal(r1, r2, m + n + 1);
+
+      if (!result)
+      {
+         printf("m = %ld, n = %ld\n", m, n);
+      }
+
+      nn_clear(a);
+      nn_clear(b);
       nn_clear(r1);
       nn_clear(r2);
    }
