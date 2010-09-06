@@ -62,7 +62,10 @@ void nn_random(nn_t a, rand_t state, len_t m);
     Memory management
 
 **********************************************************************/
-
+/*
+   Allocates an array of m words and returns it. Despite the
+   name, the limbs are not initialised to zero.
+*/
 static inline
 nn_t nn_init(len_t m)
 {
@@ -70,6 +73,9 @@ nn_t nn_init(len_t m)
    else return NULL;
 }
 
+/*
+   Free the memory used by the nn_t a.
+*/
 static inline
 void nn_clear(nn_t a)
 {
@@ -82,6 +88,9 @@ void nn_clear(nn_t a)
 
 **********************************************************************/
 
+/*
+   Copy the m limbs at b to a.
+*/
 static inline
 void nn_copy(nn_t a, nn_src_t b, len_t m)
 {
@@ -91,6 +100,9 @@ void nn_copy(nn_t a, nn_src_t b, len_t m)
       a[i] = b[i];
 }
 
+/*
+   Set the m limbs at b to 0.
+*/
 static inline
 void nn_zero(nn_t a, len_t m)
 {
@@ -100,6 +112,13 @@ void nn_zero(nn_t a, len_t m)
       a[i] = 0;
 }
 
+/*
+   The pair {a, m} is said to be normalised if either m is
+   zero, or a[m-1] is non-zero. In other words, {a, m} has
+   no leading zero limbs. This function normalises {a, m}
+   by returning the largest value m0 <= m for which {a, m0}
+   is normalised.
+*/
 static inline
 len_t nn_normalise(nn_t a, len_t m)
 {
@@ -215,7 +234,7 @@ word_t _nn_shl_c(nn_t a, nn_src_t b, len_t m, bits_t bits, word_t ci);
    nn_shl_c(axxx, bxxx, mxxx, bitsxxx, (word_t) 0)
 
 /*
-   Set a = (b >> bits) + ci*2^(WORD_BITS*(m - 1)) where b is m words 
+   Set a = (b >> bits) + ci*B^(m - 1) where b is m words 
    in length, ci is a "carry in". Return any carry out from the low
    end. Assumes 0 <= bits < WORD_BITS.
 */
@@ -229,7 +248,7 @@ word_t _nn_shr_c(nn_t a, nn_src_t b, len_t m, bits_t bits, word_t ci);
    _nn_shr_c(axxx, bxxx, mxxx, bitsxxx, (word_t) 0)
 
 /*
-   Set a = (b >> bits) + ci*2^(WORD_BITS*(m - 1)) where b is m words 
+   Set a = (b >> bits) + ci*B^(m - 1) where b is m words 
    in length, and ci is a[m]*2^(WORD_BITS - bits). Assumes 0 <= bits < 
    WORD_BITS.
 */
