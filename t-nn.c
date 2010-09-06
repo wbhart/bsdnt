@@ -200,7 +200,6 @@ int test_shl(void)
       nn_clear(r2);
    }
 
-
    return result;
 }
 
@@ -427,6 +426,57 @@ int test_normalise(void)
    return result;
 }
 
+int test_mul1(void)
+{
+   int result = 1;
+   long i;
+   nn_t a, r1, r2, t1;
+   word_t c1, c2;
+   len_t m;
+
+   printf("nn_mul1...");
+
+   // test a * (c1 + c2) = a * c1 + a * c2
+   for (i = 0; i < ITER && result == 1; i++)
+   {
+      m = randint(100, state);
+
+      a = nn_init(m);
+      
+      t1 = nn_init(m + 1);
+      r1 = nn_init(m + 1);
+      r2 = nn_init(m + 1);
+
+      nn_random(a, state, m);
+   
+      do
+      {
+         c1 = randword(state);
+         c2 = randword(state);
+      } while (c1 + c2 < c1);
+
+      nn_mul1(t1, a, m, c1);
+      nn_mul1(r1, a, m, c2);
+      _nn_add_m(r1, r1, t1, m + 1);
+      
+      nn_mul1(r2, a, m, c1 + c2);
+
+      result = nn_equal(r1, r2, m + 1);
+
+      if (!result)
+      {
+         printf("m = %ld, c1 = %ld, c2 = %ld\n", m, c1, c2);
+      }
+
+      nn_clear(a);
+      nn_clear(t1);
+      nn_clear(r1);
+      nn_clear(r2);
+   }
+
+   return result;
+}
+
 #define RUN(xxx) \
    do { \
       if (xxx()) \
@@ -455,6 +505,7 @@ int main(void)
    RUN(test_equal);
    RUN(test_zero);
    RUN(test_normalise);
+   RUN(test_mul1);
 
    printf("%ld of %ld tests pass.\n", pass, pass + fail);
 

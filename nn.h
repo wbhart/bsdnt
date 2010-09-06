@@ -260,6 +260,36 @@ word_t _nn_shr_c(nn_t a, nn_src_t b, len_t m, bits_t bits, word_t ci);
          _nn_shr_c(axxx, bxxx, mxxx, bitsxxx, (word_t) 0); \
    } while (0)
 
+/*
+   Set a = b * c + ci where b is m words in length, c is a word and
+   ci is a "carry in". Return any carry out. 
+*/
+word_t _nn_mul1_c(nn_t a, nn_src_t b, len_t m, word_t c, word_t ci);
+
+/*
+   Set a = b * c where b is m words in length and c is a word. 
+   Return any carry out.
+*/
+#define _nn_mul1(axxx, bxxx, mxxx, cxxx) \
+   _nn_mul1_c(axxx, bxxx, mxxx, cxxx, (word_t) 0)
+
+/*
+   Set a = b * c + ci where b is m words in length, c is a word and
+   ci is a "carry in". Write any carry out to a[m]. 
+*/
+#define nn_mul1_c(axxx, bxxx, mxxx, cxxx, cixxx) \
+   do { \
+      (axxx)[mxxx] = _nn_mul1_c(axxx, bxxx, mxxx, cxxx, cixxx); \
+   } while (0)
+
+/*
+   Set a = b * c where b is m words in length and c is a word.
+   Write any carry out to a[m]. 
+*/
+#define nn_mul1(axxx, bxxx, mxxx, cxxx) \
+   nn_mul1_c(axxx, bxxx, mxxx, cxxx, (word_t) 0)
+
+
 /**********************************************************************
  
     Comparison
