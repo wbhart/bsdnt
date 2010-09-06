@@ -78,6 +78,39 @@ void nn_clear(nn_t a)
 
 /**********************************************************************
  
+    Basic manipulation
+
+**********************************************************************/
+
+static inline
+void nn_copy(nn_t a, nn_src_t b, len_t m)
+{
+   long i;
+
+   for (i = 0; i < m; i++)
+      a[i] = b[i];
+}
+
+static inline
+void nn_zero(nn_t a, len_t m)
+{
+   long i;
+
+   for (i = 0; i < m; i++)
+      a[i] = 0;
+}
+
+static inline
+len_t nn_normalise(nn_t a, len_t m)
+{
+   while ((m != 0) && (a[m - 1] == 0))
+      m--;
+
+   return m;
+}
+
+/**********************************************************************
+ 
     Linear arithmetic functions
 
 **********************************************************************/
@@ -207,7 +240,6 @@ word_t _nn_shr_c(nn_t a, nn_src_t b, len_t m, bits_t bits, word_t ci);
       else \
          _nn_shr_c(axxx, bxxx, mxxx, bitsxxx, (word_t) 0); \
    } while (0)
-
 
 /**********************************************************************
  
