@@ -204,7 +204,8 @@ int test_shl(void)
    long i;
    nn_t a, r1, r2;
    bits_t sh1, sh2;
-   len_t m;
+   len_t m, n;
+   word_t ci;
 
    printf("nn_shl...");
 
@@ -233,6 +234,38 @@ int test_shl(void)
       if (!result)
       {
          printf("m = %ld, sh1 = %ld, sh2 = %ld\n", m, sh1, sh2);
+      }
+
+      nn_clear(a);
+      nn_clear(r1);
+      nn_clear(r2);
+   }
+
+   // test chaining of shl
+   for (i = 0; i < ITER && result == 1; i++)
+   {
+      m = randint(100, state);
+      n = randint(100, state);
+
+      a = nn_init(m + n);
+      
+      r1 = nn_init(m + n + 1);
+      r2 = nn_init(m + n + 1);
+
+      sh1 = randint(WORD_BITS, state);
+      
+      nn_random(a, state, m + n);
+         
+      ci = _nn_shl(r1, a, m, sh1);
+      nn_shl_c(r1 + m, a + m, n, sh1, ci);
+      
+      nn_shl(r2, a, m + n, sh1);
+
+      result = nn_equal(r1, r2, m + n + 1);
+
+      if (!result)
+      {
+         printf("m = %ld, n = %ld\n", m, n);
       }
 
       nn_clear(a);
@@ -277,7 +310,8 @@ int test_shr(void)
    long i;
    nn_t a, r1, r2;
    bits_t sh1, sh2;
-   len_t m;
+   len_t m, n;
+   word_t ci;
 
    printf("nn_shr...");
 
@@ -306,6 +340,38 @@ int test_shr(void)
       if (!result)
       {
          printf("m = %ld, sh1 = %ld, sh2 = %ld\n", m, sh1, sh2);
+      }
+
+      nn_clear(a);
+      nn_clear(r1);
+      nn_clear(r2);
+   }
+
+   // test chaining of shr
+   for (i = 0; i < ITER && result == 1; i++)
+   {
+      m = randint(100, state);
+      n = randint(100, state);
+
+      a = nn_init(m + n);
+      
+      r1 = nn_init(m + n);
+      r2 = nn_init(m + n);
+
+      sh1 = randint(WORD_BITS, state);
+      
+      nn_random(a, state, m + n);
+         
+      ci = _nn_shr(r1 + n, a + n, m, sh1);
+      _nn_shr_c(r1, a, n, sh1, ci);
+      
+      _nn_shr(r2, a, m + n, sh1);
+
+      result = nn_equal(r1, r2, m + n);
+
+      if (!result)
+      {
+         printf("m = %ld, n = %ld\n", m, n);
       }
 
       nn_clear(a);
