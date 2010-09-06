@@ -101,10 +101,10 @@ word_t _nn_add_mc(nn_t a, nn_src_t b, nn_src_t c, len_t m, word_t ci);
 */
 #define nn_add_mc(axxx, bxxx, cxxx, mxxx, cixxx) \
    do { \
-      if (axxx == bxxx) \
-         axxx[mxxx] += _nn_add_mc(axxx, bxxx, cxxx, mxxx, cixxx); \
+      if ((axxx) == (bxxx)) \
+         (axxx)[mxxx] += _nn_add_mc(axxx, bxxx, cxxx, mxxx, cixxx); \
       else \
-         axxx[mxxx] = _nn_add_mc(axxx, bxxx, cxxx, mxxx, cixxx); \
+         (axxx)[mxxx] = _nn_add_mc(axxx, bxxx, cxxx, mxxx, cixxx); \
    } while (0)
 
 /*

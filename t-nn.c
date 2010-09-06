@@ -24,8 +24,8 @@ int test_add(void)
       b = nn_init(m);
       c = nn_init(m);
 
-      r1 = malloc((m + 1)*sizeof(word_t));
-      r2 = malloc((m + 1)*sizeof(word_t));
+      r1 = nn_init(m + 1);
+      r2 = nn_init(m + 1);
 
       nn_random(a, state, m);
       nn_random(b, state, m);
@@ -41,24 +41,30 @@ int test_add(void)
 
       if (!result)
       {
-         printf("FAIL\n");
          printf("m = %ld\n", m);
       }
 
       nn_clear(a);
       nn_clear(b);
       nn_clear(c);
+      nn_clear(r1);
+      nn_clear(r2);
    }
-
-   printf("PASS\n");
 
    return result;
 }
 
 #define RUN(xxx) \
    do { \
-      if (xxx()) pass++; \
-      else fail++; \
+      if (xxx()) \
+      { \
+         printf("PASS\n"); \
+         pass++; \
+      } else \
+      { \
+         printf("FAIL\n"); \
+         fail++; \
+      } \
    } while (0)
 
 int main(void)
