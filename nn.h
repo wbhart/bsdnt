@@ -22,6 +22,7 @@ typedef word_t * nn_t;
 typedef const word_t * nn_src_t;
 
 typedef long len_t;
+typedef long bits_t;
 
 typedef void * rand_t;
 
@@ -148,6 +149,36 @@ word_t _nn_sub_mc(nn_t a, nn_src_t b, nn_src_t c, len_t m, word_t bi);
 */
 #define nn_sub_m(axxx, bxxx, cxxx, mxxx) \
    nn_sub_mc(axxx, bxxx, cxxx, mxxx, (word_t) 0)
+
+/*
+   Set a = (b << bits) + ci where b is m words in length,
+   ci is a "carry in". Return any carry out. 
+*/
+word_t _nn_shl_c(nn_t a, nn_src_t b, len_t m, bits_t bits, word_t ci);
+
+/*
+   Set a = (b << bits) where b is m words in length. Return 
+   any carry out. 
+*/
+#define _nn_shl(axxx, bxxx, mxxx, bitsxxx) \
+   _nn_shl_c(axxx, bxxx, mxxx, bitsxxx, (word_t) 0)
+
+/*
+   Set a = (b << bits) + ci where b is m words in length, ci is
+   a carry in, and writing the carry out to a[m].
+*/
+#define nn_shl_c(axxx, bxxx, mxxx, bitsxxx, cixxx) \
+   do { \
+      axxx[mxxx] = _nn_shl_c(axxx, bxxx, mxxx, bitsxxx, cixxx); \
+   } while (0)
+
+/*
+   Set a = (b << bits) where b is m words in length, writing the 
+   carry out to a[m].
+*/
+#define nn_shl(axxx, bxxx, mxxx, bitsxxx) \
+   nn_shl_c(axxx, bxxx, mxxx, bitsxxx, (word_t) 0)
+
 
 /**********************************************************************
  
