@@ -62,6 +62,10 @@ void nn_random(nn_t a, rand_t state, len_t m);
 
 **********************************************************************/
 
+/*
+   Allocates an array of m words and returns it. Despite the
+   name, the limbs are not initialised to zero.
+*/
 static inline
 nn_t nn_init(len_t m)
 {
@@ -69,6 +73,9 @@ nn_t nn_init(len_t m)
    else return NULL;
 }
 
+/*
+   Free the memory used by the nn_t a.
+*/
 static inline
 void nn_clear(nn_t a)
 {
