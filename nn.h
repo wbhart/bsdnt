@@ -152,20 +152,22 @@ word_t _nn_sub_mc(nn_t a, nn_src_t b, nn_src_t c, len_t m, word_t bi);
 
 /*
    Set a = (b << bits) + ci where b is m words in length,
-   ci is a "carry in". Return any carry out. 
+   ci is a "carry in". Return any carry out. Assumes 0 <= bits
+   < WORD_BITS.
 */
 word_t _nn_shl_c(nn_t a, nn_src_t b, len_t m, bits_t bits, word_t ci);
 
 /*
    Set a = (b << bits) where b is m words in length. Return 
-   any carry out. 
+   any carry out. Assumes 0 <= bits < WORD_BITS.
 */
 #define _nn_shl(axxx, bxxx, mxxx, bitsxxx) \
    _nn_shl_c(axxx, bxxx, mxxx, bitsxxx, (word_t) 0)
 
 /*
    Set a = (b << bits) + ci where b is m words in length, ci is
-   a "carry in", and writing the carry out to a[m].
+   a "carry in", and writing the carry out to a[m]. Assumes 0 <= 
+   bits < WORD_BITS.
 */
 #define nn_shl_c(axxx, bxxx, mxxx, bitsxxx, cixxx) \
    do { \
@@ -174,7 +176,7 @@ word_t _nn_shl_c(nn_t a, nn_src_t b, len_t m, bits_t bits, word_t ci);
 
 /*
    Set a = (b << bits) where b is m words in length, writing the 
-   carry out to a[m].
+   carry out to a[m]. Assumes 0 <= bits < WORD_BITS.
 */
 #define nn_shl(axxx, bxxx, mxxx, bitsxxx) \
    nn_shl_c(axxx, bxxx, mxxx, bitsxxx, (word_t) 0)
@@ -182,20 +184,21 @@ word_t _nn_shl_c(nn_t a, nn_src_t b, len_t m, bits_t bits, word_t ci);
 /*
    Set a = (b >> bits) + ci*2^(WORD_BITS*(m - 1)) where b is m words 
    in length, ci is a "carry in". Return any carry out from the low
-   end. 
+   end. Assumes 0 <= bits < WORD_BITS.
 */
 word_t _nn_shr_c(nn_t a, nn_src_t b, len_t m, bits_t bits, word_t ci);
 
 /*
    Set a = (b >> bits) where b is m words in length. Return 
-   any carry out from the low end. 
+   any carry out from the low end. Assumes 0 <= bits < WORD_BITS.
 */
 #define _nn_shr(axxx, bxxx, mxxx, bitsxxx) \
    _nn_shr_c(axxx, bxxx, mxxx, bitsxxx, (word_t) 0)
 
 /*
    Set a = (b >> bits) + ci*2^(WORD_BITS*(m - 1)) where b is m words 
-   in length, and ci is a[m]*2^(WORD_BITS - bits).
+   in length, and ci is a[m]*2^(WORD_BITS - bits). Assumes 0 <= bits < 
+   WORD_BITS.
 */
 #define nn_shr(axxx, bxxx, mxxx, bitsxxx) \
    do { \
