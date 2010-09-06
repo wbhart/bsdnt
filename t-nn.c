@@ -431,8 +431,8 @@ int test_mul1(void)
    int result = 1;
    long i;
    nn_t a, r1, r2, t1;
-   word_t c1, c2;
-   len_t m;
+   word_t c1, c2, ci;
+   len_t m, n;
 
    printf("nn_mul1...");
 
@@ -470,6 +470,38 @@ int test_mul1(void)
 
       nn_clear(a);
       nn_clear(t1);
+      nn_clear(r1);
+      nn_clear(r2);
+   }
+
+   // test chaining of mul1
+   for (i = 0; i < ITER && result == 1; i++)
+   {
+      m = randint(100, state);
+      n = randint(100, state);
+
+      a = nn_init(m + n);
+      
+      r1 = nn_init(m + n + 1);
+      r2 = nn_init(m + n + 1);
+
+      nn_random(a, state, m + n);
+   
+      c1 = randword(state);
+
+      ci = _nn_mul1(r1, a, m, c1);
+      nn_mul1_c(r1 + m, a + m, n, c1, ci);
+      
+      nn_mul1(r2, a, m + n, c1);
+      
+      result = nn_equal(r1, r2, m + n + 1);
+
+      if (!result)
+      {
+         printf("m = %ld, n = %ld, c1 = %ld\n", m, n, c1);
+      }
+
+      nn_clear(a);
       nn_clear(r1);
       nn_clear(r2);
    }
