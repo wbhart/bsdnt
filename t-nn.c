@@ -99,6 +99,34 @@ int test_sub(void)
       nn_clear(r2);
    }
 
+   // test (a + b) - b = a
+   for (i = 0; i < ITER && result == 1; i++)
+   {
+      m = randint(100, state);
+
+      a = nn_init(m);
+      b = nn_init(m);
+
+      r1 = nn_init(m + 1);
+      
+      nn_random(a, state, m);
+      nn_random(b, state, m);
+      
+      nn_add_m(r1, a, b, m);
+      nn_sub_m(r1, r1, b, m);
+
+      result = (nn_equal(r1, a, m) && (r1[m] == 0));
+
+      if (!result)
+      {
+         printf("m = %ld\n", m);
+      }
+
+      nn_clear(a);
+      nn_clear(b);
+      nn_clear(r1);
+   }
+
    return result;
 }
 
