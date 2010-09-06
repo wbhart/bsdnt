@@ -112,9 +112,9 @@ word_t _nn_shr_c(nn_t a, nn_src_t b, len_t m, bits_t bits, word_t ci)
    long i;
    bits = WORD_BITS - bits;
 
-   for (i = m - 1; i >= 0; i++)
+   for (i = m - 1; i >= 0L; i--)
    {
-      t = (a[i] << bits);
+      t = (((dword_t) b[i]) << bits);
       a[i] = (t >> WORD_BITS) + ci;
       ci = (word_t) t; 
    }

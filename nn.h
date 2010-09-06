@@ -102,10 +102,10 @@ word_t _nn_add_mc(nn_t a, nn_src_t b, nn_src_t c, len_t m, word_t ci);
 */
 #define nn_add_mc(axxx, bxxx, cxxx, mxxx, cixxx) \
    do { \
-      if (axxx == bxxx) \
-         axxx[mxxx] += _nn_add_mc(axxx, bxxx, cxxx, mxxx, cixxx); \
+      if ((axxx) == (bxxx)) \
+         (axxx)[mxxx] += _nn_add_mc(axxx, bxxx, cxxx, mxxx, cixxx); \
       else \
-         axxx[mxxx] = _nn_add_mc(axxx, bxxx, cxxx, mxxx, cixxx); \
+         (axxx)[mxxx] = _nn_add_mc(axxx, bxxx, cxxx, mxxx, cixxx); \
    } while (0)
 
 /*
@@ -136,10 +136,10 @@ word_t _nn_sub_mc(nn_t a, nn_src_t b, nn_src_t c, len_t m, word_t bi);
 */
 #define nn_sub_mc(axxx, bxxx, cxxx, mxxx, bixxx) \
    do { \
-      if (axxx == bxxx) \
-         axxx[mxxx] -= _nn_sub_mc(axxx, bxxx, cxxx, mxxx, bixxx); \
+      if ((axxx) == (bxxx)) \
+         (axxx)[mxxx] -= _nn_sub_mc(axxx, bxxx, cxxx, mxxx, bixxx); \
       else \
-         axxx[mxxx] = -_nn_sub_mc(axxx, bxxx, cxxx, mxxx, bixxx); \
+         (axxx)[mxxx] = -_nn_sub_mc(axxx, bxxx, cxxx, mxxx, bixxx); \
    } while (0)
 
 /*
@@ -165,11 +165,11 @@ word_t _nn_shl_c(nn_t a, nn_src_t b, len_t m, bits_t bits, word_t ci);
 
 /*
    Set a = (b << bits) + ci where b is m words in length, ci is
-   a carry in, and writing the carry out to a[m].
+   a "carry in", and writing the carry out to a[m].
 */
 #define nn_shl_c(axxx, bxxx, mxxx, bitsxxx, cixxx) \
    do { \
-      axxx[mxxx] = _nn_shl_c(axxx, bxxx, mxxx, bitsxxx, cixxx); \
+      (axxx)[mxxx] = _nn_shl_c(axxx, bxxx, mxxx, bitsxxx, cixxx); \
    } while (0)
 
 /*
@@ -178,6 +178,32 @@ word_t _nn_shl_c(nn_t a, nn_src_t b, len_t m, bits_t bits, word_t ci);
 */
 #define nn_shl(axxx, bxxx, mxxx, bitsxxx) \
    nn_shl_c(axxx, bxxx, mxxx, bitsxxx, (word_t) 0)
+
+/*
+   Set a = (b >> bits) + ci*2^(WORD_BITS*(m - 1)) where b is m words 
+   in length, ci is a "carry in". Return any carry out from the low
+   end. 
+*/
+word_t _nn_shr_c(nn_t a, nn_src_t b, len_t m, bits_t bits, word_t ci);
+
+/*
+   Set a = (b >> bits) where b is m words in length. Return 
+   any carry out from the low end. 
+*/
+#define _nn_shr(axxx, bxxx, mxxx, bitsxxx) \
+   _nn_shr_c(axxx, bxxx, mxxx, bitsxxx, (word_t) 0)
+
+/*
+   Set a = (b >> bits) + ci*2^(WORD_BITS*(m - 1)) where b is m words 
+   in length, and ci is a[m]*2^(WORD_BITS - bits).
+*/
+#define nn_shr(axxx, bxxx, mxxx, bitsxxx) \
+   do { \
+      if (bitsxxx) \
+         _nn_shr_c(axxx, bxxx, mxxx, bitsxxx, (bxxx)[mxxx] << (WORD_BITS - (bitsxxx))); \
+      else \
+         _nn_shr_c(axxx, bxxx, mxxx, bitsxxx, (word_t) 0); \
+   } while (0)
 
 
 /**********************************************************************
