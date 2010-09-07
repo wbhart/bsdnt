@@ -38,7 +38,7 @@ int test_add_m(void)
       nn_add_m(r2, b, c, m);
       nn_add_m(r2, r2, a, m);
 
-      result = nn_equal(r1, r2, m + 1);
+      result = nn_equal_m(r1, r2, m + 1);
 
       if (!result)
       {
@@ -72,7 +72,7 @@ int test_add_m(void)
 
       nn_add_m(r2, a, b, m + n);
       
-      result = nn_equal(r1, r2, m + n + 1);
+      result = nn_equal_m(r1, r2, m + n + 1);
 
       if (!result)
       {
@@ -120,7 +120,7 @@ int test_sub_m(void)
       nn_sub_m(r2, a, c, m);
       nn_sub_m(r2, r2, b, m);
 
-      result = nn_equal(r1, r2, m + 1);
+      result = nn_equal_m(r1, r2, m + 1);
 
       if (!result)
       {
@@ -154,7 +154,7 @@ int test_sub_m(void)
 
       nn_sub_m(r2, a, b, m + n);
       
-      result = nn_equal(r1, r2, m + n + 1);
+      result = nn_equal_m(r1, r2, m + n + 1);
 
       if (!result)
       {
@@ -183,7 +183,7 @@ int test_sub_m(void)
       nn_add_m(r1, a, b, m);
       nn_sub_m(r1, r1, b, m);
 
-      result = (nn_equal(r1, a, m) && (r1[m] == 0));
+      result = (nn_equal_m(r1, a, m) && (r1[m] == 0));
 
       if (!result)
       {
@@ -229,7 +229,7 @@ int test_shl(void)
       nn_shl(r2, a, m, sh2);
       _nn_shl(r2, r2, m + 1, sh1);
 
-      result = nn_equal(r1, r2, m + 1);
+      result = nn_equal_m(r1, r2, m + 1);
 
       if (!result)
       {
@@ -261,7 +261,7 @@ int test_shl(void)
       
       nn_shl(r2, a, m + n, sh1);
 
-      result = nn_equal(r1, r2, m + n + 1);
+      result = nn_equal_m(r1, r2, m + n + 1);
 
       if (!result)
       {
@@ -289,7 +289,7 @@ int test_shl(void)
       
       nn_add_m(r2, a, a, m);
       
-      result = nn_equal(r1, r2, m + 1);
+      result = nn_equal_m(r1, r2, m + 1);
 
       if (!result)
       {
@@ -336,7 +336,7 @@ int test_shr(void)
       _nn_shr(r2, a, m, sh2);
       _nn_shr(r2, r2, m, sh1);
 
-      result = nn_equal(r1, r2, m);
+      result = nn_equal_m(r1, r2, m);
 
       if (!result)
       {
@@ -368,7 +368,7 @@ int test_shr(void)
       
       _nn_shr(r2, a, m + n, sh1);
 
-      result = nn_equal(r1, r2, m + n);
+      result = nn_equal_m(r1, r2, m + n);
 
       if (!result)
       {
@@ -397,7 +397,7 @@ int test_shr(void)
       
       nn_shr(r2, r1, m, sh1);
       
-      result = nn_equal(a, r2, m);
+      result = nn_equal_m(a, r2, m);
 
       if (!result)
       {

@@ -226,7 +226,7 @@ word_t _nn_shr_c(nn_t a, nn_src_t b, len_t m, bits_t bits, word_t ci);
    otherwise return 0.
 */
 static inline
-int nn_equal(nn_src_t a, nn_src_t b, len_t m)
+int nn_equal_m(nn_src_t a, nn_src_t b, len_t m)
 {
    long i;
 
