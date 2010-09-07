@@ -38,7 +38,7 @@ int test_add_m(void)
       nn_add_m(r2, b, c, m);
       nn_add_m(r2, r2, a, m);
 
-      result = nn_equal(r1, r2, m + 1);
+      result = nn_equal_m(r1, r2, m + 1);
 
       if (!result)
       {
@@ -72,7 +72,7 @@ int test_add_m(void)
 
       nn_add_m(r2, a, b, m + n);
       
-      result = nn_equal(r1, r2, m + n + 1);
+      result = nn_equal_m(r1, r2, m + n + 1);
 
       if (!result)
       {
@@ -120,7 +120,7 @@ int test_sub_m(void)
       nn_sub_m(r2, a, c, m);
       nn_sub_m(r2, r2, b, m);
 
-      result = nn_equal(r1, r2, m + 1);
+      result = nn_equal_m(r1, r2, m + 1);
 
       if (!result)
       {
@@ -154,7 +154,7 @@ int test_sub_m(void)
 
       nn_sub_m(r2, a, b, m + n);
       
-      result = nn_equal(r1, r2, m + n + 1);
+      result = nn_equal_m(r1, r2, m + n + 1);
 
       if (!result)
       {
@@ -183,7 +183,7 @@ int test_sub_m(void)
       nn_add_m(r1, a, b, m);
       nn_sub_m(r1, r1, b, m);
 
-      result = (nn_equal(r1, a, m) && (r1[m] == 0));
+      result = (nn_equal_m(r1, a, m) && (r1[m] == 0));
 
       if (!result)
       {
@@ -214,7 +214,7 @@ int test_sub_m(void)
      
       nn_sub_m(r2, a, b, m);
       
-      result = nn_equal(r1, r2, m + 1);
+      result = nn_equal_m(r1, r2, m + 1);
 
       if (!result)
       {
@@ -261,7 +261,7 @@ int test_shl(void)
       nn_shl(r2, a, m, sh2);
       _nn_shl(r2, r2, m + 1, sh1);
 
-      result = nn_equal(r1, r2, m + 1);
+      result = nn_equal_m(r1, r2, m + 1);
 
       if (!result)
       {
@@ -293,7 +293,7 @@ int test_shl(void)
       
       nn_shl(r2, a, m + n, sh1);
 
-      result = nn_equal(r1, r2, m + n + 1);
+      result = nn_equal_m(r1, r2, m + n + 1);
 
       if (!result)
       {
@@ -321,7 +321,7 @@ int test_shl(void)
       
       nn_add_m(r2, a, a, m);
       
-      result = nn_equal(r1, r2, m + 1);
+      result = nn_equal_m(r1, r2, m + 1);
 
       if (!result)
       {
@@ -367,7 +367,7 @@ int test_shr(void)
       _nn_shr(r2, a, m, sh2);
       _nn_shr(r2, r2, m, sh1);
 
-      result = nn_equal(r1, r2, m);
+      result = nn_equal_m(r1, r2, m);
 
       if (!result)
       {
@@ -399,7 +399,7 @@ int test_shr(void)
       
       _nn_shr(r2, a, m + n, sh1);
 
-      result = nn_equal(r1, r2, m + n);
+      result = nn_equal_m(r1, r2, m + n);
 
       if (!result)
       {
@@ -428,7 +428,7 @@ int test_shr(void)
       
       nn_shr(r2, r1, m, sh1);
       
-      result = nn_equal(a, r2, m);
+      result = nn_equal_m(a, r2, m);
 
       if (!result)
       {
@@ -465,7 +465,7 @@ int test_copy(void)
          
       nn_copy(r1, a, m);
       
-      result = nn_equal(r1, a, m);
+      result = nn_equal_m(r1, a, m);
 
       if (!result)
       {
@@ -486,7 +486,7 @@ int test_equal(void)
    nn_t a, r1;
    len_t m;
 
-   printf("nn_equal...");
+   printf("nn_equal_m...");
 
    // test copying and then modifiying yields non-equal integer
    for (i = 0; i < ITER && result == 1; i++)
@@ -504,7 +504,7 @@ int test_equal(void)
       s = randint(m, state);
       a[s] += 1;
 
-      result = !nn_equal(r1, a, m);
+      result = !nn_equal_m(r1, a, m);
 
       if (!result)
       {
@@ -578,7 +578,7 @@ int test_normalise(void)
       nn_copy(r1, a, s2);
 
       result = ((s1 >= s2) && ((s2 == 0) || (a[s2 - 1] != 0))
-             && nn_equal(a, r1, m));
+             && nn_equal_m(a, r1, m));
 
       if (!result)
       {
@@ -627,7 +627,7 @@ int test_mul1(void)
       
       nn_mul1(r2, a, m, c1 + c2);
 
-      result = nn_equal(r1, r2, m + 1);
+      result = nn_equal_m(r1, r2, m + 1);
 
       if (!result)
       {
@@ -660,7 +660,7 @@ int test_mul1(void)
       
       nn_mul1(r2, a, m + n, c1);
       
-      result = nn_equal(r1, r2, m + n + 1);
+      result = nn_equal_m(r1, r2, m + n + 1);
 
       if (!result)
       {
@@ -706,7 +706,7 @@ int test_add1(void)
       nn_add1(r2, a, m, c2);
       nn_add1(r2, r2, m, c1);
 
-      result = nn_equal(r1, r2, m + 1);
+      result = nn_equal_m(r1, r2, m + 1);
 
       if (!result)
       {
@@ -738,7 +738,7 @@ int test_add1(void)
       
       nn_add1(r2, a, m + n, c1);
       
-      result = nn_equal(r1, r2, m + n + 1);
+      result = nn_equal_m(r1, r2, m + n + 1);
 
       if (!result)
       {
@@ -784,7 +784,7 @@ int test_sub1(void)
       nn_sub1(r2, a, m, c2);
       nn_sub1(r2, r2, m, c1);
 
-      result = nn_equal(r1, r2, m + 1);
+      result = nn_equal_m(r1, r2, m + 1);
 
       if (!result)
       {
@@ -816,7 +816,7 @@ int test_sub1(void)
       
       nn_sub1(r2, a, m + n, c1);
       
-      result = nn_equal(r1, r2, m + n + 1);
+      result = nn_equal_m(r1, r2, m + n + 1);
 
       if (!result)
       {
@@ -845,7 +845,7 @@ int test_sub1(void)
       nn_add1(r1, a, m, c1);
       nn_sub1(r1, r1, m, c1);
       
-      result = nn_equal(r1, a, m + 1);
+      result = nn_equal_m(r1, a, m + 1);
 
       if (!result)
       {
@@ -883,7 +883,7 @@ int test_not(void)
       nn_not(r1, a, m);
       nn_not(r1, r1, m);
       
-      result = nn_equal(r1, a, m);
+      result = nn_equal_m(r1, a, m);
 
       if (!result)
       {
@@ -925,7 +925,7 @@ int test_neg(void)
       r2[m] = ~ (word_t) 0;
       nn_add1(r2, r2, m, 1);
       
-      result = nn_equal(r1, r2, m + 1);
+      result = nn_equal_m(r1, r2, m + 1);
 
       if (!result)
       {
@@ -955,7 +955,7 @@ int test_neg(void)
       ci = _nn_neg(r2, a, m);
       nn_neg_c(r2 + m, a + m, n, ci);
       
-      result = nn_equal(r1, r2, m + n + 1);
+      result = nn_equal_m(r1, r2, m + n + 1);
 
       if (!result)
       {
