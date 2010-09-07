@@ -6,14 +6,14 @@
 
 rand_t state;
 
-int test_add(void)
+int test_add_m(void)
 {
    int result = 1;
    long i;
    nn_t a, b, c, r1, r2;
    len_t m;
 
-   printf("nn_add...");
+   printf("nn_add_m...");
 
    // test (a + b) + c = a + (b + c)
    for (i = 0; i < ITER && result == 1; i++)
@@ -74,7 +74,7 @@ int main(void)
    
    randinit(state);
    
-   RUN(test_add);
+   RUN(test_add_m);
 
    printf("%ld of %ld tests pass.\n", pass, pass + fail);
 
