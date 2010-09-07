@@ -6,7 +6,7 @@
 
 rand_t state;
 
-int test_add(void)
+int test_add_m(void)
 {
    int result = 1;
    long i;
@@ -14,7 +14,7 @@ int test_add(void)
    len_t m, n;
    word_t ci;
 
-   printf("nn_add...");
+   printf("nn_add_m...");
 
    // test (a + b) + c = a + (b + c)
    for (i = 0; i < ITER && result == 1; i++)
@@ -88,7 +88,92 @@ int test_add(void)
    return result;
 }
 
-int test_sub(void)
+int test_add(void)
+{
+   int result = 1;
+   long i;
+   nn_t a, b, c, r1, r2;
+   len_t m1, m2, m3;
+   word_t ci;
+
+   printf("nn_add...");
+
+   // test a + b + c = a + c + b
+   for (i = 0; i < ITER && result == 1; i++)
+   {
+      m1 = randint(100, state) + 1;
+      m2 = randint(m1, state);
+      m3 = randint(m1, state);
+
+      a = nn_init(m1);
+      b = nn_init(m2);
+      c = nn_init(m3);
+
+      r1 = nn_init(m1 + 1);
+      r2 = nn_init(m1 + 1);
+
+      nn_random(a, state, m1);
+      nn_random(b, state, m2);
+      nn_random(c, state, m3);
+
+      nn_add(r1, a, m1, b, m2);
+      nn_add(r1, r1, m1, c, m3);
+
+      nn_add(r2, a, m1, c, m3);
+      nn_add(r2, r2, m1, b, m2);
+
+      result = nn_equal(r1, r2, m1 + 1);
+
+      if (!result)
+      {
+         printf("m1 = %ld, m2 = %ld, m3 = %ld\n", m1, m2, m3);
+      }
+
+      nn_clear(a);
+      nn_clear(b);
+      nn_clear(c);
+      nn_clear(r1);
+      nn_clear(r2);
+   }
+
+   // test chaining of addition
+   for (i = 0; i < ITER && result == 1; i++)
+   {
+      m1 = randint(100, state);
+      m2 = randint(100, state);
+      m3 = randint(100, state);
+
+      a = nn_init(m1 + m2 + m3);
+      b = nn_init(m2 + m3);
+
+      r1 = nn_init(m1 + m2 + m3 + 1);
+      r2 = nn_init(m1 + m2 + m3 + 1);
+
+      nn_random(a, state, m1 + m2 + m3);
+      nn_random(b, state, m2 + m3);
+      
+      ci = _nn_add(r1, a, m3, b, m3);
+      nn_add_c(r1 + m3, a + m3, m1 + m2, b + m3, m2, ci);
+
+      nn_add(r2, a, m1 + m2 + m3, b, m2 + m3);
+      
+      result = nn_equal(r1, r2, m1 + m2 + m3 + 1);
+
+      if (!result)
+      {
+         printf("m1 = %ld, m2 = %ld, m3 = %ld\n", m1, m2, m3);
+      }
+
+      nn_clear(a);
+      nn_clear(b);
+      nn_clear(r1);
+      nn_clear(r2);
+   }
+
+   return result;
+}
+
+int test_sub_m(void)
 {
    int result = 1;
    long i;
@@ -96,7 +181,7 @@ int test_sub(void)
    len_t m, n;
    word_t ci;
 
-   printf("nn_sub...");
+   printf("nn_sub_m...");
 
    // test (a - b) - c = (a - c) - b
    for (i = 0; i < ITER && result == 1; i++)
@@ -219,6 +304,91 @@ int test_sub(void)
       if (!result)
       {
          printf("m = %ld\n", m);
+      }
+
+      nn_clear(a);
+      nn_clear(b);
+      nn_clear(r1);
+      nn_clear(r2);
+   }
+
+   return result;
+}
+
+int test_sub(void)
+{
+   int result = 1;
+   long i;
+   nn_t a, b, c, r1, r2;
+   len_t m1, m2, m3;
+   word_t ci;
+
+   printf("nn_sub...");
+
+   // test a - b - c = a - c - b
+   for (i = 0; i < ITER && result == 1; i++)
+   {
+      m1 = randint(100, state) + 1;
+      m2 = randint(m1, state);
+      m3 = randint(m1, state);
+
+      a = nn_init(m1);
+      b = nn_init(m2);
+      c = nn_init(m3);
+
+      r1 = nn_init(m1 + 1);
+      r2 = nn_init(m1 + 1);
+
+      nn_random(a, state, m1);
+      nn_random(b, state, m2);
+      nn_random(c, state, m3);
+
+      nn_sub(r1, a, m1, b, m2);
+      nn_sub(r1, r1, m1, c, m3);
+
+      nn_sub(r2, a, m1, c, m3);
+      nn_sub(r2, r2, m1, b, m2);
+
+      result = nn_equal(r1, r2, m1 + 1);
+
+      if (!result)
+      {
+         printf("m1 = %ld, m2 = %ld, m3 = %ld\n", m1, m2, m3);
+      }
+
+      nn_clear(a);
+      nn_clear(b);
+      nn_clear(c);
+      nn_clear(r1);
+      nn_clear(r2);
+   }
+
+   // test chaining of subtraction
+   for (i = 0; i < ITER && result == 1; i++)
+   {
+      m1 = randint(100, state);
+      m2 = randint(100, state);
+      m3 = randint(100, state);
+
+      a = nn_init(m1 + m2 + m3);
+      b = nn_init(m2 + m3);
+
+      r1 = nn_init(m1 + m2 + m3 + 1);
+      r2 = nn_init(m1 + m2 + m3 + 1);
+
+      nn_random(a, state, m1 + m2 + m3);
+      nn_random(b, state, m2 + m3);
+      
+      ci = _nn_sub(r1, a, m3, b, m3);
+      nn_sub_c(r1 + m3, a + m3, m1 + m2, b + m3, m2, ci);
+
+      nn_sub(r2, a, m1 + m2 + m3, b, m2 + m3);
+      
+      result = nn_equal(r1, r2, m1 + m2 + m3 + 1);
+
+      if (!result)
+      {
+         printf("m1 = %ld, m2 = %ld, m3 = %ld\n", m1, m2, m3);
       }
 
       nn_clear(a);
@@ -994,8 +1164,10 @@ int main(void)
    RUN(test_not);
    RUN(test_neg);
    RUN(test_add1);
+   RUN(test_add_m);
    RUN(test_add);
    RUN(test_sub1);
+   RUN(test_sub_m);
    RUN(test_sub);
    RUN(test_shl);
    RUN(test_shr);

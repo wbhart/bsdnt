@@ -259,6 +259,50 @@ word_t _nn_sub_mc(nn_t a, nn_src_t b, nn_src_t c, len_t m, word_t bi);
 #define nn_sub_m(axxx, bxxx, cxxx, mxxx) \
    nn_sub_mc(axxx, bxxx, cxxx, mxxx, (word_t) 0)
 
+static inline
+word_t _nn_add_c(nn_t a, nn_src_t b, len_t bm, 
+                            nn_src_t c, len_t cm, word_t ci)
+{
+   ci = _nn_add_mc(a, b, c, cm, ci);
+   return _nn_add1(a + cm, b + cm, bm - cm, ci);
+}
+
+#define _nn_add(axxx, bxxx, bmxxx, cxxx, cmxxx) \
+   _nn_add_c(axxx, bxxx, bmxxx, cxxx, cmxxx, (word_t) 0)
+
+#define nn_add_c(axxx, bxxx, bmxxx, cxxx, cmxxx, cixxx) \
+   do { \
+      if ((axxx) == (bxxx)) \
+         (axxx)[bmxxx] += _nn_add_c(axxx, bxxx, bmxxx, cxxx, cmxxx, cixxx); \
+      else \
+         (axxx)[bmxxx] = _nn_add_c(axxx, bxxx, bmxxx, cxxx, cmxxx, cixxx); \
+   } while (0)
+
+#define nn_add(axxx, bxxx, bmxxx, cxxx, cmxxx) \
+   nn_add_c(axxx, bxxx, bmxxx, cxxx, cmxxx, (word_t) 0)
+
+static inline
+word_t _nn_sub_c(nn_t a, nn_src_t b, len_t bm, 
+                            nn_src_t c, len_t cm, word_t ci)
+{
+   ci = _nn_sub_mc(a, b, c, cm, ci);
+   return _nn_sub1(a + cm, b + cm, bm - cm, ci);
+}
+
+#define _nn_sub(axxx, bxxx, bmxxx, cxxx, cmxxx) \
+   _nn_sub_c(axxx, bxxx, bmxxx, cxxx, cmxxx, (word_t) 0)
+
+#define nn_sub_c(axxx, bxxx, bmxxx, cxxx, cmxxx, cixxx) \
+   do { \
+      if ((axxx) == (bxxx)) \
+         (axxx)[bmxxx] -= _nn_sub_c(axxx, bxxx, bmxxx, cxxx, cmxxx, cixxx); \
+      else \
+         (axxx)[bmxxx] = -_nn_sub_c(axxx, bxxx, bmxxx, cxxx, cmxxx, cixxx); \
+   } while (0)
+
+#define nn_sub(axxx, bxxx, bmxxx, cxxx, cmxxx) \
+   nn_sub_c(axxx, bxxx, bmxxx, cxxx, cmxxx, (word_t) 0)
+
 /*
    Set a = (b << bits) + ci where b is m words in length,
    ci is a "carry in". Return any carry out. Assumes 0 <= bits
