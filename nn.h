@@ -135,20 +135,33 @@ len_t nn_normalise(nn_t a, len_t m)
 **********************************************************************/
 
 /*
-   Set a to the twos complement negation of b,  where b is m words 
+   Set a to the twos complement negation of b, where b is m words 
    in length. Return any borrow. The word ci is a carry-in. It is
    effectively subtracted from the result.
 */
 word_t _nn_neg_c(nn_t a, nn_src_t b, len_t m, word_t ci);
 
+/*
+   Set a to the twos complement negation of b, where b is m words
+   in length. Return any borrow.
+*/
 #define _nn_neg(axxx, bxxx, mxxx) \
     _nn_neg_c(axxx, bxxx, mxxx, 0)
 
+/*
+   Set a to the twos complement negation of b, where b is m words
+   in length. The word ci is a carry-in. It is effectively subtracted
+   from the result. The borrow is written out to a[m]. 
+*/
 #define nn_neg_c(axxx, bxxx, mxxx, cixxx) \
    do { \
       (axxx)[mxxx] = -_nn_neg_c(axxx, bxxx, mxxx, cixxx); \
    } while (0)
 
+/*
+   Set a to the twos complement negation of b, where b is m words
+   in length. The borrow is written out to a[m].
+*/
 #define nn_neg(axxx, bxxx, mxxx) \
    nn_neg_c(axxx, bxxx, mxxx, 0)
 
