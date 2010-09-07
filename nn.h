@@ -311,6 +311,10 @@ int nn_equal_m(nn_src_t a, nn_src_t b, len_t m)
    return 1;
 }
 
+/* 
+   Return 1 if am == bm and the am limbs at a match the am 
+   limbs at b, otherwise return 0.
+*/
 static inline
 int nn_equal(nn_src_t a, len_t am, nn_src_t b, len_t bm)
 {
