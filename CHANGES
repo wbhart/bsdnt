@@ -6,7 +6,7 @@
 	basic types.
 
 05-Sep-2010:
-        v0.2 - nn_sub_m, nn_lsh, nn_rsh.
+	v0.2 - nn_sub_m, nn_lsh, nn_rsh.
 
 06-Sep-2010:
 	v0.3 - nn_copy, nn_zero, nn_normalise, nn_mul1.
