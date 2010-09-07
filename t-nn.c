@@ -195,6 +195,38 @@ int test_sub(void)
       nn_clear(r1);
    }
 
+   // test a - b = a + (-b)
+   for (i = 0; i < ITER && result == 1; i++)
+   {
+      m = randint(100, state);
+
+      a = nn_init(m);
+      b = nn_init(m);
+
+      r1 = nn_init(m + 1);
+      r2 = nn_init(m + 1);
+      
+      nn_random(a, state, m);
+      nn_random(b, state, m); 
+      
+      nn_neg(r1, b, m);
+      nn_add_m(r1, r1, a, m);
+     
+      nn_sub_m(r2, a, b, m);
+      
+      result = nn_equal(r1, r2, m + 1);
+
+      if (!result)
+      {
+         printf("m = %ld\n", m);
+      }
+
+      nn_clear(a);
+      nn_clear(b);
+      nn_clear(r1);
+      nn_clear(r2);
+   }
+
    return result;
 }
 
@@ -828,6 +860,116 @@ int test_sub1(void)
    return result;
 }
 
+int test_not(void)
+{
+   int result = 1;
+   long i;
+   nn_t a, r1;
+   len_t m;
+
+   printf("nn_not...");
+
+   // test not not a = a
+   for (i = 0; i < ITER && result == 1; i++)
+   {
+      m = randint(100, state);
+
+      a = nn_init(m);
+      
+      r1 = nn_init(m);
+      
+      nn_random(a, state, m);
+   
+      nn_not(r1, a, m);
+      nn_not(r1, r1, m);
+      
+      result = nn_equal(r1, a, m);
+
+      if (!result)
+      {
+         printf("m = %ld\n", m);
+      }
+
+      nn_clear(a);
+      nn_clear(r1);
+   }
+
+   return result;
+}
+
+int test_neg(void)
+{
+   int result = 1;
+   long i;
+   nn_t a, r1, r2;
+   len_t m, n;
+   word_t ci;
+   
+   printf("nn_neg...");
+
+   // test neg a = not a + 1
+   for (i = 0; i < ITER && result == 1; i++)
+   {
+      m = randint(100, state);
+
+      a = nn_init(m);
+      
+      r1 = nn_init(m + 1);
+      r2 = nn_init(m + 1);
+      
+      nn_random(a, state, m);
+   
+      nn_neg(r1, a, m);
+
+      nn_not(r2, a, m);
+      r2[m] = ~ (word_t) 0;
+      nn_add1(r2, r2, m, 1);
+      
+      result = nn_equal(r1, r2, m + 1);
+
+      if (!result)
+      {
+         printf("m = %ld\n", m);
+      }
+
+      nn_clear(a);
+      nn_clear(r1);
+      nn_clear(r2);
+   }
+
+  // test chaining of neg
+   for (i = 0; i < ITER && result == 1; i++)
+   {
+      m = randint(100, state);
+      n = randint(100, state);
+
+      a = nn_init(m + n);
+      
+      r1 = nn_init(m + n + 1);
+      r2 = nn_init(m + n + 1);
+      
+      nn_random(a, state, m + n);
+   
+      nn_neg(r1, a, m + n);
+      
+      ci = _nn_neg(r2, a, m);
+      nn_neg_c(r2 + m, a + m, n, ci);
+      
+      result = nn_equal(r1, r2, m + n + 1);
+
+      if (!result)
+      {
+         printf("m = %ld, n = %ld\n", m, n);
+      }
+
+      nn_clear(a);
+      nn_clear(r1);
+      nn_clear(r2);
+   }
+
+   return result;
+}
+
 
 #define RUN(xxx) \
    do { \
@@ -849,6 +991,8 @@ int main(void)
    
    randinit(state);
    
+   RUN(test_not);
+   RUN(test_neg);
    RUN(test_add1);
    RUN(test_add);
    RUN(test_sub1);

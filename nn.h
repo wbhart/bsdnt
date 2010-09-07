@@ -135,6 +135,24 @@ len_t nn_normalise(nn_t a, len_t m)
 **********************************************************************/
 
 /*
+   Set a to the twos complement negation of b,  where b is m words 
+   in length. Return any borrow. The word ci is a carry-in. It is
+   effectively subtracted from the result.
+*/
+word_t _nn_neg_c(nn_t a, nn_src_t b, len_t m, word_t ci);
+
+#define _nn_neg(axxx, bxxx, mxxx) \
+    _nn_neg_c(axxx, bxxx, mxxx, 0)
+
+#define nn_neg_c(axxx, bxxx, mxxx, cixxx) \
+   do { \
+      (axxx)[mxxx] = -_nn_neg_c(axxx, bxxx, mxxx, cixxx); \
+   } while (0)
+
+#define nn_neg(axxx, bxxx, mxxx) \
+   nn_neg_c(axxx, bxxx, mxxx, 0)
+
+/*
    Set a = b + c where b is m words in length, and c is a word. 
    Return any carry out. 
 */
@@ -348,6 +366,24 @@ int nn_equal(nn_src_t a, nn_src_t b, len_t m)
       if (a[i] != b[i]) return 0;
 
    return 1;
+}
+
+/**********************************************************************
+ 
+    Logical operations
+
+**********************************************************************/
+
+/* 
+   Set b to the bitwise logical not of a.
+*/
+static inline
+void nn_not(nn_t a, nn_src_t b, len_t m)
+{
+   long i;
+
+   for (i = 0; i < m; i++)
+      a[i] = ~b[i];
 }
 
 #endif

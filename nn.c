@@ -174,3 +174,23 @@ word_t _nn_sub1(nn_t a, nn_src_t b, len_t m, word_t c)
 
    return c;
 }
+
+word_t _nn_neg_c(nn_t a, nn_src_t b, len_t m, word_t ci)
+{
+   dword_t t;
+   long i;
+   
+   ci = 1 - ci;
+
+   for (i = 0; i < m && ci != 0; i++)
+   {
+      t = (dword_t) ~b[i] + (dword_t) ci;
+      a[i] = (word_t) t;
+      ci = (t >> WORD_BITS);
+   }
+
+   for ( ; i < m; i++)
+      a[i] = ~b[i];
+
+   return (word_t) 1 - ci;
+}
