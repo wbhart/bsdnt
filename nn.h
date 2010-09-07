@@ -62,6 +62,7 @@ void nn_random(nn_t a, rand_t state, len_t m);
     Memory management
 
 **********************************************************************/
+
 /*
    Allocates an array of m words and returns it. Despite the
    name, the limbs are not initialised to zero.
