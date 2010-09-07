@@ -599,7 +599,7 @@ int test_mul1(void)
 
       if (!result)
       {
-         printf("m = %ld, c1 = %ld, c2 = %ld\n", m, c1, c2);
+         printf("m = %ld, c1 = %lu, c2 = %lu\n", m, c1, c2);
       }
 
       nn_clear(a);
@@ -632,7 +632,7 @@ int test_mul1(void)
 
       if (!result)
       {
-         printf("m = %ld, n = %ld, c1 = %ld\n", m, n, c1);
+         printf("m = %ld, n = %ld, c1 = %lu\n", m, n, c1);
       }
 
       nn_clear(a);
