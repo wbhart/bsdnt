@@ -2,5 +2,6 @@
 	First commit - CHANGES and LICENSE file.
 
 05-Sep-2010:
-	v0.1 - nn_add function, random functions, nn_equal, basic types.
+	v0.1 - nn_add function, random functions, nn_equal_m, nn_equal, 
+	basic types.
 
