@@ -1186,7 +1186,7 @@ int test_cmp_m(void)
          nn_random(a, state, m1);
          nn_random(b, state, m1);
          nn_add_m(r1, a, b, m1);
-      } while (r1[m1]);
+      } while (r1[m1] || nn_normalise(b, m1) != m1);
       
       result = (nn_cmp_m(r1, a, m1) > 0 && nn_cmp_m(a, r1, m1) < 0);
 
@@ -1277,7 +1277,7 @@ int test_cmp(void)
          nn_random(a, state, m1);
          nn_random(b, state, m1);
          nn_add_m(r1, a, b, m1);
-      } while (r1[m1]);
+      } while (r1[m1] || nn_normalise(b, m1) != m1);
       
       result = (nn_cmp(r1, m1, a, m1) > 0 && nn_cmp(a, m1, r1, m1) < 0);
 
