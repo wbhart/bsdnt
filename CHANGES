@@ -17,4 +17,7 @@
 07-Sep-2010:
         v0.5 - nn_add, nn_sub, nn_cmp_m, nn_cmp.
 
+07-Sep-2010:
+	v0.6 - nn_addmul1, nn_submul1.
+
 
