@@ -122,21 +122,6 @@ word_t _nn_shr_c(nn_t a, nn_src_t b, len_t m, bits_t bits, word_t ci)
    return ci;
 }
 
-word_t _nn_mul1_c(nn_t a, nn_src_t b, len_t m, word_t c, word_t ci)
-{
-   dword_t t;
-   long i;
-
-   for (i = 0; i < m; i++)
-   {
-      t = (dword_t) b[i] * (dword_t) c + (dword_t) ci;
-      a[i] = (word_t) t;
-      ci = (t >> WORD_BITS);
-   }
-
-   return ci;
-}
-
 word_t _nn_add1(nn_t a, nn_src_t b, len_t m, word_t c)
 {
    dword_t t;
@@ -193,6 +178,51 @@ word_t _nn_neg_c(nn_t a, nn_src_t b, len_t m, word_t ci)
       a[i] = ~b[i];
 
    return (word_t) 1 - ci;
+}
+
+word_t _nn_mul1_c(nn_t a, nn_src_t b, len_t m, word_t c, word_t ci)
+{
+   dword_t t;
+   long i;
+
+   for (i = 0; i < m; i++)
+   {
+      t = (dword_t) b[i] * (dword_t) c + (dword_t) ci;
+      a[i] = (word_t) t;
+      ci = (t >> WORD_BITS);
+   }
+
+   return ci;
+}
+
+word_t _nn_addmul1_c(nn_t a, nn_src_t b, len_t m, word_t c, word_t ci)
+{
+   dword_t t;
+   long i;
+
+   for (i = 0; i < m; i++)
+   {
+      t = (dword_t) a[i] + (dword_t) b[i] * (dword_t) c + (dword_t) ci;
+      a[i] = (word_t) t;
+      ci = (t >> WORD_BITS);
+   }
+
+   return ci;
+}
+
+word_t _nn_submul1_c(nn_t a, nn_src_t b, len_t m, word_t c, word_t ci)
+{
+   dword_t t;
+   long i;
+
+   for (i = 0; i < m; i++)
+   {
+      t = (dword_t) a[i] - (dword_t) b[i] * (dword_t) c - (dword_t) ci;
+      a[i] = (word_t) t;
+      ci = -(t >> WORD_BITS);
+   }
+
+   return ci;
 }
 
 /**********************************************************************
