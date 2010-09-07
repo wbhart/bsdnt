@@ -1563,6 +1563,84 @@ int test_cmp(void)
    return result;
 }
 
+int test_divrem1_simple(void)
+{
+   int result = 1;
+   long i;
+   nn_t a, q, r1, r2;
+   len_t m, n;
+   word_t d, ci, r;
+
+   printf("nn_divrem1_simple...");
+
+   // test that a = q * d + r 
+   for (i = 0; i < ITER && result == 1; i++)
+   {
+      m = randint(100, state);
+ 
+      r1 = nn_init(m);
+      a = nn_init(m);
+      q = nn_init(m);
+
+      nn_random(a, state, m);
+
+      do {
+         d = randword(state);
+      } while (d == 0);
+
+      r = _nn_divrem1_simple(q, a, m, d);
+
+      ci = _nn_mul1_c(r1, q, m, d, r);
+
+      result = (nn_equal_m(r1, a, m) && ci == 0);
+
+      if (!result)
+      {
+         printf("m = %ld, ci = %lu, r = %lu\n", m, ci, r);
+      }
+
+      nn_clear(r1);
+      nn_clear(a);
+      nn_clear(q);
+   }
+
+   // test chaining of divrem1_simple
+   for (i = 0; i < ITER && result == 1; i++)
+   {
+      m = randint(100, state);
+      n = randint(100, state);
+
+      a = nn_init(m + n);
+      
+      r1 = nn_init(m + n);
+      r2 = nn_init(m + n);
+
+      do {
+         d = randword(state);
+      } while (d == 0);
+
+      nn_random(a, state, m + n);
+         
+      ci = _nn_divrem1_simple(r1 + n, a + n, m, d);
+      _nn_divrem1_simple_c(r1, a, n, d, ci);
+      
+      _nn_divrem1_simple(r2, a, m + n, d);
+
+      result = nn_equal_m(r1, r2, m + n);
+
+      if (!result)
+      {
+         printf("m = %ld, n = %ld, c = %lu\n", m, n, d);
+      }
+
+      nn_clear(a);
+      nn_clear(r1);
+      nn_clear(r2);
+   }
+
+   return result;
+}
+
 #define RUN(xxx) \
    do { \
       if (xxx()) \
@@ -1582,7 +1660,7 @@ int main(void)
    long fail = 0;
    
    randinit(state);
-   
+
    RUN(test_not);
    RUN(test_neg);
    RUN(test_add1);
@@ -1603,6 +1681,7 @@ int main(void)
    RUN(test_submul1);
    RUN(test_cmp_m);
    RUN(test_cmp);
+   RUN(test_divrem1_simple);
 
    printf("%ld of %ld tests pass.\n", pass, pass + fail);
 

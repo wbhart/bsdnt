@@ -225,6 +225,21 @@ word_t _nn_submul1_c(nn_t a, nn_src_t b, len_t m, word_t c, word_t ci)
    return ci;
 }
 
+word_t _nn_divrem1_simple_c(nn_t q, nn_src_t a, len_t m, word_t d, word_t ci)
+{
+   dword_t t;
+   long i;
+
+   for (i = m - 1; i >= 0; i--)
+   {
+      t = (((dword_t) ci) << WORD_BITS) + (dword_t) a[i];
+      q[i] = t / (dword_t) d;
+      ci = (word_t) (t % (dword_t) d);
+   }
+
+   return ci;
+}
+
 /**********************************************************************
  
     Comparison
