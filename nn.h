@@ -412,6 +412,10 @@ int nn_equal_m(nn_src_t a, nn_src_t b, len_t m)
    return 1;
 }
 
+/* 
+   Return 1 if am == bm and the am limbs at a match the am 
+   limbs at b, otherwise return 0.
+*/
 static inline
 int nn_equal(nn_src_t a, len_t am, nn_src_t b, len_t bm)
 {
@@ -419,6 +423,29 @@ int nn_equal(nn_src_t a, len_t am, nn_src_t b, len_t bm)
       return 0;
    else 
       return nn_equal_m(a, b, am);
+}
+
+/* 
+   Return a positive value if {a, m} > {b, m}, a negative
+   value if {a, m} < {b, m}, otherwise returns 0.
+*/
+int nn_cmp_m(nn_src_t a, nn_src_t b, len_t m);
+
+/* 
+   Return a positive value if {a, am} > {b, bm}, a negative
+   value if {a, am} < {b, bm}, otherwise returns 0.
+*/
+static inline
+int nn_cmp(nn_src_t a, len_t am, nn_src_t b, len_t bm)
+{
+   if (am != bm)
+   {
+      if (am > bm)
+         return 1;
+      else
+         return -1;
+   } else
+      return nn_cmp_m(a, b, am);
 }
 
 /**********************************************************************
