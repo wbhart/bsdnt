@@ -236,5 +236,14 @@ int nn_equal_m(nn_src_t a, nn_src_t b, len_t m)
    return 1;
 }
 
+static inline
+int nn_equal(nn_src_t a, len_t am, nn_src_t b, len_t bm)
+{
+   if (am != bm)
+      return 0;
+   else 
+      return nn_equal_m(a, b, am);
+}
+
 #endif
 
