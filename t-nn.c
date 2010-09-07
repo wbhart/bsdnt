@@ -6,7 +6,7 @@
 
 rand_t state;
 
-int test_add(void)
+int test_add_m(void)
 {
    int result = 1;
    long i;
@@ -14,7 +14,7 @@ int test_add(void)
    len_t m, n;
    word_t ci;
 
-   printf("nn_add...");
+   printf("nn_add_m...");
 
    // test (a + b) + c = a + (b + c)
    for (i = 0; i < ITER && result == 1; i++)
@@ -88,7 +88,7 @@ int test_add(void)
    return result;
 }
 
-int test_sub(void)
+int test_sub_m(void)
 {
    int result = 1;
    long i;
@@ -96,7 +96,7 @@ int test_sub(void)
    len_t m, n;
    word_t ci;
 
-   printf("nn_sub...");
+   printf("nn_sub_m...");
 
    // test (a - b) - c = (a - c) - b
    for (i = 0; i < ITER && result == 1; i++)
@@ -994,9 +994,9 @@ int main(void)
    RUN(test_not);
    RUN(test_neg);
    RUN(test_add1);
-   RUN(test_add);
+   RUN(test_add_m);
    RUN(test_sub1);
-   RUN(test_sub);
+   RUN(test_sub_m);
    RUN(test_shl);
    RUN(test_shr);
    RUN(test_copy);
