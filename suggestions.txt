@@ -1,0 +1,6 @@
+Here's a list of suggestions and who made them:
+
+* word_t might cause a namespace conflict with other libraries - D. Harvey
+
+* why not use C++ (which has namespaces) - D. Harvey
+
