@@ -135,6 +135,45 @@ len_t nn_normalise(nn_t a, len_t m)
 **********************************************************************/
 
 /*
+   Set a = b + c where b is m words in length, and c is a word. 
+   Return any carry out. 
+*/
+word_t _nn_add1(nn_t a, nn_src_t b, len_t m, word_t c);
+
+/*
+   Set a = b + c where b is m words in length, and c is a word. 
+   Write any carry out to a[m]. If a and b are aliased, the 
+   carry out is added to a[m], otherwise it is written to a[m].
+*/
+#define nn_add1(axxx, bxxx, mxxx, cxxx) \
+   do { \
+      if ((axxx) == (bxxx)) \
+         (axxx)[mxxx] += _nn_add1(axxx, bxxx, mxxx, cxxx); \
+      else \
+         (axxx)[mxxx] = _nn_add1(axxx, bxxx, mxxx, cxxx); \
+   } while (0)
+
+/*
+   Set a = b - c where b is m words in length, and c is a word. 
+   Return any borrow out. 
+*/
+word_t _nn_sub1(nn_t a, nn_src_t b, len_t m, word_t c);
+
+/*
+   Set a = b - c where b is m words in length, and c is a word. 
+   Write any borrow out to a[m]. If a and b are aliased, the 
+   borrow out is subtracted from a[m], otherwise it is written 
+   to a[m].
+*/
+#define nn_sub1(axxx, bxxx, mxxx, cxxx) \
+   do { \
+      if ((axxx) == (bxxx)) \
+         (axxx)[mxxx] -= _nn_sub1(axxx, bxxx, mxxx, cxxx); \
+      else \
+         (axxx)[mxxx] = -_nn_sub1(axxx, bxxx, mxxx, cxxx); \
+   } while (0)
+
+/*
    Set a = b + c + ci where b and c are both m words in length,
    ci is a "carry in". Return any carry out. 
 */
