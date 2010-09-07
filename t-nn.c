@@ -447,7 +447,7 @@ int test_copy(void)
    return result;
 }
 
-int test_equal(void)
+int test_equal_m(void)
 {
    int result = 1;
    long i, s;
@@ -668,7 +668,7 @@ int main(void)
    RUN(test_shl);
    RUN(test_shr);
    RUN(test_copy);
-   RUN(test_equal);
+   RUN(test_equal_m);
    RUN(test_zero);
    RUN(test_normalise);
    RUN(test_mul1);
