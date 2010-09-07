@@ -37,7 +37,7 @@ int test_add_m(void)
       nn_add_m(r2, b, c, m);
       nn_add_m(r2, r2, a, m);
 
-      result = nn_equal(r1, r2, m + 1);
+      result = nn_equal_m(r1, r2, m + 1);
 
       if (!result)
       {
