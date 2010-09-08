@@ -945,7 +945,7 @@ int test_addmul1(void)
 
    printf("nn_addmul1...");
 
-   // test a + b * (c1 + c2) = a + b * c1 + b * c2
+   /* test a + b * (c1 + c2) = a + b * c1 + b * c2 */
    for (i = 0; i < ITER && result == 1; i++)
    {
       m = randint(100, state);
@@ -987,7 +987,7 @@ int test_addmul1(void)
       nn_clear(r2);
    }
 
-   // test chaining of addmul1
+   /* test chaining of addmul1 */
    for (i = 0; i < ITER && result == 1; i++)
    {
       m = randint(100, state);
@@ -1034,7 +1034,7 @@ int test_submul1(void)
 
    printf("nn_submul1...");
 
-   // test a - b * (c1 + c2) = a - b * c1 - b * c2
+   /* test a - b * (c1 + c2) = a - b * c1 - b * c2 */
    for (i = 0; i < ITER && result == 1; i++)
    {
       m = randint(100, state);
@@ -1076,7 +1076,7 @@ int test_submul1(void)
       nn_clear(r2);
    }
 
-   // test chaining of submul1
+   /* test chaining of submul1 */
    for (i = 0; i < ITER && result == 1; i++)
    {
       m = randint(100, state);
