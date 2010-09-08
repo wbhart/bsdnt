@@ -271,24 +271,24 @@ word_t _nn_mul1_c(nn_t a, nn_src_t b, len_t m, word_t c, word_t ci);
    Set a = b * c where b is m words in length and c is a word. 
    Return any carry out.
 */
-#define _nn_mul1(axxx, bxxx, mxxx, cxxx) \
-   _nn_mul1_c(axxx, bxxx, mxxx, cxxx, (word_t) 0)
+#define _nn_mul1(a, b, m, c) \
+   _nn_mul1_c(a, b, m, c, (word_t) 0)
 
 /*
    Set a = b * c + ci where b is m words in length, c is a word and
    ci is a "carry in". Write any carry out to a[m]. 
 */
-#define nn_mul1_c(axxx, bxxx, mxxx, cxxx, cixxx) \
+#define nn_mul1_c(a, b, m, c, ci) \
    do { \
-      (axxx)[mxxx] = _nn_mul1_c(axxx, bxxx, mxxx, cxxx, cixxx); \
+      (a)[m] = _nn_mul1_c(a, b, m, c, ci); \
    } while (0)
 
 /*
    Set a = b * c where b is m words in length and c is a word.
    Write any carry out to a[m]. 
 */
-#define nn_mul1(axxx, bxxx, mxxx, cxxx) \
-   nn_mul1_c(axxx, bxxx, mxxx, cxxx, (word_t) 0)
+#define nn_mul1(a, b, m, c) \
+   nn_mul1_c(a, b, m, c, (word_t) 0)
 
 
 /**********************************************************************
