@@ -1786,7 +1786,7 @@ int test_divrem_hensel1_preinv(void)
       ci = _nn_divrem_hensel1_preinv(r1, a, m, d, inv);
       rem1 = _nn_divrem_hensel1_preinv_c(r1 + m, a + m, n, d, inv, ci);
       
-      rem2 = _nn_divrem_hensel1_preinv(r2, a, m + n, dnorm, inv);
+      rem2 = _nn_divrem_hensel1_preinv(r2, a, m + n, d, inv);
 
       result = (nn_equal_m(r1, r2, m + n) && (rem1 == rem2));
 
