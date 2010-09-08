@@ -76,4 +76,49 @@ word_t _nn_add_mc(nn_t a, nn_src_t b, nn_src_t c, len_t m, word_t ci)
    return ci;
 }
 
+word_t _nn_sub_mc(nn_t a, nn_src_t b, nn_src_t c, len_t m, word_t bi)
+{
+   dword_t t;
+   long i;
+
+   for (i = 0; i < m; i++)
+   {
+      t = (dword_t) b[i] - (dword_t) c[i] - (dword_t) bi;
+      a[i] = (word_t) t;
+      bi = -(t >> WORD_BITS);
+   }
+
+   return bi;
+}
+
+word_t _nn_shl_c(nn_t a, nn_src_t b, len_t m, bits_t bits, word_t ci)
+{
+   dword_t t;
+   long i;
+
+   for (i = 0; i < m; i++)
+   {
+      t = (((dword_t) b[i]) << bits);
+      a[i] = (word_t) t + ci;
+      ci = (t >> WORD_BITS); 
+   }
+
+   return ci;
+}
+
+word_t _nn_shr_c(nn_t a, nn_src_t b, len_t m, bits_t bits, word_t ci)
+{
+   dword_t t;
+   long i;
+   bits = WORD_BITS - bits;
+
+   for (i = m - 1; i >= 0L; i--)
+   {
+      t = (((dword_t) b[i]) << bits);
+      a[i] = (t >> WORD_BITS) + ci;
+      ci = (word_t) t; 
+   }
+
+   return ci;
+}
 
