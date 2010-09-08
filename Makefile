@@ -22,7 +22,7 @@
 # Build tools and environment
 AS=nasm
 AR=ar
-CC=clang
+CC=gcc
 CFLAGS=-std=c99 -O3 -fopenmp -fPIC -Wall
 LIBS=-L$(CURDIR)
 INCS=-I$(CURDIR) 
@@ -54,6 +54,9 @@ all: $(OBJS) $(BINARIES)
 
 clean:
 	rm -f $(OBJS) $(BINARIES)
+
+check: $(OBJS) $(BINARIES)
+	$(foreach prog, $(TESTS), $(prog);)	
 
 strip:
 	strip $(BINARIES)
