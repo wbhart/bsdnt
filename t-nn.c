@@ -16,7 +16,7 @@ int test_add_m(void)
 
    printf("nn_add_m...");
 
-   // test (a + b) + c = a + (b + c)
+   /* test (a + b) + c = a + (b + c) */
    for (i = 0; i < ITER && result == 1; i++)
    {
       m = randint(100, state);
@@ -1569,7 +1569,7 @@ int test_divrem1_simple(void)
 
    printf("nn_divrem1_simple...");
 
-   // test that a = q * d + r 
+   /* test that a = q * d + r */
    for (i = 0; i < ITER && result == 1; i++)
    {
       m = randint(100, state);
@@ -1600,7 +1600,7 @@ int test_divrem1_simple(void)
       nn_clear(q);
    }
 
-   // test chaining of divrem1_simple
+   /* test chaining of divrem1_simple */
    for (i = 0; i < ITER && result == 1; i++)
    {
       m = randint(100, state);
