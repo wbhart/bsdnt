@@ -602,8 +602,8 @@ word_t _nn_divrem1_preinv_c(nn_t q, nn_src_t a, len_t m,
 /* 
    As per _nn_divrem1_preinv_c but with no carry-in.
 */
-#define _nn_divrem1_preinv(qxxx, axxx, mxxx, dxxx, invxxx) \
-   _nn_divrem1_preinv_c(qxxx, axxx, mxxx, dxxx, invxxx, (word_t) 0)
+#define _nn_divrem1_preinv(q, a, m, d, inv) \
+   _nn_divrem1_preinv_c(q, a, m, d, inv, (word_t) 0)
 
 
 /**********************************************************************
