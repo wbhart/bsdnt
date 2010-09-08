@@ -280,7 +280,7 @@ int test_sub_m(void)
       nn_clear(r1);
    }
 
-   // test a - b = a + (-b)
+   /* test a - b = a + (-b) */
    for (i = 0; i < ITER && result == 1; i++)
    {
       m = randint(100, state);
@@ -1118,13 +1118,13 @@ int test_add1(void)
 {
    int result = 1;
    long i;
-   nn_t a, r1, r2, t1;
+   nn_t a, r1, r2;
    word_t c1, c2, ci;
    len_t m, n;
 
    printf("nn_add1...");
 
-   // test a + c1 + c2 = a + c2 + c1
+   /* test a + c1 + c2 = a + c2 + c1 */
    for (i = 0; i < ITER && result == 1; i++)
    {
       m = randint(100, state);
@@ -1157,7 +1157,7 @@ int test_add1(void)
       nn_clear(r2);
    }
 
-   // test chaining of add1
+   /* test chaining of add1 */
    for (i = 0; i < ITER && result == 1; i++)
    {
       m = randint(100, state);
@@ -1196,13 +1196,13 @@ int test_sub1(void)
 {
    int result = 1;
    long i;
-   nn_t a, r1, r2, t1;
+   nn_t a, r1, r2;
    word_t c1, c2, ci;
    len_t m, n;
 
    printf("nn_sub1...");
 
-   // test a - c1 - c2 = a - c2 - c1
+   /* test a - c1 - c2 = a - c2 - c1 */
    for (i = 0; i < ITER && result == 1; i++)
    {
       m = randint(100, state);
@@ -1235,7 +1235,7 @@ int test_sub1(void)
       nn_clear(r2);
    }
 
-   // test chaining of sub1
+   /* test chaining of sub1 */
    for (i = 0; i < ITER && result == 1; i++)
    {
       m = randint(100, state);
@@ -1267,7 +1267,7 @@ int test_sub1(void)
       nn_clear(r2);
    }
 
-   // test a + c1 - c1 = a
+   /* test a + c1 - c1 = a */
    for (i = 0; i < ITER && result == 1; i++)
    {
       m = randint(100, state);
@@ -1288,7 +1288,6 @@ int test_sub1(void)
 
       if (!result)
       {
-         long j;
          printf("m = %ld, c1 = %lu\n", m, c1);
       }
 
@@ -1308,7 +1307,7 @@ int test_not(void)
 
    printf("nn_not...");
 
-   // test not not a = a
+   /* test not not a = a */
    for (i = 0; i < ITER && result == 1; i++)
    {
       m = randint(100, state);
@@ -1346,7 +1345,7 @@ int test_neg(void)
    
    printf("nn_neg...");
 
-   // test neg a = not a + 1
+   /* test neg a = not a + 1 */
    for (i = 0; i < ITER && result == 1; i++)
    {
       m = randint(100, state);
@@ -1376,7 +1375,7 @@ int test_neg(void)
       nn_clear(r2);
    }
 
-  // test chaining of neg
+   /* test chaining of neg */
    for (i = 0; i < ITER && result == 1; i++)
    {
       m = randint(100, state);
