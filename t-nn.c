@@ -1648,7 +1648,7 @@ int test_divrem1_preinv(void)
 
    printf("nn_divrem1_preinv...");
 
-   // test that a = q * d + r 
+   /* test that a = q * d + r */
    for (i = 0; i < ITER && result == 1; i++)
    {
       m = randint(100, state);
@@ -1682,7 +1682,7 @@ int test_divrem1_preinv(void)
       nn_clear(q);
    }
 
-   // test chaining of divrem1_preinv
+   /* test chaining of divrem1_preinv */
    for (i = 0; i < ITER && result == 1; i++)
    {
       m = randint(100, state);
