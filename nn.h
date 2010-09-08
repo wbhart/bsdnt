@@ -517,8 +517,8 @@ word_t _nn_divrem1_simple_c(nn_t q, nn_src_t a, len_t m, word_t d, word_t ci);
    length and d is a word. The quotient q requires m limbs of space. 
    An exception will result if d is 0.
 */
-#define _nn_divrem1_simple(qxxx, axxx, mxxx, dxxx) \
-   _nn_divrem1_simple_c(qxxx, axxx, mxxx, dxxx, (word_t) 0)
+#define _nn_divrem1_simple(q, a, m, d) \
+   _nn_divrem1_simple_c(q, a, m, d, (word_t) 0)
 
 /**********************************************************************
  
