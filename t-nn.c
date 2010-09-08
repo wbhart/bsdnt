@@ -1202,7 +1202,7 @@ int test_sub1(void)
 
    printf("nn_sub1...");
 
-   // test a - c1 - c2 = a - c2 - c1
+   /* test (a + b) + c = a + (b + c) */
    for (i = 0; i < ITER && result == 1; i++)
    {
       m = randint(100, state);
