@@ -266,8 +266,6 @@ word_t _nn_divrem1_preinv_c(nn_t q, nn_src_t a, len_t m,
 
 int nn_cmp_m(nn_src_t a, nn_src_t b, len_t m)
 {
-   long i;
-
    while (m--)
    {
       if (a[m] != b[m])
