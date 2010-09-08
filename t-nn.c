@@ -420,7 +420,7 @@ int test_copy(void)
 
    printf("nn_copy...");
 
-   // test copying yields equal integer
+   /* test copying yields equal integer */
    for (i = 0; i < ITER && result == 1; i++)
    {
       m = randint(100, state);
@@ -456,7 +456,7 @@ int test_equal_m(void)
 
    printf("nn_equal_m...");
 
-   // test copying and then modifiying yields non-equal integer
+   /* test copying and then modifiying yields non-equal integer */
    for (i = 0; i < ITER && result == 1; i++)
    {
       m = randint(100, state) + 1;
@@ -495,7 +495,7 @@ int test_zero(void)
 
    printf("nn_zero...");
 
-   // test zeroing
+   /* test zeroing */
    for (i = 0; i < ITER && result == 1; i++)
    {
       m = randint(100, state);
@@ -528,7 +528,7 @@ int test_normalise(void)
 
    printf("nn_normalise...");
 
-   // test normalising then copying normalised part yields same integer
+   /* test normalising then copying normalised part yields same integer */
    for (i = 0; i < ITER && result == 1; i++)
    {
       m = randint(100, state) + 1;
@@ -570,7 +570,7 @@ int test_mul1(void)
 
    printf("nn_mul1...");
 
-   // test a * (c1 + c2) = a * c1 + a * c2
+   /* test a * (c1 + c2) = a * c1 + a * c2 */
    for (i = 0; i < ITER && result == 1; i++)
    {
       m = randint(100, state);
@@ -608,7 +608,7 @@ int test_mul1(void)
       nn_clear(r2);
    }
 
-   // test chaining of mul1
+   /* test chaining of mul1 */
    for (i = 0; i < ITER && result == 1; i++)
    {
       m = randint(100, state);
