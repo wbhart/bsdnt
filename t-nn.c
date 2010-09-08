@@ -98,7 +98,7 @@ int test_add(void)
 
    printf("nn_add...");
 
-   // test a + b + c = a + c + b
+   /* test a + b + c = a + c + b */
    for (i = 0; i < ITER && result == 1; i++)
    {
       m1 = randint(100, state) + 1;
@@ -136,7 +136,7 @@ int test_add(void)
       nn_clear(r2);
    }
 
-   // test chaining of addition
+   /* test chaining of addition */
    for (i = 0; i < ITER && result == 1; i++)
    {
       m1 = randint(100, state);
@@ -325,7 +325,7 @@ int test_sub(void)
 
    printf("nn_sub...");
 
-   // test a - b - c = a - c - b
+   /* test a - b - c = a - c - b */
    for (i = 0; i < ITER && result == 1; i++)
    {
       m1 = randint(100, state) + 1;
@@ -363,7 +363,7 @@ int test_sub(void)
       nn_clear(r2);
    }
 
-   // test chaining of subtraction
+   /* test chaining of subtraction */
    for (i = 0; i < ITER && result == 1; i++)
    {
       m1 = randint(100, state);
@@ -692,13 +692,12 @@ int test_equal(void)
 {
    int result = 1;
    long i;
-   nn_t a, b, c, r1, r2;
-   len_t m1, m2, m3;
-   word_t ci;
-
+   nn_t a, b, r1, r2;
+   len_t m1, m2;
+   
    printf("nn_equal...");
 
-   // test that equal things compare equal
+   /* test that equal things compare equal */
    for (i = 0; i < ITER && result == 1; i++)
    {
       m1 = randint(100, state);
@@ -714,14 +713,14 @@ int test_equal(void)
 
       if (!result)
       {
-         printf("m1 = %ld, m2 = %ld\n", m1, m2);
+         printf("m1 = %ld\n", m1);
       }
 
       nn_clear(r1);
       nn_clear(r2);
    }
 
-   // test that not equal lengths compare not equal
+   /* test that not equal lengths compare not equal */
    for (i = 0; i < ITER && result == 1; i++)
    {
       m1 = randint(100, state) + 1;
@@ -749,7 +748,7 @@ int test_equal(void)
       nn_clear(r2);
    }
 
-   // test that not equal values compare not equal
+   /* test that not equal values compare not equal */
    for (i = 0; i < ITER && result == 1; i++)
    {
       m1 = randint(100, state) + 1;
@@ -1234,13 +1233,12 @@ int test_cmp_m(void)
 {
    int result = 1;
    long i;
-   nn_t a, b, c, r1, r2;
-   len_t m1, m2, m3;
-   word_t ci;
-
+   nn_t a, b, r1, r2;
+   len_t m1;
+   
    printf("nn_cmp_m...");
 
-   // test that equal things compare equal
+   /* test that equal things compare equal */
    for (i = 0; i < ITER && result == 1; i++)
    {
       m1 = randint(100, state);
@@ -1256,14 +1254,14 @@ int test_cmp_m(void)
 
       if (!result)
       {
-         printf("m1 = %ld, m2 = %ld\n", m1, m2);
+         printf("m1 = %ld\n", m1);
       }
 
       nn_clear(r1);
       nn_clear(r2);
    }
 
-   // test that not equal values compare in the correct way
+   /* test that not equal values compare in the correct way */
    for (i = 0; i < ITER && result == 1; i++)
    {
       m1 = randint(100, state) + 1;
@@ -1282,7 +1280,7 @@ int test_cmp_m(void)
 
       if (!result)
       {
-         printf("m1 = %ld, m2 = %ld\n", m1, m2);
+         printf("m1 = %ld\n", m1);
       }
 
       nn_clear(a);
@@ -1297,13 +1295,12 @@ int test_cmp(void)
 {
    int result = 1;
    long i;
-   nn_t a, b, c, r1, r2;
-   len_t m1, m2, m3;
-   word_t ci;
-
+   nn_t a, b, r1, r2;
+   len_t m1, m2;
+   
    printf("nn_cmp...");
 
-   // test that equal things compare equal
+   /* test that equal things compare equal */
    for (i = 0; i < ITER && result == 1; i++)
    {
       m1 = randint(100, state);
@@ -1319,14 +1316,14 @@ int test_cmp(void)
 
       if (!result)
       {
-         printf("m1 = %ld, m2 = %ld\n", m1, m2);
+         printf("m1 = %ld\n", m1);
       }
 
       nn_clear(r1);
       nn_clear(r2);
    }
 
-   // test that not equal lengths compare in the correct way
+   /* test that not equal lengths compare in the correct way */
    for (i = 0; i < ITER && result == 1; i++)
    {
       m1 = randint(100, state) + 1;
@@ -1354,7 +1351,7 @@ int test_cmp(void)
       nn_clear(r2);
    }
 
-   // test that not equal values compare in the correct way
+   /* test that not equal values compare in the correct way */
    for (i = 0; i < ITER && result == 1; i++)
    {
       m1 = randint(100, state) + 1;

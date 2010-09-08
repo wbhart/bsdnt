@@ -203,8 +203,6 @@ word_t _nn_neg_c(nn_t a, nn_src_t b, len_t m, word_t ci)
 
 int nn_cmp_m(nn_src_t a, nn_src_t b, len_t m)
 {
-   long i;
-
    while (m--)
    {
       if (a[m] != b[m])
