@@ -52,7 +52,7 @@ int test_add_m(void)
       nn_clear(r2);
    }
 
-   // test chaining of addition
+   /* test chaining of addition */
    for (i = 0; i < ITER && result == 1; i++)
    {
       m = randint(100, state);
@@ -183,7 +183,7 @@ int test_sub_m(void)
 
    printf("nn_sub_m...");
 
-   // test (a - b) - c = (a - c) - b
+   /* test (a - b) - c = (a - c) - b */
    for (i = 0; i < ITER && result == 1; i++)
    {
       m = randint(100, state);
@@ -219,7 +219,7 @@ int test_sub_m(void)
       nn_clear(r2);
    }
 
-   // test chaining of subtraction
+   /* test chaining of subtraction */
    for (i = 0; i < ITER && result == 1; i++)
    {
       m = randint(100, state);
@@ -252,7 +252,7 @@ int test_sub_m(void)
       nn_clear(r2);
    }
 
-   // test (a + b) - b = a
+   /* test (a + b) - b = a */
    for (i = 0; i < ITER && result == 1; i++)
    {
       m = randint(100, state);
@@ -411,7 +411,7 @@ int test_shl(void)
 
    printf("nn_shl...");
 
-   // test (a << sh1) << sh2 = (a << sh2) << sh1
+   /* test (a << sh1) << sh2 = (a << sh2) << sh1 */
    for (i = 0; i < ITER && result == 1; i++)
    {
       m = randint(100, state);
@@ -443,7 +443,7 @@ int test_shl(void)
       nn_clear(r2);
    }
 
-   // test chaining of shl
+   /* test chaining of shl */
    for (i = 0; i < ITER && result == 1; i++)
    {
       m = randint(100, state);
@@ -475,7 +475,7 @@ int test_shl(void)
       nn_clear(r2);
    }
 
-   // test a << 1 = a + a
+   /* test a << 1 = a + a */
    for (i = 0; i < ITER && result == 1; i++)
    {
       m = randint(100, state);
@@ -517,7 +517,7 @@ int test_shr(void)
 
    printf("nn_shr...");
 
-   // test (a >> sh1) >> sh2 = (a >> sh2) >> sh1
+   /* test (a >> sh1) >> sh2 = (a >> sh2) >> sh1 */
    for (i = 0; i < ITER && result == 1; i++)
    {
       m = randint(100, state);
@@ -549,7 +549,7 @@ int test_shr(void)
       nn_clear(r2);
    }
 
-   // test chaining of shr
+   /* test chaining of shr */
    for (i = 0; i < ITER && result == 1; i++)
    {
       m = randint(100, state);
@@ -581,7 +581,7 @@ int test_shr(void)
       nn_clear(r2);
    }
 
-   // test (a << sh1) >> sh1 = a
+   /* test (a << sh1) >> sh1 = a */
    for (i = 0; i < ITER && result == 1; i++)
    {
       m = randint(100, state);
