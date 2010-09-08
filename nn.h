@@ -146,25 +146,25 @@ word_t _nn_neg_c(nn_t a, nn_src_t b, len_t m, word_t ci);
    Set a to the twos complement negation of b, where b is m words
    in length. Return any borrow.
 */
-#define _nn_neg(axxx, bxxx, mxxx) \
-    _nn_neg_c(axxx, bxxx, mxxx, 0)
+#define _nn_neg(a, b, m) \
+    _nn_neg_c(a, b, m, 0)
 
 /*
    Set a to the twos complement negation of b, where b is m words
    in length. The word ci is a carry-in. It is effectively subtracted
    from the result. The borrow is written out to a[m]. 
 */
-#define nn_neg_c(axxx, bxxx, mxxx, cixxx) \
+#define nn_neg_c(a, b, m, ci) \
    do { \
-      (axxx)[mxxx] = -_nn_neg_c(axxx, bxxx, mxxx, cixxx); \
+      (a)[m] = -_nn_neg_c(a, b, m, ci); \
    } while (0)
 
 /*
    Set a to the twos complement negation of b, where b is m words
    in length. The borrow is written out to a[m].
 */
-#define nn_neg(axxx, bxxx, mxxx) \
-   nn_neg_c(axxx, bxxx, mxxx, 0)
+#define nn_neg(a, b, m) \
+   nn_neg_c(a, b, m, 0)
 
 /*
    Set a = b + c where b is m words in length, and c is a word. 
@@ -177,12 +177,12 @@ word_t _nn_add1(nn_t a, nn_src_t b, len_t m, word_t c);
    Write any carry out to a[m]. If a and b are aliased, the 
    carry out is added to a[m], otherwise it is written to a[m].
 */
-#define nn_add1(axxx, bxxx, mxxx, cxxx) \
+#define nn_add1(a, b, m, c) \
    do { \
-      if ((axxx) == (bxxx)) \
-         (axxx)[mxxx] += _nn_add1(axxx, bxxx, mxxx, cxxx); \
+      if ((a) == (b)) \
+         (a)[m] += _nn_add1(a, b, m, c); \
       else \
-         (axxx)[mxxx] = _nn_add1(axxx, bxxx, mxxx, cxxx); \
+         (a)[m] = _nn_add1(a, b, m, c); \
    } while (0)
 
 /*
@@ -197,12 +197,12 @@ word_t _nn_sub1(nn_t a, nn_src_t b, len_t m, word_t c);
    borrow out is subtracted from a[m], otherwise it is written 
    to a[m].
 */
-#define nn_sub1(axxx, bxxx, mxxx, cxxx) \
+#define nn_sub1(a, b, m, c) \
    do { \
-      if ((axxx) == (bxxx)) \
-         (axxx)[mxxx] -= _nn_sub1(axxx, bxxx, mxxx, cxxx); \
+      if ((a) == (b)) \
+         (a)[m] -= _nn_sub1(a, b, m, c); \
       else \
-         (axxx)[mxxx] = -_nn_sub1(axxx, bxxx, mxxx, cxxx); \
+         (a)[m] = -_nn_sub1(a, b, m, c); \
    } while (0)
 
 /*
