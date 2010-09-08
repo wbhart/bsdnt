@@ -50,7 +50,7 @@ typedef struct preinv1_t
    require d to be normalised. A normalised version of d is returned.
 */
 static inline
-word_t precompute_inverse(preinv1_t * inv, word_t d)
+word_t precompute_inverse1(preinv1_t * inv, word_t d)
 {
    dword_t t;
    word_t norm = clz(d);
