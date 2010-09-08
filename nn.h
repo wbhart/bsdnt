@@ -32,6 +32,8 @@ typedef struct preinv1_t
    word_t dinv; /* the precomputed inverse of d (see below) */
 } preinv1_t;
 
+typedef word_t hensel_preinv1_t;
+
 /**********************************************************************
  
     Helper functions/macros
@@ -62,6 +64,23 @@ word_t precompute_inverse(preinv1_t * inv, word_t d)
    inv->norm = norm;
 
    return d;
+}
+
+/*
+   Precomputes a Hensel inverse of d, i.e. a value dinv such that
+   d * dinv = 1 mod B. The algorithm is via Hensel lifting.
+   Requires that d is odd.
+*/
+static inline
+void precompute_hensel_inverse1(hensel_preinv1_t * inv, word_t d)
+{
+   word_t v = 1; /* initial solution modulo 2 */
+   word_t u;
+
+   while ((u = d * v) != 1)
+      v += (1 - u) * v;
+   
+   (*inv) = v;
 }
 
 /*
@@ -605,6 +624,11 @@ word_t _nn_divrem1_preinv_c(nn_t q, nn_src_t a, len_t m,
 #define _nn_divrem1_preinv(q, a, m, d, inv) \
    _nn_divrem1_preinv_c(q, a, m, d, inv, (word_t) 0)
 
+word_t _nn_divrem_hensel1_preinv_c(nn_t q, nn_src_t a, len_t m, 
+                        word_t d, hensel_preinv1_t inv, word_t ci);
+
+#define _nn_divrem_hensel1_preinv(q, a, m, d, inv) \
+   _nn_divrem_hensel1_preinv_c(q, a, m, d, inv, (word_t) 0)
 
 /**********************************************************************
  
