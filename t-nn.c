@@ -1710,7 +1710,7 @@ int test_divrem1_preinv(void)
 
       if (!result)
       {
-         printf("m = %ld, n = %ld, c = %lu, rem1 = %lu, rem2 = %lu\n", 
+         printf("m = %ld, n = %ld, d = %lu, rem1 = %lu, rem2 = %lu\n", 
             m, n, d, rem1, rem2);
       }
 
