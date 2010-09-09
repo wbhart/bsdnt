@@ -23,7 +23,7 @@
 AS=nasm
 AR=ar
 CC=gcc
-CFLAGS=-O3 -fopenmp -fPIC -Wall
+CFLAGS=-pedantic -O2 -g -fopenmp -fPIC -Wall
 LIBS=-L$(CURDIR)
 INCS=-I$(CURDIR) 
 
