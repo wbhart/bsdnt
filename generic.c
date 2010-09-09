@@ -22,7 +22,7 @@ void new_objs(type_t type, ...)
    {
       obj_t * obj = malloc(sizeof(obj_t));
       garbage = new_node(obj, garbage);
-      obj->type = NIL;
+      obj->type = type;
       (*ptr) = obj;
    }
 
@@ -50,6 +50,8 @@ void gc_cleanup(void)
       g = g->next;
       free(temp);
    }
+
+   garbage = NULL;
 }
 
 void randoms(flag_t flag, rand_t state, ...)
@@ -108,7 +110,7 @@ void randoms_upto(obj_t * limit, flag_t flag, rand_t state, ...)
          }
       } while ((obj = va_arg(ap, obj_t *)) != NULL);
       break;
-   default: talker("Unsupported object type in randoms.");
+   default: talker("Unsupported object type in randoms_upto.");
    }
 
    va_end(ap);
@@ -124,13 +126,13 @@ void randoms_of_len(len_t n, flag_t flag, rand_t state, ...)
 
    switch (obj->type)
    {
-   case WORD:
+   case NN:
       do {
          obj->val.nn.ptr = nn_init(n);
          nn_random(obj->val.nn.ptr, state, n);
       } while ((obj = va_arg(ap, obj_t *)) != NULL);
       break;
-   default: talker("Unsupported object type in randoms.");
+   default: talker("Unsupported object type in randoms_of_len.");
    }
 
    va_end(ap);

@@ -1,10 +1,21 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "nn.h"
+#include "generic.h"
 
 #define ITER 100000
 
 rand_t state;
+
+#define TEST_START(XXX) \
+   do { \
+      int __result = 1; \
+      long __count; \
+      for (__count = 0; __count < XXX  && __result == 1; __count++)
+
+#define TEST_END \
+      gc_cleanup(); \
+   } while (0)
 
 int test_add_m(void)
 {
@@ -1885,6 +1896,32 @@ int test_mod1_preinv(void)
    return result;
 }
 
+int test_generics(void)
+{
+   len_t m1;
+   obj_t * w1, * w2, * w3, * w4, * w5, * w6, * w7, * w8, * n1, * n2, * n3, * n4;
+
+   printf("generics...");
+
+   TEST_START(ITER) 
+   {
+      m1 = randint(100, state);
+      
+      new_objs(WORD, &w1, &w2, &w3, &w4, &w5, &w6, &w7, &w8, NULL);
+      new_objs(NN, &n1, &n2, &n3, &n4, NULL);
+      
+      randoms(ANY, state, w1, w2, NULL);
+      randoms(ODD, state, w3, NULL);
+      randoms(NONZERO, state, w4, NULL);
+
+      randoms_upto(w4, ANY, state, w5, w6, w7, w8, NULL);
+
+      randoms_of_len(m1, ANY, state, n1, n2, n3, n4, NULL);
+   } TEST_END;
+
+   return 1;
+}
+
 #define RUN(xxx) \
    do { \
       if (xxx()) \
@@ -1929,6 +1966,7 @@ int main(void)
    RUN(test_divrem1_preinv);
    RUN(test_divrem_hensel1_preinv);
    RUN(test_mod1_preinv);
+   RUN(test_generics);
 
    printf("%ld of %ld tests pass.\n", pass, pass + fail);
 
