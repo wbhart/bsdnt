@@ -1626,7 +1626,7 @@ int test_divrem1_simple(void)
 
       if (!result)
       {
-         printf("m = %ld, n = %ld, c = %lu\n", m, n, d);
+         printf("m = %ld, n = %ld, d = %lu\n", m, n, d);
       }
 
       nn_clear(a);
