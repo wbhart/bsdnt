@@ -85,6 +85,52 @@ void nn_clear(nn_t a)
 
 /**********************************************************************
  
+    Basic manipulation
+
+**********************************************************************/
+
+/*
+   Copy the m limbs at b to a.
+*/
+static inline
+void nn_copy(nn_t a, nn_src_t b, len_t m)
+{
+   long i;
+
+   for (i = 0; i < m; i++)
+      a[i] = b[i];
+}
+
+/*
+   Set the m limbs at b to 0.
+*/
+static inline
+void nn_zero(nn_t a, len_t m)
+{
+   long i;
+
+   for (i = 0; i < m; i++)
+      a[i] = 0;
+}
+
+/*
+   The pair {a, m} is said to be normalised if either m is
+   zero, or a[m-1] is non-zero. In other words, {a, m} has
+   no leading zero limbs. This function normalises {a, m}
+   by returning the largest value m0 <= m for which {a, m0}
+   is normalised.
+*/
+static inline
+len_t nn_normalise(nn_t a, len_t m)
+{
+   while ((m != 0) && (a[m - 1] == 0))
+      m--;
+
+   return m;
+}
+
+/**********************************************************************
+ 
     Linear arithmetic functions
 
 **********************************************************************/
@@ -214,6 +260,35 @@ word_t _nn_shr_c(nn_t a, nn_src_t b, len_t m, bits_t bits, word_t ci);
       else \
          _nn_shr_c(a, b, m, bits, (word_t) 0); \
    } while (0)
+
+/*
+   Set a = b * c + ci where b is m words in length, c is a word and
+   ci is a "carry in". Return any carry out. 
+*/
+word_t _nn_mul1_c(nn_t a, nn_src_t b, len_t m, word_t c, word_t ci);
+
+/*
+   Set a = b * c where b is m words in length and c is a word. 
+   Return any carry out.
+*/
+#define _nn_mul1(a, b, m, c) \
+   _nn_mul1_c(a, b, m, c, (word_t) 0)
+
+/*
+   Set a = b * c + ci where b is m words in length, c is a word and
+   ci is a "carry in". Write any carry out to a[m]. 
+*/
+#define nn_mul1_c(a, b, m, c, ci) \
+   do { \
+      (a)[m] = _nn_mul1_c(a, b, m, c, ci); \
+   } while (0)
+
+/*
+   Set a = b * c where b is m words in length and c is a word.
+   Write any carry out to a[m]. 
+*/
+#define nn_mul1(a, b, m, c) \
+   nn_mul1_c(a, b, m, c, (word_t) 0)
 
 /**********************************************************************
  

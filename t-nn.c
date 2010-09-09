@@ -301,7 +301,6 @@ int test_shl(void)
       nn_clear(r2);
    }
 
-
    return result;
 }
 
@@ -412,6 +411,237 @@ int test_shr(void)
    return result;
 }
 
+int test_copy(void)
+{
+   int result = 1;
+   long i;
+   nn_t a, r1;
+   len_t m;
+
+   printf("nn_copy...");
+
+   /* test copying yields equal integer */
+   for (i = 0; i < ITER && result == 1; i++)
+   {
+      m = randint(100, state);
+
+      a = nn_init(m);
+      
+      r1 = nn_init(m);
+      
+      nn_random(a, state, m);
+         
+      nn_copy(r1, a, m);
+      
+      result = nn_equal_m(r1, a, m);
+
+      if (!result)
+      {
+         printf("m = %ld\n", m);
+      }
+
+      nn_clear(a);
+      nn_clear(r1);
+   }
+
+   return result;
+}
+
+int test_equal_m(void)
+{
+   int result = 1;
+   long i, s;
+   nn_t a, r1;
+   len_t m;
+
+   printf("nn_equal_m...");
+
+   /* test copying and then modifiying yields non-equal integer */
+   for (i = 0; i < ITER && result == 1; i++)
+   {
+      m = randint(100, state) + 1;
+
+      a = nn_init(m);
+      
+      r1 = nn_init(m);
+      
+      nn_random(a, state, m);
+         
+      nn_copy(r1, a, m);
+
+      s = randint(m, state);
+      a[s] += 1;
+
+      result = !nn_equal_m(r1, a, m);
+
+      if (!result)
+      {
+         printf("m = %ld\n", m);
+      }
+
+      nn_clear(a);
+      nn_clear(r1);
+   }
+
+   return result;
+}
+
+int test_zero(void)
+{
+   int result = 1;
+   long i;
+   nn_t a;
+   len_t m;
+
+   printf("nn_zero...");
+
+   /* test zeroing */
+   for (i = 0; i < ITER && result == 1; i++)
+   {
+      m = randint(100, state);
+
+      a = nn_init(m);
+      
+      nn_random(a, state, m);
+         
+      nn_zero(a, m);
+
+      result = (nn_normalise(a, m) == 0);
+
+      if (!result)
+      {
+         printf("m = %ld\n", m);
+      }
+
+      nn_clear(a);
+   }
+
+   return result;
+}
+
+int test_normalise(void)
+{
+   int result = 1;
+   long i, s1, s2;
+   nn_t a, r1;
+   len_t m;
+
+   printf("nn_normalise...");
+
+   /* test normalising then copying normalised part yields same integer */
+   for (i = 0; i < ITER && result == 1; i++)
+   {
+      m = randint(100, state) + 1;
+
+      a = nn_init(m);
+      r1 = nn_init(m);
+      
+      nn_random(a, state, m);
+      
+      s1 = randint(m, state);       
+      nn_zero(a + s1, m - s1);
+      s2 = nn_normalise(a, m);
+
+      nn_zero(r1, m);
+      nn_copy(r1, a, s2);
+
+      result = ((s1 >= s2) && ((s2 == 0) || (a[s2 - 1] != 0))
+             && nn_equal_m(a, r1, m));
+
+      if (!result)
+      {
+         printf("m = %ld, s1 = %ld, s2 = %ld\n", m, s1, s2);
+      }
+
+      nn_clear(a);
+      nn_clear(r1);
+   }
+
+   return result;
+}
+
+int test_mul1(void)
+{
+   int result = 1;
+   long i;
+   nn_t a, r1, r2, t1;
+   word_t c1, c2, ci;
+   len_t m, n;
+
+   printf("nn_mul1...");
+
+   /* test a * (c1 + c2) = a * c1 + a * c2 */
+   for (i = 0; i < ITER && result == 1; i++)
+   {
+      m = randint(100, state);
+
+      a = nn_init(m);
+      
+      t1 = nn_init(m + 1);
+      r1 = nn_init(m + 1);
+      r2 = nn_init(m + 1);
+
+      nn_random(a, state, m);
+   
+      do
+      {
+         c1 = randword(state);
+         c2 = randword(state);
+      } while (c1 + c2 < c1);
+
+      nn_mul1(t1, a, m, c1);
+      nn_mul1(r1, a, m, c2);
+      _nn_add_m(r1, r1, t1, m + 1);
+      
+      nn_mul1(r2, a, m, c1 + c2);
+
+      result = nn_equal_m(r1, r2, m + 1);
+
+      if (!result)
+      {
+         printf("m = %ld, c1 = %lu, c2 = %lu\n", m, c1, c2);
+      }
+
+      nn_clear(a);
+      nn_clear(t1);
+      nn_clear(r1);
+      nn_clear(r2);
+   }
+
+   /* test chaining of mul1 */
+   for (i = 0; i < ITER && result == 1; i++)
+   {
+      m = randint(100, state);
+      n = randint(100, state);
+
+      a = nn_init(m + n);
+      
+      r1 = nn_init(m + n + 1);
+      r2 = nn_init(m + n + 1);
+
+      nn_random(a, state, m + n);
+   
+      c1 = randword(state);
+
+      ci = _nn_mul1(r1, a, m, c1);
+      nn_mul1_c(r1 + m, a + m, n, c1, ci);
+      
+      nn_mul1(r2, a, m + n, c1);
+      
+      result = nn_equal_m(r1, r2, m + n + 1);
+
+      if (!result)
+      {
+         printf("m = %ld, n = %ld, c1 = %lu\n", m, n, c1);
+      }
+
+      nn_clear(a);
+      nn_clear(r1);
+      nn_clear(r2);
+   }
+
+   return result;
+}
 
 #define RUN(xxx) \
    do { \
@@ -437,6 +667,11 @@ int main(void)
    RUN(test_sub_m);
    RUN(test_shl);
    RUN(test_shr);
+   RUN(test_copy);
+   RUN(test_equal_m);
+   RUN(test_zero);
+   RUN(test_normalise);
+   RUN(test_mul1);
 
    printf("%ld of %ld tests pass.\n", pass, pass + fail);
 
