@@ -610,7 +610,7 @@ word_t _nn_divrem1_simple_c(nn_t q, nn_src_t a, len_t m,
    reduced mod d. The quotient q requires m limbs of space.  An 
    exception will result if d is 0. Requires that d be normalised and
    that inv is a precomputed inverse of d computed by the function
-   precompute_inverse. If division by a non-normalised d is required,
+   precompute_inverse1. If division by a non-normalised d is required,
    first normalise d, shift the carry-in by the same amount, then the
    remainder will also be shifted by the same amount upon return. No
    change to a or the quotient is required.
