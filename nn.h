@@ -624,9 +624,18 @@ word_t _nn_divrem1_preinv_c(nn_t q, nn_src_t a, len_t m,
 #define _nn_divrem1_preinv(q, a, m, d, inv) \
    _nn_divrem1_preinv_c(q, a, m, d, inv, (word_t) 0)
 
+/* 
+   Computes r and q such that r * B^m + a = q * d + ci, where
+   q and a are m words in length, d is an odd word_t, inv is a
+   precomputed Hensel inverse of d computed by the function
+   precompute_hensel_inverse1 and ci is a "carry-in" word.
+*/
 word_t _nn_divrem_hensel1_preinv_c(nn_t q, nn_src_t a, len_t m, 
                         word_t d, hensel_preinv1_t inv, word_t ci);
 
+/*
+   As per _nn_divrem_hensel1_preinv_c but with no "carry-in".
+*/
 #define _nn_divrem_hensel1_preinv(q, a, m, d, inv) \
    _nn_divrem_hensel1_preinv_c(q, a, m, d, inv, (word_t) 0)
 
