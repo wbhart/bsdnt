@@ -8,6 +8,11 @@ typedef enum
    NIL, WORD, NN 
 } type_t;
 
+typedef enum
+{
+   ANY, NONZERO, ODD 
+} flag_t;
+
 typedef struct obj_t
 {
    type_t type;
@@ -61,6 +66,12 @@ int is_NN(obj_t * obj)
 {
    return obj->type == NN;
 }
+
+void randoms(flag_t flag, rand_t state, ...);
+
+void randoms_upto(obj_t * limit, flag_t flag, rand_t state, ...);
+
+void randoms_of_len(len_t n, flag_t flag, rand_t state, ...);
 
 #endif
 
