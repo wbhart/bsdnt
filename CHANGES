@@ -11,3 +11,6 @@
 06-Sep-2010:
 	v0.3 - nn_copy, nn_zero, nn_normalise, nn_mul1.
 
+06-Sep-2010:
+	v0.4 - nn_not, nn_neg, nn_add1, nn_sub1.
+
