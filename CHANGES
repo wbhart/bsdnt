@@ -20,3 +20,7 @@
 07-Sep-2010:
 	v0.6 - nn_addmul1, nn_submul1.
 
+08-Sep-2010:
+	v0.7 - nn_divrem1_simple.
+
+
