@@ -208,6 +208,23 @@ obj_t * sub(obj_t * dest, obj_t * src1, obj_t * src2, obj_t * carry);
    } while (0)
 
 /*
+   Automatically chains two lots of fn(ri, ai, bi, ctl) for i = 1..2 
+   together from right to left, where the chains are divided into 
+   lengths m, n (from left to right).
+*/
+#define chain2_rl_1d_2s(fn, r, a, b, m, n) \
+   do { \
+      obj_t * __r1, * __r2, * __a1, * __a2, * __b1, * __b2, * __ctl; \
+      new_objs(a->type, &__r1, &__r2, &__a1, &__a2, &__b1, &__b2, NULL); \
+      new_objs(NIL, &__ctl, NULL); \
+      new_chain(a, __a1, m, __a2, n, NULL); \
+      new_chain(b, __b1, m, __b2, n, NULL); \
+      new_chain(r, __r1, m, __r2, n, NULL); \
+      chain2_rl(fn(__r2, __a2, __b2, __ctl), \
+                fn(__r1, __a1, __b1, __ctl), __ctl); \
+   } while (0)
+
+/*
    Chains two function calls together, sending the carry-out of the 
    call fn1 to the carry-in of fn2. The object ctl must be supplied 
    to both the macro and as the final parameter to both the fn1 and
@@ -222,6 +239,23 @@ obj_t * sub(obj_t * dest, obj_t * src1, obj_t * src2, obj_t * carry);
    } while (0)
 
 /*
+   Automatically chains two lots of fn(ri, ai, bi, ctl) for i = 1..2 
+   together from left to right, where the chains are divided into 
+   lengths m, n (from left to right).
+*/
+#define chain2_lr_1d_2s(fn, r, a, b, m, n) \
+   do { \
+      obj_t * __r1, * __r2, * __a1, * __a2, * __b1, * __b2, * __ctl; \
+      new_objs(a->type, &__r1, &__r2, &__a1, &__a2, &__b1, &__b2, NULL); \
+      new_objs(NIL, &__ctl, NULL); \
+      new_chain(a, __a1, m, __a2, n, NULL); \
+      new_chain(b, __b1, m, __b2, n, NULL); \
+      new_chain(r, __r1, m, __r2, n, NULL); \
+      chain2_lr(fn(__r2, __a2, __b2, __ctl), \
+                fn(__r1, __a1, __b1, __ctl), __ctl); \
+   } while (0)
+
+/*
    Chains three function calls together, sending the carry-out of the 
    call fn3 to the carry-in of fn1 and the carry-out of fn2 to the
    carry-in of fn1. The object ctl must be supplied to both the macro 
@@ -233,8 +267,27 @@ obj_t * sub(obj_t * dest, obj_t * src1, obj_t * src2, obj_t * carry);
       ctl = fn3; \
       ctl->control = M; \
       ctl = fn2; \
-      ctl->control = R; \
+      ctl->control = L; \
       fn1; \
+   } while (0)
+
+/*
+   Automatically chains three lots of fn(ri, ai, bi, ctl) for i = 1..3 
+   together from right to left, where the chains are divided into 
+   lengths m, n, p (from left to right).
+*/
+#define chain3_rl_1d_2s(fn, r, a, b, m, n, p) \
+   do { \
+      obj_t * __r1, * __r2, * __r3, * __a1, * __a2,  * __a3, \
+                 * __b1, * __b2, * __b3, * __ctl; \
+      new_objs(a->type, &__r1, &__r2, &__r3, \
+         &__a1, &__a2, &__a3, &__b1, &__b2, &__b3, NULL); \
+      new_objs(NIL, &__ctl, NULL); \
+      new_chain(a, __a1, m, __a2, n, __a3, p, NULL); \
+      new_chain(b, __b1, m, __b2, n, __b3, p, NULL); \
+      new_chain(r, __r1, m, __r2, n, __r3, p, NULL); \
+      chain3_rl(fn(__r3, __a3, __b3, __ctl), fn(__r2, __a2, __b2, __ctl), \
+                fn(__r1, __a1, __b1, __ctl), __ctl); \
    } while (0)
 
 /*
@@ -251,6 +304,25 @@ obj_t * sub(obj_t * dest, obj_t * src1, obj_t * src2, obj_t * carry);
       ctl = fn2; \
       ctl->control = R; \
       fn3; \
+   } while (0)
+
+/*
+   Automatically chains three lots of fn(ri, ai, bi, ctl) for i = 1..3 
+   together from left to right, where the chains are divided into 
+   lengths m, n, p (from left to right).
+*/
+#define chain3_lr_1d_2s(fn, r, a, b, m, n, p) \
+   do { \
+      obj_t * __r1, * __r2, * __r3, * __a1, * __a2,  * __a3, \
+                 * __b1, * __b2, * __b3, * __ctl; \
+      new_objs(a->type, &__r1, &__r2, &__r3, \
+         &__a1, &__a2, &__a3, &__b1, &__b2, &__b3, NULL); \
+      new_objs(NIL, &__ctl, NULL); \
+      new_chain(a, __a1, m, __a2, n, __a3, p, NULL); \
+      new_chain(b, __b1, m, __b2, n, __b3, p, NULL); \
+      new_chain(r, __r1, m, __r2, n, __r3, p, NULL); \
+      chain3_rl(fn(__r3, __a3, __b3, __ctl), fn(__r2, __a2, __b2, __ctl), \
+                fn(__r1, __a1, __b1, __ctl), __ctl); \
    } while (0)
 
 #endif

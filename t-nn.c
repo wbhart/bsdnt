@@ -26,11 +26,9 @@ rand_t state;
 
 int test_add_m_new(void)
 {
-   len_t m, n;
+   len_t m, n, p;
    obj_t * a, * b, * c, * r, * s;
-   obj_t * a1, * a2, * b1, * b2, * r1, * r2; 
-   obj_t * ctl;
-  
+   
    printf("add_m_new...");
 
    TEST_START(ITER) /* test (a + b) + c != (a + c) + b */
@@ -56,21 +54,34 @@ int test_add_m_new(void)
       m = randint(100, state);
       n = randint(100, state);
       
-      new_objs(NN, &a, &b, &a1, &a2, &b1, &b2, &r, &r1, &r2, &s, NULL);
-      new_objs(NIL, &ctl, NULL);
-
+      new_objs(NN, &a, &b, &r, &s, NULL);
+      
       randoms_of_len(m + n + 1, ANY, state, r, s, NULL);
       randoms_of_len(m + n, ANY, state, a, b, NULL);
       
-      new_chain(a, a1, m, a2, n, NULL);
-      new_chain(b, b1, m, b2, n, NULL);
-      new_chain(r, r1, m, r2, n, NULL);
-      
-      chain2_rl(add_m(r2, a2, b2, ctl), add_m(r1, a1, b1, ctl), ctl);
+      chain2_rl_1d_2s(add_m, r, a, b, m, n);
       
       add_m(s, a, b, NULL);
       
-      ASSERT_EQUAL(r, s, "add_m fails to chain");
+      ASSERT_EQUAL(r, s, "add_m fails chain2");
+   } TEST_END;
+
+   TEST_START(ITER) /* test chaining of three add_m's */
+   {
+      m = randint(100, state);
+      n = randint(100, state);
+      p = randint(100, state);
+      
+      new_objs(NN, &a, &b, &r, &s, NULL);
+      
+      randoms_of_len(m + n + p + 1, ANY, state, r, s, NULL);
+      randoms_of_len(m + n + p, ANY, state, a, b, NULL);
+      
+      chain3_rl_1d_2s(add_m, r, a, b, m, n, p);
+      
+      add_m(s, a, b, NULL);
+      
+      ASSERT_EQUAL(r, s, "add_m fails chain3");
    } TEST_END;
 
    return 1;
