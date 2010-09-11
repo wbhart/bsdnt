@@ -17,6 +17,65 @@ rand_t state;
       gc_cleanup(); \
    } while (0)
 
+#define ASSERT_EQUAL(obj1, obj2, msg) \
+   if (!equal(obj1, obj2)) \
+   { \
+      talker(msg); \
+      __result = 0; \
+   }
+
+int test_add_m_new(void)
+{
+   len_t m, n;
+   obj_t * a, * b, * c, * r, * s;
+   obj_t * a1, * a2, * b1, * b2, * r1, * r2; 
+   obj_t * ctl;
+  
+   printf("add_m_new...");
+
+   TEST_START(ITER) /* test (a + b) + c != (a + c) + b */
+   {
+      m = randint(100, state);
+      
+      new_objs(NN, &a, &b, &c, &r, &s, NULL);
+      
+      randoms_of_len(m + 1, ANY, state, r, s, NULL);
+      randoms_of_len(m, ANY, state, a, b, c, NULL);
+
+      add_m(r, a, b, NULL);
+      add_m(r, r, c, NULL);
+
+      add_m(s, a, c, NULL);
+      add_m(s, s, b, NULL);
+
+      ASSERT_EQUAL(r, s, "(a + b) + c != (a + c) + b");
+   } TEST_END;
+
+   TEST_START(ITER) /* test chaining of two add_m's */
+   {
+      m = randint(100, state);
+      n = randint(100, state);
+      
+      new_objs(NN, &a, &b, &a1, &a2, &b1, &b2, &r, &r1, &r2, &s, NULL);
+      new_objs(NIL, &ctl, NULL);
+
+      randoms_of_len(m + n + 1, ANY, state, r, s, NULL);
+      randoms_of_len(m + n, ANY, state, a, b, NULL);
+      
+      new_chain(a, a1, m, a2, n, NULL);
+      new_chain(b, b1, m, b2, n, NULL);
+      new_chain(r, r1, m, r2, n, NULL);
+      
+      chain2_rl(add_m(r2, a2, b2, ctl), add_m(r1, a1, b1, ctl), ctl);
+      
+      add_m(s, a, b, NULL);
+      
+      ASSERT_EQUAL(r, s, "add_m fails to chain");
+   } TEST_END;
+
+   return 1;
+}
+
 int test_add_m(void)
 {
    int result = 1;
@@ -1942,7 +2001,8 @@ int main(void)
    
    randinit(state);
 
-   RUN(test_not);
+   RUN(test_add_m_new);
+   /*RUN(test_not);
    RUN(test_neg);
    RUN(test_add1);
    RUN(test_add_m);
@@ -1966,7 +2026,7 @@ int main(void)
    RUN(test_divrem1_preinv);
    RUN(test_divrem_hensel1_preinv);
    RUN(test_mod1_preinv);
-   RUN(test_generics);
+   RUN(test_generics);*/
 
    printf("%ld of %ld tests pass.\n", pass, pass + fail);
 

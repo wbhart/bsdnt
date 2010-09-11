@@ -2,14 +2,9 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "generic.h"
+#include "nn.h"
 
 node_t * garbage = NULL;
-
-void talker(const char * str)
-{
-   fprintf(stderr, "Error: %s\n", str);
-   abort();
-}
 
 void new_objs(type_t type, ...)
 {
@@ -32,7 +27,10 @@ void new_objs(type_t type, ...)
 void free_obj(obj_t * obj)
 {
    if (obj->type == NN)
-      free(obj->val.nn.ptr);
+   {
+      if (!obj->val.nn.virt)
+         free(obj->val.nn.ptr);
+   }
    
    free(obj);
 }
@@ -129,6 +127,8 @@ void randoms_of_len(len_t n, flag_t flag, rand_t state, ...)
    case NN:
       do {
          obj->val.nn.ptr = nn_init(n);
+         obj->val.nn.len = n;
+         obj->val.nn.virt = 0;
          nn_random(obj->val.nn.ptr, state, n);
       } while ((obj = va_arg(ap, obj_t *)) != NULL);
       break;
@@ -137,3 +137,110 @@ void randoms_of_len(len_t n, flag_t flag, rand_t state, ...)
 
    va_end(ap);
 }
+
+void new_chain(obj_t * fob, ...)
+{
+   va_list ap;
+   obj_t * obj;
+   len_t m;
+   nn_t ptr = fob->val.nn.ptr;
+
+   va_start(ap, fob);
+
+   while ((obj = va_arg(ap, obj_t *)) != NULL)
+   {
+      obj->val.nn.ptr = ptr;
+      obj->val.nn.virt = 1;
+      
+      m = va_arg(ap, len_t);
+      obj->val.nn.len = m;
+
+      ptr += m;
+   } 
+
+   va_end(ap);
+}
+
+int equal(obj_t * obj1, obj_t * obj2)
+{
+   if (obj1->type == WORD)
+      return (obj1->val.word == obj2->val.word);
+   else if (obj1->type == NN)
+      return (nn_equal(obj1->val.nn.ptr, obj1->val.nn.len, 
+          obj2->val.nn.ptr, obj2->val.nn.len));
+   else
+      talker("Unsupported object type in equal.");
+      
+   return 0;
+}
+
+#define def_fn_1d_2s(name, l_fn, r_fn, m_fn, f_fn, op1) \
+   obj_t * name(obj_t * dest, obj_t * src1, obj_t * src2, obj_t * carry) \
+   { \
+      obj_t * ret; \
+      new_objs(NIL, &ret, NULL); \
+      if (src1->type == WORD) \
+      { \
+         dest->val.word = src1->val.word op1 src2->val.word; \
+      } else if (carry == NULL) \
+      { \
+         f_fn(dest->val.nn.ptr, src1->val.nn.ptr, src1->val.nn.len, \
+            src2->val.nn.ptr, src2->val.nn.len); \
+      } else if (src1->type == NN) \
+      { \
+         switch (carry->control) \
+         { \
+         case R:  ret->type = WORD; \
+            ret->val.word = r_fn(dest->val.nn.ptr, src1->val.nn.ptr, \
+               src1->val.nn.len, src2->val.nn.ptr, src2->val.nn.len); \
+               break; \
+         case L: l_fn(dest->val.nn.ptr, src1->val.nn.ptr, src1->val.nn.len, \
+            src2->val.nn.ptr, src2->val.nn.len, carry->val.word); \
+               break; \
+         case M: ret->type = WORD; \
+            ret->val.word = m_fn(dest->val.nn.ptr, src1->val.nn.ptr, \
+               src1->val.nn.len, src2->val.nn.ptr, src2->val.nn.len, \
+                   carry->val.word); \
+               break; \
+         } \
+      } \
+      return ret; \
+   }
+ 
+def_fn_1d_2s(add, nn_add_c, _nn_add, _nn_add_c, nn_add, +)
+      
+def_fn_1d_2s(sub, nn_sub_c, _nn_sub, _nn_sub_c, nn_sub, -)
+
+#define def_fn_1d_2s_m(name, l_fn, r_fn, m_fn, f_fn, op1) \
+   obj_t * name(obj_t * dest, obj_t * src1, obj_t * src2, obj_t * carry) \
+   { \
+      obj_t * ret; \
+      new_objs(NIL, &ret, NULL); \
+      if (carry == NULL) \
+         f_fn(dest->val.nn.ptr, src1->val.nn.ptr, \
+            src2->val.nn.ptr, src2->val.nn.len); \
+      else if (src1->type == NN) \
+      { \
+         switch (carry->control) \
+         { \
+         case R:  ret->type = WORD; \
+            ret->val.word = r_fn(dest->val.nn.ptr, src1->val.nn.ptr, \
+               src2->val.nn.ptr, src2->val.nn.len); \
+               break; \
+         case L: l_fn(dest->val.nn.ptr, src1->val.nn.ptr, \
+            src2->val.nn.ptr, src2->val.nn.len, carry->val.word); \
+               break; \
+         case M: ret->type = WORD; \
+            ret->val.word = m_fn(dest->val.nn.ptr, src1->val.nn.ptr, \
+               src2->val.nn.ptr, src2->val.nn.len, carry->val.word); \
+               break; \
+         } \
+      } \
+      return ret; \
+   }
+  
+def_fn_1d_2s_m(add_m, nn_add_mc, _nn_add_m, _nn_add_mc, nn_add_m, +)
+      
+def_fn_1d_2s_m(sub_m, nn_sub_mc, _nn_sub_m, _nn_sub_mc, nn_sub_m, -)
+
+
