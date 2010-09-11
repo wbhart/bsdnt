@@ -88,6 +88,91 @@ int test_add_m(void)
    return result;
 }
 
+int test_add(void)
+{
+   int result = 1;
+   long i;
+   nn_t a, b, c, r1, r2;
+   len_t m1, m2, m3;
+   word_t ci;
+
+   printf("nn_add...");
+
+   /* test a + b + c = a + c + b */
+   for (i = 0; i < ITER && result == 1; i++)
+   {
+      m1 = randint(100, state) + 1;
+      m2 = randint(m1, state);
+      m3 = randint(m1, state);
+
+      a = nn_init(m1);
+      b = nn_init(m2);
+      c = nn_init(m3);
+
+      r1 = nn_init(m1 + 1);
+      r2 = nn_init(m1 + 1);
+
+      nn_random(a, state, m1);
+      nn_random(b, state, m2);
+      nn_random(c, state, m3);
+
+      nn_add(r1, a, m1, b, m2);
+      nn_add(r1, r1, m1, c, m3);
+
+      nn_add(r2, a, m1, c, m3);
+      nn_add(r2, r2, m1, b, m2);
+
+      result = nn_equal_m(r1, r2, m1 + 1);
+
+      if (!result)
+      {
+         printf("m1 = %ld, m2 = %ld, m3 = %ld\n", m1, m2, m3);
+      }
+
+      nn_clear(a);
+      nn_clear(b);
+      nn_clear(c);
+      nn_clear(r1);
+      nn_clear(r2);
+   }
+
+   /* test chaining of addition */
+   for (i = 0; i < ITER && result == 1; i++)
+   {
+      m1 = randint(100, state);
+      m2 = randint(100, state);
+      m3 = randint(100, state);
+
+      a = nn_init(m1 + m2 + m3);
+      b = nn_init(m2 + m3);
+
+      r1 = nn_init(m1 + m2 + m3 + 1);
+      r2 = nn_init(m1 + m2 + m3 + 1);
+
+      nn_random(a, state, m1 + m2 + m3);
+      nn_random(b, state, m2 + m3);
+      
+      ci = _nn_add(r1, a, m3, b, m3);
+      nn_add_c(r1 + m3, a + m3, m1 + m2, b + m3, m2, ci);
+
+      nn_add(r2, a, m1 + m2 + m3, b, m2 + m3);
+      
+      result = nn_equal_m(r1, r2, m1 + m2 + m3 + 1);
+
+      if (!result)
+      {
+         printf("m1 = %ld, m2 = %ld, m3 = %ld\n", m1, m2, m3);
+      }
+
+      nn_clear(a);
+      nn_clear(b);
+      nn_clear(r1);
+      nn_clear(r2);
+   }
+
+   return result;
+}
+
 int test_sub_m(void)
 {
    int result = 1;
@@ -219,6 +304,91 @@ int test_sub_m(void)
       if (!result)
       {
          printf("m = %ld\n", m);
+      }
+
+      nn_clear(a);
+      nn_clear(b);
+      nn_clear(r1);
+      nn_clear(r2);
+   }
+
+   return result;
+}
+
+int test_sub(void)
+{
+   int result = 1;
+   long i;
+   nn_t a, b, c, r1, r2;
+   len_t m1, m2, m3;
+   word_t ci;
+
+   printf("nn_sub...");
+
+   /* test a - b - c = a - c - b */
+   for (i = 0; i < ITER && result == 1; i++)
+   {
+      m1 = randint(100, state) + 1;
+      m2 = randint(m1, state);
+      m3 = randint(m1, state);
+
+      a = nn_init(m1);
+      b = nn_init(m2);
+      c = nn_init(m3);
+
+      r1 = nn_init(m1 + 1);
+      r2 = nn_init(m1 + 1);
+
+      nn_random(a, state, m1);
+      nn_random(b, state, m2);
+      nn_random(c, state, m3);
+
+      nn_sub(r1, a, m1, b, m2);
+      nn_sub(r1, r1, m1, c, m3);
+
+      nn_sub(r2, a, m1, c, m3);
+      nn_sub(r2, r2, m1, b, m2);
+
+      result = nn_equal_m(r1, r2, m1 + 1);
+
+      if (!result)
+      {
+         printf("m1 = %ld, m2 = %ld, m3 = %ld\n", m1, m2, m3);
+      }
+
+      nn_clear(a);
+      nn_clear(b);
+      nn_clear(c);
+      nn_clear(r1);
+      nn_clear(r2);
+   }
+
+   /* test chaining of subtraction */
+   for (i = 0; i < ITER && result == 1; i++)
+   {
+      m1 = randint(100, state);
+      m2 = randint(100, state);
+      m3 = randint(100, state);
+
+      a = nn_init(m1 + m2 + m3);
+      b = nn_init(m2 + m3);
+
+      r1 = nn_init(m1 + m2 + m3 + 1);
+      r2 = nn_init(m1 + m2 + m3 + 1);
+
+      nn_random(a, state, m1 + m2 + m3);
+      nn_random(b, state, m2 + m3);
+      
+      ci = _nn_sub(r1, a, m3, b, m3);
+      nn_sub_c(r1 + m3, a + m3, m1 + m2, b + m3, m2, ci);
+
+      nn_sub(r2, a, m1 + m2 + m3, b, m2 + m3);
+      
+      result = nn_equal_m(r1, r2, m1 + m2 + m3 + 1);
+
+      if (!result)
+      {
+         printf("m1 = %ld, m2 = %ld, m3 = %ld\n", m1, m2, m3);
       }
 
       nn_clear(a);
@@ -512,6 +682,96 @@ int test_equal_m(void)
       }
 
       nn_clear(a);
+      nn_clear(r1);
+   }
+
+   return result;
+}
+
+int test_equal(void)
+{
+   int result = 1;
+   long i;
+   nn_t a, b, r1, r2;
+   len_t m1, m2;
+   
+   printf("nn_equal...");
+
+   /* test that equal things compare equal */
+   for (i = 0; i < ITER && result == 1; i++)
+   {
+      m1 = randint(100, state);
+ 
+      r1 = nn_init(m1);
+      r2 = nn_init(m1);
+
+      nn_random(r1, state, m1);
+      
+      nn_copy(r2, r1, m1);
+
+      result = nn_equal(r1, m1, r2, m1);
+
+      if (!result)
+      {
+         printf("m1 = %ld\n", m1);
+      }
+
+      nn_clear(r1);
+      nn_clear(r2);
+   }
+
+   /* test that not equal lengths compare not equal */
+   for (i = 0; i < ITER && result == 1; i++)
+   {
+      m1 = randint(100, state) + 1;
+      m2 = randint(m1, state);
+
+      r1 = nn_init(m1);
+      r2 = nn_init(m2);
+
+      do {
+         nn_random(r1, state, m1);
+      } while (nn_normalise(r1, m1) != m1);
+      
+      do {
+         nn_random(r2, state, m2);
+      } while (nn_normalise(r2, m2) != m2);
+      
+      result = !nn_equal(r1, m1, r2, m2);
+
+      if (!result)
+      {
+         printf("m1 = %ld, m2 = %ld\n", m1, m2);
+      }
+
+      nn_clear(r1);
+      nn_clear(r2);
+   }
+
+   /* test that not equal values compare not equal */
+   for (i = 0; i < ITER && result == 1; i++)
+   {
+      m1 = randint(100, state) + 1;
+      
+      r1 = nn_init(m1 + 1);
+      a = nn_init(m1);
+      b = nn_init(m1);
+
+      do {
+         nn_random(a, state, m1);
+         nn_random(b, state, m1);
+         nn_add_m(r1, a, b, m1);
+      } while (r1[m1] || nn_normalise(b, m1) != m1);
+      
+      result = !nn_equal(r1, m1, a, m1);
+
+      if (!result)
+      {
+         printf("m1 = %ld, m2 = %ld\n", m1, m2);
+      }
+
+      nn_clear(a);
+      nn_clear(b);
       nn_clear(r1);
    }
 
@@ -969,6 +1229,157 @@ int test_neg(void)
    return result;
 }
 
+int test_cmp_m(void)
+{
+   int result = 1;
+   long i;
+   nn_t a, b, r1, r2;
+   len_t m1;
+   
+   printf("nn_cmp_m...");
+
+   /* test that equal things compare equal */
+   for (i = 0; i < ITER && result == 1; i++)
+   {
+      m1 = randint(100, state);
+ 
+      r1 = nn_init(m1);
+      r2 = nn_init(m1);
+
+      nn_random(r1, state, m1);
+      
+      nn_copy(r2, r1, m1);
+
+      result = (nn_cmp_m(r1, r2, m1) == 0);
+
+      if (!result)
+      {
+         printf("m1 = %ld\n", m1);
+      }
+
+      nn_clear(r1);
+      nn_clear(r2);
+   }
+
+   /* test that not equal values compare in the correct way */
+   for (i = 0; i < ITER && result == 1; i++)
+   {
+      m1 = randint(100, state) + 1;
+      
+      r1 = nn_init(m1 + 1);
+      a = nn_init(m1);
+      b = nn_init(m1);
+
+      do {
+         nn_random(a, state, m1);
+         nn_random(b, state, m1);
+         nn_add_m(r1, a, b, m1);
+      } while (r1[m1] || nn_normalise(b, m1) != m1);
+      
+      result = (nn_cmp_m(r1, a, m1) > 0 && nn_cmp_m(a, r1, m1) < 0);
+
+      if (!result)
+      {
+         printf("m1 = %ld\n", m1);
+      }
+
+      nn_clear(a);
+      nn_clear(b);
+      nn_clear(r1);
+   }
+
+   return result;
+}
+
+int test_cmp(void)
+{
+   int result = 1;
+   long i;
+   nn_t a, b, r1, r2;
+   len_t m1, m2;
+   
+   printf("nn_cmp...");
+
+   /* test that equal things compare equal */
+   for (i = 0; i < ITER && result == 1; i++)
+   {
+      m1 = randint(100, state);
+ 
+      r1 = nn_init(m1);
+      r2 = nn_init(m1);
+
+      nn_random(r1, state, m1);
+      
+      nn_copy(r2, r1, m1);
+
+      result = (nn_cmp(r1, m1, r2, m1) == 0);
+
+      if (!result)
+      {
+         printf("m1 = %ld\n", m1);
+      }
+
+      nn_clear(r1);
+      nn_clear(r2);
+   }
+
+   /* test that not equal lengths compare in the correct way */
+   for (i = 0; i < ITER && result == 1; i++)
+   {
+      m1 = randint(100, state) + 1;
+      m2 = randint(m1, state);
+
+      r1 = nn_init(m1);
+      r2 = nn_init(m2);
+
+      do {
+         nn_random(r1, state, m1);
+      } while (nn_normalise(r1, m1) != m1);
+      
+      do {
+         nn_random(r2, state, m2);
+      } while (nn_normalise(r2, m2) != m2);
+      
+      result = (nn_cmp(r1, m1, r2, m2) > 0 && nn_cmp(r2, m2, r1, m1) < 0);
+
+      if (!result)
+      {
+         printf("m1 = %ld, m2 = %ld\n", m1, m2);
+      }
+
+      nn_clear(r1);
+      nn_clear(r2);
+   }
+
+   /* test that not equal values compare in the correct way */
+   for (i = 0; i < ITER && result == 1; i++)
+   {
+      m1 = randint(100, state) + 1;
+      
+      r1 = nn_init(m1 + 1);
+      a = nn_init(m1);
+      b = nn_init(m1);
+
+      do {
+         nn_random(a, state, m1);
+         nn_random(b, state, m1);
+         nn_add_m(r1, a, b, m1);
+      } while (r1[m1] || nn_normalise(b, m1) != m1);
+      
+      result = (nn_cmp(r1, m1, a, m1) > 0 && nn_cmp(a, m1, r1, m1) < 0);
+
+      if (!result)
+      {
+         printf("m1 = %ld, m2 = %ld\n", m1, m2);
+      }
+
+      nn_clear(a);
+      nn_clear(b);
+      nn_clear(r1);
+   }
+
+   return result;
+}
 
 #define RUN(xxx) \
    do { \
@@ -994,15 +1405,20 @@ int main(void)
    RUN(test_neg);
    RUN(test_add1);
    RUN(test_add_m);
+   RUN(test_add);
    RUN(test_sub1);
    RUN(test_sub_m);
+   RUN(test_sub);
    RUN(test_shl);
    RUN(test_shr);
    RUN(test_copy);
    RUN(test_equal_m);
+   RUN(test_equal);
    RUN(test_zero);
    RUN(test_normalise);
    RUN(test_mul1);
+   RUN(test_cmp_m);
+   RUN(test_cmp);
 
    printf("%ld of %ld tests pass.\n", pass, pass + fail);
 

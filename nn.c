@@ -194,3 +194,25 @@ word_t _nn_neg_c(nn_t a, nn_src_t b, len_t m, word_t ci)
 
    return (word_t) 1 - ci;
 }
+
+/**********************************************************************
+ 
+    Comparison
+
+**********************************************************************/
+
+int nn_cmp_m(nn_src_t a, nn_src_t b, len_t m)
+{
+   while (m--)
+   {
+      if (a[m] != b[m])
+      {
+         if (a[m] > b[m])
+            return 1;
+         else
+            return -1;
+      }
+   }
+
+   return 0;
+}

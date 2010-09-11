@@ -275,6 +275,90 @@ word_t _nn_sub_mc(nn_t a, nn_src_t b, nn_src_t c, len_t m, word_t bi);
    nn_sub_mc(a, b, c, m, (word_t) 0)
 
 /*
+   Set a = b + c + ci where b is bm words, c is cm words in length,
+   bm >= cm and ci is a "carry in". We return the carry out. 
+*/
+static inline
+word_t _nn_add_c(nn_t a, nn_src_t b, len_t bm, 
+                            nn_src_t c, len_t cm, word_t ci)
+{
+   ci = _nn_add_mc(a, b, c, cm, ci);
+   return _nn_add1(a + cm, b + cm, bm - cm, ci);
+}
+
+/*
+   Set a = b + c + ci where b is bm words, c is cm words in length,
+   and bm >= cm. We return the carry out. 
+*/
+#define _nn_add(a, b, bm, c, cm) \
+   _nn_add_c(a, b, bm, c, cm, (word_t) 0)
+
+/*
+   Set a = b + c + ci where b is bm words, c is cm words in length,
+   bm >= cm and ci is a "carry in". We write the carry out to a[bm].
+   If a and b are aliased the carry out is added to a[bm], otherwise
+   it is written there.
+*/
+#define nn_add_c(a, b, bm, c, cm, ci) \
+   do { \
+      if ((a) == (b)) \
+         (a)[bm] += _nn_add_c(a, b, bm, c, cm, ci); \
+      else \
+         (a)[bm] = _nn_add_c(a, b, bm, c, cm, ci); \
+   } while (0)
+
+/*
+   Set a = b + c + ci where b is bm words, c is cm words in length,
+   and bm >= cm. We write the carry out to a[bm]. If a and b are 
+   aliased the carry out is added to a[bm], otherwise it is written 
+   there.
+*/
+#define nn_add(a, b, bm, c, cm) \
+   nn_add_c(a, b, bm, c, cm, (word_t) 0)
+
+/*
+   Set a = b - c - ci where b is bm words, c is cm words in length,
+   bm >= cm and ci is a "borrow in". We return any borrow out. 
+*/
+static inline
+word_t _nn_sub_c(nn_t a, nn_src_t b, len_t bm, 
+                            nn_src_t c, len_t cm, word_t ci)
+{
+   ci = _nn_sub_mc(a, b, c, cm, ci);
+   return _nn_sub1(a + cm, b + cm, bm - cm, ci);
+}
+
+/*
+   Set a = b - c - ci where b is bm words, c is cm words in length,
+   and bm >= cm. We return any borrow out. 
+*/
+#define _nn_sub(a, b, bm, c, cm) \
+   _nn_sub_c(a, b, bm, c, cm, (word_t) 0)
+
+/*
+   Set a = b - c - ci where b is bm words, c is cm words in length,
+   bm >= cm and ci is a "borrow in". We write the borrow out to a[bm].
+   If a and b are aliased the borrow out is subtracted from a[bm], 
+   otherwise it is written there.
+*/
+#define nn_sub_c(a, b, bm, c, cm, ci) \
+   do { \
+      if ((a) == (b)) \
+         (a)[bm] -= _nn_sub_c(a, b, bm, c, cm, ci); \
+      else \
+         (a)[bm] = -_nn_sub_c(a, b, bm, c, cm, ci); \
+   } while (0)
+
+/*
+   Set a = b - c - ci where b is bm words, c is cm words in length,
+   and bm >= cm. We write the borrow out to a[bm]. If a and b are 
+   aliased the borrow out is subtracted from a[bm], otherwise it is 
+   written there.
+*/
+#define nn_sub(a, b, bm, c, cm) \
+   nn_sub_c(a, b, bm, c, cm, (word_t) 0)
+
+/*
    Set a = (b << bits) + ci where b is m words in length,
    ci is a "carry in". Return any carry out. Assumes 0 <= bits
    < WORD_BITS.
@@ -393,6 +477,29 @@ int nn_equal(nn_src_t a, len_t am, nn_src_t b, len_t bm)
       return 0;
    else 
       return nn_equal_m(a, b, am);
+}
+
+/* 
+   Return a positive value if {a, m} > {b, m}, a negative
+   value if {a, m} < {b, m}, otherwise returns 0.
+*/
+int nn_cmp_m(nn_src_t a, nn_src_t b, len_t m);
+
+/* 
+   Return a positive value if {a, am} > {b, bm}, a negative
+   value if {a, am} < {b, bm}, otherwise returns 0.
+*/
+static inline
+int nn_cmp(nn_src_t a, len_t am, nn_src_t b, len_t bm)
+{
+   if (am != bm)
+   {
+      if (am > bm)
+         return 1;
+      else
+         return -1;
+   } else
+      return nn_cmp_m(a, b, am);
 }
 
 /**********************************************************************
