@@ -105,7 +105,7 @@ int test_add_m(void)
    
    printf("add_m...");
 
-   TEST_START(ITER) /* test (a + b) + c != (a + c) + b */
+   TEST_START(ITER) /* test (a + b) + c == (a + c) + b */
    {
       m = randint(100, state);
       
@@ -227,112 +227,62 @@ int test_add(void)
 
 int test_sub_m(void)
 {
-   int result = 1;
-   long i;
-   nn_t a, b, c, r1, r2;
-   len_t m, n;
-   word_t ci;
+   len_t m, n, p;
+   obj_t * a, * b, * c, * r, * s;
+   
+   printf("sub_m...");
 
-   printf("nn_sub_m...");
-
-   /* test (a - b) - c = (a - c) - b */
-   for (i = 0; i < ITER && result == 1; i++)
+   TEST_START(ITER) /* test (a - b) - c == (a - c) - b */
    {
       m = randint(100, state);
+      
+      new_objs(NN, &a, &b, &c, &r, &s, NULL);
+      
+      randoms_of_len(m + 1, ANY, state, r, s, NULL);
+      randoms_of_len(m, ANY, state, a, b, c, NULL);
 
-      a = nn_init(m);
-      b = nn_init(m);
-      c = nn_init(m);
+      sub_m(r, a, b, NULL);
+      sub_m(r, r, c, NULL);
 
-      r1 = nn_init(m + 1);
-      r2 = nn_init(m + 1);
+      sub_m(s, a, c, NULL);
+      sub_m(s, s, b, NULL);
 
-      nn_random(a, state, m);
-      nn_random(b, state, m);
-      nn_random(c, state, m);
+      ASSERT_EQUAL(r, s, "(a - b) - c != (a - c) - b");
+   } TEST_END;
 
-      nn_sub_m(r1, a, b, m);
-      nn_sub_m(r1, r1, c, m);
-
-      nn_sub_m(r2, a, c, m);
-      nn_sub_m(r2, r2, b, m);
-
-      result = nn_equal_m(r1, r2, m + 1);
-
-      if (!result)
-      {
-         printf("m = %ld\n", m);
-      }
-
-      nn_clear(a);
-      nn_clear(b);
-      nn_clear(c);
-      nn_clear(r1);
-      nn_clear(r2);
-   }
-
-   /* test chaining of subtraction */
-   for (i = 0; i < ITER && result == 1; i++)
+   TEST_START(ITER) /* test (a + b) - b == a */
    {
       m = randint(100, state);
-      n = randint(100, state);
-
-      a = nn_init(m + n);
-      b = nn_init(m + n);
-
-      r1 = nn_init(m + n + 1);
-      r2 = nn_init(m + n + 1);
-
-      nn_random(a, state, m + n);
-      nn_random(b, state, m + n);
       
-      ci = _nn_sub_m(r1, a, b, m);
-      nn_sub_mc(r1 + m, a + m, b + m, n, ci);
-
-      nn_sub_m(r2, a, b, m + n);
+      new_objs(NN, &a, &b, &r, NULL);
       
-      result = nn_equal_m(r1, r2, m + n + 1);
+      randoms_of_len(m + 1, ANY, state, r, NULL);
+      randoms_of_len(m, ANY, state, a, b, NULL);
 
-      if (!result)
-      {
-         printf("m = %ld, n = %ld\n", m, n);
-      }
+      add_m(r, a, b, NULL);
+      sub_m(r, r, b, NULL);
 
-      nn_clear(a);
-      nn_clear(b);
-      nn_clear(r1);
-      nn_clear(r2);
-   }
+      ASSERT_EQUAL(r, a, "(a + b) - b != a");
+   } TEST_END;
 
-   /* test (a + b) - b = a */
-   for (i = 0; i < ITER && result == 1; i++)
-   {
-      m = randint(100, state);
-
-      a = nn_init(m);
-      b = nn_init(m);
-
-      r1 = nn_init(m + 1);
+   TEST_START(ITER) /* test chaining of two sub_m's */
+   {   
+      chain2_rl_1d_2s_test(sub_m, r, s, a, b, m, n);
       
-      nn_random(a, state, m);
-      nn_random(b, state, m);
-      
-      nn_add_m(r1, a, b, m);
-      nn_sub_m(r1, r1, b, m);
+      ASSERT_EQUAL(r, s, "sub_m fails chain2");
+   } TEST_END;
 
-      result = (nn_equal_m(r1, a, m) && (r1[m] == 0));
+   TEST_START(ITER) /* test chaining of three sub_m's */
+   {      
+      chain3_rl_1d_2s_test(sub_m, r, s, a, b, m, n, p);
 
-      if (!result)
-      {
-         printf("m = %ld\n", m);
-      }
+      ASSERT_EQUAL(r, s, "sub_m fails chain3");
+   } TEST_END;
 
-      nn_clear(a);
-      nn_clear(b);
-      nn_clear(r1);
-   }
+   return 1;
+}
 
-   /* test a - b = a + (-b) */
+/*   test a - b = a + (-b) 
    for (i = 0; i < ITER && result == 1; i++)
    {
       m = randint(100, state);
@@ -365,7 +315,7 @@ int test_sub_m(void)
    }
 
    return result;
-}
+} */
 
 int test_sub(void)
 {

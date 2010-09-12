@@ -166,9 +166,15 @@ int equal(obj_t * obj1, obj_t * obj2)
    if (obj1->type == WORD)
       return (obj1->val.word == obj2->val.word);
    else if (obj1->type == NN)
-      return (nn_equal(obj1->val.nn.ptr, obj1->val.nn.len, 
-          obj2->val.nn.ptr, obj2->val.nn.len));
-   else
+   {
+      len_t len1, len2;
+
+      len1 = nn_normalise(obj1->val.nn.ptr, obj1->val.nn.len);
+      len2 = nn_normalise(obj2->val.nn.ptr, obj2->val.nn.len);
+
+      return (nn_equal(obj1->val.nn.ptr, len1, 
+          obj2->val.nn.ptr, len2));
+   } else
       talker("Unsupported object type in equal.");
       
    return 0;
