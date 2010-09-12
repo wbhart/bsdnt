@@ -667,15 +667,15 @@ word_t nn_divrem_hensel1_preinv_c(nn_t q, nn_src_t a, len_t m,
    where ci is a "carry-in" word and a is m words in length, 
    that ci is reduced mod d and that d is not zero.
 */
-word_t _nn_mod1_preinv_c(nn_src_t a, len_t m, word_t d, 
+word_t nn_mod1_preinv_c(nn_src_t a, len_t m, word_t d, 
                                      mod_preinv1_t inv, word_t ci);
 
 /* 
    Return a mod d given a precomputed mod_preinv1_t, where a is m 
    words in length and that d is not zero.
 */
-#define _nn_mod1_preinv(a, m, d, inv) \
-   _nn_mod1_preinv_c(a, m, d, inv, (word_t) 0)
+#define nn_mod1_preinv(a, m, d, inv) \
+   nn_mod1_preinv_c(a, m, d, inv, (word_t) 0)
 
 /**********************************************************************
  
