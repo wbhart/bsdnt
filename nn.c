@@ -225,7 +225,7 @@ word_t nn_submul1_c(nn_t a, nn_src_t b, len_t m, word_t c, word_t ci)
    return ci;
 }
 
-word_t _nn_divrem1_simple_c(nn_t q, nn_src_t a, len_t m, word_t d, word_t ci)
+word_t nn_divrem1_simple_c(nn_t q, nn_src_t a, len_t m, word_t d, word_t ci)
 {
    dword_t t;
    long i;
