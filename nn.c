@@ -137,7 +137,7 @@ word_t nn_mul1_c(nn_t a, nn_src_t b, len_t m, word_t c, word_t ci)
    return ci;
 }
 
-word_t _nn_add1(nn_t a, nn_src_t b, len_t m, word_t c)
+word_t nn_add1(nn_t a, nn_src_t b, len_t m, word_t c)
 {
    dword_t t;
    long i;
@@ -156,7 +156,7 @@ word_t _nn_add1(nn_t a, nn_src_t b, len_t m, word_t c)
    return c;
 }
 
-word_t _nn_sub1(nn_t a, nn_src_t b, len_t m, word_t c)
+word_t nn_sub1(nn_t a, nn_src_t b, len_t m, word_t c)
 {
    dword_t t;
    long i;
@@ -175,7 +175,7 @@ word_t _nn_sub1(nn_t a, nn_src_t b, len_t m, word_t c)
    return c;
 }
 
-word_t _nn_neg_c(nn_t a, nn_src_t b, len_t m, word_t ci)
+word_t nn_neg_c(nn_t a, nn_src_t b, len_t m, word_t ci)
 {
    dword_t t;
    long i;
