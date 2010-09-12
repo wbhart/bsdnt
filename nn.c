@@ -61,7 +61,7 @@ void nn_random(nn_t a, rand_t state, len_t m)
 
 **********************************************************************/
 
-word_t _nn_add_mc(nn_t a, nn_src_t b, nn_src_t c, len_t m, word_t ci)
+/*word_t _nn_add_mc(nn_t a, nn_src_t b, nn_src_t c, len_t m, word_t ci)
 {
    dword_t t;
    long i;
@@ -74,7 +74,7 @@ word_t _nn_add_mc(nn_t a, nn_src_t b, nn_src_t c, len_t m, word_t ci)
    }
 
    return ci;
-}
+}*/
 
 word_t _nn_sub_mc(nn_t a, nn_src_t b, nn_src_t c, len_t m, word_t bi)
 {

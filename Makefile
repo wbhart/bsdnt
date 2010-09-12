@@ -23,11 +23,13 @@
 AS=nasm
 AR=ar
 CC=gcc
+AFLAGS=-felf64
 CFLAGS=-pedantic -O2 -g -fopenmp -fPIC -Wall
 LIBS=-L$(CURDIR)
 INCS=-I$(CURDIR) 
 
 # QUIET MAKE
+QUIET_AS         = @echo '   ' AS '   ' $@;
 QUIET_CC         = @echo '   ' CC '   ' $@;
 QUIET_LINK       = @echo '   ' LINK ' ' $@;
 QUIET_AR         = @echo '   ' AR '   ' $@;
@@ -36,6 +38,11 @@ QUIET_SO         = @echo '   ' SO '   ' $@;
 # QUIET DIST
 QUIET_DISTBIN    = @echo '   ' DIST BINARY;
 QUIET_DISTSRC    = @echo '   ' ARCH SOURCE;
+
+# Assembly
+
+ASFILES = $(wildcard arch/x86-64/*.asm)
+ASOBJS  = $(patsubst %.asm, build/%.o, $(ASFILES))
 
 # FILES
 SOURCES = $(wildcard *.c)
@@ -50,7 +57,7 @@ BINARIES = $(TESTS)
 .PHONY: all dist
 
 # RULES
-all: $(OBJS) $(BINARIES)
+all: $(ASOBJS) $(OBJS) $(BINARIES)
 
 clean:
 	rm -f $(OBJS) $(BINARIES)
@@ -61,10 +68,13 @@ check: $(OBJS) $(BINARIES)
 strip:
 	strip $(BINARIES)
 
+./build/arch/x86-64/%.o: arch/x86-64/%.asm
+	$(QUIET_AS)$(AS)  $(AFLAGS) $< -o $@
+
 build/%.o: %.c
 	$(QUIET_CC)$(CC)  $(CFLAGS) $(INCS) -c $< -o $@
 
 build/test/t-nn: build/nn.o build/t-nn.o
-	$(QUIET_LINK)$(CC) -o build/test/t-nn build/nn.o build/t-nn.o 
+	$(QUIET_LINK)$(CC) -o build/test/t-nn build/nn.o build/t-nn.o build/arch/x86-64/nn_add_mc.o
 	
 
