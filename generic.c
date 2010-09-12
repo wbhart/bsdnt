@@ -8,33 +8,82 @@ node_t * garbage = NULL;
 void talker(const char * str)
 {
    fprintf(stderr, "Error: %s\n", str);
-   abort();
 }
 
-void new_objs(type_t type, ...)
+node_t * new_node(type_t type, void * ptr, node_t * next)
+{
+   node_t * node = malloc(sizeof(node_t));
+   node->type = type;
+   
+   if (type == NN)
+      node->ptr = ptr;
+   
+   node->next = next;
+
+   return node;
+}
+
+void randoms_upto(word_t limit, flag_t flag, rand_t state, ...)
 {
    va_list ap;
-   obj_t ** ptr;
+   word_t * w;
 
-   va_start(ap, type);
+   va_start(ap, state);
    
-   while ((ptr = va_arg(ap, obj_t **)) != NULL)
+   if (limit == 0)
+      talker("Limit too low in randoms_upto");
+      
+   while ((w = va_arg(ap, word_t *)) != NULL) 
    {
-      obj_t * obj = malloc(sizeof(obj_t));
-      garbage = new_node(obj, garbage);
-      obj->type = type;
-      (*ptr) = obj;
+      (*w) = randint(limit, state);
+
+      switch (flag)
+      {
+      case ANY: break;
+
+      case ODD: 
+         if (limit == 1)
+            talker("Limit too low in randoms_upto");
+         (*w) |= 1;
+         while ((*w) >= limit)
+            (*w) = randint(limit, state) & 1; 
+         break;
+
+      case NONZERO: 
+         if (limit == 1)
+            talker("Limit too low in randoms_upto");
+         while ((*w) == 0)
+            (*w) = randint(limit, state); 
+         break;
+
+      default: talker("Unknown flag in randoms_upto.");
+      }
    }
 
    va_end(ap);
 }
 
-void free_obj(obj_t * obj)
+void randoms_of_len(len_t n, rand_t state, ...)
+{
+   va_list ap;
+   nn_t * obj;
+
+   va_start(ap, state);
+   
+   while ((obj = va_arg(ap, nn_t *)) != NULL) 
+   {
+      (*obj) = nn_init(n);
+      nn_random(*obj, state, n);
+      garbage = new_node(NN, (void *) (*obj), garbage);
+   } 
+
+   va_end(ap);
+}
+
+void free_obj(node_t * obj)
 {
    if (obj->type == NN)
-      free(obj->val.nn.ptr);
-   
-   free(obj);
+      free(obj->ptr);
 }
 
 void gc_cleanup(void)
@@ -44,7 +93,7 @@ void gc_cleanup(void)
 
    while (g != NULL)
    {
-      free_obj(g->obj);
+      free_obj(g);
 
       temp = g;
       g = g->next;
@@ -52,88 +101,4 @@ void gc_cleanup(void)
    }
 
    garbage = NULL;
-}
-
-void randoms(flag_t flag, rand_t state, ...)
-{
-   va_list ap;
-   obj_t * obj;
-
-   va_start(ap, state);
-   obj = va_arg(ap, obj_t *);
-
-   switch (obj->type)
-   {
-   case WORD:
-      do {
-         obj->val.word = randword(state);
-         switch (flag)
-         {
-         case ANY: break;
-         case ODD: obj->val.word |= (word_t) 1; break;
-         case NONZERO: obj->val.word += (obj->val.word == (word_t) 0); break;
-         default: talker("Unknown flag in randoms.");
-         }
-      } while ((obj = va_arg(ap, obj_t *)) != NULL);
-      break;
-   default: talker("Unsupported object type in randoms.");
-   }
-
-   va_end(ap);
-}
-
-void randoms_upto(obj_t * limit, flag_t flag, rand_t state, ...)
-{
-   va_list ap;
-   obj_t * obj;
-
-   va_start(ap, state);
-   obj = va_arg(ap, obj_t *);
-
-   switch (obj->type)
-   {
-   case WORD:
-      do {
-         obj->val.word = randint(limit->val.word, state);
-         switch (flag)
-         {
-         case ANY: break;
-         case ODD: 
-            while ((obj->val.word & (word_t) 1) == (word_t) 0)
-               obj->val.word = randint(limit->val.word, state); 
-            break;
-         case NONZERO: 
-            while (obj->val.word == (word_t) 0)
-               obj->val.word = randint(limit->val.word, state); 
-            break;
-         default: talker("Unknown flag in randoms.");
-         }
-      } while ((obj = va_arg(ap, obj_t *)) != NULL);
-      break;
-   default: talker("Unsupported object type in randoms_upto.");
-   }
-
-   va_end(ap);
-}
-
-void randoms_of_len(len_t n, flag_t flag, rand_t state, ...)
-{
-   va_list ap;
-   obj_t * obj;
-
-   va_start(ap, state);
-   obj = va_arg(ap, obj_t *);
-
-   switch (obj->type)
-   {
-   case NN:
-      do {
-         obj->val.nn.ptr = nn_init(n);
-         nn_random(obj->val.nn.ptr, state, n);
-      } while ((obj = va_arg(ap, obj_t *)) != NULL);
-      break;
-   default: talker("Unsupported object type in randoms_of_len.");
-   }
-
-   va_end(ap);
 }
