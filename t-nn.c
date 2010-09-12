@@ -31,11 +31,11 @@ int test_add_m(void)
       nn_random(b, state, m);
       nn_random(c, state, m);
 
-      nn_add_m(r1, a, b, m);
-      nn_add_m(r1, r1, c, m);
+      nn_s_add_m(r1, a, b, m);
+      nn_s_add_m(r1, r1, c, m);
 
-      nn_add_m(r2, b, c, m);
-      nn_add_m(r2, r2, a, m);
+      nn_s_add_m(r2, b, c, m);
+      nn_s_add_m(r2, r2, a, m);
 
       result = nn_equal_m(r1, r2, m + 1);
 
