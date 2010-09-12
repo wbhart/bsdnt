@@ -116,11 +116,11 @@ int test_add(void)
       nn_random(b, state, m2);
       nn_random(c, state, m3);
 
-      nn_add(r1, a, m1, b, m2);
-      nn_add(r1, r1, m1, c, m3);
+      nn_s_add(r1, a, m1, b, m2);
+      nn_s_add(r1, r1, m1, c, m3);
 
-      nn_add(r2, a, m1, c, m3);
-      nn_add(r2, r2, m1, b, m2);
+      nn_s_add(r2, a, m1, c, m3);
+      nn_s_add(r2, r2, m1, b, m2);
 
       result = nn_equal_m(r1, r2, m1 + 1);
 
@@ -152,10 +152,10 @@ int test_add(void)
       nn_random(a, state, m1 + m2 + m3);
       nn_random(b, state, m2 + m3);
       
-      ci = _nn_add(r1, a, m3, b, m3);
-      nn_add_c(r1 + m3, a + m3, m1 + m2, b + m3, m2, ci);
+      ci = nn_add(r1, a, m3, b, m3);
+      nn_s_add_c(r1 + m3, a + m3, m1 + m2, b + m3, m2, ci);
 
-      nn_add(r2, a, m1 + m2 + m3, b, m2 + m3);
+      nn_s_add(r2, a, m1 + m2 + m3, b, m2 + m3);
       
       result = nn_equal_m(r1, r2, m1 + m2 + m3 + 1);
 
@@ -343,11 +343,11 @@ int test_sub(void)
       nn_random(b, state, m2);
       nn_random(c, state, m3);
 
-      nn_sub(r1, a, m1, b, m2);
-      nn_sub(r1, r1, m1, c, m3);
+      nn_s_sub(r1, a, m1, b, m2);
+      nn_s_sub(r1, r1, m1, c, m3);
 
-      nn_sub(r2, a, m1, c, m3);
-      nn_sub(r2, r2, m1, b, m2);
+      nn_s_sub(r2, a, m1, c, m3);
+      nn_s_sub(r2, r2, m1, b, m2);
 
       result = nn_equal_m(r1, r2, m1 + 1);
 
@@ -379,10 +379,10 @@ int test_sub(void)
       nn_random(a, state, m1 + m2 + m3);
       nn_random(b, state, m2 + m3);
       
-      ci = _nn_sub(r1, a, m3, b, m3);
-      nn_sub_c(r1 + m3, a + m3, m1 + m2, b + m3, m2, ci);
+      ci = nn_sub(r1, a, m3, b, m3);
+      nn_s_sub_c(r1 + m3, a + m3, m1 + m2, b + m3, m2, ci);
 
-      nn_sub(r2, a, m1 + m2 + m3, b, m2 + m3);
+      nn_s_sub(r2, a, m1 + m2 + m3, b, m2 + m3);
       
       result = nn_equal_m(r1, r2, m1 + m2 + m3 + 1);
 
@@ -760,7 +760,7 @@ int test_equal(void)
       do {
          nn_random(a, state, m1);
          nn_random(b, state, m1);
-         nn_add_m(r1, a, b, m1);
+         nn_s_add_m(r1, a, b, m1);
       } while (r1[m1] || nn_normalise(b, m1) != m1);
       
       result = !nn_equal(r1, m1, a, m1);
@@ -1273,7 +1273,7 @@ int test_cmp_m(void)
       do {
          nn_random(a, state, m1);
          nn_random(b, state, m1);
-         nn_add_m(r1, a, b, m1);
+         nn_s_add_m(r1, a, b, m1);
       } while (r1[m1] || nn_normalise(b, m1) != m1);
       
       result = (nn_cmp_m(r1, a, m1) > 0 && nn_cmp_m(a, r1, m1) < 0);
@@ -1363,7 +1363,7 @@ int test_cmp(void)
       do {
          nn_random(a, state, m1);
          nn_random(b, state, m1);
-         nn_add_m(r1, a, b, m1);
+         nn_s_add_m(r1, a, b, m1);
       } while (r1[m1] || nn_normalise(b, m1) != m1);
       
       result = (nn_cmp(r1, m1, a, m1) > 0 && nn_cmp(a, m1, r1, m1) < 0);
