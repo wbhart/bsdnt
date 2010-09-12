@@ -1909,7 +1909,7 @@ int test_generics(void)
       randoms_upto(100, NONZERO, state, &m, NULL);
       randoms_upto(m, ANY, state, &w1, &w2, &w3, &w4, NULL);
       
-      randoms_of_len(w1, state, &a, &b, &c, NULL);
+      randoms_of_len(w1, ANY, state, &a, &b, &c, NULL);
    } TEST_END;
 
    return result;

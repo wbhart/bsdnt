@@ -24,7 +24,7 @@ void talker(const char * str);
 
 void randoms_upto(word_t limit, flag_t flag, rand_t state, ...);
 
-void randoms_of_len(len_t n, rand_t state, ...);
+void randoms_of_len(len_t n, flag_t flag, rand_t state, ...);
 
 void gc_cleanup(void);
 

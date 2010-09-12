@@ -63,7 +63,7 @@ void randoms_upto(word_t limit, flag_t flag, rand_t state, ...)
    va_end(ap);
 }
 
-void randoms_of_len(len_t n, rand_t state, ...)
+void randoms_of_len(len_t n, flag_t flag, rand_t state, ...)
 {
    va_list ap;
    nn_t * obj;
