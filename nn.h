@@ -616,14 +616,14 @@ word_t nn_divrem1_simple_c(nn_t q, nn_src_t a, len_t m, word_t d, word_t ci);
    remainder will also be shifted by the same amount upon return. No
    change to a or the quotient is required.
 */
-word_t _nn_divrem1_preinv_c(nn_t q, nn_src_t a, len_t m, 
+word_t nn_divrem1_preinv_c(nn_t q, nn_src_t a, len_t m, 
                             word_t d, preinv1_t inv, word_t ci);
 
 /* 
    As per _nn_divrem1_preinv_c but with no carry-in.
 */
-#define _nn_divrem1_preinv(q, a, m, d, inv) \
-   _nn_divrem1_preinv_c(q, a, m, d, inv, (word_t) 0)
+#define nn_divrem1_preinv(q, a, m, d, inv) \
+   nn_divrem1_preinv_c(q, a, m, d, inv, (word_t) 0)
 
 /* 
    Computes r and q such that r * B^m + a = q * d + ci, where
