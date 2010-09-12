@@ -16,6 +16,26 @@ rand_t state;
       gc_cleanup(); \
    } while (0)
 
+int test_gc(void)
+{
+   int result = 1;
+   len_t m;
+   word_t w1, w2, w3, w4;
+   nn_t a, b, c;
+
+   printf("gc...");
+
+   TEST_START(ITER) 
+   {
+      randoms_upto(100, NONZERO, state, &m, NULL);
+      randoms_upto(m, ANY, state, &w1, &w2, &w3, &w4, NULL);
+      
+      randoms_of_len(w1, ANY, state, &a, &b, &c, NULL);
+   } TEST_END;
+
+   return result;
+}
+
 int test_add_m(void)
 {
    int result = 1;
@@ -1895,26 +1915,6 @@ int test_mod1_preinv(void)
    return result;
 }
 
-int test_generics(void)
-{
-   int result = 1;
-   len_t m;
-   word_t w1, w2, w3, w4;
-   nn_t a, b, c;
-
-   printf("generics...");
-
-   TEST_START(ITER) 
-   {
-      randoms_upto(100, NONZERO, state, &m, NULL);
-      randoms_upto(m, ANY, state, &w1, &w2, &w3, &w4, NULL);
-      
-      randoms_of_len(w1, ANY, state, &a, &b, &c, NULL);
-   } TEST_END;
-
-   return result;
-}
-
 #define RUN(xxx) \
    do { \
       if (xxx()) \
@@ -1935,6 +1935,7 @@ int main(void)
    
    randinit(state);
 
+   RUN(test_gc);
    RUN(test_not);
    RUN(test_neg);
    RUN(test_add1);
@@ -1959,8 +1960,7 @@ int main(void)
    RUN(test_divrem1_preinv);
    RUN(test_divrem_hensel1_preinv);
    RUN(test_mod1_preinv);
-   RUN(test_generics);
-
+   
    printf("%ld of %ld tests pass.\n", pass, pass + fail);
 
    randclear(state);
