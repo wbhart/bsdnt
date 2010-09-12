@@ -1832,12 +1832,12 @@ int test_mod1_preinv(void)
 
       dnorm = precompute_inverse1(&inv, d);
 
-      rem1 = _nn_divrem1_preinv(q, a, m, dnorm, inv);
+      rem1 = nn_divrem1_preinv(q, a, m, dnorm, inv);
       rem1 >>= inv.norm;
 
       precompute_mod_inverse1(&minv, d);
 
-      rem2 = _nn_mod1_preinv(a, m, d, minv);  
+      rem2 = nn_mod1_preinv(a, m, d, minv);  
       
       result = (rem1 == rem2);
 
@@ -1866,10 +1866,10 @@ int test_mod1_preinv(void)
 
       nn_random(a, state, m + n);
          
-      ci = _nn_mod1_preinv(a + n, m, d, minv);
-      rem1 = _nn_mod1_preinv_c(a, n, d, minv, ci);
+      ci = nn_mod1_preinv(a + n, m, d, minv);
+      rem1 = nn_mod1_preinv_c(a, n, d, minv, ci);
       
-      rem2 = _nn_mod1_preinv(a, m + n, d, minv);
+      rem2 = nn_mod1_preinv(a, m + n, d, minv);
 
       result = (rem1 == rem2);
 
