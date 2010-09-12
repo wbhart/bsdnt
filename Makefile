@@ -64,7 +64,7 @@ strip:
 build/%.o: %.c
 	$(QUIET_CC)$(CC)  $(CFLAGS) $(INCS) -c $< -o $@
 
-build/test/t-nn: build/generic.o build/nn.o build/t-nn.o
-	$(QUIET_LINK)$(CC) -o build/test/t-nn build/nn.o build/generic.o build/t-nn.o 
+build/test/t-nn: build/test.o build/nn.o build/t-nn.o
+	$(QUIET_LINK)$(CC) -o build/test/t-nn build/nn.o build/test.o build/t-nn.o 
 	
 

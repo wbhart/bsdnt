@@ -47,21 +47,13 @@ int test_add_m(void)
    printf("nn_add_m...");
 
    /* test (a + b) + c = a + (b + c) */
-   for (i = 0; i < ITER && result == 1; i++)
+   TEST_START(ITER) 
    {
       m = randint(100, state);
 
-      a = nn_init(m);
-      b = nn_init(m);
-      c = nn_init(m);
-
-      r1 = nn_init(m + 1);
-      r2 = nn_init(m + 1);
-
-      nn_random(a, state, m);
-      nn_random(b, state, m);
-      nn_random(c, state, m);
-
+      randoms_of_len(m, ANY, state, &a, &b, &c, NULL);
+      randoms_of_len(m + 1, ANY, state, &r1, &r2, NULL);
+      
       nn_add_m(r1, a, b, m);
       nn_add_m(r1, r1, c, m);
 
@@ -70,17 +62,8 @@ int test_add_m(void)
 
       result = nn_equal_m(r1, r2, m + 1);
 
-      if (!result)
-      {
-         printf("m = %ld\n", m);
-      }
-
-      nn_clear(a);
-      nn_clear(b);
-      nn_clear(c);
-      nn_clear(r1);
-      nn_clear(r2);
-   }
+      if (!result) printf("m = %ld\n", m);
+   } TEST_END;
 
    /* test chaining of addition */
    for (i = 0; i < ITER && result == 1; i++)
