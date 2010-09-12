@@ -164,11 +164,11 @@ void new_chain(obj_t * fob, ...);
 int equal(obj_t * obj1, obj_t * obj2);
 
 /*
-   Set dest to src1 + src2 assuming src1 and src2 are objects of the
-   same length. The carry object can be NULL in which case a NIL object
-   is returned and no carry-in need be supplied. Otherwise the carry
-   object may have its control field set to L, R or M depending on
-   whether the function is expected to accept a carry-in, return a 
+   Set dest to src1 + src2 assuming src1 and src2 are objects of length
+   given by that of src2. The carry object can be NULL in which case a 
+   NIL object is returned and no carry-in need be supplied. Otherwise 
+   the carry object may have its control field set to L, R or M depending 
+   on whether the function is expected to accept a carry-in, return a 
    carry-out, or do both, respectively. Any carry-in value is to be
    passed in as the value of carry and the returned object will contain
    any carry-out.
@@ -192,6 +192,11 @@ obj_t * add(obj_t * dest, obj_t * src1, obj_t * src2, obj_t * carry);
 obj_t * sub(obj_t * dest, obj_t * src1, obj_t * src2, obj_t * carry);
 
 /*
+   Set dest = - src1, with carry semantics as described for add_m.
+*/
+obj_t * neg(obj_t * dest, obj_t * src1, obj_t * carry);
+
+/*
    Chains two function calls together, sending the carry-out of the 
    call fn2 to the carry-in of fn1. The object ctl must be supplied 
    to both the macro and as the final parameter to both the fn1 and
@@ -212,14 +217,14 @@ obj_t * sub(obj_t * dest, obj_t * src1, obj_t * src2, obj_t * carry);
    together from right to left, where the chains are divided into 
    lengths m, n (from left to right).
 */
-#define chain2_rl_1d_2s(fn, r, a, b, m, n) \
+#define chain2_rl_1d_2s(fn, r, a, b, m1, m2, n) \
    do { \
       obj_t * __r1, * __r2, * __a1, * __a2, * __b1, * __b2, * __ctl; \
       new_objs(a->type, &__r1, &__r2, &__a1, &__a2, &__b1, &__b2, NULL); \
       new_objs(NIL, &__ctl, NULL); \
-      new_chain(a, __a1, m, __a2, n, NULL); \
-      new_chain(b, __b1, m, __b2, n, NULL); \
-      new_chain(r, __r1, m, __r2, n, NULL); \
+      new_chain(a, __a1, n, __a2, m1, NULL); \
+      new_chain(b, __b1, n, __b2, m2, NULL); \
+      new_chain(r, __r1, n, __r2, m1, NULL); \
       chain2_rl(fn(__r2, __a2, __b2, __ctl), \
                 fn(__r1, __a1, __b1, __ctl), __ctl); \
    } while (0)
@@ -243,14 +248,14 @@ obj_t * sub(obj_t * dest, obj_t * src1, obj_t * src2, obj_t * carry);
    together from left to right, where the chains are divided into 
    lengths m, n (from left to right).
 */
-#define chain2_lr_1d_2s(fn, r, a, b, m, n) \
+#define chain2_lr_1d_2s(fn, r, a, b, m1, m2, n) \
    do { \
       obj_t * __r1, * __r2, * __a1, * __a2, * __b1, * __b2, * __ctl; \
       new_objs(a->type, &__r1, &__r2, &__a1, &__a2, &__b1, &__b2, NULL); \
       new_objs(NIL, &__ctl, NULL); \
-      new_chain(a, __a1, m, __a2, n, NULL); \
-      new_chain(b, __b1, m, __b2, n, NULL); \
-      new_chain(r, __r1, m, __r2, n, NULL); \
+      new_chain(a, __a1, n, __a2, m1, NULL); \
+      new_chain(b, __b1, n, __b2, m2, NULL); \
+      new_chain(r, __r1, n, __r2, m1, NULL); \
       chain2_lr(fn(__r2, __a2, __b2, __ctl), \
                 fn(__r1, __a1, __b1, __ctl), __ctl); \
    } while (0)
@@ -276,16 +281,16 @@ obj_t * sub(obj_t * dest, obj_t * src1, obj_t * src2, obj_t * carry);
    together from right to left, where the chains are divided into 
    lengths m, n, p (from left to right).
 */
-#define chain3_rl_1d_2s(fn, r, a, b, m, n, p) \
+#define chain3_rl_1d_2s(fn, r, a, b, m1, m2, n, p) \
    do { \
       obj_t * __r1, * __r2, * __r3, * __a1, * __a2,  * __a3, \
                  * __b1, * __b2, * __b3, * __ctl; \
       new_objs(a->type, &__r1, &__r2, &__r3, \
          &__a1, &__a2, &__a3, &__b1, &__b2, &__b3, NULL); \
       new_objs(NIL, &__ctl, NULL); \
-      new_chain(a, __a1, m, __a2, n, __a3, p, NULL); \
-      new_chain(b, __b1, m, __b2, n, __b3, p, NULL); \
-      new_chain(r, __r1, m, __r2, n, __r3, p, NULL); \
+      new_chain(a, __a1, p, __a2, n, __a3, m1, NULL); \
+      new_chain(b, __b1, p, __b2, n, __b3, m2, NULL); \
+      new_chain(r, __r1, p, __r2, n, __r3, m1, NULL); \
       chain3_rl(fn(__r3, __a3, __b3, __ctl), fn(__r2, __a2, __b2, __ctl), \
                 fn(__r1, __a1, __b1, __ctl), __ctl); \
    } while (0)
@@ -311,16 +316,16 @@ obj_t * sub(obj_t * dest, obj_t * src1, obj_t * src2, obj_t * carry);
    together from left to right, where the chains are divided into 
    lengths m, n, p (from left to right).
 */
-#define chain3_lr_1d_2s(fn, r, a, b, m, n, p) \
+#define chain3_lr_1d_2s(fn, r, a, b, m1, m2, n, p) \
    do { \
       obj_t * __r1, * __r2, * __r3, * __a1, * __a2,  * __a3, \
                  * __b1, * __b2, * __b3, * __ctl; \
       new_objs(a->type, &__r1, &__r2, &__r3, \
          &__a1, &__a2, &__a3, &__b1, &__b2, &__b3, NULL); \
       new_objs(NIL, &__ctl, NULL); \
-      new_chain(a, __a1, m, __a2, n, __a3, p, NULL); \
-      new_chain(b, __b1, m, __b2, n, __b3, p, NULL); \
-      new_chain(r, __r1, m, __r2, n, __r3, p, NULL); \
+      new_chain(a, __a1, p, __a2, n, __a3, m1, NULL); \
+      new_chain(b, __b1, p, __b2, n, __b3, m2, NULL); \
+      new_chain(r, __r1, p, __r2, n, __r3, m1, NULL); \
       chain3_rl(fn(__r3, __a3, __b3, __ctl), fn(__r2, __a2, __b2, __ctl), \
                 fn(__r1, __a1, __b1, __ctl), __ctl); \
    } while (0)

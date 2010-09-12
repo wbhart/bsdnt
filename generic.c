@@ -249,4 +249,36 @@ def_fn_1d_2s_m(add_m, nn_add_mc, _nn_add_m, _nn_add_mc, nn_add_m, +)
       
 def_fn_1d_2s_m(sub_m, nn_sub_mc, _nn_sub_m, _nn_sub_mc, nn_sub_m, -)
 
+#define def_fn_1d_1s(name, l_fn, r_fn, m_fn, f_fn, op1) \
+   obj_t * name(obj_t * dest, obj_t * src1, obj_t * carry) \
+   { \
+      obj_t * ret; \
+      new_objs(NIL, &ret, NULL); \
+      if (src1->type == WORD) \
+      { \
+         dest->val.word = op1 src1->val.word; \
+      } else if (carry == NULL) \
+      { \
+         f_fn(dest->val.nn.ptr, src1->val.nn.ptr, src1->val.nn.len); \
+      } else if (src1->type == NN) \
+      { \
+         switch (carry->control) \
+         { \
+         case R:  ret->type = WORD; \
+            ret->val.word = r_fn(dest->val.nn.ptr, src1->val.nn.ptr, \
+               src1->val.nn.len); \
+               break; \
+         case L: l_fn(dest->val.nn.ptr, src1->val.nn.ptr, src1->val.nn.len, \
+            carry->val.word); \
+               break; \
+         case M: ret->type = WORD; \
+            ret->val.word = m_fn(dest->val.nn.ptr, src1->val.nn.ptr, \
+               src1->val.nn.len, carry->val.word); \
+               break; \
+         } \
+      } \
+      return ret; \
+   }
+
+def_fn_1d_1s(neg, nn_neg_c, _nn_neg, _nn_neg_c, nn_neg, -)
 
