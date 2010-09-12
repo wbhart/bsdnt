@@ -105,11 +105,11 @@ int test_add(void)
       randoms_of_len(m3, ANY, state, &c, NULL);    
       randoms_of_len(m1 + 1, ANY, state, &r1, &r2, NULL);
       
-      nn_add(r1, a, m1, b, m2);
-      nn_add(r1, r1, m1, c, m3);
+      nn_s_add(r1, a, m1, b, m2);
+      nn_s_add(r1, r1, m1, c, m3);
 
-      nn_add(r2, a, m1, c, m3);
-      nn_add(r2, r2, m1, b, m2);
+      nn_s_add(r2, a, m1, c, m3);
+      nn_s_add(r2, r2, m1, b, m2);
 
       result = nn_equal_m(r1, r2, m1 + 1);
 
@@ -125,10 +125,10 @@ int test_add(void)
       randoms_of_len(m2 + m3, ANY, state, &b, NULL);
       randoms_of_len(m1 + m2 + m3 + 1, ANY, state, &r1, &r2, NULL);
       
-      ci = _nn_add(r1, a, m3, b, m3);
-      nn_add_c(r1 + m3, a + m3, m1 + m2, b + m3, m2, ci);
+      ci = nn_add(r1, a, m3, b, m3);
+      nn_s_add_c(r1 + m3, a + m3, m1 + m2, b + m3, m2, ci);
 
-      nn_add(r2, a, m1 + m2 + m3, b, m2 + m3);
+      nn_s_add(r2, a, m1 + m2 + m3, b, m2 + m3);
       
       result = nn_equal_m(r1, r2, m1 + m2 + m3 + 1);
 
@@ -241,11 +241,11 @@ int test_sub(void)
       randoms_of_len(m3, ANY, state, &c, NULL);    
       randoms_of_len(m1 + 1, ANY, state, &r1, &r2, NULL);
       
-      nn_sub(r1, a, m1, b, m2);
-      nn_sub(r1, r1, m1, c, m3);
+      nn_s_sub(r1, a, m1, b, m2);
+      nn_s_sub(r1, r1, m1, c, m3);
 
-      nn_sub(r2, a, m1, c, m3);
-      nn_sub(r2, r2, m1, b, m2);
+      nn_s_sub(r2, a, m1, c, m3);
+      nn_s_sub(r2, r2, m1, b, m2);
 
       result = nn_equal_m(r1, r2, m1 + 1);
 
@@ -261,10 +261,10 @@ int test_sub(void)
       randoms_of_len(m2 + m3, ANY, state, &b, NULL);
       randoms_of_len(m1 + m2 + m3 + 1, ANY, state, &r1, &r2, NULL);
       
-      ci = _nn_sub(r1, a, m3, b, m3);
-      nn_sub_c(r1 + m3, a + m3, m1 + m2, b + m3, m2, ci);
+      ci = nn_sub(r1, a, m3, b, m3);
+      nn_s_sub_c(r1 + m3, a + m3, m1 + m2, b + m3, m2, ci);
 
-      nn_sub(r2, a, m1 + m2 + m3, b, m2 + m3);
+      nn_s_sub(r2, a, m1 + m2 + m3, b, m2 + m3);
       
       result = nn_equal_m(r1, r2, m1 + m2 + m3 + 1);
 
@@ -511,7 +511,7 @@ int test_equal(void)
       
       do {
          randoms_of_len(m1, FULL, state, &a, &b, NULL);
-         nn_add_m(r1, a, b, m1);
+         nn_s_add_m(r1, a, b, m1);
       } while (r1[m1]);
       
       result = !nn_equal(r1, m1, a, m1);
@@ -979,7 +979,7 @@ int test_cmp_m(void)
       
       do {
          randoms_of_len(m1, FULL, state, &a, &b, NULL);
-         nn_add_m(r1, a, b, m1);
+         nn_s_add_m(r1, a, b, m1);
       } while (r1[m1]);
       
       result = (nn_cmp_m(r1, a, m1) > 0 && nn_cmp_m(a, r1, m1) < 0);
@@ -1035,7 +1035,7 @@ int test_cmp(void)
       
       do {
          randoms_of_len(m1, FULL, state, &a, &b, NULL);
-         nn_add_m(r1, a, b, m1);
+         nn_s_add_m(r1, a, b, m1);
       } while (r1[m1]);
       
       result = (nn_cmp(r1, m1, a, m1) > 0 && nn_cmp(a, m1, r1, m1) < 0);
