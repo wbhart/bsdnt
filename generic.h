@@ -35,6 +35,11 @@ typedef struct obj_t
 } obj_t;
 
 /*
+   Return the minimum of a and b
+*/
+#define MIN(a, b) (((a) < (b)) ? (a) : (b))
+
+/*
    Print out an error message to stderr.
 */
 static inline
@@ -207,6 +212,11 @@ obj_t * neg(obj_t * dest, obj_t * src1, obj_t * carry);
 obj_t * shl(obj_t * dest, obj_t * src1, word_t sh, obj_t * carry);
 
 /*
+   Set dest = src1 >> sh1, with carry semantics as described for add_m.
+*/
+obj_t * shr(obj_t * dest, obj_t * src1, word_t sh, obj_t * carry);
+
+/*
    Chains two function calls together, sending the carry-out of the 
    call fn2 to the carry-in of fn1. The object ctl must be supplied 
    to both the macro and as the final parameter to both the fn1 and
@@ -263,9 +273,9 @@ obj_t * shl(obj_t * dest, obj_t * src1, word_t sh, obj_t * carry);
 */
 #define chain2_lr(fn1, fn2, ctl) \
    do { \
-      ctl->control = L; \
-      ctl = fn1; \
       ctl->control = R; \
+      ctl = fn1; \
+      ctl->control = M; \
       fn2; \
    } while (0)
 
@@ -362,11 +372,11 @@ obj_t * shl(obj_t * dest, obj_t * src1, word_t sh, obj_t * carry);
 */
 #define chain3_lr(fn1, fn2, fn3, ctl) \
    do { \
-      ctl->control = L; \
+      ctl->control = R; \
       ctl = fn1; \
       ctl->control = M; \
       ctl = fn2; \
-      ctl->control = R; \
+      ctl->control = M; \
       fn3; \
    } while (0)
 
@@ -385,8 +395,25 @@ obj_t * shl(obj_t * dest, obj_t * src1, word_t sh, obj_t * carry);
       new_chain(a, __a1, p, __a2, n, __a3, m1, NULL); \
       new_chain(b, __b1, p, __b2, n, __b3, m2, NULL); \
       new_chain(r, __r1, p, __r2, n, __r3, m1, NULL); \
-      chain3_rl(fn(__r3, __a3, __b3, __ctl), fn(__r2, __a2, __b2, __ctl), \
+      chain3_lr(fn(__r3, __a3, __b3, __ctl), fn(__r2, __a2, __b2, __ctl), \
                 fn(__r1, __a1, __b1, __ctl), __ctl); \
+   } while (0)
+
+/*
+   Automatically chains three lots of fn(ri, ai, c, ctl) for i = 1..3 
+   together from left to right, where the chains are divided into 
+   lengths m, n, p (from left to right) for a and r.
+*/
+#define chain3_lr_1d_1s_c(fn, r, a, c, m, n, p) \
+   do { \
+      obj_t * __r1, * __r2, * __r3, * __a1, * __a2,  * __a3, * __ctl; \
+      new_objs(a->type, &__r1, &__r2, &__r3, \
+         &__a1, &__a2, &__a3, NULL); \
+      new_objs(NIL, &__ctl, NULL); \
+      new_chain(a, __a1, p, __a2, n, __a3, m, NULL); \
+      new_chain(r, __r1, p, __r2, n, __r3, m, NULL); \
+      chain3_lr(fn(__r3, __a3, c, __ctl), fn(__r2, __a2, c, __ctl), \
+                fn(__r1, __a1, c, __ctl), __ctl); \
    } while (0)
 
 #endif

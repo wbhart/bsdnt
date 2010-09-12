@@ -302,21 +302,22 @@ def_fn_1d_1s(neg, nn_neg_c, _nn_neg, _nn_neg_c, nn_neg, -)
          dest->val.word = src1->val.word op1 c; \
       } else if (carry == NULL) \
       { \
-         f_fn(dest->val.nn.ptr, src1->val.nn.ptr, src1->val.nn.len, c); \
+         f_fn(dest->val.nn.ptr, src1->val.nn.ptr, \
+             MIN(src1->val.nn.len, dest->val.nn.len), c); \
       } else if (src1->type == NN) \
       { \
          switch (carry->control) \
          { \
          case R:  ret->type = WORD; \
             ret->val.word = r_fn(dest->val.nn.ptr, src1->val.nn.ptr, \
-               src1->val.nn.len, c); \
+               MIN(src1->val.nn.len, dest->val.nn.len), c); \
                break; \
-         case L: l_fn(dest->val.nn.ptr, src1->val.nn.ptr, src1->val.nn.len, \
-            c, carry->val.word); \
+         case L: l_fn(dest->val.nn.ptr, src1->val.nn.ptr, \
+         MIN(src1->val.nn.len, dest->val.nn.len), c, carry->val.word); \
                break; \
          case M: ret->type = WORD; \
             ret->val.word = m_fn(dest->val.nn.ptr, src1->val.nn.ptr, \
-               src1->val.nn.len, c, carry->val.word); \
+               MIN(src1->val.nn.len, dest->val.nn.len), c, carry->val.word); \
                break; \
          } \
       } \
@@ -324,4 +325,11 @@ def_fn_1d_1s(neg, nn_neg_c, _nn_neg, _nn_neg_c, nn_neg, -)
    }
 
 def_fn_1d_1s_c(shl, nn_shl_c, _nn_shl, _nn_shl_c, nn_shl, <<)
+
+void dud_c(nn_t r, nn_t a, len_t n, word_t c, word_t ci)
+{
+   talker("No such function");
+}
+
+def_fn_1d_1s_c(shr, dud_c, _nn_shr, _nn_shr_c, nn_shr, >>)
 

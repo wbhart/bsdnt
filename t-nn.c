@@ -71,6 +71,21 @@ rand_t state;
    } while (0)
  
 /*
+   Given a fn which can be chained with itself from left 
+   to to, computes r = fn(a, c) and s = fn(a, c) where 
+   r is computed by breaking a, r into chains with 
+   segments of length m, n for a and r.
+*/
+#define chain2_lr_1d_1s_c_test(fn, r, s, a, c, m, n) \
+   do { \
+      obj_t * right = new_ctl(R); \
+      new_objs(NN, &a, &r, &s, NULL); \
+      randoms_of_len(m + n, ANY, state, a, r, s, NULL); \
+      chain2_lr_1d_1s_c(fn, r, a, c, m, n); \
+      fn(s, a, c, right); \
+   } while (0)
+ 
+/*
    Given a fn which can be chained with itself from right 
    to left, computes r = fn(a, c) and s = fn(a, c) where 
    r is computed by breaking a, b, r into chains with 
@@ -117,6 +132,21 @@ rand_t state;
       randoms_of_len(m2 + n + p, ANY, state, b, NULL); \
       chain3_lr_1d_2s(fn, r, a, b, m1, m2, n, p); \
       fn(s, a, b, NULL); \
+   } while (0)
+
+/*
+   Given a fn which can be chained with itself from right 
+   to left, computes r = fn(a, c) and s = fn(a, c) where 
+   r is computed by breaking a, r into chains with 
+   segments of length m, n, p for a and r.
+*/
+#define chain3_lr_1d_1s_c_test(fn, r, s, a, c, m, n, p) \
+   do { \
+      obj_t * right = new_ctl(R); \
+      new_objs(NN, &a, &r, &s, NULL); \
+      randoms_of_len(m + n + p, ANY, state, a, r, s, NULL); \
+      chain3_lr_1d_1s_c(fn, r, a, c, m, n, p); \
+      fn(s, a, c, right); \
    } while (0)
 
 int test_add_m(void)
@@ -431,6 +461,81 @@ int test_shl(void)
 int test_shr(void)
 {
    int result = 1;
+   len_t m, n, p;
+   obj_t * a, * r, * s, * right;
+   bits_t sh1, sh2;
+   
+   printf("nn_shr...");
+
+   TEST_START(ITER) /* test (a >> sh1) >> sh2 = (a >> sh2) >> sh1 */
+   {
+      m = randint(100, state);
+
+      sh1 = randint(WORD_BITS, state);
+      sh2 = randint(WORD_BITS - sh1, state);
+      
+      new_objs(NN, &a, &r, &s, NULL);
+      right = new_ctl(R);
+
+      randoms_of_len(m, ANY, state, r, s, NULL);
+      randoms_of_len(m, ANY, state, a, NULL);
+      
+      shr(r, a, sh1, right);
+      shr(r, r, sh2, right);
+
+      shr(s, a, sh2, right);
+      shr(s, s, sh1, right);
+
+      ASSERT_EQUAL(r, s, "(a >> sh1) >> sh2 != (a >> sh2) >> sh1");
+   } TEST_END;
+
+   TEST_START(ITER) /* test (a << sh1) >> sh1 = a */
+   {
+      m = randint(100, state);
+
+      sh1 = randint(WORD_BITS, state);
+      
+      new_objs(NN, &a, &r, &s, NULL);
+      
+      randoms_of_len(m + 1, ANY, state, r, NULL);
+      randoms_of_len(m, ANY, state, a, s, NULL);
+      
+      shl(r, a, sh1, NULL);
+      
+      shr(s, r, sh1, NULL);
+
+      ASSERT_EQUAL(a, s, "(a << sh1) >> sh1 != a");
+   } TEST_END;
+
+   TEST_START(ITER) /* test chaining of two shr's */
+   {   
+      m = randint(100, state);
+      n = randint(100, state);
+      sh1 = randint(WORD_BITS, state);
+
+      chain2_lr_1d_1s_c_test(shr, r, s, a, sh1, m, n);
+      
+      ASSERT_EQUAL(r, s, "shr fails chain2");
+   } TEST_END;
+
+   TEST_START(ITER) /* test chaining of three shr's */
+   {      
+      m = randint(100, state);
+      n = randint(100, state);
+      p = randint(100, state);
+      sh1 = randint(WORD_BITS, state);
+
+      chain3_lr_1d_1s_c_test(shr, r, s, a, sh1, m, n, p);
+
+      ASSERT_EQUAL(r, s, "shr fails chain3");
+   } TEST_END;
+
+   return result;
+}
+
+/*int test_shr(void)
+{
+   int result = 1;
    long i;
    nn_t a, r1, r2;
    bits_t sh1, sh2;
@@ -439,7 +544,7 @@ int test_shr(void)
 
    printf("nn_shr...");
 
-   /* test (a >> sh1) >> sh2 = (a >> sh2) >> sh1 */
+   test (a >> sh1) >> sh2 = (a >> sh2) >> sh1 
    for (i = 0; i < ITER && result == 1; i++)
    {
       m = randint(100, state);
@@ -471,7 +576,7 @@ int test_shr(void)
       nn_clear(r2);
    }
 
-   /* test chaining of shr */
+   test chaining of shr
    for (i = 0; i < ITER && result == 1; i++)
    {
       m = randint(100, state);
@@ -503,7 +608,7 @@ int test_shr(void)
       nn_clear(r2);
    }
 
-   /* test (a << sh1) >> sh1 = a */
+   test (a << sh1) >> sh1 = a
    for (i = 0; i < ITER && result == 1; i++)
    {
       m = randint(100, state);
@@ -533,7 +638,7 @@ int test_shr(void)
    }
 
    return result;
-}
+}*/
 
 int test_copy(void)
 {
