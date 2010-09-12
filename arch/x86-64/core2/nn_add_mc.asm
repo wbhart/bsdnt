@@ -1,4 +1,6 @@
-; Copyright Antony Vennard 2010. All rights reserved.
+; Copyright:
+; * Antony Vennard 2010. All rights reserved.
+; * William Hart 2010. All rights reserved.
 ;
 ; Redistribution and use in source and binary forms, with or without 
 ; modification, are permitted provided that the following conditions are 
@@ -29,10 +31,14 @@
 ;
 ; =============================================================================
 
+; About: This code is an assembly implementation of
+; Bill's nn_add_mc function for x64 processors, influenced
+; by his blog and code in nn.c.
+
 ; data segment. 
 SECTION .data
 
-    WORDSIZE dq 8
+    WORDSIZE dw 8
 
 ; code segment. 
 SECTION .code
@@ -74,24 +80,25 @@ _nn_add_mc_loop:
 
     ; t = (dword_t) b[i] + (dword_t) c[i] + (dword_t) ci;
 
-    add     r10, [r11 + rcx*WORDSIZE]
-    add     r10, [rdx + rcx*WORDSIZE]
-    add     r10, [r9  + rcx*WORDSIZE]
+
+    add     r10, [r11 + rcx*8]
+    add     r10, [rdx + rcx*8]
+    add     r10, [r9  + rcx*8]
     
     mov     r8, r10
     mov     r9, r10
-    shl     r8, WORDSIZE
+    shl     r8, 8
 
     ; a[i] = (word_t) t; => a[i] = LOWORD
-    mov     result, r8;
+    mov     [rax+rcx*8], r8;
 
     ; ci = (t >> WORD_BITS); a[i] = HIWORD
-    shr     r9, WORDSIZE
+    shr     r9, 8
 
     ; loop control
     inc     rcx
     cmp     r15, rcx
-
+    jl      _nn_add_mc_loop 
 
 _nn_add_mc_exit:
 
