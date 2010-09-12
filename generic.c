@@ -24,6 +24,16 @@ void new_objs(type_t type, ...)
    va_end(ap);
 }
 
+obj_t * new_ctl(control_t ctl)
+{
+   obj_t * obj = malloc(sizeof(obj_t));
+   garbage = new_node(obj, garbage);
+   obj->type = NIL;
+   obj->control = ctl;
+
+   return obj;
+}
+
 void free_obj(obj_t * obj)
 {
    if (obj->type == NN)
@@ -281,4 +291,37 @@ def_fn_1d_2s_m(sub_m, nn_sub_mc, _nn_sub_m, _nn_sub_mc, nn_sub_m, -)
    }
 
 def_fn_1d_1s(neg, nn_neg_c, _nn_neg, _nn_neg_c, nn_neg, -)
+
+#define def_fn_1d_1s_c(name, l_fn, r_fn, m_fn, f_fn, op1) \
+   obj_t * name(obj_t * dest, obj_t * src1, word_t c, obj_t * carry) \
+   { \
+      obj_t * ret; \
+      new_objs(NIL, &ret, NULL); \
+      if (src1->type == WORD) \
+      { \
+         dest->val.word = src1->val.word op1 c; \
+      } else if (carry == NULL) \
+      { \
+         f_fn(dest->val.nn.ptr, src1->val.nn.ptr, src1->val.nn.len, c); \
+      } else if (src1->type == NN) \
+      { \
+         switch (carry->control) \
+         { \
+         case R:  ret->type = WORD; \
+            ret->val.word = r_fn(dest->val.nn.ptr, src1->val.nn.ptr, \
+               src1->val.nn.len, c); \
+               break; \
+         case L: l_fn(dest->val.nn.ptr, src1->val.nn.ptr, src1->val.nn.len, \
+            c, carry->val.word); \
+               break; \
+         case M: ret->type = WORD; \
+            ret->val.word = m_fn(dest->val.nn.ptr, src1->val.nn.ptr, \
+               src1->val.nn.len, c, carry->val.word); \
+               break; \
+         } \
+      } \
+      return ret; \
+   }
+
+def_fn_1d_1s_c(shl, nn_shl_c, _nn_shl, _nn_shl_c, nn_shl, <<)
 

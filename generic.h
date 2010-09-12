@@ -56,6 +56,11 @@ void talker(const char * str)
 */
 void new_objs(type_t type, ...);
 
+/*
+   Returns a new control object with the given control flag.
+*/
+obj_t * new_ctl(control_t ctl);
+
 typedef struct node_t
 {
    obj_t * obj;
@@ -197,6 +202,11 @@ obj_t * sub(obj_t * dest, obj_t * src1, obj_t * src2, obj_t * carry);
 obj_t * neg(obj_t * dest, obj_t * src1, obj_t * carry);
 
 /*
+   Set dest = src1 << sh1, with carry semantics as described for add_m.
+*/
+obj_t * shl(obj_t * dest, obj_t * src1, word_t sh, obj_t * carry);
+
+/*
    Chains two function calls together, sending the carry-out of the 
    call fn2 to the carry-in of fn1. The object ctl must be supplied 
    to both the macro and as the final parameter to both the fn1 and
@@ -230,6 +240,22 @@ obj_t * neg(obj_t * dest, obj_t * src1, obj_t * carry);
    } while (0)
 
 /*
+   Automatically chains two lots of fn(ri, ai, bi, ctl) for i = 1..2 
+   together from right to left, where the chains are divided into 
+   lengths m1, n (from left to right) for a and r and m2, n for b.
+*/
+#define chain2_rl_1d_1s_c(fn, r, a, c, m, n) \
+   do { \
+      obj_t * __r1, * __r2, * __a1, * __a2, * __ctl; \
+      new_objs(a->type, &__r1, &__r2, &__a1, &__a2, NULL); \
+      new_objs(NIL, &__ctl, NULL); \
+      new_chain(a, __a1, n, __a2, m, NULL); \
+      new_chain(r, __r1, n, __r2, m, NULL); \
+      chain2_rl(fn(__r2, __a2, c, __ctl), \
+                fn(__r1, __a1, c, __ctl), __ctl); \
+   } while (0)
+
+/*
    Chains two function calls together, sending the carry-out of the 
    call fn1 to the carry-in of fn2. The object ctl must be supplied 
    to both the macro and as the final parameter to both the fn1 and
@@ -258,6 +284,22 @@ obj_t * neg(obj_t * dest, obj_t * src1, obj_t * carry);
       new_chain(r, __r1, n, __r2, m1, NULL); \
       chain2_lr(fn(__r2, __a2, __b2, __ctl), \
                 fn(__r1, __a1, __b1, __ctl), __ctl); \
+   } while (0)
+
+/*
+   Automatically chains two lots of fn(ri, ai, c, ctl) for i = 1..2 
+   together from left to right, where the chains are divided into 
+   lengths m, n (from left to right) for a and r.
+*/
+#define chain2_lr_1d_1s_c(fn, r, a, c, m, n) \
+   do { \
+      obj_t * __r1, * __r2, * __a1, * __a2, * __ctl; \
+      new_objs(a->type, &__r1, &__r2, &__a1, &__a2, NULL); \
+      new_objs(NIL, &__ctl, NULL); \
+      new_chain(a, __a1, n, __a2, m, NULL); \
+      new_chain(r, __r1, n, __r2, m, NULL); \
+      chain2_lr(fn(__r2, __a2, c, __ctl), \
+                fn(__r1, __a1, c, __ctl), __ctl); \
    } while (0)
 
 /*
@@ -293,6 +335,23 @@ obj_t * neg(obj_t * dest, obj_t * src1, obj_t * carry);
       new_chain(r, __r1, p, __r2, n, __r3, m1, NULL); \
       chain3_rl(fn(__r3, __a3, __b3, __ctl), fn(__r2, __a2, __b2, __ctl), \
                 fn(__r1, __a1, __b1, __ctl), __ctl); \
+   } while (0)
+
+/*
+   Automatically chains three lots of fn(ri, ai, c, ctl) for i = 1..3 
+   together from right to left, where the chains are divided into 
+   lengths m, n, p (from left to right) for a and r.
+*/
+#define chain3_rl_1d_1s_c(fn, r, a, c, m, n, p) \
+   do { \
+      obj_t * __r1, * __r2, * __r3, * __a1, * __a2,  * __a3, * __ctl; \
+      new_objs(a->type, &__r1, &__r2, &__r3, \
+         &__a1, &__a2, &__a3, NULL); \
+      new_objs(NIL, &__ctl, NULL); \
+      new_chain(a, __a1, p, __a2, n, __a3, m, NULL); \
+      new_chain(r, __r1, p, __r2, n, __r3, m, NULL); \
+      chain3_rl(fn(__r3, __a3, c, __ctl), fn(__r2, __a2, c, __ctl), \
+                fn(__r1, __a1, c, __ctl), __ctl); \
    } while (0)
 
 /*

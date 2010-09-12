@@ -9,9 +9,8 @@ rand_t state;
 
 #define TEST_START(XXX) \
    do { \
-      int __result = 1; \
       long __count; \
-      for (__count = 0; __count < XXX  && __result == 1; __count++)
+      for (__count = 0; __count < XXX  && result == 1; __count++)
 
 #define TEST_END \
       gc_cleanup(); \
@@ -21,7 +20,7 @@ rand_t state;
    if (!equal(obj1, obj2)) \
    { \
       talker(msg); \
-      __result = 0; \
+      result = 0; \
    }
 
 /*
@@ -58,6 +57,36 @@ rand_t state;
  
 /*
    Given a fn which can be chained with itself from right 
+   to left, computes r = fn(a, c) and s = fn(a, c) where 
+   r is computed by breaking a, r into chains with 
+   segments of length m, n for a and r.
+*/
+#define chain2_rl_1d_1s_c_test(fn, r, s, a, c, m, n) \
+   do { \
+      new_objs(NN, &a, &r, &s, NULL); \
+      randoms_of_len(m + n + 1, ANY, state, r, s, NULL); \
+      randoms_of_len(m + n, ANY, state, a, NULL); \
+      chain2_rl_1d_1s_c(fn, r, a, c, m, n); \
+      fn(s, a, c, NULL); \
+   } while (0)
+ 
+/*
+   Given a fn which can be chained with itself from right 
+   to left, computes r = fn(a, c) and s = fn(a, c) where 
+   r is computed by breaking a, b, r into chains with 
+   segments of length length m, n, p for a and r.
+*/
+#define chain3_rl_1d_1s_c_test(fn, r, s, a, c, m, n, p) \
+   do { \
+      new_objs(NN, &a, &r, &s, NULL); \
+      randoms_of_len(m + n + p + 1, ANY, state, r, s, NULL); \
+      randoms_of_len(m + n + p, ANY, state, a, NULL); \
+      chain3_rl_1d_1s_c(fn, r, a, c, m, n, p); \
+      fn(s, a, c, NULL); \
+   } while (0)
+
+/*
+   Given a fn which can be chained with itself from right 
    to left, computes r = fn(a, b) and s = fn(a, b) where 
    r is computed by breaking a, b, r into chains with 
    segments of length length m1, n, p for a and r, and m2, 
@@ -92,10 +121,11 @@ rand_t state;
 
 int test_add_m(void)
 {
+   int result = 1;
    len_t m, n, p;
    obj_t * a, * b, * c, * r, * s;
    
-   printf("add_m...");
+   printf("nn_add_m...");
 
    TEST_START(ITER) /* test (a + b) + c == (a + c) + b */
    {
@@ -134,15 +164,16 @@ int test_add_m(void)
       ASSERT_EQUAL(r, s, "add_m fails chain3");
    } TEST_END;
 
-   return 1;
+   return result;
 }
 
 int test_add(void)
 {
+   int result = 1;
    len_t m1, m2, m3, n, p;
    obj_t * a, * b, * c, * r, * s;
    
-   printf("add...");
+   printf("nn_add...");
 
    TEST_START(ITER) /* test (a + b) + c == (a + c) + b */
    {
@@ -187,15 +218,16 @@ int test_add(void)
       ASSERT_EQUAL(r, s, "add fails chain3");
    } TEST_END;
 
-   return 1;
+   return result;
 }
 
 int test_sub_m(void)
 {
+   int result = 1;
    len_t m, n, p;
    obj_t * a, * b, * c, * r, * s;
    
-   printf("sub_m...");
+   printf("nn_sub_m...");
 
    TEST_START(ITER) /* test (a - b) - c == (a - c) - b */
    {
@@ -271,10 +303,11 @@ int test_sub_m(void)
 
 int test_sub(void)
 {
+   int result = 1;
    len_t m1, m2, m3, n, p;
    obj_t * a, * b, * c, * r, * s;
    
-   printf("sub...");
+   printf("nn_sub...");
 
    TEST_START(ITER) /* test (a - b) - c == (a - c) - b */
    {
@@ -319,10 +352,83 @@ int test_sub(void)
       ASSERT_EQUAL(r, s, "sub fails chain3");
    } TEST_END;
 
-   return 1;
+   return result;
 }
 
 int test_shl(void)
+{
+   int result = 1;
+   len_t m, n, p;
+   obj_t * a, * r, * s, * right;
+   bits_t sh1, sh2;
+   
+   printf("nn_shl...");
+
+   TEST_START(ITER) /* test (a << sh1) << sh2 = (a << sh2) << sh1 */
+   {
+      m = randint(100, state);
+
+      sh1 = randint(WORD_BITS, state);
+      sh2 = randint(WORD_BITS - sh1, state);
+      
+      new_objs(NN, &a, &r, &s, NULL);
+      right = new_ctl(R);
+
+      randoms_of_len(m + 1, ANY, state, r, s, NULL);
+      randoms_of_len(m, ANY, state, a, NULL);
+      
+      shl(r, a, sh1, NULL);
+      shl(r, r, sh2, right);
+
+      shl(s, a, sh2, NULL);
+      shl(s, s, sh1, right);
+
+      ASSERT_EQUAL(r, s, "(a << sh1) << sh2 != (a << sh2) << sh1");
+   } TEST_END;
+
+   TEST_START(ITER) /* test (a << 1) = a + a */
+   {
+      m = randint(100, state);
+
+      new_objs(NN, &a, &r, &s, NULL);
+      
+      randoms_of_len(m + 1, ANY, state, r, s, NULL);
+      randoms_of_len(m, ANY, state, a, NULL);
+      
+      shl(r, a, 1, NULL);
+      
+      add_m(s, a, a, NULL);
+
+      ASSERT_EQUAL(r, s, "(a << 1) != a + a");
+   } TEST_END;
+
+   TEST_START(ITER) /* test chaining of two shl's */
+   {   
+      m = randint(100, state);
+      n = randint(100, state);
+      sh1 = randint(WORD_BITS, state);
+
+      chain2_rl_1d_1s_c_test(shl, r, s, a, sh1, m, n);
+      
+      ASSERT_EQUAL(r, s, "shl fails chain2");
+   } TEST_END;
+
+   TEST_START(ITER) /* test chaining of three shl's */
+   {      
+      m = randint(100, state);
+      n = randint(100, state);
+      p = randint(100, state);
+      sh1 = randint(WORD_BITS, state);
+
+      chain3_rl_1d_1s_c_test(shl, r, s, a, sh1, m, n, p);
+
+      ASSERT_EQUAL(r, s, "shl fails chain3");
+   } TEST_END;
+
+   return result;
+}
+
+/*int test_shl(void)
 {
    int result = 1;
    long i;
@@ -333,7 +439,7 @@ int test_shl(void)
 
    printf("nn_shl...");
 
-   /* test (a << sh1) << sh2 = (a << sh2) << sh1 */
+   test (a << sh1) << sh2 = (a << sh2) << sh1 
    for (i = 0; i < ITER && result == 1; i++)
    {
       m = randint(100, state);
@@ -365,7 +471,7 @@ int test_shl(void)
       nn_clear(r2);
    }
 
-   /* test chaining of shl */
+   test chaining of shl 
    for (i = 0; i < ITER && result == 1; i++)
    {
       m = randint(100, state);
@@ -397,7 +503,7 @@ int test_shl(void)
       nn_clear(r2);
    }
 
-   /* test a << 1 = a + a */
+   test a << 1 = a + a 
    for (i = 0; i < ITER && result == 1; i++)
    {
       m = randint(100, state);
@@ -426,7 +532,7 @@ int test_shl(void)
    }
 
    return result;
-}
+} */
 
 int test_shr(void)
 {
@@ -1809,6 +1915,7 @@ int test_mod1_preinv(void)
 
 int test_generics(void)
 {
+   int result = 1;
    len_t m1;
    obj_t * w1, * w2, * w3, * w4, * w5, * w6, * w7, * w8, * n1, * n2, * n3, * n4;
 
@@ -1830,7 +1937,7 @@ int test_generics(void)
       randoms_of_len(m1, ANY, state, n1, n2, n3, n4, NULL);
    } TEST_END;
 
-   return 1;
+   return result;
 }
 
 #define RUN(xxx) \
