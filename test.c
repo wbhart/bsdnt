@@ -1,7 +1,7 @@
 #include <stdarg.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include "generic.h"
+#include "test.h"
 
 node_t * garbage = NULL;
 

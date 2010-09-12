@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "nn.h"
-#include "generic.h"
+#include "test.h"
 
 #define ITER 100000
 
@@ -1935,7 +1935,7 @@ int main(void)
    
    randinit(state);
 
-   /*RUN(test_not);
+   RUN(test_not);
    RUN(test_neg);
    RUN(test_add1);
    RUN(test_add_m);
@@ -1958,7 +1958,7 @@ int main(void)
    RUN(test_divrem1_simple);
    RUN(test_divrem1_preinv);
    RUN(test_divrem_hensel1_preinv);
-   RUN(test_mod1_preinv);*/
+   RUN(test_mod1_preinv);
    RUN(test_generics);
 
    printf("%ld of %ld tests pass.\n", pass, pass + fail);
