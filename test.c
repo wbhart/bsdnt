@@ -68,6 +68,12 @@ void randoms_of_len(len_t n, flag_t flag, rand_t state, ...)
    va_list ap;
    nn_t * obj;
 
+   if (flag != ANY)
+   {
+      talker("Type not implemented in randoms_of_len");
+      abort();
+   }
+
    va_start(ap, state);
    
    while ((obj = va_arg(ap, nn_t *)) != NULL) 
