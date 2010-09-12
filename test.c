@@ -23,6 +23,37 @@ node_t * new_node(type_t type, void * ptr, node_t * next)
    return node;
 }
 
+void randoms(flag_t flag, rand_t state, ...)
+{
+   va_list ap;
+   word_t * w;
+
+   va_start(ap, state);
+   
+   while ((w = va_arg(ap, word_t *)) != NULL) 
+   {
+      (*w) = randword(state);
+
+      switch (flag)
+      {
+      case ANY: break;
+
+      case ODD: 
+         (*w) |= 1;
+         break;
+
+      case NONZERO: 
+         while ((*w) == 0)
+            (*w) = randword(state); 
+         break;
+
+      default: talker("Unknown flag in randoms_upto.");
+      }
+   }
+
+   va_end(ap);
+}
+
 void randoms_upto(word_t limit, flag_t flag, rand_t state, ...)
 {
    va_list ap;
@@ -68,18 +99,23 @@ void randoms_of_len(len_t n, flag_t flag, rand_t state, ...)
    va_list ap;
    nn_t * obj;
 
-   if (flag != ANY)
-   {
-      talker("Type not implemented in randoms_of_len");
-      abort();
-   }
-
    va_start(ap, state);
    
    while ((obj = va_arg(ap, nn_t *)) != NULL) 
    {
       (*obj) = nn_init(n);
       nn_random(*obj, state, n);
+
+      switch (flag)
+      {
+      case ANY: break;
+      case FULL: while (nn_normalise(*obj, n) != n)
+                    nn_random(*obj, state, n);
+                 break;
+      default: talker("Unknown flag in randoms_of_len");
+         abort();
+      }
+
       garbage = new_node(NN, (void *) (*obj), garbage);
    } 
 
