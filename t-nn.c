@@ -1058,15 +1058,16 @@ int test_divrem1_simple(void)
    /* test that a = q * d + r */
    TEST_START(ITER) 
    {
+<<<<<<< HEAD:t-nn.c
       randoms_upto(100, ANY, state, &m, NULL);
       
       randoms_of_len(m + 1, ANY, state, &r1, &a, &q, NULL);
       
       randoms(NONZERO, state, &d, NULL);
       
-      r = _nn_divrem1_simple(q, a, m, d);
+      r = nn_divrem1_simple(q, a, m, d);
 
-      ci = _nn_mul1_c(r1, q, m, d, r);
+      ci = nn_mul1_c(r1, q, m, d, r);
 
       result = (nn_equal_m(r1, a, m) && ci == 0);
 
@@ -1082,10 +1083,11 @@ int test_divrem1_simple(void)
       
       randoms(NONZERO, state, &d, NULL);
       
-      ci = _nn_divrem1_simple(r1 + n, a + n, m, d);
-      _nn_divrem1_simple_c(r1, a, n, d, ci);
+        
+      ci = nn_divrem1_simple(r1 + n, a + n, m, d);
+      nn_divrem1_simple_c(r1, a, n, d, ci);
       
-      _nn_divrem1_simple(r2, a, m + n, d);
+      nn_divrem1_simple(r2, a, m + n, d);
 
       result = nn_equal_m(r1, r2, m + n);
 
