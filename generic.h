@@ -215,7 +215,7 @@ obj_t * neg(obj_t * dest, obj_t * src1, obj_t * carry);
 /*
    Automatically chains two lots of fn(ri, ai, bi, ctl) for i = 1..2 
    together from right to left, where the chains are divided into 
-   lengths m, n (from left to right).
+   lengths m1, n (from left to right) for a and r and m2, n for b.
 */
 #define chain2_rl_1d_2s(fn, r, a, b, m1, m2, n) \
    do { \
@@ -246,7 +246,7 @@ obj_t * neg(obj_t * dest, obj_t * src1, obj_t * carry);
 /*
    Automatically chains two lots of fn(ri, ai, bi, ctl) for i = 1..2 
    together from left to right, where the chains are divided into 
-   lengths m, n (from left to right).
+   lengths m1, n (from left to right) for a and r and m2, n for b.
 */
 #define chain2_lr_1d_2s(fn, r, a, b, m1, m2, n) \
    do { \
@@ -279,7 +279,7 @@ obj_t * neg(obj_t * dest, obj_t * src1, obj_t * carry);
 /*
    Automatically chains three lots of fn(ri, ai, bi, ctl) for i = 1..3 
    together from right to left, where the chains are divided into 
-   lengths m, n, p (from left to right).
+   lengths m1, n, p (from left to right) for a and r and m2, n, p for b.
 */
 #define chain3_rl_1d_2s(fn, r, a, b, m1, m2, n, p) \
    do { \
@@ -314,7 +314,7 @@ obj_t * neg(obj_t * dest, obj_t * src1, obj_t * carry);
 /*
    Automatically chains three lots of fn(ri, ai, bi, ctl) for i = 1..3 
    together from left to right, where the chains are divided into 
-   lengths m, n, p (from left to right).
+   lengths m1, n, p (from left to right) for a and r and m2, n, p for b.
 */
 #define chain3_lr_1d_2s(fn, r, a, b, m1, m2, n, p) \
    do { \
