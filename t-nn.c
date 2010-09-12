@@ -1665,10 +1665,10 @@ int test_divrem1_preinv(void)
 
       dnorm = precompute_inverse1(&inv, d);
 
-      r = _nn_divrem1_preinv(q, a, m, dnorm, inv);
+      r = nn_divrem1_preinv(q, a, m, dnorm, inv);
       r >>= inv.norm;
 
-      ci = _nn_mul1_c(r1, q, m, d, r);
+      ci = nn_mul1_c(r1, q, m, d, r);
 
       result = (nn_equal_m(r1, a, m) && ci == 0);
 
@@ -1701,10 +1701,10 @@ int test_divrem1_preinv(void)
 
       nn_random(a, state, m + n);
          
-      ci = _nn_divrem1_preinv(r1 + n, a + n, m, dnorm, inv);
-      rem1 = _nn_divrem1_preinv_c(r1, a, n, dnorm, inv, ci);
+      ci = nn_divrem1_preinv(r1 + n, a + n, m, dnorm, inv);
+      rem1 = nn_divrem1_preinv_c(r1, a, n, dnorm, inv, ci);
       
-      rem2 = _nn_divrem1_preinv(r2, a, m + n, dnorm, inv);
+      rem2 = nn_divrem1_preinv(r2, a, m + n, dnorm, inv);
 
       result = (nn_equal_m(r1, r2, m + n) && rem1 == rem2);
 

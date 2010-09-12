@@ -240,7 +240,7 @@ word_t nn_divrem1_simple_c(nn_t q, nn_src_t a, len_t m, word_t d, word_t ci)
    return ci;
 }
 
-word_t _nn_divrem1_preinv_c(nn_t q, nn_src_t a, len_t m, 
+word_t nn_divrem1_preinv_c(nn_t q, nn_src_t a, len_t m, 
                             word_t d, preinv1_t inv, word_t ci)
 {
    dword_t t;
