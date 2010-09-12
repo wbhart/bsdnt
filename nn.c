@@ -257,7 +257,7 @@ word_t nn_divrem1_preinv_c(nn_t q, nn_src_t a, len_t m,
    return ci;
 }
 
-word_t _nn_divrem_hensel1_preinv_c(nn_t q, nn_src_t a, len_t m, 
+word_t nn_divrem_hensel1_preinv_c(nn_t q, nn_src_t a, len_t m, 
                         word_t d, hensel_preinv1_t inv, word_t ci)
 {
    long i;

@@ -1749,9 +1749,9 @@ int test_divrem_hensel1_preinv(void)
 
       precompute_hensel_inverse1(&inv, d);
 
-      r = _nn_divrem_hensel1_preinv(q, a, m, d, inv);
+      r = nn_divrem_hensel1_preinv(q, a, m, d, inv);
       
-      ci = _nn_mul1(r1, q, m, d);
+      ci = nn_mul1(r1, q, m, d);
 
       result = (nn_equal_m(r1, a, m) && ci == r);
 
@@ -1783,10 +1783,10 @@ int test_divrem_hensel1_preinv(void)
 
       nn_random(a, state, m + n);
          
-      ci = _nn_divrem_hensel1_preinv(r1, a, m, d, inv);
-      rem1 = _nn_divrem_hensel1_preinv_c(r1 + m, a + m, n, d, inv, ci);
+      ci = nn_divrem_hensel1_preinv(r1, a, m, d, inv);
+      rem1 = nn_divrem_hensel1_preinv_c(r1 + m, a + m, n, d, inv, ci);
       
-      rem2 = _nn_divrem_hensel1_preinv(r2, a, m + n, d, inv);
+      rem2 = nn_divrem_hensel1_preinv(r2, a, m + n, d, inv);
 
       result = (nn_equal_m(r1, r2, m + n) && (rem1 == rem2));
 
