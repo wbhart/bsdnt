@@ -53,11 +53,11 @@ int test_add_m(void)
       randoms_of_len(m, ANY, state, &a, &b, &c, NULL);
       randoms_of_len(m + 1, ANY, state, &r1, &r2, NULL);
       
-      nn_add_m(r1, a, b, m);
-      nn_add_m(r1, r1, c, m);
+      nn_s_add_m(r1, a, b, m);
+      nn_s_add_m(r1, r1, c, m);
 
-      nn_add_m(r2, b, c, m);
-      nn_add_m(r2, r2, a, m);
+      nn_s_add_m(r2, b, c, m);
+      nn_s_add_m(r2, r2, a, m);
 
       result = nn_equal_m(r1, r2, m + 1);
 
