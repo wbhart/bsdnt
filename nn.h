@@ -210,26 +210,26 @@ word_t _nn_sub1(nn_t a, nn_src_t b, len_t m, word_t c);
    Set a = b + c + ci where b and c are both m words in length,
    ci is a "carry in". Return any carry out. 
 */
-word_t _nn_add_mc(nn_t a, nn_src_t b, nn_src_t c, len_t m, word_t ci);
+word_t nn_add_mc(nn_t a, nn_src_t b, nn_src_t c, len_t m, word_t ci);
 
 /*
    Set a = b + c where b and c are both m words in length. Return 
    any carry out. 
 */
-#define _nn_add_m(a, b, c, m) \
-   _nn_add_mc(a, b, c, m, (word_t) 0)
+#define nn_add_m(a, b, c, m) \
+   nn_add_mc(a, b, c, m, (word_t) 0)
 
 /*
    Set a = b + c + ci where b and c are both m words in length, 
    writing the carry to a. If a and b are aliased, the carry is 
    added to a[m], otherwise a[m] is set to the carry.
 */
-#define nn_add_mc(a, b, c, m, ci) \
+#define nn_s_add_mc(a, b, c, m, ci) \
    do { \
       if ((a) == (b)) \
-         (a)[m] += _nn_add_mc(a, b, c, m, ci); \
+         (a)[m] += nn_add_mc(a, b, c, m, ci); \
       else \
-         (a)[m] = _nn_add_mc(a, b, c, m, ci); \
+         (a)[m] = nn_add_mc(a, b, c, m, ci); \
    } while (0)
 
 /*
@@ -237,8 +237,8 @@ word_t _nn_add_mc(nn_t a, nn_src_t b, nn_src_t c, len_t m, word_t ci);
    writing the carry to a. If a and b are aliased, the carry is 
    added to a[m], otherwise a[m] is set to the carry.
 */
-#define nn_add_m(a, b, c, m) \
-   nn_add_mc(a, b, c, m, (word_t) 0)
+#define nn_s_add_m(a, b, c, m) \
+   nn_s_add_mc(a, b, c, m, (word_t) 0)
 
 /*
    Set a = b - c - bi where b and c are both m words in length,
