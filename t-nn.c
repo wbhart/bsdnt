@@ -599,11 +599,11 @@ int test_mul1(void)
       do randoms(ANY, state, &c1, &c2, NULL);
       while (c1 + c2 < c1);
 
-      nn_mul1(t1, a, m, c1);
-      nn_mul1(r1, a, m, c2);
-      _nn_add_m(r1, r1, t1, m + 1);
+      nn_s_mul1(t1, a, m, c1);
+      nn_s_mul1(r1, a, m, c2);
+      nn_add_m(r1, r1, t1, m + 1);
       
-      nn_mul1(r2, a, m, c1 + c2);
+      nn_s_mul1(r2, a, m, c1 + c2);
 
       result = nn_equal_m(r1, r2, m + 1);
 
@@ -620,10 +620,10 @@ int test_mul1(void)
       
       randoms(ANY, state, &c1, NULL);
 
-      ci = _nn_mul1(r1, a, m, c1);
-      nn_mul1_c(r1 + m, a + m, n, c1, ci);
+      ci = nn_mul1(r1, a, m, c1);
+      nn_s_mul1_c(r1 + m, a + m, n, c1, ci);
       
-      nn_mul1(r2, a, m + n, c1);
+      nn_s_mul1(r2, a, m + n, c1);
       
       result = nn_equal_m(r1, r2, m + n + 1);
 
