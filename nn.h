@@ -555,61 +555,61 @@ word_t nn_mul1_c(nn_t a, nn_src_t b, len_t m, word_t c, word_t ci);
    Set a = a + b * c + ci where a and b are m words in length, c 
    is a word and ci is a "carry in". The carry out is returned. 
 */
-word_t _nn_addmul1_c(nn_t a, nn_src_t b, len_t m, word_t c, word_t ci);
+word_t nn_addmul1_c(nn_t a, nn_src_t b, len_t m, word_t c, word_t ci);
 
 /*
    Set a = a + b * c where a and b are m words in length, and c 
    is a word. The carry out is returned. 
 */
-#define _nn_addmul1(a, b, m, c) \
-   _nn_addmul1_c(a, b, m, c, (word_t) 0)
+#define nn_addmul1(a, b, m, c) \
+   nn_addmul1_c(a, b, m, c, (word_t) 0)
 
 /*
    Set a = a + b * c + ci where a and b are m words in length, c 
    is a word and ci is a "carry in". The carry out is added to
    a[m]. 
 */
-#define nn_addmul1_c(a, b, m, c, ci) \
+#define nn_s_addmul1_c(a, b, m, c, ci) \
    do { \
-      (a)[m] += _nn_addmul1_c(a, b, m, c, ci); \
+      (a)[m] += nn_addmul1_c(a, b, m, c, ci); \
    } while (0)
 
 /*
    Set a = a + b * c where a and b are m words in length and c 
    is a word. The carry out is added to a[m].  
 */
-#define nn_addmul1(a, b, m, c) \
-   nn_addmul1_c(a, b, m, c, (word_t) 0)
+#define nn_s_addmul1(a, b, m, c) \
+   nn_s_addmul1_c(a, b, m, c, (word_t) 0)
 
 /*
    Set a = a - b * c - ci where a and b are m words in length, c 
    is a word and ci is a "borrow in". The borrow out is returned. 
 */
-word_t _nn_submul1_c(nn_t a, nn_src_t b, len_t m, word_t c, word_t ci);
+word_t nn_submul1_c(nn_t a, nn_src_t b, len_t m, word_t c, word_t ci);
 
 /*
    Set a = a - b * c where a and b are m words in length, and c 
    is a word. The borrow out is returned. 
 */
-#define _nn_submul1(a, b, m, c) \
-   _nn_submul1_c(a, b, m, c, (word_t) 0)
+#define nn_submul1(a, b, m, c) \
+   nn_submul1_c(a, b, m, c, (word_t) 0)
 
 /*
    Set a = a - b * c - ci where a and b are m words in length, c 
    is a word and ci is a "borrow in". The borrow out is subtracted
    from a[m]. 
 */
-#define nn_submul1_c(a, b, m, c, ci) \
+#define nn_s_submul1_c(a, b, m, c, ci) \
    do { \
-      (a)[m] += _nn_submul1_c(a, b, m, c, ci); \
+      (a)[m] += nn_submul1_c(a, b, m, c, ci); \
    } while (0)
 
 /*
    Set a = a - b * c where a and b are m words in length and c 
    is a word. The borrow out is subtracted from a[m].  
 */
-#define nn_submul1(a, b, m, c) \
-   nn_submul1_c(a, b, m, c, (word_t) 0)
+#define nn_s_submul1(a, b, m, c) \
+   nn_s_submul1_c(a, b, m, c, (word_t) 0)
 
 /*
    Set q = (ci*B^m + a) / d and return the remainder, where a is m 
