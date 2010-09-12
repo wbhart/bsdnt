@@ -208,10 +208,10 @@ int test_sub_m(void)
       randoms_of_len(m, ANY, state, &a, &b, NULL);
       randoms_of_len(m + 1, ANY, state, &r1, &r2, NULL);
       
-      nn_neg(r1, b, m);
-      nn_add_m(r1, r1, a, m);
+      nn_s_neg(r1, b, m);
+      nn_s_add_m(r1, r1, a, m);
      
-      nn_sub_m(r2, a, b, m);
+      nn_s_sub_m(r2, a, b, m);
       
       result = nn_equal_m(r1, r2, m + 1);
 
@@ -768,11 +768,11 @@ int test_add1(void)
       
       randoms(ANY, state, &c1, &c2, NULL);
 
-      nn_add1(r1, a, m, c1);
-      nn_add1(r1, r1, m, c2);
-      
-      nn_add1(r2, a, m, c2);
-      nn_add1(r2, r2, m, c1);
+      nn_s_add1(r1, a, m, c1);
+      nn_s_add1(r1, r1, m, c2);
+     
+      nn_s_add1(r2, a, m, c2);
+      nn_s_add1(r2, r2, m, c1);
 
       result = nn_equal_m(r1, r2, m + 1);
 
@@ -789,10 +789,10 @@ int test_add1(void)
       
       randoms(ANY, state, &c1, NULL);
 
-      ci = _nn_add1(r1, a, m, c1);
-      nn_add1(r1 + m, a + m, n, ci);
+      ci = nn_add1(r1, a, m, c1);
+      nn_s_add1(r1 + m, a + m, n, ci);
       
-      nn_add1(r2, a, m + n, c1);
+      nn_s_add1(r2, a, m + n, c1);
       
       result = nn_equal_m(r1, r2, m + n + 1);
 
@@ -821,11 +821,11 @@ int test_sub1(void)
       
       randoms(ANY, state, &c1, &c2, NULL);
 
-      nn_sub1(r1, a, m, c1);
-      nn_sub1(r1, r1, m, c2);
+      nn_s_sub1(r1, a, m, c1);
+      nn_s_sub1(r1, r1, m, c2);
       
-      nn_sub1(r2, a, m, c2);
-      nn_sub1(r2, r2, m, c1);
+      nn_s_sub1(r2, a, m, c2);
+      nn_s_sub1(r2, r2, m, c1);
 
       result = nn_equal_m(r1, r2, m + 1);
 
@@ -842,10 +842,10 @@ int test_sub1(void)
       
       randoms(ANY, state, &c1, NULL);
 
-      ci = _nn_sub1(r1, a, m, c1);
-      nn_sub1(r1 + m, a + m, n, ci);
+      ci = nn_sub1(r1, a, m, c1);
+      nn_s_sub1(r1 + m, a + m, n, ci);
       
-      nn_sub1(r2, a, m + n, c1);
+      nn_s_sub1(r2, a, m + n, c1);
       
       result = nn_equal_m(r1, r2, m + n + 1);
 
@@ -861,9 +861,9 @@ int test_sub1(void)
       a[m] = 0;
 
       randoms(ANY, state, &c1, NULL);
-
-      nn_add1(r1, a, m, c1);
-      nn_sub1(r1, r1, m, c1);
+      
+      nn_s_add1(r1, a, m, c1);
+      nn_s_sub1(r1, r1, m, c1);
       
       result = nn_equal_m(r1, a, m + 1);
 
@@ -915,12 +915,12 @@ int test_neg(void)
       
       randoms_of_len(m, ANY, state, &a, NULL);
       randoms_of_len(m + 1, ANY, state, &r1, &r2, NULL);
-      
-      nn_neg(r1, a, m);
+         
+      nn_s_neg(r1, a, m);
 
       nn_not(r2, a, m);
       r2[m] = ~ (word_t) 0;
-      nn_add1(r2, r2, m, 1);
+      nn_s_add1(r2, r2, m, 1);
       
       result = nn_equal_m(r1, r2, m + 1);
 
@@ -934,11 +934,11 @@ int test_neg(void)
       
       randoms_of_len(m + n, ANY, state, &a, NULL);
       randoms_of_len(m + n + 1, ANY, state, &r1, &r2, NULL);
+         
+      nn_s_neg(r1, a, m + n);
       
-      nn_neg(r1, a, m + n);
-      
-      ci = _nn_neg(r2, a, m);
-      nn_neg_c(r2 + m, a + m, n, ci);
+      ci = nn_neg(r2, a, m);
+      nn_s_neg_c(r2 + m, a + m, n, ci);
       
       result = nn_equal_m(r1, r2, m + n + 1);
 
