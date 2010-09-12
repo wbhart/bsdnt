@@ -294,10 +294,10 @@ int test_sub_m(void)
       nn_random(a, state, m);
       nn_random(b, state, m); 
       
-      nn_neg(r1, b, m);
-      nn_add_m(r1, r1, a, m);
+      nn_s_neg(r1, b, m);
+      nn_s_add_m(r1, r1, a, m);
      
-      nn_sub_m(r2, a, b, m);
+      nn_s_sub_m(r2, a, b, m);
       
       result = nn_equal_m(r1, r2, m + 1);
 
@@ -960,11 +960,11 @@ int test_add1(void)
       c1 = randword(state);
       c2 = randword(state);
       
-      nn_add1(r1, a, m, c1);
-      nn_add1(r1, r1, m, c2);
+      nn_s_add1(r1, a, m, c1);
+      nn_s_add1(r1, r1, m, c2);
       
-      nn_add1(r2, a, m, c2);
-      nn_add1(r2, r2, m, c1);
+      nn_s_add1(r2, a, m, c2);
+      nn_s_add1(r2, r2, m, c1);
 
       result = nn_equal_m(r1, r2, m + 1);
 
@@ -993,10 +993,10 @@ int test_add1(void)
    
       c1 = randword(state);
 
-      ci = _nn_add1(r1, a, m, c1);
-      nn_add1(r1 + m, a + m, n, ci);
+      ci = nn_add1(r1, a, m, c1);
+      nn_s_add1(r1 + m, a + m, n, ci);
       
-      nn_add1(r2, a, m + n, c1);
+      nn_s_add1(r2, a, m + n, c1);
       
       result = nn_equal_m(r1, r2, m + n + 1);
 
@@ -1038,11 +1038,11 @@ int test_sub1(void)
       c1 = randword(state);
       c2 = randword(state);
       
-      nn_sub1(r1, a, m, c1);
-      nn_sub1(r1, r1, m, c2);
+      nn_s_sub1(r1, a, m, c1);
+      nn_s_sub1(r1, r1, m, c2);
       
-      nn_sub1(r2, a, m, c2);
-      nn_sub1(r2, r2, m, c1);
+      nn_s_sub1(r2, a, m, c2);
+      nn_s_sub1(r2, r2, m, c1);
 
       result = nn_equal_m(r1, r2, m + 1);
 
@@ -1071,10 +1071,10 @@ int test_sub1(void)
    
       c1 = randword(state);
 
-      ci = _nn_sub1(r1, a, m, c1);
-      nn_sub1(r1 + m, a + m, n, ci);
+      ci = nn_sub1(r1, a, m, c1);
+      nn_s_sub1(r1 + m, a + m, n, ci);
       
-      nn_sub1(r2, a, m + n, c1);
+      nn_s_sub1(r2, a, m + n, c1);
       
       result = nn_equal_m(r1, r2, m + n + 1);
 
@@ -1102,8 +1102,8 @@ int test_sub1(void)
    
       c1 = randword(state);
       
-      nn_add1(r1, a, m, c1);
-      nn_sub1(r1, r1, m, c1);
+      nn_s_add1(r1, a, m, c1);
+      nn_s_sub1(r1, r1, m, c1);
       
       result = nn_equal_m(r1, a, m + 1);
 
@@ -1178,11 +1178,11 @@ int test_neg(void)
       
       nn_random(a, state, m);
    
-      nn_neg(r1, a, m);
+      nn_s_neg(r1, a, m);
 
       nn_not(r2, a, m);
       r2[m] = ~ (word_t) 0;
-      nn_add1(r2, r2, m, 1);
+      nn_s_add1(r2, r2, m, 1);
       
       result = nn_equal_m(r1, r2, m + 1);
 
@@ -1209,10 +1209,10 @@ int test_neg(void)
       
       nn_random(a, state, m + n);
    
-      nn_neg(r1, a, m + n);
+      nn_s_neg(r1, a, m + n);
       
-      ci = _nn_neg(r2, a, m);
-      nn_neg_c(r2 + m, a + m, n, ci);
+      ci = nn_neg(r2, a, m);
+      nn_s_neg_c(r2 + m, a + m, n, ci);
       
       result = nn_equal_m(r1, r2, m + n + 1);
 
