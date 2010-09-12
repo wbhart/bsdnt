@@ -1584,9 +1584,9 @@ int test_divrem1_simple(void)
          d = randword(state);
       } while (d == 0);
 
-      r = _nn_divrem1_simple(q, a, m, d);
+      r = nn_divrem1_simple(q, a, m, d);
 
-      ci = _nn_mul1_c(r1, q, m, d, r);
+      ci = nn_mul1_c(r1, q, m, d, r);
 
       result = (nn_equal_m(r1, a, m) && ci == 0);
 
@@ -1617,10 +1617,10 @@ int test_divrem1_simple(void)
 
       nn_random(a, state, m + n);
          
-      ci = _nn_divrem1_simple(r1 + n, a + n, m, d);
-      _nn_divrem1_simple_c(r1, a, n, d, ci);
+      ci = nn_divrem1_simple(r1 + n, a + n, m, d);
+      nn_divrem1_simple_c(r1, a, n, d, ci);
       
-      _nn_divrem1_simple(r2, a, m + n, d);
+      nn_divrem1_simple(r2, a, m + n, d);
 
       result = nn_equal_m(r1, r2, m + n);
 
