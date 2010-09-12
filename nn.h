@@ -224,56 +224,56 @@ len_t nn_normalise(nn_t a, len_t m)
    in length. Return any borrow. The word ci is a carry-in. It is
    effectively subtracted from the result.
 */
-word_t _nn_neg_c(nn_t a, nn_src_t b, len_t m, word_t ci);
+word_t nn_neg_c(nn_t a, nn_src_t b, len_t m, word_t ci);
 
 /*
    Set a to the twos complement negation of b, where b is m words
    in length. Return any borrow.
 */
-#define _nn_neg(a, b, m) \
-    _nn_neg_c(a, b, m, 0)
+#define nn_neg(a, b, m) \
+    nn_neg_c(a, b, m, 0)
 
 /*
    Set a to the twos complement negation of b, where b is m words
    in length. The word ci is a carry-in. It is effectively subtracted
    from the result. The borrow is written out to a[m]. 
 */
-#define nn_neg_c(a, b, m, ci) \
+#define nn_s_neg_c(a, b, m, ci) \
    do { \
-      (a)[m] = -_nn_neg_c(a, b, m, ci); \
+      (a)[m] = -nn_neg_c(a, b, m, ci); \
    } while (0)
 
 /*
    Set a to the twos complement negation of b, where b is m words
    in length. The borrow is written out to a[m].
 */
-#define nn_neg(a, b, m) \
-   nn_neg_c(a, b, m, 0)
+#define nn_s_neg(a, b, m) \
+   nn_s_neg_c(a, b, m, 0)
 
 /*
    Set a = b + c where b is m words in length, and c is a word. 
    Return any carry out. 
 */
-word_t _nn_add1(nn_t a, nn_src_t b, len_t m, word_t c);
+word_t nn_add1(nn_t a, nn_src_t b, len_t m, word_t c);
 
 /*
    Set a = b + c where b is m words in length, and c is a word. 
    Write any carry out to a[m]. If a and b are aliased, the 
    carry out is added to a[m], otherwise it is written to a[m].
 */
-#define nn_add1(a, b, m, c) \
+#define nn_s_add1(a, b, m, c) \
    do { \
       if ((a) == (b)) \
-         (a)[m] += _nn_add1(a, b, m, c); \
+         (a)[m] += nn_add1(a, b, m, c); \
       else \
-         (a)[m] = _nn_add1(a, b, m, c); \
+         (a)[m] = nn_add1(a, b, m, c); \
    } while (0)
 
 /*
    Set a = b - c where b is m words in length, and c is a word. 
    Return any borrow out. 
 */
-word_t _nn_sub1(nn_t a, nn_src_t b, len_t m, word_t c);
+word_t nn_sub1(nn_t a, nn_src_t b, len_t m, word_t c);
 
 /*
    Set a = b - c where b is m words in length, and c is a word. 
@@ -281,12 +281,12 @@ word_t _nn_sub1(nn_t a, nn_src_t b, len_t m, word_t c);
    borrow out is subtracted from a[m], otherwise it is written 
    to a[m].
 */
-#define nn_sub1(a, b, m, c) \
+#define nn_s_sub1(a, b, m, c) \
    do { \
       if ((a) == (b)) \
-         (a)[m] -= _nn_sub1(a, b, m, c); \
+         (a)[m] -= nn_sub1(a, b, m, c); \
       else \
-         (a)[m] = -_nn_sub1(a, b, m, c); \
+         (a)[m] = -nn_sub1(a, b, m, c); \
    } while (0)
 
 /*
