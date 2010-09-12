@@ -349,26 +349,26 @@ word_t nn_add_mc(nn_t a, nn_src_t b, nn_src_t c, len_t m, word_t ci);
    Set a = b - c - bi where b and c are both m words in length,
    bi is a "borrow". Return any borrow. 
 */
-word_t _nn_sub_mc(nn_t a, nn_src_t b, nn_src_t c, len_t m, word_t bi);
+word_t nn_sub_mc(nn_t a, nn_src_t b, nn_src_t c, len_t m, word_t bi);
 
 /*
    Set a = b - c where b and c are both m words in length. Return 
    any borrow. 
 */
-#define _nn_sub_m(a, b, c, m) \
-   _nn_sub_mc(a, b, c, m, (word_t) 0)
+#define nn_sub_m(a, b, c, m) \
+   nn_sub_mc(a, b, c, m, (word_t) 0)
 
 /*
    Set a = b - c - bi where b and c are both m words in length, 
    writing the borrow to a. If a and b are aliased, the boorow is 
    subtracted from a[m], otherwise a[m] is set to the borrow.
 */
-#define nn_sub_mc(a, b, c, m, bi) \
+#define nn_s_sub_mc(a, b, c, m, bi) \
    do { \
       if ((a) == (b)) \
-         (a)[m] -= _nn_sub_mc(a, b, c, m, bi); \
+         (a)[m] -= nn_sub_mc(a, b, c, m, bi); \
       else \
-         (a)[m] = -_nn_sub_mc(a, b, c, m, bi); \
+         (a)[m] = -nn_sub_mc(a, b, c, m, bi); \
    } while (0)
 
 /*
@@ -376,8 +376,8 @@ word_t _nn_sub_mc(nn_t a, nn_src_t b, nn_src_t c, len_t m, word_t bi);
    writing the borrow to a. If a and b are aliased, the borrow is 
    subtracted from a[m], otherwise a[m] is set to the borrow.
 */
-#define nn_sub_m(a, b, c, m) \
-   nn_sub_mc(a, b, c, m, (word_t) 0)
+#define nn_s_sub_m(a, b, c, m) \
+   nn_s_sub_mc(a, b, c, m, (word_t) 0)
 
 /*
    Set a = b + c + ci where b is bm words, c is cm words in length,
@@ -468,58 +468,59 @@ word_t _nn_sub_c(nn_t a, nn_src_t b, len_t bm,
    ci is a "carry in". Return any carry out. Assumes 0 <= bits
    < WORD_BITS.
 */
-word_t _nn_shl_c(nn_t a, nn_src_t b, len_t m, bits_t bits, word_t ci);
+word_t nn_shl_c(nn_t a, nn_src_t b, len_t m, bits_t bits, word_t ci);
 
 /*
    Set a = (b << bits) where b is m words in length. Return 
    any carry out. Assumes 0 <= bits < WORD_BITS.
 */
-#define _nn_shl(a, b, m, bits) \
-   _nn_shl_c(a, b, m, bits, (word_t) 0)
+#define nn_shl(a, b, m, bits) \
+   nn_shl_c(a, b, m, bits, (word_t) 0)
 
 /*
    Set a = (b << bits) + ci where b is m words in length, ci is
    a "carry in", and writing the carry out to a[m]. Assumes 0 <= 
    bits < WORD_BITS.
 */
-#define nn_shl_c(a, b, m, bits, ci) \
+#define nn_s_shl_c(a, b, m, bits, ci) \
    do { \
-      (a)[m] = _nn_shl_c(a, b, m, bits, ci); \
+      (a)[m] = nn_shl_c(a, b, m, bits, ci); \
    } while (0)
 
 /*
    Set a = (b << bits) where b is m words in length, writing the 
    carry out to a[m]. Assumes 0 <= bits < WORD_BITS.
 */
-#define nn_shl(a, b, m, bits) \
-   nn_shl_c(a, b, m, bits, (word_t) 0)
+#define nn_s_shl(a, b, m, bits) \
+   nn_s_shl_c(a, b, m, bits, (word_t) 0)
 
 /*
    Set a = (b >> bits) + ci*B^(m - 1) where b is m words 
    in length, ci is a "carry in". Return any carry out from the low
    end. Assumes 0 <= bits < WORD_BITS.
 */
-word_t _nn_shr_c(nn_t a, nn_src_t b, len_t m, bits_t bits, word_t ci);
+word_t nn_shr_c(nn_t a, nn_src_t b, len_t m, bits_t bits, word_t ci);
 
 /*
    Set a = (b >> bits) where b is m words in length. Return 
    any carry out from the low end. Assumes 0 <= bits < WORD_BITS.
 */
-#define _nn_shr(a, b, m, bits) \
-   _nn_shr_c(a, b, m, bits, (word_t) 0)
+#define nn_shr(a, b, m, bits) \
+   nn_shr_c(a, b, m, bits, (word_t) 0)
 
 /*
    Set a = (b >> bits) + ci*B^(m - 1) where b is m words 
    in length, and ci is a[m]*2^(WORD_BITS - bits). Assumes 0 <= bits < 
    WORD_BITS.
 */
-#define nn_shr(a, b, m, bits) \
-   do { \
-      if (bits) \
-         _nn_shr_c(a, b, m, bits, (b)[m] << (WORD_BITS - (bits))); \
-      else \
-         _nn_shr_c(a, b, m, bits, (word_t) 0); \
-   } while (0)
+static inline
+word_t nn_r_shr(nn_t a, nn_src_t b, len_t m, bits_t bits)
+{
+   if (bits)
+      return nn_shr_c(a, b, m, bits, (b)[m] << (WORD_BITS - (bits))); \
+   else
+      return nn_shr_c(a, b, m, bits, (word_t) 0); \
+}
 
 /*
    Set a = b * c + ci where b is m words in length, c is a word and
