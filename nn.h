@@ -153,12 +153,13 @@ word_t nn_neg_c(nn_t a, nn_src_t b, len_t m, word_t ci);
 /*
    Set a to the twos complement negation of b, where b is m words
    in length. The word ci is a carry-in. It is effectively subtracted
-   from the result. The borrow is written out to a[m]. 
+   from the result. The borrow is written out to a[m] and returned. 
 */
-#define nn_s_neg_c(a, b, m, ci) \
-   do { \
-      (a)[m] = -nn_neg_c(a, b, m, ci); \
-   } while (0)
+static inline
+word_t nn_s_neg_c(nn_t a, nn_src_t b, len_t m, word_t ci)
+{
+   return (a[m] = -nn_neg_c(a, b, m, ci));
+}
 
 /*
    Set a to the twos complement negation of b, where b is m words
@@ -374,13 +375,14 @@ word_t nn_shl_c(nn_t a, nn_src_t b, len_t m, bits_t bits, word_t ci);
 
 /*
    Set a = (b << bits) + ci where b is m words in length, ci is
-   a "carry in", and writing the carry out to a[m]. Assumes 0 <= 
-   bits < WORD_BITS.
+   a "carry in", and write the carry out to a[m] and return it. 
+   Assumes 0 <= bits < WORD_BITS.
 */
-#define nn_s_shl_c(a, b, m, bits, ci) \
-   do { \
-      (a)[m] = nn_shl_c(a, b, m, bits, ci); \
-   } while (0)
+static inline
+word_t nn_s_shl_c(nn_t a, nn_src_t b, len_t m, bits_t bits, word_t ci)
+{
+   return (a[m] = nn_shl_c(a, b, m, bits, ci));
+}
 
 /*
    Set a = (b << bits) where b is m words in length, writing the 
@@ -432,12 +434,13 @@ word_t nn_mul1_c(nn_t a, nn_src_t b, len_t m, word_t c, word_t ci);
 
 /*
    Set a = b * c + ci where b is m words in length, c is a word and
-   ci is a "carry in". Write any carry out to a[m]. 
+   ci is a "carry in". Write any carry out to a[m] and return it.
 */
-#define nn_s_mul1_c(a, b, m, c, ci) \
-   do { \
-      (a)[m] = nn_mul1_c(a, b, m, c, ci); \
-   } while (0)
+static inline
+word_t nn_s_mul1_c(nn_t a, nn_src_t b, len_t m, word_t c, word_t ci)
+{
+   return (a[m] = nn_mul1_c(a, b, m, c, ci)); 
+}
 
 /*
    Set a = b * c where b is m words in length and c is a word.
