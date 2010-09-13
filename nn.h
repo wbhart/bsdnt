@@ -433,12 +433,13 @@ word_t nn_mul1_c(nn_t a, nn_src_t b, len_t m, word_t c, word_t ci);
 
 /*
    Set a = b * c + ci where b is m words in length, c is a word and
-   ci is a "carry in". Write any carry out to a[m]. 
+   ci is a "carry in". Write any carry out to a[m] and return it.
 */
-#define nn_s_mul1_c(a, b, m, c, ci) \
-   do { \
-      (a)[m] = nn_mul1_c(a, b, m, c, ci); \
-   } while (0)
+static inline
+word_t nn_s_mul1_c(nn_t a, nn_src_t b, len_t m, word_t c, word_t ci)
+{
+   return (a[m] = nn_mul1_c(a, b, m, c, ci)); 
+}
 
 /*
    Set a = b * c where b is m words in length and c is a word.
