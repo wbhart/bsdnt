@@ -601,7 +601,7 @@ word_t nn_submul1_c(nn_t a, nn_src_t b, len_t m, word_t c, word_t ci);
 */
 #define nn_s_submul1_c(a, b, m, c, ci) \
    do { \
-      (a)[m] += nn_submul1_c(a, b, m, c, ci); \
+      (a)[m] -= nn_submul1_c(a, b, m, c, ci); \
    } while (0)
 
 /*
