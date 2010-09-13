@@ -57,43 +57,33 @@ _nn_add_mc:
     push    rbp
     mov     rbp, rsp
 
-    ; get arguments to functions. We expect an integer type
-    ; or rather a pointer to be passed to an integer type
-    ; we don't think it will be SSE (xmm0-7) or X87.
-
-    ; move into gen purpose regs.
-    mov     rax, rdi            ; nn_t a (ptr)
-    mov     r11, rsi            ; nn_t b (ptr) 
-
-    ; these calls are technically redundant. Left
-    ; for now, for clarity.
-    mov     rdx, rdx            ; nn_t c (ptr)
-    mov     r8, r8              ; len_t m 
-    mov     r9, r9              ; word_t ci 
-
+    ; arguments to functions. 
+    ; arguments are in:
+    ; * rdi (a)
+    ; * rsi (b)
+    ; * rdx (c)
+    ; * r8  (m)
+    ; * r9  (ci)
+    
+    xor     r10, r10
+    mov     r10, r9
     mov     rcx, 0
+
 
 _nn_add_mc_loop:
 
     ; t = 0
-    xor     r10,r10 
 
     ; t = (dword_t) b[i] + (dword_t) c[i] + (dword_t) ci;
 
-
-    add     r10, [r11 + rcx*8]
-    add     r10, [rdx + rcx*8]
-    add     r10, [r9  + rcx*8]
+    adc     r10, [rsi + rcx*8]
+    adc     r10, [rdx + rcx*8]
     
-    mov     r8, r10
-    mov     r9, r10
-    shl     r8, 8
-
     ; a[i] = (word_t) t; => a[i] = LOWORD
-    mov     [rax+rcx*8], r8;
+    ; shl     r10, 8
+    mov     [rdi+rcx*8], r10;
 
     ; ci = (t >> WORD_BITS); a[i] = HIWORD
-    shr     r9, 8
 
     ; loop control
     inc     rcx
@@ -103,7 +93,8 @@ _nn_add_mc_loop:
 _nn_add_mc_exit:
 
     ; set return value (rax)
-    mov     rax, r9             ; return carry
+    shr     r10, 8
+    mov     rax, r10             ; return carry
 
     ; destroy stack frame
     pop     rbp

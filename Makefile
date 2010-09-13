@@ -60,7 +60,7 @@ BINARIES = $(TESTS)
 all: $(ASOBJS) $(OBJS) $(BINARIES)
 
 clean:
-	rm -f $(OBJS) $(BINARIES)
+	rm -f $(ASOBJS) $(OBJS) $(BINARIES)
 
 check: $(OBJS) $(BINARIES)
 	$(foreach prog, $(TESTS), $(prog);)	
@@ -68,13 +68,13 @@ check: $(OBJS) $(BINARIES)
 strip:
 	strip $(BINARIES)
 
-./build/arch/x86-64/%.o: arch/x86-64/%.asm
+build/arch/x86-64/%.o: arch/x86-64/%.asm
 	$(QUIET_AS)$(AS)  $(AFLAGS) $< -o $@
 
 build/%.o: %.c
 	$(QUIET_CC)$(CC)  $(CFLAGS) $(INCS) -c $< -o $@
 
-build/test/t-nn: build/nn.o build/t-nn.o
+build/test/t-nn: build/nn.o build/t-nn.o build/arch/x86-64/nn_add_mc.o
 	$(QUIET_LINK)$(CC) -o build/test/t-nn build/nn.o build/t-nn.o build/arch/x86-64/nn_add_mc.o
 	
 
