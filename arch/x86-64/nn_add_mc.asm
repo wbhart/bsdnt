@@ -38,8 +38,6 @@
 ; data segment. 
 SECTION .data
 
-    WORDSIZE dw 8
-
 ; code segment. 
 SECTION .code
 
@@ -57,37 +55,36 @@ _nn_add_mc:
     push    rbp
     mov     rbp, rsp
 
+
     ; arguments to functions. 
     ; arguments are in:
     ; * rdi (a)
     ; * rsi (b)
     ; * rdx (c)
-    ; * r8  (m)
-    ; * r9  (ci)
-    
-    xor     r10, r10
-    mov     r10, r9
-    mov     rcx, 0
+    ; * rcx  (m)
+    ; * r8  (ci)
 
+    xor     r10, r10
+    mov     r10, r8
+    mov     rbx, 0
 
 _nn_add_mc_loop:
 
     ; t = 0
-
     ; t = (dword_t) b[i] + (dword_t) c[i] + (dword_t) ci;
 
-    adc     r10, [rsi + rcx*8]
-    adc     r10, [rdx + rcx*8]
+    adc     r10, [rsi + rbx*8]
+    adc     r10, [rdx + rbx*8]
     
     ; a[i] = (word_t) t; => a[i] = LOWORD
     ; shl     r10, 8
-    mov     [rdi+rcx*8], r10;
+    mov     [rdi+rbx*8], r10
 
     ; ci = (t >> WORD_BITS); a[i] = HIWORD
 
     ; loop control
-    inc     rcx
-    cmp     r15, rcx
+    inc     rbx
+    cmp     rcx, rbx
     jl      _nn_add_mc_loop 
 
 _nn_add_mc_exit:
