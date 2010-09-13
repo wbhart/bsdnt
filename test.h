@@ -3,6 +3,15 @@
 
 #include "nn.h"
 
+#define TEST_START(XXX) \
+   do { \
+      long __count; \
+      for (__count = 0; __count < XXX  && result == 1; __count++)
+
+#define TEST_END \
+      gc_cleanup(); \
+   } while (0)
+
 typedef enum
 {
    NN 

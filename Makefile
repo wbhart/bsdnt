@@ -42,21 +42,22 @@ SOURCES = $(wildcard *.c)
 HEADERS = $(wildcard *.h)
 OBJS = $(patsubst %.c, build/%.o, $(SOURCES))
 
-TESTS = build/test/t-nn
-
-BINARIES = $(TESTS)
+TESTS = $(wildcard test/*.c)
+TEST_OBJS = $(patsubst %.c, build/%.o, $(TESTS))
+BINARIES = $(patsubst %.c, build/%, $(TESTS))
 
 # PHONY SPEC
 .PHONY: all dist
 
 # RULES
-all: $(OBJS) $(BINARIES)
-
+all: $(OBJS) $(TEST_OBJS)
+	$(foreach prog, $(BINARIES), $(QUIET_LINK)$(CC) -I.. $(OBJS) $(prog).o -o $(prog);)
+	
 clean:
-	rm -f $(OBJS) $(BINARIES)
+	rm -f $(OBJS) $(TEST_OBJS) $(BINARIES)
 
-check: $(OBJS) $(BINARIES)
-	$(foreach prog, $(TESTS), $(prog);)	
+check: all
+	$(foreach prog, $(BINARIES), $(prog);)	
 
 strip:
 	strip $(BINARIES)
@@ -64,7 +65,6 @@ strip:
 build/%.o: %.c
 	$(QUIET_CC)$(CC)  $(CFLAGS) $(INCS) -c $< -o $@
 
-build/test/t-nn: build/test.o build/nn.o build/t-nn.o
-	$(QUIET_LINK)$(CC) -o build/test/t-nn build/nn.o build/test.o build/t-nn.o 
-	
+build/test/%.o: %.c
+	$(QUIET_CC)$(CC)  $(CFLAGS) $(INCS) -c test/$< -o $@
 
