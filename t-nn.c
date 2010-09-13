@@ -1058,7 +1058,6 @@ int test_divrem1_simple(void)
    /* test that a = q * d + r */
    TEST_START(ITER) 
    {
-<<<<<<< HEAD:t-nn.c
       randoms_upto(100, ANY, state, &m, NULL);
       
       randoms_of_len(m + 1, ANY, state, &r1, &a, &q, NULL);
