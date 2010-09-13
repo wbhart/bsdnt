@@ -1252,19 +1252,6 @@ int test_mod1_preinv(void)
    return result;
 }
 
-#define RUN(xxx) \
-   do { \
-      if (xxx()) \
-      { \
-         printf("PASS\n"); \
-         pass++; \
-      } else \
-      { \
-         printf("FAIL\n"); \
-         fail++; \
-      } \
-   } while (0)
-
 int main(void)
 {
    long pass = 0;

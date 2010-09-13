@@ -12,6 +12,19 @@
       gc_cleanup(); \
    } while (0)
 
+#define RUN(xxx) \
+   do { \
+      if (xxx()) \
+      { \
+         printf("PASS\n"); \
+         pass++; \
+      } else \
+      { \
+         printf("FAIL\n"); \
+         fail++; \
+      } \
+   } while (0)
+
 typedef enum
 {
    NN 
