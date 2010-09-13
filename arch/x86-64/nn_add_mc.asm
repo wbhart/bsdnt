@@ -71,33 +71,31 @@ _nn_add_mc:
 
     xor     r10, r10
     xor     rbx, rbx
+    adc     r10, r8
 
 _nn_add_mc_loop:
 
     ; t = (dword_t) b[i] + (dword_t) c[i] + (dword_t) ci;
     ; ci is contained in r10.
     mov     r10, [rsi + rbx*8]
-    adc     r10, r8             ; we don't expect this to carry.
     adc     r10, [rdx + rbx*8]  ; we do expect this to carry if it's going to.
     
     ; a[i] = (word_t) t; => a[i] = LOWORD
     mov     [rdi+rbx*8], r10
 
     ; ci = (t >> WORD_BITS); a[i] = HIWORD
-    ; put the carry into r8!
 
     ; loop control
     inc     rbx
-    cmp     rcx, rbx
-    jl      _nn_add_mc_loop 
+    dec     rcx
+    jnz     _nn_add_mc_loop 
 
 _nn_add_mc_exit:
 
     ; set return value (rax)
     ; shr     r10, 8
     ; damn thing won't return if I don't put a zero here.
-
-    mov     rax, r10             ; return carry
+    mov     rax, r10            ; return carry
 
     ; restore preserved registers
     pop     rbx
