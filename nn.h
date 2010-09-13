@@ -217,12 +217,13 @@ word_t nn_neg_c(nn_t a, nn_src_t b, len_t m, word_t ci);
 /*
    Set a to the twos complement negation of b, where b is m words
    in length. The word ci is a carry-in. It is effectively subtracted
-   from the result. The borrow is written out to a[m]. 
+   from the result. The borrow is written out to a[m] and returned. 
 */
-#define nn_s_neg_c(a, b, m, ci) \
-   do { \
-      (a)[m] = -nn_neg_c(a, b, m, ci); \
-   } while (0)
+static inline
+word_t nn_s_neg_c(nn_t a, nn_src_t b, len_t m, word_t ci)
+{
+   return (a[m] = -nn_neg_c(a, b, m, ci));
+}
 
 /*
    Set a to the twos complement negation of b, where b is m words
