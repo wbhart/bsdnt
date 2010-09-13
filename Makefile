@@ -25,7 +25,7 @@ AR=ar
 CC=gcc
 CFLAGS=-pedantic -O2 -g -fopenmp -fPIC -Wall
 LIBS=-L$(CURDIR)
-INCS=-I$(CURDIR) 
+INCS=-I$(CURDIR)
 
 # QUIET MAKE
 QUIET_CC         = @echo '   ' CC '   ' $@;
@@ -51,12 +51,12 @@ BINARIES = $(patsubst %.c, build/%, $(TESTS))
 
 # RULES
 all: $(OBJS) $(TEST_OBJS)
-	$(foreach prog, $(BINARIES), $(QUIET_LINK)$(CC) -I.. $(OBJS) $(prog).o -o $(prog);)
+	$(QUIET_LINK)$(foreach prog, $(BINARIES), $(CC) $(OBJS) $(prog).o -o $(prog);)
 	
 clean:
 	rm -f $(OBJS) $(TEST_OBJS) $(BINARIES)
 
-check: all
+check: all 
 	$(foreach prog, $(BINARIES), $(prog);)	
 
 strip:

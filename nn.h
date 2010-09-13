@@ -755,5 +755,13 @@ void nn_not(nn_t a, nn_src_t b, len_t m)
       a[i] = ~b[i];
 }
 
+/**********************************************************************
+ 
+    Quadratic arithmetic functions
+
+**********************************************************************/
+
+void nn_mul_classical(nn_t r, nn_src_t a, len_t m1, nn_src_t b, len_t m2);
+
 #endif
 
