@@ -291,8 +291,8 @@ word_t nn_shl_c(nn_t a, nn_src_t b, len_t m, bits_t bits, word_t ci);
 
 /*
    Set a = (b << bits) + ci where b is m words in length, ci is
-   a "carry in", and writing the carry out to a[m]. Assumes 0 <= 
-   bits < WORD_BITS.
+   a "carry in", and write the carry out to a[m] and return it. 
+   Assumes 0 <= bits < WORD_BITS.
 */
 static inline
 word_t nn_s_shl_c(nn_t a, nn_src_t b, len_t m, bits_t bits, word_t ci)
