@@ -761,6 +761,10 @@ void nn_not(nn_t a, nn_src_t b, len_t m)
 
 **********************************************************************/
 
+/*
+   Set {r, m1 + m2} = {a, m1} * {b, m2}. The output r may not alias
+   either of the inputs a or b. We require m1 >= m2.
+*/
 void nn_mul_classical(nn_t r, nn_src_t a, len_t m1, nn_src_t b, len_t m2);
 
 #endif
