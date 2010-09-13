@@ -293,10 +293,11 @@ word_t nn_shl_c(nn_t a, nn_src_t b, len_t m, bits_t bits, word_t ci);
    a "carry in", and writing the carry out to a[m]. Assumes 0 <= 
    bits < WORD_BITS.
 */
-#define nn_s_shl_c(a, b, m, bits, ci) \
-   do { \
-      (a)[m] = nn_shl_c(a, b, m, bits, ci); \
-   } while (0)
+static inline
+word_t nn_s_shl_c(nn_t a, nn_src_t b, len_t m, bits_t bits, word_t ci)
+{
+   return (a[m] = nn_shl_c(a, b, m, bits, ci));
+}
 
 /*
    Set a = (b << bits) where b is m words in length, writing the 
