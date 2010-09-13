@@ -509,6 +509,22 @@ word_t nn_submul1_c(nn_t a, nn_src_t b, len_t m, word_t c, word_t ci);
 #define nn_s_submul1(a, b, m, c) \
    nn_s_submul1_c(a, b, m, c, (word_t) 0)
 
+/*
+   Set q = (ci*B^m + a) / d and return the remainder, where a is m 
+   words in length, d is a word and ci is a "carry-in" which must be
+   reduced mod d. The quotient q requires m limbs of space.  An 
+   exception will result if d is 0.
+*/
+word_t nn_divrem1_simple_c(nn_t q, nn_src_t a, len_t m, word_t d, word_t ci);
+
+/*
+   Set q = a / d and return the remainder, where a is m words in 
+   length and d is a word. The quotient q requires m limbs of space. 
+   An exception will result if d is 0.
+*/
+#define nn_divrem1_simple(q, a, m, d) \
+   nn_divrem1_simple_c(q, a, m, d, (word_t) 0)
+
 /**********************************************************************
  
     Comparison
