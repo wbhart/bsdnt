@@ -33,7 +33,10 @@
 
 ; About: This code is an assembly implementation of
 ; Bill's nn_add_mc function for x64 processors, influenced
-; by his blog and code in nn.c.
+; by his blog and code in nn.c.#
+
+; Assumptions: word_t is uint64_t and 8 bits wide
+; as opposed to four bits wide.
 
 ; data segment. 
 SECTION .data
@@ -55,6 +58,8 @@ _nn_add_mc:
     push    rbp
     mov     rbp, rsp
 
+    ; preserve registers we're not supposed to touch.
+    push    rbx
 
     ; arguments to functions. 
     ; arguments are in:
@@ -65,23 +70,24 @@ _nn_add_mc:
     ; * r8  (ci)
 
     xor     r10, r10
+    xor     rbx, rbx
     mov     r10, r8
-    mov     rbx, 0
 
 _nn_add_mc_loop:
 
-    ; t = 0
     ; t = (dword_t) b[i] + (dword_t) c[i] + (dword_t) ci;
-
+    ; ci is contained in r10.
     adc     r10, [rsi + rbx*8]
     adc     r10, [rdx + rbx*8]
     
     ; a[i] = (word_t) t; => a[i] = LOWORD
-    ; shl     r10, 8
     mov     [rdi+rbx*8], r10
 
     ; ci = (t >> WORD_BITS); a[i] = HIWORD
+    mov     r11, r10
 
+    xor     r10, r10
+    
     ; loop control
     inc     rbx
     cmp     rcx, rbx
@@ -90,8 +96,12 @@ _nn_add_mc_loop:
 _nn_add_mc_exit:
 
     ; set return value (rax)
-    shr     r10, 8
-    mov     rax, r10             ; return carry
+    ; shr     r10, 8
+    ; damn thing won't return if I don't put a zero here.
+    mov     rax, 0             ; return carry
+
+    ; restore preserved registers
+    pop     rbx
 
     ; destroy stack frame
     pop     rbp
