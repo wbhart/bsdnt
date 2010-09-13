@@ -2,7 +2,7 @@
 	First commit - CHANGES and LICENSE file.
 
 05-Sep-2010:
-	v0.1 - nn_add function, random functions, nn_equal_m, nn_equal, 
+ 	v0.1 - nn_add function, random functions, nn_equal_m, nn_equal, 
 	basic types.
 
 05-Sep-2010:
@@ -15,5 +15,8 @@
         v0.4 - nn_not, nn_neg, nn_add1, nn_sub1.
 
 07-Sep-2010:
-	 v0.5 - nn_add, nn_sub, nn_cmp_m, nn_cmp.
+        v0.5 - nn_add, nn_sub, nn_cmp_m, nn_cmp.
+
+07-Sep-2010:
+	v0.6 - nn_addmul1, nn_submul1.
 

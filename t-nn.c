@@ -935,6 +935,184 @@ int test_mul1(void)
    return result;
 }
 
+int test_addmul1(void)
+{
+   int result = 1;
+   long i;
+   nn_t a, b, r1, r2, t1;
+   word_t c1, c2, ci;
+   len_t m, n;
+
+   printf("nn_addmul1...");
+
+   /* test a + b * (c1 + c2) = a + b * c1 + b * c2 */
+   for (i = 0; i < ITER && result == 1; i++)
+   {
+      m = randint(100, state);
+
+      a = nn_init(m);
+      b = nn_init(m);
+      
+      t1 = nn_init(m + 1);
+      r1 = nn_init(m + 1);
+      r2 = nn_init(m + 1);
+
+      nn_random(a, state, m);
+      nn_random(b, state, m);
+   
+      nn_copy(r1, a, m);
+      nn_copy(r2, a, m);
+
+      do
+      {
+         c1 = randword(state);
+         c2 = randword(state);
+      } while (c1 + c2 < c1);
+
+      r1[m] = nn_addmul1(r1, b, m, c1);
+      nn_s_addmul1(r1, b, m, c2);
+      
+      r2[m] = nn_addmul1(r2, b, m, c1 + c2);
+
+      result = nn_equal_m(r1, r2, m + 1);
+
+      if (!result)
+      {
+         printf("m = %ld, c1 = %ld, c2 = %ld\n", m, c1, c2);
+      }
+
+      nn_clear(a);
+      nn_clear(b);
+      nn_clear(r1);
+      nn_clear(r2);
+   }
+
+   /* test chaining of addmul1 */
+   for (i = 0; i < ITER && result == 1; i++)
+   {
+      m = randint(100, state);
+      n = randint(100, state);
+
+      a = nn_init(m + n);
+      
+      r1 = nn_init(m + n + 1);
+      r2 = nn_init(m + n + 1);
+
+      nn_random(a, state, m + n);
+      nn_random(r1, state, m + n);
+      nn_copy(r2, r1, m + n);
+
+      c1 = randword(state);
+
+      ci = nn_addmul1(r1, a, m, c1);
+      r1[m + n] = nn_addmul1_c(r1 + m, a + m, n, c1, ci);
+      
+      r2[m + n] = nn_addmul1(r2, a, m + n, c1);
+      
+      result = nn_equal_m(r1, r2, m + n + 1);
+
+      if (!result)
+      {
+         printf("m = %ld, n = %ld, c1 = %ld\n", m, n, c1);
+      }
+
+      nn_clear(a);
+      nn_clear(r1);
+      nn_clear(r2);
+   }
+
+   return result;
+}
+
+int test_submul1(void)
+{
+   int result = 1;
+   long i;
+   nn_t a, b, r1, r2, t1;
+   word_t c1, c2, ci;
+   len_t m, n;
+
+   printf("nn_submul1...");
+
+   /* test a - b * (c1 + c2) = a - b * c1 - b * c2 */
+   for (i = 0; i < ITER && result == 1; i++)
+   {
+      m = randint(100, state);
+
+      a = nn_init(m);
+      b = nn_init(m);
+      
+      t1 = nn_init(m + 1);
+      r1 = nn_init(m + 1);
+      r2 = nn_init(m + 1);
+
+      nn_random(a, state, m);
+      nn_random(b, state, m);
+   
+      nn_copy(r1, a, m);
+      nn_copy(r2, a, m);
+
+      do
+      {
+         c1 = randword(state);
+         c2 = randword(state);
+      } while (c1 + c2 < c1);
+
+      r1[m] = -nn_submul1(r1, b, m, c1);
+      nn_s_submul1(r1, b, m, c2);
+      
+      r2[m] = -nn_submul1(r2, b, m, c1 + c2);
+
+      result = nn_equal_m(r1, r2, m + 1);
+
+      if (!result)
+      {
+         printf("m = %ld, c1 = %ld, c2 = %ld\n", m, c1, c2);
+      }
+
+      nn_clear(a);
+      nn_clear(b);
+      nn_clear(r1);
+      nn_clear(r2);
+   }
+
+   /* test chaining of submul1 */
+   for (i = 0; i < ITER && result == 1; i++)
+   {
+      m = randint(100, state);
+      n = randint(100, state);
+
+      a = nn_init(m + n);
+      
+      r1 = nn_init(m + n + 1);
+      r2 = nn_init(m + n + 1);
+
+      nn_random(a, state, m + n);
+      nn_random(r1, state, m + n);
+      nn_copy(r2, r1, m + n);
+
+      c1 = randword(state);
+
+      ci = nn_submul1(r1, a, m, c1);
+      r1[m + n] = -nn_submul1_c(r1 + m, a + m, n, c1, ci);
+      
+      r2[m + n] = -nn_submul1(r2, a, m + n, c1);
+      
+      result = nn_equal_m(r1, r2, m + n + 1);
+
+      if (!result)
+      {
+         printf("m = %ld, n = %ld, c1 = %ld\n", m, n, c1);
+      }
+
+      nn_clear(a);
+      nn_clear(r1);
+      nn_clear(r2);
+   }
+
+   return result;
+}
+
 int test_add1(void)
 {
    int result = 1;
@@ -1417,6 +1595,8 @@ int main(void)
    RUN(test_zero);
    RUN(test_normalise);
    RUN(test_mul1);
+   RUN(test_addmul1);
+   RUN(test_submul1);
    RUN(test_cmp_m);
    RUN(test_cmp);
 
