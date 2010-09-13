@@ -1058,10 +1058,10 @@ int test_submul1(void)
          c2 = randword(state);
       } while (c1 + c2 < c1);
 
-      r1[m] = nn_submul1(r1, b, m, c1);
+      r1[m] = -nn_submul1(r1, b, m, c1);
       nn_s_submul1(r1, b, m, c2);
       
-      r2[m] = nn_submul1(r2, b, m, c1 + c2);
+      r2[m] = -nn_submul1(r2, b, m, c1 + c2);
 
       result = nn_equal_m(r1, r2, m + 1);
 
@@ -1094,9 +1094,9 @@ int test_submul1(void)
       c1 = randword(state);
 
       ci = nn_submul1(r1, a, m, c1);
-      r1[m + n] = nn_submul1_c(r1 + m, a + m, n, c1, ci);
+      r1[m + n] = -nn_submul1_c(r1 + m, a + m, n, c1, ci);
       
-      r2[m + n] = nn_submul1(r2, a, m + n, c1);
+      r2[m + n] = -nn_submul1(r2, a, m + n, c1);
       
       result = nn_equal_m(r1, r2, m + n + 1);
 
