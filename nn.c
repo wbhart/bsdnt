@@ -61,6 +61,38 @@ void nn_random(nn_t a, rand_t state, len_t m)
 
 **********************************************************************/
 
+#define HAVE_ASM_NN_ADD_MC
+
+/* Copyright 2010 (C) Antony Vennard, Brian Gladman, William Hart */
+word_t nn_add_mc(nn_t a, nn_src_t b, nn_src_t c, len_t m, word_t ci)
+{   
+   __asm__ (
+
+   "mov %%r8, %%rax; \
+    lea (%%rdi, %%rcx, 8), %%rdi; \
+    lea (%%rsi, %%rcx, 8), %%rsi; \
+    lea (%%rdx, %%rcx, 8), %%rdx; \
+    neg %%rcx; \
+    jz  2f; \
+    sar $0x1, %%eax; \
+1:; \
+    mov (%%rsi, %%rcx, 8), %%r10; \
+    adc (%%rdx, %%rcx, 8), %%r10; \
+    mov %%r10, (%%rdi, %%rcx, 8); \
+    inc %%rcx; \
+    jnz 1b; \
+    setc %%al; \
+2:; "               
+                                
+   : "=a" ((word_t)(ci))
+   : "c" ((len_t)(m)), "d" ((nn_src_t)(c)), "S" ((nn_src_t)(b)), "D" ((nn_src_t *)(a))
+   );
+
+   return ci;
+}
+
+#ifndef HAVE_ASM_NN_ADD_MC
+
 word_t nn_add_mc(nn_t a, nn_src_t b, nn_src_t c, len_t m, word_t ci)
 {
    dword_t t;
@@ -75,6 +107,8 @@ word_t nn_add_mc(nn_t a, nn_src_t b, nn_src_t c, len_t m, word_t ci)
 
    return ci;
 }
+
+#endif
 
 word_t nn_sub_mc(nn_t a, nn_src_t b, nn_src_t c, len_t m, word_t bi)
 {
