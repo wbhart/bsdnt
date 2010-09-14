@@ -14,7 +14,7 @@ int test_add_m(void)
    len_t m, n;
    word_t ci;
 
-   printf("nn_add_m...");
+   printf("nn_add_m...\n");
 
    /* test (a + b) + c = a + (b + c) */
    for (i = 0; i < ITER && result == 1; i++)
@@ -32,11 +32,15 @@ int test_add_m(void)
       nn_random(b, state, m);
       nn_random(c, state, m);
 
+      printf("m is %ld\n", m);
       nn_add_m(r1, a, b, m);
+      printf("m is %ld\n", m);
       nn_add_m(r1, r1, c, m);
 
       nn_add_m(r2, b, c, m);
+      printf("m is %ld\n", m);
       nn_add_m(r2, r2, a, m);
+      printf("m is %ld\n", m);
 
       result = nn_equal_m(r1, r2, m + 1);
 

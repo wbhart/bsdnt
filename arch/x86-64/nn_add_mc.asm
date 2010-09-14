@@ -68,14 +68,12 @@ _nn_add_mc:
     ; * r8  (ci)
 
     xor     rax, rax
-    xor     r10, r10
     xor     r11, r11
     
-
-    dec     rcx  ; count from m-1 to zero...
-
-    sar     r8,  1
-
+    cmp     r8, 0
+    je      _nn_add_mc_exit
+    
+    sar     r8d,  1
 
 _nn_add_mc_loop:
 
