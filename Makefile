@@ -23,7 +23,7 @@
 AS=nasm
 AR=ar
 CC=gcc
-AFLAGS=-felf64
+AFLAGS=-felf64 -g
 CFLAGS=-pedantic -O2 -g -fopenmp -fPIC -Wall
 LIBS=-L$(CURDIR)
 INCS=-I$(CURDIR) 

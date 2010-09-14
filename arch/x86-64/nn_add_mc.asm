@@ -56,8 +56,8 @@ _nn_add_mc:
 
     ; Stack frame for this function
 
-    push    rbp
-    mov     rbp, rsp
+    ; push    rbp
+    ; mov     rbp, rsp
 
     ; arguments to functions. 
     ; arguments are in:
@@ -71,6 +71,9 @@ _nn_add_mc:
     xor     r10, r10
     xor     r11, r11
     
+
+    dec     rcx  ; count from m-1 to zero...
+
     sar     r8,  1
 
 
@@ -97,7 +100,7 @@ _nn_add_mc_exit:
     adc     rax, 0
 
     ; destroy stack frame
-    pop     rbp
+    ; pop     rbp
 
     ; return
     ret
