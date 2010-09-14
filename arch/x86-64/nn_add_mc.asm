@@ -67,36 +67,38 @@ _nn_add_mc:
     ; * rcx  (m)
     ; * r8  (ci)
 
-    xor     rax, rax
-    xor     r11, r11
-    
-    cmp     r8, 0
-    je      _nn_add_mc_exit
-    
-    sar     r8d,  1
+    xor      rax, rax
+
+    lea rdi, [rdi + rcx*8]
+    lea rsi, [rsi + rcx*8]
+    lea rdx, [rdx + rcx*8]
+
+    neg      rcx
+    jz       _nn_add_mc_exit
+    sar      r8d, 1
+        
 
 _nn_add_mc_loop:
 
     ; t = (dword_t) b[i] + (dword_t) c[i] + (dword_t) ci;
-    mov     r10, [rsi + r11*8]
-    adc     r10, [rdx + r11*8] ; carry is in CF (carry flag). 
+    mov     r10, [rsi + rcx*8]
+    adc     r10, [rdx + rcx*8] ; carry is in CF (carry flag). 
     
     ; a[i] = (word_t) t; => a[i] = LOWORD
-    mov     [rdi+r11*8], r10
+    mov     [rdi+rcx*8], r10
 
     ; ci = (t >> WORD_BITS); a[i] = HIWORD
     ; carry is automagically extracted!
 
     ; loop control
-    inc     r11
-    dec     rcx
+    inc     rcx
     jnz     _nn_add_mc_loop 
 
 _nn_add_mc_exit:
 
     ; set return value (rax)
-    adc     rax, 0
-
+    SETC      al
+    
     ; destroy stack frame
     ; pop     rbp
 
