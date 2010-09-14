@@ -1,6 +1,7 @@
 ; Copyright:
 ; * Antony Vennard 2010. All rights reserved.
 ; * William Hart 2010. All rights reserved.
+; * Brian Gladman, 2010. ALL rights reserved.
 ;
 ; Redistribution and use in source and binary forms, with or without 
 ; modification, are permitted provided that the following conditions are 
@@ -58,9 +59,6 @@ _nn_add_mc:
     push    rbp
     mov     rbp, rsp
 
-    ; preserve registers we're not supposed to touch.
-    push    rbx
-
     ; arguments to functions. 
     ; arguments are in:
     ; * rdi (a)
@@ -71,24 +69,25 @@ _nn_add_mc:
 
     xor     rax, rax
     xor     r10, r10
-    xor     rbx, rbx
+    xor     r11, r11
+    
+    sar     r8,  1
 
 
 _nn_add_mc_loop:
 
     ; t = (dword_t) b[i] + (dword_t) c[i] + (dword_t) ci;
-    ; ci is contained in r10.
-    adc     r10, [rsi + rbx*8]
-    adc     r10, [rdx + rbx*8]  ; we do expect this to carry if it's going to.
+    mov     r10, [rsi + r11*8]
+    adc     r10, [rdx + r11*8] ; carry is in CF (carry flag). 
     
     ; a[i] = (word_t) t; => a[i] = LOWORD
-    mov     [rdi+rbx*8], r10
+    mov     [rdi+r11*8], r10
 
     ; ci = (t >> WORD_BITS); a[i] = HIWORD
-    ; adc puts ci into the carry log
+    ; carry is automagically extracted!
 
     ; loop control
-    inc     rbx
+    inc     r11
     dec     rcx
     jnz     _nn_add_mc_loop 
 
@@ -96,9 +95,6 @@ _nn_add_mc_exit:
 
     ; set return value (rax)
     adc     rax, 0
-
-    ; restore preserved registers
-    pop     rbx
 
     ; destroy stack frame
     pop     rbp
