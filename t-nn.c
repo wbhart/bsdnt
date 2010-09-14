@@ -32,15 +32,11 @@ int test_add_m(void)
       nn_random(b, state, m);
       nn_random(c, state, m);
 
-      printf("m is %ld\n", m);
       nn_add_m(r1, a, b, m);
-      printf("m is %ld\n", m);
       nn_add_m(r1, r1, c, m);
 
       nn_add_m(r2, b, c, m);
-      printf("m is %ld\n", m);
       nn_add_m(r2, r2, a, m);
-      printf("m is %ld\n", m);
 
       result = nn_equal_m(r1, r2, m + 1);
 

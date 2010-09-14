@@ -76,7 +76,7 @@ void nn_random(nn_t a, rand_t state, len_t m)
    return ci;
 }*/
 
-word_t _nn_sub_mc(nn_t a, nn_src_t b, nn_src_t c, len_t m, word_t bi)
+/*word_t _nn_sub_mc(nn_t a, nn_src_t b, nn_src_t c, len_t m, word_t bi)
 {
    dword_t t;
    long i;
@@ -89,7 +89,7 @@ word_t _nn_sub_mc(nn_t a, nn_src_t b, nn_src_t c, len_t m, word_t bi)
    }
 
    return bi;
-}
+}*/
 
 word_t _nn_shl_c(nn_t a, nn_src_t b, len_t m, bits_t bits, word_t ci)
 {

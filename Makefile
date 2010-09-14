@@ -74,7 +74,8 @@ build/arch/x86-64/%.o: arch/x86-64/%.asm
 build/%.o: %.c
 	$(QUIET_CC)$(CC)  $(CFLAGS) $(INCS) -c $< -o $@
 
-build/test/t-nn: build/nn.o build/t-nn.o build/arch/x86-64/nn_add_mc.o
-	$(QUIET_LINK)$(CC) -o build/test/t-nn build/nn.o build/t-nn.o build/arch/x86-64/nn_add_mc.o
+build/test/t-nn: build/nn.o build/t-nn.o build/arch/x86-64/nn_add_mc.o build/arch/x86-64/nn_sub_mc.o
+	$(QUIET_LINK)$(CC) -o build/test/t-nn build/nn.o build/t-nn.o build/arch/x86-64/nn_add_mc.o  build/arch/x86-64/nn_sub_mc.o
+
 	
 
