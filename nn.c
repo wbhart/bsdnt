@@ -68,20 +68,21 @@ word_t nn_add_mc(nn_t a, nn_src_t b, nn_src_t c, len_t m, word_t ci)
 {   
    __asm__ (
 
-   "mov %%r8, %%rax; \
-    lea (%%rdi, %%rcx, 8), %%rdi; \
-    lea (%%rsi, %%rcx, 8), %%rsi; \
-    lea (%%rdx, %%rcx, 8), %%rdx; \
-    neg %%rcx; \
-    jz  2f; \
-    sar $0x1, %%eax; \
+   ".intel_syntax noprefix; \
+    mov rax, r8; \
+    jrcxz 2f; \
+    lea rdi, [rdi+rcx*8]; \
+    lea rsi, [rsi+rcx*8]; \
+    lea rdx, [rdx+rcx*8]; \
+    neg rcx; \
+    sar eax, 1; \
 1:; \
-    mov (%%rsi, %%rcx, 8), %%r10; \
-    adc (%%rdx, %%rcx, 8), %%r10; \
-    mov %%r10, (%%rdi, %%rcx, 8); \
-    inc %%rcx; \
+    mov r10, [rsi+rcx*8]; \
+    adc r10, [rdx+rcx*8]; \
+    mov [rdi+rcx*8], r10; \
+    inc rcx; \
     jnz 1b; \
-    setc %%al; \
+    setc al; \
 2:; "               
                                 
    : "=a" ((word_t)(ci))
