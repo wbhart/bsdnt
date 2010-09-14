@@ -34,10 +34,10 @@
 
 ; About: This code is an assembly implementation of
 ; Bill's nn_add_mc function for x64 processors, influenced
-; by his blog and code in nn.c.#
+; by his blog and code in nn.c. Finished with a lot of help
+; from the mailing list.
 
-; Assumptions: word_t is uint64_t and 8 bits wide
-; as opposed to four bits wide.
+; Assumptions: word_t is uint64_t and 8 bytes wide
 
 ; data segment. 
 SECTION .data
@@ -67,30 +67,33 @@ _nn_add_mc:
     ; * rcx  (m)
     ; * r8  (ci)
 
+    ; zero rax
     xor      rax, rax
 
+    ; load the address of the ends of the word_t arrays.
     lea rdi, [rdi + rcx*8]
     lea rsi, [rsi + rcx*8]
     lea rdx, [rdx + rcx*8]
 
+    ; rcx is a positive value of m. Negate it.
     neg      rcx
-    jz       _nn_add_mc_exit
+
+    ; determine if there is a carry.
     sar      r8d, 1
-        
+
+    ; if rcx==0, exit.
+    jrcxz    _nn_add_mc_exit
 
 _nn_add_mc_loop:
 
-    ; t = (dword_t) b[i] + (dword_t) c[i] + (dword_t) ci;
+    ; add the two word_t's for each nn_t together.
     mov     r10, [rsi + rcx*8]
-    adc     r10, [rdx + rcx*8] ; carry is in CF (carry flag). 
+    adc     r10, [rdx + rcx*8]
     
-    ; a[i] = (word_t) t; => a[i] = LOWORD
+    ; store the result
     mov     [rdi+rcx*8], r10
 
-    ; ci = (t >> WORD_BITS); a[i] = HIWORD
-    ; carry is automagically extracted!
-
-    ; loop control
+    ; increase rcx until it is zero, then exit.
     inc     rcx
     jnz     _nn_add_mc_loop 
 
