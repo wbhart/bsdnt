@@ -5,17 +5,28 @@
 #include <stdlib.h>
 #include <limits.h>
 
+#ifndef _MSC_VER
+
 #if ULONG_MAX == 4294967295U
 
 typedef uint32_t word_t;
-typedef unsigned int dword_t __attribute__((mode(DI)));
+typedef unsigned int dword_t ATTR((mode(DI)));
 #define WORD_BITS 32
 
 #else
 
 typedef uint64_t word_t;
-typedef unsigned int dword_t __attribute__((mode(TI)));
+typedef unsigned int dword_t ATTR((mode(TI)));
 #define WORD_BITS 64
+
+#endif
+
+#else
+
+typedef unsigned long      word_t;
+typedef unsigned long long dword_t;
+#define WORD_BITS 32
+#define inline __inline
 
 #endif
 

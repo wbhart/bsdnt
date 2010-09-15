@@ -32,6 +32,14 @@ word_t randword(rand_t state)
 word_t __randval = 3119766748UL;
 word_t __randval2 = 4225528843UL;
 
+void randinit(rand_t state)
+{
+}
+
+void randclear(rand_t state)
+{
+}
+
 word_t randword(rand_t state) 
 {   
     __randval = (__randval*1573677563UL +  1626832774UL)%65537UL;
