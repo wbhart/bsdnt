@@ -10,13 +10,13 @@
 #if ULONG_MAX == 4294967295U
 
 typedef uint32_t word_t;
-typedef unsigned int dword_t ATTR((mode(DI)));
+typedef unsigned int dword_t __attribute__((mode(DI)));
 #define WORD_BITS 32
 
 #else
 
 typedef uint64_t word_t;
-typedef unsigned int dword_t ATTR((mode(TI)));
+typedef unsigned int dword_t __attribute__((mode(TI)));
 #define WORD_BITS 64
 
 #endif
