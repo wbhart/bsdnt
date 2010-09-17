@@ -1627,8 +1627,6 @@ int test_divrem1_simple(void)
       if (!result)
       {
          printf("m = %ld, n = %ld, d = %lu\n", m, n, d);
-<<<<<<< HEAD:t-nn.c
-=======
       }
 
       nn_clear(a);
@@ -1714,7 +1712,6 @@ int test_divrem1_preinv(void)
       {
          printf("m = %ld, n = %ld, d = %lu, rem1 = %lu, rem2 = %lu\n", 
             m, n, d, rem1, rem2);
->>>>>>> v0.8:t-nn.c
       }
 
       nn_clear(a);
