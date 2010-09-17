@@ -1627,6 +1627,94 @@ int test_divrem1_simple(void)
       if (!result)
       {
          printf("m = %ld, n = %ld, d = %lu\n", m, n, d);
+<<<<<<< HEAD:t-nn.c
+=======
+      }
+
+      nn_clear(a);
+      nn_clear(r1);
+      nn_clear(r2);
+   }
+
+   return result;
+}
+
+int test_divrem1_preinv(void)
+{
+   int result = 1;
+   long i;
+   nn_t a, q, r1, r2;
+   len_t m, n;
+   word_t d, dnorm, ci, r, rem1, rem2;
+   preinv1_t inv;
+
+   printf("nn_divrem1_preinv...");
+
+   /* test that a = q * d + r */
+   for (i = 0; i < ITER && result == 1; i++)
+   {
+      m = randint(100, state);
+ 
+      r1 = nn_init(m);
+      a = nn_init(m);
+      q = nn_init(m);
+
+      nn_random(a, state, m);
+
+      do {
+         d = randword(state);
+      } while (d == 0);
+
+      dnorm = precompute_inverse1(&inv, d);
+
+      r = nn_divrem1_preinv(q, a, m, dnorm, inv);
+      r >>= inv.norm;
+
+      ci = nn_mul1_c(r1, q, m, d, r);
+
+      result = (nn_equal_m(r1, a, m) && ci == 0);
+
+      if (!result)
+      {
+         printf("m = %ld, ci = %lu, r = %lu\n", m, ci, r);
+      }
+
+      nn_clear(r1);
+      nn_clear(a);
+      nn_clear(q);
+   }
+
+   /* test chaining of divrem1_preinv */
+   for (i = 0; i < ITER && result == 1; i++)
+   {
+      m = randint(100, state);
+      n = randint(100, state);
+
+      a = nn_init(m + n);
+      
+      r1 = nn_init(m + n);
+      r2 = nn_init(m + n);
+
+      do {
+         d = randword(state);
+      } while (d == 0);
+
+      dnorm = precompute_inverse1(&inv, d);
+
+      nn_random(a, state, m + n);
+         
+      ci = nn_divrem1_preinv(r1 + n, a + n, m, dnorm, inv);
+      rem1 = nn_divrem1_preinv_c(r1, a, n, dnorm, inv, ci);
+      
+      rem2 = nn_divrem1_preinv(r2, a, m + n, dnorm, inv);
+
+      result = (nn_equal_m(r1, r2, m + n) && rem1 == rem2);
+
+      if (!result)
+      {
+         printf("m = %ld, n = %ld, d = %lu, rem1 = %lu, rem2 = %lu\n", 
+            m, n, d, rem1, rem2);
+>>>>>>> v0.8:t-nn.c
       }
 
       nn_clear(a);
@@ -1678,6 +1766,7 @@ int main(void)
    RUN(test_cmp_m);
    RUN(test_cmp);
    RUN(test_divrem1_simple);
+   RUN(test_divrem1_preinv);
 
    printf("%ld of %ld tests pass.\n", pass, pass + fail);
 

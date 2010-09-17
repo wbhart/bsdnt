@@ -27,6 +27,70 @@ typedef long bits_t;
 
 typedef void * rand_t;
 
+typedef struct preinv1_t
+{
+   word_t norm; /* the number of leading zero bits in d */
+   word_t dinv; /* the precomputed inverse of d (see below) */
+} preinv1_t;
+
+/**********************************************************************
+ 
+    Helper functions/macros
+
+**********************************************************************/
+
+/*
+   Computes the number of leading zeroes in the binary representation
+   of its argument.
+*/
+#define clz __builtin_clzl
+
+/*
+   Precomputes an inverse of d as per the definition of \nu at the
+   start of section 3 of Moller-Granlund (see below). Does not 
+   require d to be normalised. A normalised version of d is returned.
+*/
+static inline
+word_t precompute_inverse1(preinv1_t * inv, word_t d)
+{
+   dword_t t;
+   word_t norm = clz(d);
+   
+   d <<= norm;
+   t = (~(dword_t) 0) - (((dword_t) d) << WORD_BITS);
+   
+   inv->dinv = t / d;
+   inv->norm = norm;
+
+   return d;
+}
+
+/*
+   Given a double word u, a normalised divisor d and a precomputed
+   inverse dinv of d, computes the quotient and remainder of u by d.
+*/
+#define divrem21_preinv1(q, r, u, d, dinv) \
+   do { \
+      dword_t __q = ((u)>>WORD_BITS) * (dword_t) (dinv) + u; \
+      word_t __q1 = (word_t)(__q >> WORD_BITS) + 1; \
+      word_t __q0 = (word_t) __q; \
+      word_t __r1 = (word_t)(u) - __q1*(d); \
+      if (__r1 >= __q0) \
+      { \
+         __q1--; \
+         __r1 += (d); \
+      } \
+      if (__r1 >= (d)) \
+      { \
+         (q) = __q1 + 1; \
+         (r) = __r1 - (d); \
+      } else \
+      { \
+         (q) = __q1; \
+         (r) = __r1; \
+      } \
+   } while (0)
+
 /**********************************************************************
  
     Random generation
@@ -524,6 +588,26 @@ word_t nn_divrem1_simple_c(nn_t q, nn_src_t a, len_t m, word_t d, word_t ci);
 */
 #define nn_divrem1_simple(q, a, m, d) \
    nn_divrem1_simple_c(q, a, m, d, (word_t) 0)
+
+/*
+   Set q = (ci*B^m + a) / d and return the remainder, where a is m 
+   words in length, d is a word and ci is a "carry-in" which must be
+   reduced mod d. The quotient q requires m limbs of space.  An 
+   exception will result if d is 0. Requires that d be normalised and
+   that inv is a precomputed inverse of d computed by the function
+   precompute_inverse1. If division by a non-normalised d is required,
+   first normalise d, shift the carry-in by the same amount, then the
+   remainder will also be shifted by the same amount upon return. No
+   change to a or the quotient is required.
+*/
+word_t nn_divrem1_preinv_c(nn_t q, nn_src_t a, len_t m, 
+                            word_t d, preinv1_t inv, word_t ci);
+
+/* 
+   As per _nn_divrem1_preinv_c but with no carry-in.
+*/
+#define nn_divrem1_preinv(q, a, m, d, inv) \
+   nn_divrem1_preinv_c(q, a, m, d, inv, (word_t) 0)
 
 /**********************************************************************
  
