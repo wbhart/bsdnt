@@ -9,18 +9,17 @@ rand_t state;
 int test_add_m(void)
 {
    int result = 1;
-   long i, j;
+   long i;
    nn_t a, b, c, r1, r2;
-   len_t m; 
-   /*len_t n;
-   word_t ci;*/
+   len_t m, n;
+   word_t ci;
 
    printf("nn_add_m...");
 
    /* test (a + b) + c = a + (b + c) */
    for (i = 0; i < ITER && result == 1; i++)
    {
-      m = 24;/*randint(100, state);*/
+      m = randint(100, state);
 
       a = nn_init(m);
       b = nn_init(m);
@@ -34,13 +33,12 @@ int test_add_m(void)
       nn_random(c, state, m);
 
       nn_s_add_m(r1, a, b, m);
-      for (j = 0; j < 1000; j++)
-         nn_s_add_m(r1, r1, c, m);
+      nn_s_add_m(r1, r1, c, m);
 
       nn_s_add_m(r2, b, c, m);
       nn_s_add_m(r2, r2, a, m);
 
-      /*result = nn_equal_m(r1, r2, m + 1);*/
+      result = nn_equal_m(r1, r2, m + 1);
 
       if (!result)
       {
@@ -54,7 +52,6 @@ int test_add_m(void)
       nn_clear(r2);
    }
 
-#if 0
    /* test chaining of addition */
    for (i = 0; i < ITER && result == 1; i++)
    {
@@ -87,7 +84,6 @@ int test_add_m(void)
       nn_clear(r1);
       nn_clear(r2);
    }
-#endif
 
    return result;
 }
@@ -1661,11 +1657,11 @@ int main(void)
    
    randinit(state);
 
-   /*RUN(test_not);
+   RUN(test_not);
    RUN(test_neg);
-   RUN(test_add1);*/
+   RUN(test_add1);
    RUN(test_add_m);
-   /*RUN(test_add);
+   RUN(test_add);
    RUN(test_sub1);
    RUN(test_sub_m);
    RUN(test_sub);
@@ -1681,7 +1677,7 @@ int main(void)
    RUN(test_submul1);
    RUN(test_cmp_m);
    RUN(test_cmp);
-   RUN(test_divrem1_simple);*/
+   RUN(test_divrem1_simple);
 
    printf("%ld of %ld tests pass.\n", pass, pass + fail);
 
