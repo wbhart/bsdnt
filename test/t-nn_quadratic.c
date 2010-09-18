@@ -17,9 +17,8 @@ int test_mul_classical(void)
 
    TEST_START(ITER) /* test a * (b + c) = a * b + a * c */
    {
-      randoms_upto(30, ANY, state, &m, NULL);
-      randoms_upto(m + 1, ANY, state, &n, NULL);
-
+      randoms_upto(30, NONZERO, state, &m, &n, NULL);
+      
       randoms_of_len(m, ANY, state, &a, NULL);
       randoms_of_len(n + 1, ANY, state, &s, NULL);
       randoms_of_len(m + n, ANY, state, &r1, &r2, NULL);
