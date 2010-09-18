@@ -44,8 +44,6 @@ void nn_divrem_classical_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d,
    word_t dinv = inv.dinv;
    word_t d1 = inv.d1;
 
-   ci >>= norm;
-
    for (i = m - 1; i >= n - 1; i--, j--)
    {
       /* top "two words" of remaining dividend, shifted */

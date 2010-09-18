@@ -863,12 +863,11 @@ word_t nn_muladd_classical(nn_t r, nn_src_t a, nn_src_t b,
 
 /*
    Given a of length m and d of length n with a carry-in ci, compute
-   the quotient of (ci>>norm)*B^m + a by d (where norm = inv.norm is the 
-   number of leading zeroes of d), and leave the remainder in the bottom 
+   the quotient of ci*B^m + a by d, and leave the remainder in the bottom 
    n limbs of a. Requires m >= n > 0. The precomputed inverse inv should 
    be computed from the leading two limbs of d (or the leading limb and 0 
    if n is 1) using precompute_inverse_lead. If a_n is the leading n limbs 
-   of a, then (ci >> norm)*B^m + a_n must be less than B * d. The quotient
+   of a, then ci*B^m + a_n must be less than B * d. The quotient
    must have space for m - n + 1 limbs. 
 */
 void nn_divrem_classical_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d, 
@@ -876,12 +875,11 @@ void nn_divrem_classical_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d,
 
 /*
    As per nn_divrem_classical_preinv_c except that the carry-in is read 
-   from a[m] and shifted by the number of leading bits of d. The quotient
-   will therefore be {a, m + 1} by {d, n}.
+   from a[m]. The quotient will therefore be {a, m + 1} by {d, n}.
 */
 #define nn_r_divrem_classical_preinv(q, a, m, d, n, inv) \
    do { \
-      nn_divrem_classical_preinv_c(q, a, m, d, n, inv, (a[m] << (inv).norm)); \
+      nn_divrem_classical_preinv_c(q, a, m, d, n, inv, a[m]); \
    } while (0)
 
 #endif
