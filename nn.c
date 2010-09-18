@@ -257,6 +257,23 @@ word_t nn_divrem1_preinv_c(nn_t q, nn_src_t a, len_t m,
    return ci;
 }
 
+word_t nn_divrem_hensel1_preinv_c(nn_t q, nn_src_t a, len_t m, 
+                        word_t d, hensel_preinv1_t inv, word_t ci)
+{
+   long i;
+   dword_t t, r;
+   
+   for (i = 0; i < m; i++)
+   {
+      t = (dword_t) a[i] - (dword_t) ci;
+      q[i] = (word_t) t * inv;
+      r = (dword_t) q[i] * (dword_t) d;
+      ci = (word_t) (r >> WORD_BITS) - (word_t) (t >> WORD_BITS);
+   }
+
+   return ci;
+}
+
 /**********************************************************************
  
     Comparison

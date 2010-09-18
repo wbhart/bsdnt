@@ -24,9 +24,18 @@
 	v0.7 - nn_divrem1_simple.
 
 <<<<<<< HEAD:CHANGES
+<<<<<<< HEAD:CHANGES
 =======
 08-Sep-2010:
 	v0.8 - nn_divrem1_preinv.
 
 >>>>>>> v0.8:CHANGES
+=======
+08-Sep-2010:
+	v0.8 - nn_divrem1_preinv.
+
+09-Sep-2010:
+	v0.9 - nn_divrem_hensel1_preinv
+
+>>>>>>> v0.9:CHANGES
 
