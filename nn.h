@@ -57,10 +57,10 @@ typedef struct mod_preinv1_t
 /*
    Precomputes an inverse of d as per the definition of \nu at the
    start of section 3 of Moller-Granlund (see below). Does not 
-   require d to be normalised. A normalised version of d is returned.
+   require d to be normalised. 
 */
 static inline
-word_t precompute_inverse1(preinv1_t * inv, word_t d)
+void precompute_inverse1(preinv1_t * inv, word_t d)
 {
    dword_t t;
    word_t norm = clz(d);
@@ -70,8 +70,6 @@ word_t precompute_inverse1(preinv1_t * inv, word_t d)
    
    inv->dinv = t / d;
    inv->norm = norm;
-
-   return d;
 }
 
 /*
@@ -668,12 +666,8 @@ word_t nn_divrem1_simple_c(nn_t q, nn_src_t a, len_t m, word_t d, word_t ci);
    Set q = (ci*B^m + a) / d and return the remainder, where a is m 
    words in length, d is a word and ci is a "carry-in" which must be
    reduced mod d. The quotient q requires m limbs of space.  An 
-   exception will result if d is 0. Requires that d be normalised and
-   that inv is a precomputed inverse of d computed by the function
-   precompute_inverse1. If division by a non-normalised d is required,
-   first normalise d, shift the carry-in by the same amount, then the
-   remainder will also be shifted by the same amount upon return. No
-   change to a or the quotient is required.
+   exception will result if d is 0. Requires that inv is a precomputed 
+   inverse of d computed by the function precompute_inverse1. 
 */
 word_t nn_divrem1_preinv_c(nn_t q, nn_src_t a, len_t m, 
                             word_t d, preinv1_t inv, word_t ci);
