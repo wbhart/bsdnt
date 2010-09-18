@@ -33,6 +33,13 @@ typedef struct preinv1_t
    word_t dinv; /* the precomputed inverse of d (see below) */
 } preinv1_t;
 
+typedef struct preinv1_2_t
+{
+   word_t norm; /* the number of leading zero bits in d */
+   word_t dinv; /* the precomputed inverse of d1 (see below) */
+   word_t d1; /* the normalised leading WORD_BITS of d */
+} preinv1_2_t;
+
 typedef word_t hensel_preinv1_t;
 
 typedef struct mod_preinv1_t
@@ -72,6 +79,28 @@ word_t precompute_inverse1(preinv1_t * inv, word_t d)
    inv->norm = norm;
 
    return d;
+}
+
+/*
+   Precomputes an inverse of the leading WORD_BITS of d with leading words 
+   d1, d2 (or d1, 0 if d has only one word) as per the definition of \nu at 
+   the start of section 3 of Moller-Granlund (see below). Does not require 
+   d1, d2 to be normalised. A normalised version of d1, d2 is returned.
+*/
+static inline
+void precompute_inverse1_2(preinv1_2_t * inv, word_t d1, word_t d2)
+{
+   dword_t t;
+   word_t norm = clz(d1);
+   
+   d1 <<= norm;
+   if (norm) d1 += (d2 >> (WORD_BITS - norm));
+
+   t = (~(dword_t) 0) - (((dword_t) d1) << WORD_BITS);
+   
+   inv->dinv = t / d1;
+   inv->norm = norm;
+   inv->d1 = d1;
 }
 
 /*
@@ -830,6 +859,29 @@ word_t nn_muladd_classical(nn_t r, nn_src_t a, nn_src_t b,
 #define nn_s_muladd_classical(r, a, b, m1, c, m2) \
    do { \
       r[m1 + m2 - 1] = nn_muladd_classical(r, a, b, m1, c, m2); \
+   } while (0)
+
+/*
+   Given a of length m and d of length n with a carry-in ci, compute
+   the quotient of (ci>>norm)*B^m + a by d (where norm = inv.norm is the 
+   number of leading zeroes of d), and leave the remainder in the bottom 
+   n limbs of a. Requires m >= n > 0. The precomputed inverse inv should 
+   be computed from the leading two limbs of d (or the leading limb and 0 
+   if n is 1) using precompute_inverse_lead. If a_n is the leading n limbs 
+   of a, then (ci >> norm)*B^m + a_n must be less than B * d. The quotient
+   must have space for m - n + 1 limbs. 
+*/
+void nn_divrem_classical_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d, 
+                                     len_t n,preinv1_2_t inv, word_t ci);
+
+/*
+   As per nn_divrem_classical_preinv_c except that the carry-in is read 
+   from a[m] and shifted by the number of leading bits of d. The quotient
+   will therefore be {a, m + 1} by {d, n}.
+*/
+#define nn_r_divrem_classical_preinv(q, a, m, d, n, inv) \
+   do { \
+      nn_divrem_classical_preinv_c(q, a, m, d, n, inv, (a[m] << (inv).norm)); \
    } while (0)
 
 #endif
