@@ -1637,6 +1637,173 @@ int test_divrem1_simple(void)
    return result;
 }
 
+int test_divrem1_preinv(void)
+{
+   int result = 1;
+   long i;
+   nn_t a, q, r1, r2;
+   len_t m, n;
+   word_t d, dnorm, ci, r, rem1, rem2;
+   preinv1_t inv;
+
+   printf("nn_divrem1_preinv...");
+
+   /* test that a = q * d + r */
+   for (i = 0; i < ITER && result == 1; i++)
+   {
+      m = randint(100, state);
+ 
+      r1 = nn_init(m);
+      a = nn_init(m);
+      q = nn_init(m);
+
+      nn_random(a, state, m);
+
+      do {
+         d = randword(state);
+      } while (d == 0);
+
+      dnorm = precompute_inverse1(&inv, d);
+
+      r = nn_divrem1_preinv(q, a, m, dnorm, inv);
+      r >>= inv.norm;
+
+      ci = nn_mul1_c(r1, q, m, d, r);
+
+      result = (nn_equal_m(r1, a, m) && ci == 0);
+
+      if (!result)
+      {
+         printf("m = %ld, ci = %lu, r = %lu\n", m, ci, r);
+      }
+
+      nn_clear(r1);
+      nn_clear(a);
+      nn_clear(q);
+   }
+
+   /* test chaining of divrem1_preinv */
+   for (i = 0; i < ITER && result == 1; i++)
+   {
+      m = randint(100, state);
+      n = randint(100, state);
+
+      a = nn_init(m + n);
+      
+      r1 = nn_init(m + n);
+      r2 = nn_init(m + n);
+
+      do {
+         d = randword(state);
+      } while (d == 0);
+
+      dnorm = precompute_inverse1(&inv, d);
+
+      nn_random(a, state, m + n);
+         
+      ci = nn_divrem1_preinv(r1 + n, a + n, m, dnorm, inv);
+      rem1 = nn_divrem1_preinv_c(r1, a, n, dnorm, inv, ci);
+      
+      rem2 = nn_divrem1_preinv(r2, a, m + n, dnorm, inv);
+
+      result = (nn_equal_m(r1, r2, m + n) && rem1 == rem2);
+
+      if (!result)
+      {
+         printf("m = %ld, n = %ld, d = %lu, rem1 = %lu, rem2 = %lu\n", 
+            m, n, d, rem1, rem2);
+      }
+
+      nn_clear(a);
+      nn_clear(r1);
+      nn_clear(r2);
+   }
+
+   return result;
+}
+
+int test_divrem_hensel1_preinv(void)
+{
+   int result = 1;
+   long i;
+   nn_t a, q, r1, r2;
+   len_t m, n;
+   word_t d, ci, r, rem1, rem2;
+   hensel_preinv1_t inv;
+
+   printf("nn_divrem_hensel1_preinv...");
+
+   /* test that a + B^m * r = q * d */
+   for (i = 0; i < ITER && result == 1; i++)
+   {
+      m = randint(100, state);
+ 
+      r1 = nn_init(m);
+      a = nn_init(m);
+      q = nn_init(m);
+
+      nn_random(a, state, m);
+
+      d = randword(state);
+      d |= (word_t) 1; /* d must be odd */
+
+      precompute_hensel_inverse1(&inv, d);
+
+      r = nn_divrem_hensel1_preinv(q, a, m, d, inv);
+      
+      ci = nn_mul1(r1, q, m, d);
+
+      result = (nn_equal_m(r1, a, m) && ci == r);
+
+      if (!result)
+      {
+         printf("m = %ld, ci = %lu, r = %lu\n", m, ci, r);
+      }
+
+      nn_clear(r1);
+      nn_clear(a);
+      nn_clear(q);
+   }
+
+   /* test chaining of divrem_hensel1_preinv */
+   for (i = 0; i < ITER && result == 1; i++)
+   {
+      m = randint(100, state);
+      n = randint(100, state);
+
+      a = nn_init(m + n);
+      
+      r1 = nn_init(m + n);
+      r2 = nn_init(m + n);
+
+      d = randword(state);
+      d |= (word_t) 1; /* d must be odd */
+
+      precompute_hensel_inverse1(&inv, d);
+
+      nn_random(a, state, m + n);
+         
+      ci = nn_divrem_hensel1_preinv(r1, a, m, d, inv);
+      rem1 = nn_divrem_hensel1_preinv_c(r1 + m, a + m, n, d, inv, ci);
+      
+      rem2 = nn_divrem_hensel1_preinv(r2, a, m + n, d, inv);
+
+      result = (nn_equal_m(r1, r2, m + n) && (rem1 == rem2));
+
+      if (!result)
+      {
+         printf("m = %ld, n = %ld, c = %lu, rem1 = %lu, rem2 = %lu\n", 
+            m, n, d, rem1, rem2);
+      }
+
+      nn_clear(a);
+      nn_clear(r1);
+      nn_clear(r2);
+   }
+
+   return result;
+}
+
 #define RUN(xxx) \
    do { \
       if (xxx()) \
@@ -1678,6 +1845,8 @@ int main(void)
    RUN(test_cmp_m);
    RUN(test_cmp);
    RUN(test_divrem1_simple);
+   RUN(test_divrem1_preinv);
+   RUN(test_divrem_hensel1_preinv);
 
    printf("%ld of %ld tests pass.\n", pass, pass + fail);
 

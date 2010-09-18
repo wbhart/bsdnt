@@ -248,6 +248,40 @@ word_t nn_divrem1_simple_c(nn_t q, nn_src_t a, len_t m, word_t d, word_t ci)
    return ci;
 }
 
+word_t nn_divrem1_preinv_c(nn_t q, nn_src_t a, len_t m, 
+                            word_t d, preinv1_t inv, word_t ci)
+{
+   dword_t t;
+   long i;
+   word_t norm = inv.norm;
+   word_t dinv = inv.dinv;
+   
+   for (i = m - 1; i >= 0; i--)
+   {
+      t = (((dword_t) ci) << WORD_BITS) + (((dword_t) a[i]) << norm);
+      divrem21_preinv1(q[i], ci, t, d, dinv);
+   }
+
+   return ci;
+}
+
+word_t nn_divrem_hensel1_preinv_c(nn_t q, nn_src_t a, len_t m, 
+                        word_t d, hensel_preinv1_t inv, word_t ci)
+{
+   long i;
+   dword_t t, r;
+   
+   for (i = 0; i < m; i++)
+   {
+      t = (dword_t) a[i] - (dword_t) ci;
+      q[i] = (word_t) t * inv;
+      r = (dword_t) q[i] * (dword_t) d;
+      ci = (word_t) (r >> WORD_BITS) - (word_t) (t >> WORD_BITS);
+   }
+
+   return ci;
+}
+
 /**********************************************************************
  
     Comparison
