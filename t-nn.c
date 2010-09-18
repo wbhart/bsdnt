@@ -1643,7 +1643,7 @@ int test_divrem1_preinv(void)
    long i;
    nn_t a, q, r1, r2;
    len_t m, n;
-   word_t d, dnorm, ci, r, rem1, rem2;
+   word_t d, ci, r, rem1, rem2;
    preinv1_t inv;
 
    printf("nn_divrem1_preinv...");
@@ -1663,11 +1663,10 @@ int test_divrem1_preinv(void)
          d = randword(state);
       } while (d == 0);
 
-      dnorm = precompute_inverse1(&inv, d);
+      precompute_inverse1(&inv, d);
 
-      r = nn_divrem1_preinv(q, a, m, dnorm, inv);
-      r >>= inv.norm;
-
+      r = nn_divrem1_preinv(q, a, m, d, inv);
+      
       ci = nn_mul1_c(r1, q, m, d, r);
 
       result = (nn_equal_m(r1, a, m) && ci == 0);
@@ -1697,14 +1696,14 @@ int test_divrem1_preinv(void)
          d = randword(state);
       } while (d == 0);
 
-      dnorm = precompute_inverse1(&inv, d);
+      precompute_inverse1(&inv, d);
 
       nn_random(a, state, m + n);
          
-      ci = nn_divrem1_preinv(r1 + n, a + n, m, dnorm, inv);
-      rem1 = nn_divrem1_preinv_c(r1, a, n, dnorm, inv, ci);
+      ci = nn_divrem1_preinv(r1 + n, a + n, m, d, inv);
+      rem1 = nn_divrem1_preinv_c(r1, a, n, d, inv, ci);
       
-      rem2 = nn_divrem1_preinv(r2, a, m + n, dnorm, inv);
+      rem2 = nn_divrem1_preinv(r2, a, m + n, d, inv);
 
       result = (nn_equal_m(r1, r2, m + n) && rem1 == rem2);
 
