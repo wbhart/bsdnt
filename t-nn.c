@@ -1809,7 +1809,7 @@ int test_mod1_preinv(void)
    long i;
    nn_t a, q;
    len_t m, n;
-   word_t d, dnorm, ci, rem1, rem2;
+   word_t d, ci, rem1, rem2;
    preinv1_t inv;
    mod_preinv1_t minv;
 
@@ -1829,11 +1829,10 @@ int test_mod1_preinv(void)
          d = randword(state);
       } while (d == 0);
 
-      dnorm = precompute_inverse1(&inv, d);
+      precompute_inverse1(&inv, d);
 
-      rem1 = nn_divrem1_preinv(q, a, m, dnorm, inv);
-      rem1 >>= inv.norm;
-
+      rem1 = nn_divrem1_preinv(q, a, m, d, inv);
+      
       precompute_mod_inverse1(&minv, d);
 
       rem2 = nn_mod1_preinv(a, m, d, minv);  
