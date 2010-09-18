@@ -3,7 +3,7 @@
 #include "nn.h"
 #include "test.h"
 
-#define ITER 10000
+#define ITER 30000
 
 rand_t state;
 
@@ -29,11 +29,11 @@ int test_mul_classical(void)
          nn_s_add_m(s, b, c, n);
       } while (s[n]);
       
-      nn_mul_classical(r1, a, m, b, n);
-      nn_mul_classical(r2, a, m, c, n);
+      nn_s_mul_classical(r1, a, m, b, n);
+      nn_s_mul_classical(r2, a, m, c, n);
       nn_add_m(r2, r2, r1, m + n);
 
-      nn_mul_classical(r1, a, m, s, n);
+      nn_s_mul_classical(r1, a, m, s, n);
       
       result = nn_equal_m(r1, r2, m + n);
 

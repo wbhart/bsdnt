@@ -36,6 +36,6 @@
 	v0.11 - generics.
 
 12-Sep-2010:
-	v0.12 - classical multiplication.
+	v0.12 - nn_mul_classical and nn_muladd_classical.
 
 
