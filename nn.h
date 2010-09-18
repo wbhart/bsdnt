@@ -30,7 +30,6 @@ typedef unsigned long      word_t;
 typedef unsigned long long dword_t;
 #define WORD_BITS 32
 #define inline __inline
-#pragma intrinsic(_BitScanReverse64)
 
 #if WORD_BITS == 32
 
