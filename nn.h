@@ -35,6 +35,13 @@ typedef struct preinv1_t
 
 typedef word_t hensel_preinv1_t;
 
+typedef struct mod_preinv1_t
+{
+   word_t b1; /* B   mod d */
+   word_t b2; /* B^2 mod d */
+   word_t b3; /* B^3 mod d */
+} mod_preinv1_t;
+
 /**********************************************************************
  
     Helper functions/macros
@@ -80,6 +87,21 @@ void precompute_hensel_inverse1(hensel_preinv1_t * inv, word_t d)
       v += (1 - u) * v;
    
    (*inv) = v;
+}
+
+/*
+   Precomputes B, B^2, B^3 mod d. Requires that d is not zero.
+*/
+static inline
+void precompute_mod_inverse1(mod_preinv1_t * inv, word_t d)
+{
+   dword_t u = (dword_t) 1; 
+   u = (u << WORD_BITS) % (dword_t) d;
+   inv->b1 = (word_t) u;
+   u = (u << WORD_BITS) % (dword_t) d;
+   inv->b2 = (word_t) u;
+   u = (u << WORD_BITS) % (dword_t) d;
+   inv->b3 = (word_t) u;
 }
 
 /*
@@ -636,6 +658,21 @@ word_t nn_divrem_hensel1_preinv_c(nn_t q, nn_src_t a, len_t m,
 */
 #define nn_divrem_hensel1_preinv(q, a, m, d, inv) \
    nn_divrem_hensel1_preinv_c(q, a, m, d, inv, (word_t) 0)
+
+/* 
+   Return a + ci * B^m mod d given a precomputed mod_preinv1_t,
+   where ci is a "carry-in" word and a is m words in length, 
+   that ci is reduced mod d and that d is not zero.
+*/
+word_t nn_mod1_preinv_c(nn_src_t a, len_t m, word_t d, 
+                                     mod_preinv1_t inv, word_t ci);
+
+/* 
+   Return a mod d given a precomputed mod_preinv1_t, where a is m 
+   words in length and that d is not zero.
+*/
+#define nn_mod1_preinv(a, m, d, inv) \
+   nn_mod1_preinv_c(a, m, d, inv, (word_t) 0)
 
 /**********************************************************************
  

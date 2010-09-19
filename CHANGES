@@ -25,17 +25,26 @@
 
 <<<<<<< HEAD:CHANGES
 <<<<<<< HEAD:CHANGES
+<<<<<<< HEAD:CHANGES
 =======
 08-Sep-2010:
 	v0.8 - nn_divrem1_preinv.
 
 >>>>>>> v0.8:CHANGES
 =======
+=======
+>>>>>>> v0.10:CHANGES
 08-Sep-2010:
 	v0.8 - nn_divrem1_preinv.
 
 09-Sep-2010:
 	v0.9 - nn_divrem_hensel1_preinv
 
+<<<<<<< HEAD:CHANGES
 >>>>>>> v0.9:CHANGES
+=======
+09-Sep-2010:
+	v0.10 - nn_mod1_preinv
+
+>>>>>>> v0.10:CHANGES
 

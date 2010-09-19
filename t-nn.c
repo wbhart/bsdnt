@@ -1803,6 +1803,86 @@ int test_divrem_hensel1_preinv(void)
    return result;
 }
 
+int test_mod1_preinv(void)
+{
+   int result = 1;
+   long i;
+   nn_t a, q;
+   len_t m, n;
+   word_t d, ci, rem1, rem2;
+   preinv1_t inv;
+   mod_preinv1_t minv;
+
+   printf("nn_mod1_preinv...");
+
+   /* test that divrem1 and mod1 return same remainder */
+   for (i = 0; i < ITER && result == 1; i++)
+   {
+      m = randint(100, state);
+ 
+      a = nn_init(m);
+      q = nn_init(m);
+
+      nn_random(a, state, m);
+
+      do {
+         d = randword(state);
+      } while (d == 0);
+
+      precompute_inverse1(&inv, d);
+
+      rem1 = nn_divrem1_preinv(q, a, m, d, inv);
+      
+      precompute_mod_inverse1(&minv, d);
+
+      rem2 = nn_mod1_preinv(a, m, d, minv);  
+      
+      result = (rem1 == rem2);
+
+      if (!result)
+      {
+         printf("m = %ld, rem1 = %lu, rem2 = %lu\n", m, rem1, rem2);
+      }
+
+      nn_clear(a);
+      nn_clear(q);
+   }
+
+   /* test chaining of mod1_preinv */
+   for (i = 0; i < ITER && result == 1; i++)
+   {
+      m = randint(100, state);
+      n = randint(100, state);
+
+      a = nn_init(m + n);
+      
+      do {
+         d = randword(state);
+      } while (d == 0);
+
+      precompute_mod_inverse1(&minv, d);
+
+      nn_random(a, state, m + n);
+         
+      ci = nn_mod1_preinv(a + n, m, d, minv);
+      rem1 = nn_mod1_preinv_c(a, n, d, minv, ci);
+      
+      rem2 = nn_mod1_preinv(a, m + n, d, minv);
+
+      result = (rem1 == rem2);
+
+      if (!result)
+      {
+         printf("m = %ld, n = %ld, d = %ld, rem1 = %lu, rem2 = %lu\n", 
+            m, n, d, rem1, rem2);
+      }
+
+      nn_clear(a);
+   }
+
+   return result;
+}
+
 #define RUN(xxx) \
    do { \
       if (xxx()) \
@@ -1846,6 +1926,7 @@ int main(void)
    RUN(test_divrem1_simple);
    RUN(test_divrem1_preinv);
    RUN(test_divrem_hensel1_preinv);
+   RUN(test_mod1_preinv);
 
    printf("%ld of %ld tests pass.\n", pass, pass + fail);
 
