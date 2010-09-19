@@ -1,5 +1,6 @@
 /* Copyright 2010 (C) Antony Vennard, Brian Gladman, William Hart */
 
+#ifndef HAVE_ARCH_nn_add_mc
 #define HAVE_ARCH_nn_add_mc
 
 word_t nn_add_mc(nn_t a, nn_src_t b, nn_src_t c, len_t m, word_t ci)
@@ -30,6 +31,9 @@ word_t nn_add_mc(nn_t a, nn_src_t b, nn_src_t c, len_t m, word_t ci)
    return ci;
 }
 
+#endif
+
+#ifndef HAVE_ARCH_nn_sub_mc
 #define HAVE_ARCH_nn_sub_mc
 
 word_t nn_sub_mc(nn_t a, nn_src_t b, nn_src_t c, len_t m, word_t ci)
@@ -60,3 +64,4 @@ word_t nn_sub_mc(nn_t a, nn_src_t b, nn_src_t c, len_t m, word_t ci)
    return ci;
 }
 
+#endif
