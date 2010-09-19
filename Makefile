@@ -55,6 +55,10 @@ all: $(OBJS) $(TEST_OBJS)
 	
 clean:
 	rm -f $(OBJS) $(TEST_OBJS) $(BINARIES)
+	rm -f cpuid
+
+distclean: clean
+	rm -f *_arch.h
 
 check: all 
 	$(foreach prog, $(BINARIES), $(prog);)	
