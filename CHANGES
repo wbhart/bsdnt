@@ -38,6 +38,9 @@
 12-Sep-2010:
 	v0.12 - nn_mul_classical.
 
+19-Sep-2010:
+        asm2 - assembly code for nn_add/sub_mc, configure.
+
 17-Sep-2010:
 	v0.13 - Added nn_muladd1 and nn_muladd_classical.
 
