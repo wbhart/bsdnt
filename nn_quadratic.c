@@ -1,4 +1,7 @@
 #include "nn.h"
+#include "nn_quadratic_arch.h"
+
+#ifndef HAVE_ARCH_nn_mul_classical
 
 word_t nn_mul_classical(nn_t r, nn_src_t a, len_t m1, 
                                               nn_src_t b, len_t m2)
@@ -17,6 +20,10 @@ word_t nn_mul_classical(nn_t r, nn_src_t a, len_t m1,
    return ci;
 }
 
+#endif
+
+#ifndef HAVE_ARCH_nn_muladd_classical
+
 word_t nn_muladd_classical(nn_t r, nn_src_t a, nn_src_t b, 
                                      len_t m1, nn_src_t c, len_t m2)
 {
@@ -33,6 +40,10 @@ word_t nn_muladd_classical(nn_t r, nn_src_t a, nn_src_t b,
 
    return ci;
 }
+
+#endif
+
+#ifndef HAVE_ARCH_nn_divrem_classical_preinv_c
 
 void nn_divrem_classical_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d, 
                                   len_t n, preinv1_2_t inv, word_t ci)
@@ -67,3 +78,5 @@ void nn_divrem_classical_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d,
       ci = a[i];
    }
 }
+
+#endif
