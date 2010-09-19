@@ -1,4 +1,7 @@
 #include "nn.h"
+#include "nn_quadratic_arch.h"
+
+#ifndef HAVE_ARCH_nn_mul_classical
 
 word_t nn_mul_classical(nn_t r, nn_src_t a, len_t m1, nn_src_t b, len_t m2)
 {
@@ -15,3 +18,5 @@ word_t nn_mul_classical(nn_t r, nn_src_t a, len_t m1, nn_src_t b, len_t m2)
 
    return ci;
 }
+
+#endif
