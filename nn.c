@@ -256,13 +256,16 @@ word_t nn_divrem1_preinv_c(nn_t q, nn_src_t a, len_t m,
    word_t norm = inv.norm;
    word_t dinv = inv.dinv;
    
+   d <<= norm;
+   ci <<= norm;
+
    for (i = m - 1; i >= 0; i--)
    {
       t = (((dword_t) ci) << WORD_BITS) + (((dword_t) a[i]) << norm);
       divrem21_preinv1(q[i], ci, t, d, dinv);
    }
 
-   return ci;
+   return (ci >> norm);
 }
 
 word_t nn_divrem_hensel1_preinv_c(nn_t q, nn_src_t a, len_t m, 
