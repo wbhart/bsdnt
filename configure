@@ -15,7 +15,7 @@ esac
 
 if [ $MACHINE = "_x86" -o $MACHINE = "_x64" ]
 then
-   $CC arch/cpuid.c -o cpuid &> /dev/null
+   $CC arch/cpuid.c -o cpuid 
    ARCH=`./cpuid &> /dev/null`
    case $ARCH in
    k10)
