@@ -47,4 +47,7 @@
 19-Sep-2010:
 	v0.14 - Added nn_divrem_classical.
 
+20-Sep-2010:
+	v0.15 - Added nn_divapprox_classical.
+
 
