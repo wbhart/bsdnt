@@ -510,7 +510,7 @@ int test_equal(void)
       randoms_of_len(m1 + 1, ANY, state, &r1, NULL);
       
       do {
-         randoms_of_len(m1, FULL, state, &a, &b, NULL);
+         randoms_of_len(m1 + 1, FULL, state, &a, &b, NULL);
          nn_s_add_m(r1, a, b, m1);
       } while (r1[m1]);
       
