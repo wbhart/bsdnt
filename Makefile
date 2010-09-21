@@ -24,10 +24,14 @@ AS=nasm
 AR=ar
 CC=gcc
 <<<<<<< HEAD
+<<<<<<< HEAD
 CFLAGS=-pedantic -O2 -g -masm=intel -fopenmp -fPIC -Wall
 =======
 CFLAGS=-pedantic -O2 -g -fopenmp -fPIC -Wall
 >>>>>>> v0.9
+=======
+CFLAGS=-pedantic -O2 -g -fopenmp -fPIC -Wall
+>>>>>>> remotes/Bill/v0.11
 LIBS=-L$(CURDIR)
 INCS=-I$(CURDIR) 
 
@@ -68,7 +72,7 @@ strip:
 build/%.o: %.c
 	$(QUIET_CC)$(CC)  $(CFLAGS) $(INCS) -c $< -o $@
 
-build/test/t-nn: build/nn.o build/t-nn.o
-	$(QUIET_LINK)$(CC) -o build/test/t-nn build/nn.o build/t-nn.o 
+build/test/t-nn: build/test.o build/nn.o build/t-nn.o
+	$(QUIET_LINK)$(CC) -o build/test/t-nn build/nn.o build/test.o build/t-nn.o 
 	
 

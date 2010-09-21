@@ -285,6 +285,47 @@ word_t nn_divrem_hensel1_preinv_c(nn_t q, nn_src_t a, len_t m,
    return ci;
 }
 
+word_t nn_mod1_preinv_c(nn_src_t a, len_t m, word_t d, 
+                                     mod_preinv1_t inv, word_t ci)
+{
+   dword_t t, u;
+   word_t a1, a0;
+      
+   if (m & 1) /* odd number of words plus carry word */
+   {
+      a1 = ci;
+      a0 = a[--m];
+   } else /* even number of words plus carry word */
+   {
+      if (m == 0) return ci;
+
+      m -= 2;
+      t = (dword_t) a[m] + (((dword_t) a[m + 1]) << WORD_BITS);
+      u = t + (dword_t) ci * (dword_t) inv.b2;
+      if (u < t) u += (dword_t) inv.b2;
+      a1 = (word_t) (u >> WORD_BITS);
+      a0 = (word_t) u;
+   }
+
+   /* reduce to two words */
+   while (m >= 2)
+   {
+      m -= 2;
+      u = (dword_t) a[m] + (((dword_t) a[m + 1]) << WORD_BITS);
+      t = u + (dword_t) a0 * (dword_t) inv.b2;
+      if (t < u) t += (dword_t) inv.b2;
+      u = t + (dword_t) a1 * (dword_t) inv.b3;
+      if (u < t) u += (dword_t) inv.b2;
+      a1 = (word_t) (u >> WORD_BITS);
+      a0 = (word_t) u;
+   }
+   
+   /* reduce top word mod d */
+   u = (dword_t) a0 + (dword_t) a1 * (dword_t) inv.b1;
+
+   return u % (dword_t) d;
+}
+
 /**********************************************************************
  
     Comparison
