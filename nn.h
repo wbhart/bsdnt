@@ -21,6 +21,62 @@ typedef unsigned int dword_t __attribute__((mode(TI)));
 
 #endif
 
+#else
+
+#include <crtdbg.h>
+#include <intrin.h>
+
+typedef unsigned long      word_t;
+typedef unsigned long long dword_t;
+#define WORD_BITS 32
+#define inline __inline
+
+#if WORD_BITS == 32
+
+#pragma intrinsic(_BitScanReverse)
+__inline unsigned int count_leading_zeros(word_t x)
+{
+	unsigned long pos;
+	_ASSERTE(x != 0);
+	_BitScanReverse(&pos, x);
+	return WORD_BITS - 1 - pos;
+}
+
+#pragma intrinsic(_BitScanForward)
+__inline unsigned int count_trailing_zeros(word_t x)
+{
+	unsigned long pos;
+	_ASSERTE(x != 0);
+	_BitScanForward(&pos, x);
+	return pos;
+}
+
+#endif
+
+#if WORD_BITS == 64
+
+#pragma intrinsic(_BitScanReverse64)
+__inline unsigned int count_leading_zeros(word_t x)
+{
+	unsigned long pos;
+	_ASSERTE(x != 0);
+	_BitScanReverse64(&pos, x);
+	return WORD_BITS - 1 - pos;
+}
+
+#pragma intrinsic(_BitScanForward64)
+__inline unsigned int count_trailing_zeros(word_t x)
+{
+	unsigned long pos;
+	_ASSERTE(x != 0);
+	_BitScanForward64(&pos, x);
+	return pos;
+}
+
+#endif
+
+#endif
+
 typedef word_t * nn_t;
 typedef const word_t * nn_src_t;
 
@@ -54,15 +110,19 @@ typedef struct mod_preinv1_t
    Computes the number of leading zeroes in the binary representation
    of its argument.
 */
-#define clz __builtin_clzl
 
+#ifndef _MSC_VER
+#  define clz __builtin_clzl
+#else
+#  define clz count_leading_zeros
+#endif
 /*
    Precomputes an inverse of d as per the definition of \nu at the
    start of section 3 of Moller-Granlund (see below). Does not 
-   require d to be normalised. A normalised version of d is returned.
+   require d to be normalised. 
 */
 static inline
-word_t precompute_inverse1(preinv1_t * inv, word_t d)
+void precompute_inverse1(preinv1_t * inv, word_t d)
 {
    dword_t t;
    word_t norm = clz(d);
@@ -72,8 +132,6 @@ word_t precompute_inverse1(preinv1_t * inv, word_t d)
    
    inv->dinv = t / d;
    inv->norm = norm;
-
-   return d;
 }
 
 /*
@@ -248,56 +306,57 @@ len_t nn_normalise(nn_t a, len_t m)
    in length. Return any borrow. The word ci is a carry-in. It is
    effectively subtracted from the result.
 */
-word_t _nn_neg_c(nn_t a, nn_src_t b, len_t m, word_t ci);
+word_t nn_neg_c(nn_t a, nn_src_t b, len_t m, word_t ci);
 
 /*
    Set a to the twos complement negation of b, where b is m words
    in length. Return any borrow.
 */
-#define _nn_neg(a, b, m) \
-    _nn_neg_c(a, b, m, 0)
+#define nn_neg(a, b, m) \
+    nn_neg_c(a, b, m, 0)
 
 /*
    Set a to the twos complement negation of b, where b is m words
    in length. The word ci is a carry-in. It is effectively subtracted
-   from the result. The borrow is written out to a[m]. 
+   from the result. The borrow is written out to a[m] and returned. 
 */
-#define nn_neg_c(a, b, m, ci) \
-   do { \
-      (a)[m] = -_nn_neg_c(a, b, m, ci); \
-   } while (0)
+static inline
+word_t nn_s_neg_c(nn_t a, nn_src_t b, len_t m, word_t ci)
+{
+   return (a[m] = -nn_neg_c(a, b, m, ci));
+}
 
 /*
    Set a to the twos complement negation of b, where b is m words
    in length. The borrow is written out to a[m].
 */
-#define nn_neg(a, b, m) \
-   nn_neg_c(a, b, m, 0)
+#define nn_s_neg(a, b, m) \
+   nn_s_neg_c(a, b, m, 0)
 
 /*
    Set a = b + c where b is m words in length, and c is a word. 
    Return any carry out. 
 */
-word_t _nn_add1(nn_t a, nn_src_t b, len_t m, word_t c);
+word_t nn_add1(nn_t a, nn_src_t b, len_t m, word_t c);
 
 /*
    Set a = b + c where b is m words in length, and c is a word. 
    Write any carry out to a[m]. If a and b are aliased, the 
    carry out is added to a[m], otherwise it is written to a[m].
 */
-#define nn_add1(a, b, m, c) \
+#define nn_s_add1(a, b, m, c) \
    do { \
       if ((a) == (b)) \
-         (a)[m] += _nn_add1(a, b, m, c); \
+         (a)[m] += nn_add1(a, b, m, c); \
       else \
-         (a)[m] = _nn_add1(a, b, m, c); \
+         (a)[m] = nn_add1(a, b, m, c); \
    } while (0)
 
 /*
    Set a = b - c where b is m words in length, and c is a word. 
    Return any borrow out. 
 */
-word_t _nn_sub1(nn_t a, nn_src_t b, len_t m, word_t c);
+word_t nn_sub1(nn_t a, nn_src_t b, len_t m, word_t c);
 
 /*
    Set a = b - c where b is m words in length, and c is a word. 
@@ -305,38 +364,38 @@ word_t _nn_sub1(nn_t a, nn_src_t b, len_t m, word_t c);
    borrow out is subtracted from a[m], otherwise it is written 
    to a[m].
 */
-#define nn_sub1(a, b, m, c) \
+#define nn_s_sub1(a, b, m, c) \
    do { \
       if ((a) == (b)) \
-         (a)[m] -= _nn_sub1(a, b, m, c); \
+         (a)[m] -= nn_sub1(a, b, m, c); \
       else \
-         (a)[m] = -_nn_sub1(a, b, m, c); \
+         (a)[m] = -nn_sub1(a, b, m, c); \
    } while (0)
 
 /*
    Set a = b + c + ci where b and c are both m words in length,
    ci is a "carry in". Return any carry out. 
 */
-word_t _nn_add_mc(nn_t a, nn_src_t b, nn_src_t c, len_t m, word_t ci);
+word_t nn_add_mc(nn_t a, nn_src_t b, nn_src_t c, len_t m, word_t ci);
 
 /*
    Set a = b + c where b and c are both m words in length. Return 
    any carry out. 
 */
-#define _nn_add_m(a, b, c, m) \
-   _nn_add_mc(a, b, c, m, (word_t) 0)
+#define nn_add_m(a, b, c, m) \
+   nn_add_mc(a, b, c, m, (word_t) 0)
 
 /*
    Set a = b + c + ci where b and c are both m words in length, 
    writing the carry to a. If a and b are aliased, the carry is 
    added to a[m], otherwise a[m] is set to the carry.
 */
-#define nn_add_mc(a, b, c, m, ci) \
+#define nn_s_add_mc(a, b, c, m, ci) \
    do { \
       if ((a) == (b)) \
-         (a)[m] += _nn_add_mc(a, b, c, m, ci); \
+         (a)[m] += nn_add_mc(a, b, c, m, ci); \
       else \
-         (a)[m] = _nn_add_mc(a, b, c, m, ci); \
+         (a)[m] = nn_add_mc(a, b, c, m, ci); \
    } while (0)
 
 /*
@@ -344,33 +403,33 @@ word_t _nn_add_mc(nn_t a, nn_src_t b, nn_src_t c, len_t m, word_t ci);
    writing the carry to a. If a and b are aliased, the carry is 
    added to a[m], otherwise a[m] is set to the carry.
 */
-#define nn_add_m(a, b, c, m) \
-   nn_add_mc(a, b, c, m, (word_t) 0)
+#define nn_s_add_m(a, b, c, m) \
+   nn_s_add_mc(a, b, c, m, (word_t) 0)
 
 /*
    Set a = b - c - bi where b and c are both m words in length,
    bi is a "borrow". Return any borrow. 
 */
-word_t _nn_sub_mc(nn_t a, nn_src_t b, nn_src_t c, len_t m, word_t bi);
+word_t nn_sub_mc(nn_t a, nn_src_t b, nn_src_t c, len_t m, word_t bi);
 
 /*
    Set a = b - c where b and c are both m words in length. Return 
    any borrow. 
 */
-#define _nn_sub_m(a, b, c, m) \
-   _nn_sub_mc(a, b, c, m, (word_t) 0)
+#define nn_sub_m(a, b, c, m) \
+   nn_sub_mc(a, b, c, m, (word_t) 0)
 
 /*
    Set a = b - c - bi where b and c are both m words in length, 
    writing the borrow to a. If a and b are aliased, the boorow is 
    subtracted from a[m], otherwise a[m] is set to the borrow.
 */
-#define nn_sub_mc(a, b, c, m, bi) \
+#define nn_s_sub_mc(a, b, c, m, bi) \
    do { \
       if ((a) == (b)) \
-         (a)[m] -= _nn_sub_mc(a, b, c, m, bi); \
+         (a)[m] -= nn_sub_mc(a, b, c, m, bi); \
       else \
-         (a)[m] = -_nn_sub_mc(a, b, c, m, bi); \
+         (a)[m] = -nn_sub_mc(a, b, c, m, bi); \
    } while (0)
 
 /*
@@ -378,27 +437,27 @@ word_t _nn_sub_mc(nn_t a, nn_src_t b, nn_src_t c, len_t m, word_t bi);
    writing the borrow to a. If a and b are aliased, the borrow is 
    subtracted from a[m], otherwise a[m] is set to the borrow.
 */
-#define nn_sub_m(a, b, c, m) \
-   nn_sub_mc(a, b, c, m, (word_t) 0)
+#define nn_s_sub_m(a, b, c, m) \
+   nn_s_sub_mc(a, b, c, m, (word_t) 0)
 
 /*
    Set a = b + c + ci where b is bm words, c is cm words in length,
    bm >= cm and ci is a "carry in". We return the carry out. 
 */
 static inline
-word_t _nn_add_c(nn_t a, nn_src_t b, len_t bm, 
+word_t nn_add_c(nn_t a, nn_src_t b, len_t bm, 
                             nn_src_t c, len_t cm, word_t ci)
 {
-   ci = _nn_add_mc(a, b, c, cm, ci);
-   return _nn_add1(a + cm, b + cm, bm - cm, ci);
+   ci = nn_add_mc(a, b, c, cm, ci);
+   return nn_add1(a + cm, b + cm, bm - cm, ci);
 }
 
 /*
    Set a = b + c + ci where b is bm words, c is cm words in length,
    and bm >= cm. We return the carry out. 
 */
-#define _nn_add(a, b, bm, c, cm) \
-   _nn_add_c(a, b, bm, c, cm, (word_t) 0)
+#define nn_add(a, b, bm, c, cm) \
+   nn_add_c(a, b, bm, c, cm, (word_t) 0)
 
 /*
    Set a = b + c + ci where b is bm words, c is cm words in length,
@@ -406,12 +465,12 @@ word_t _nn_add_c(nn_t a, nn_src_t b, len_t bm,
    If a and b are aliased the carry out is added to a[bm], otherwise
    it is written there.
 */
-#define nn_add_c(a, b, bm, c, cm, ci) \
+#define nn_s_add_c(a, b, bm, c, cm, ci) \
    do { \
       if ((a) == (b)) \
-         (a)[bm] += _nn_add_c(a, b, bm, c, cm, ci); \
+         (a)[bm] += nn_add_c(a, b, bm, c, cm, ci); \
       else \
-         (a)[bm] = _nn_add_c(a, b, bm, c, cm, ci); \
+         (a)[bm] = nn_add_c(a, b, bm, c, cm, ci); \
    } while (0)
 
 /*
@@ -420,27 +479,27 @@ word_t _nn_add_c(nn_t a, nn_src_t b, len_t bm,
    aliased the carry out is added to a[bm], otherwise it is written 
    there.
 */
-#define nn_add(a, b, bm, c, cm) \
-   nn_add_c(a, b, bm, c, cm, (word_t) 0)
+#define nn_s_add(a, b, bm, c, cm) \
+   nn_s_add_c(a, b, bm, c, cm, (word_t) 0)
 
 /*
    Set a = b - c - ci where b is bm words, c is cm words in length,
    bm >= cm and ci is a "borrow in". We return any borrow out. 
 */
 static inline
-word_t _nn_sub_c(nn_t a, nn_src_t b, len_t bm, 
+word_t nn_sub_c(nn_t a, nn_src_t b, len_t bm, 
                             nn_src_t c, len_t cm, word_t ci)
 {
-   ci = _nn_sub_mc(a, b, c, cm, ci);
-   return _nn_sub1(a + cm, b + cm, bm - cm, ci);
+   ci = nn_sub_mc(a, b, c, cm, ci);
+   return nn_sub1(a + cm, b + cm, bm - cm, ci);
 }
 
 /*
    Set a = b - c - ci where b is bm words, c is cm words in length,
    and bm >= cm. We return any borrow out. 
 */
-#define _nn_sub(a, b, bm, c, cm) \
-   _nn_sub_c(a, b, bm, c, cm, (word_t) 0)
+#define nn_sub(a, b, bm, c, cm) \
+   nn_sub_c(a, b, bm, c, cm, (word_t) 0)
 
 /*
    Set a = b - c - ci where b is bm words, c is cm words in length,
@@ -448,12 +507,12 @@ word_t _nn_sub_c(nn_t a, nn_src_t b, len_t bm,
    If a and b are aliased the borrow out is subtracted from a[bm], 
    otherwise it is written there.
 */
-#define nn_sub_c(a, b, bm, c, cm, ci) \
+#define nn_s_sub_c(a, b, bm, c, cm, ci) \
    do { \
       if ((a) == (b)) \
-         (a)[bm] -= _nn_sub_c(a, b, bm, c, cm, ci); \
+         (a)[bm] -= nn_sub_c(a, b, bm, c, cm, ci); \
       else \
-         (a)[bm] = -_nn_sub_c(a, b, bm, c, cm, ci); \
+         (a)[bm] = -nn_sub_c(a, b, bm, c, cm, ci); \
    } while (0)
 
 /*
@@ -462,155 +521,158 @@ word_t _nn_sub_c(nn_t a, nn_src_t b, len_t bm,
    aliased the borrow out is subtracted from a[bm], otherwise it is 
    written there.
 */
-#define nn_sub(a, b, bm, c, cm) \
-   nn_sub_c(a, b, bm, c, cm, (word_t) 0)
+#define nn_s_sub(a, b, bm, c, cm) \
+   nn_s_sub_c(a, b, bm, c, cm, (word_t) 0)
 
 /*
    Set a = (b << bits) + ci where b is m words in length,
    ci is a "carry in". Return any carry out. Assumes 0 <= bits
    < WORD_BITS.
 */
-word_t _nn_shl_c(nn_t a, nn_src_t b, len_t m, bits_t bits, word_t ci);
+word_t nn_shl_c(nn_t a, nn_src_t b, len_t m, bits_t bits, word_t ci);
 
 /*
    Set a = (b << bits) where b is m words in length. Return 
    any carry out. Assumes 0 <= bits < WORD_BITS.
 */
-#define _nn_shl(a, b, m, bits) \
-   _nn_shl_c(a, b, m, bits, (word_t) 0)
+#define nn_shl(a, b, m, bits) \
+   nn_shl_c(a, b, m, bits, (word_t) 0)
 
 /*
    Set a = (b << bits) + ci where b is m words in length, ci is
-   a "carry in", and writing the carry out to a[m]. Assumes 0 <= 
-   bits < WORD_BITS.
+   a "carry in", and write the carry out to a[m] and return it. 
+   Assumes 0 <= bits < WORD_BITS.
 */
-#define nn_shl_c(a, b, m, bits, ci) \
-   do { \
-      (a)[m] = _nn_shl_c(a, b, m, bits, ci); \
-   } while (0)
+static inline
+word_t nn_s_shl_c(nn_t a, nn_src_t b, len_t m, bits_t bits, word_t ci)
+{
+   return (a[m] = nn_shl_c(a, b, m, bits, ci));
+}
 
 /*
    Set a = (b << bits) where b is m words in length, writing the 
    carry out to a[m]. Assumes 0 <= bits < WORD_BITS.
 */
-#define nn_shl(a, b, m, bits) \
-   nn_shl_c(a, b, m, bits, (word_t) 0)
+#define nn_s_shl(a, b, m, bits) \
+   nn_s_shl_c(a, b, m, bits, (word_t) 0)
 
 /*
    Set a = (b >> bits) + ci*B^(m - 1) where b is m words 
    in length, ci is a "carry in". Return any carry out from the low
    end. Assumes 0 <= bits < WORD_BITS.
 */
-word_t _nn_shr_c(nn_t a, nn_src_t b, len_t m, bits_t bits, word_t ci);
+word_t nn_shr_c(nn_t a, nn_src_t b, len_t m, bits_t bits, word_t ci);
 
 /*
    Set a = (b >> bits) where b is m words in length. Return 
    any carry out from the low end. Assumes 0 <= bits < WORD_BITS.
 */
-#define _nn_shr(a, b, m, bits) \
-   _nn_shr_c(a, b, m, bits, (word_t) 0)
+#define nn_shr(a, b, m, bits) \
+   nn_shr_c(a, b, m, bits, (word_t) 0)
 
 /*
    Set a = (b >> bits) + ci*B^(m - 1) where b is m words 
    in length, and ci is a[m]*2^(WORD_BITS - bits). Assumes 0 <= bits < 
    WORD_BITS.
 */
-#define nn_shr(a, b, m, bits) \
-   do { \
-      if (bits) \
-         _nn_shr_c(a, b, m, bits, (b)[m] << (WORD_BITS - (bits))); \
-      else \
-         _nn_shr_c(a, b, m, bits, (word_t) 0); \
-   } while (0)
+static inline
+word_t nn_r_shr(nn_t a, nn_src_t b, len_t m, bits_t bits)
+{
+   if (bits)
+      return nn_shr_c(a, b, m, bits, (b)[m] << (WORD_BITS - (bits))); \
+   else
+      return nn_shr_c(a, b, m, bits, (word_t) 0); \
+}
 
 /*
    Set a = b * c + ci where b is m words in length, c is a word and
    ci is a "carry in". Return any carry out. 
 */
-word_t _nn_mul1_c(nn_t a, nn_src_t b, len_t m, word_t c, word_t ci);
+word_t nn_mul1_c(nn_t a, nn_src_t b, len_t m, word_t c, word_t ci);
 
 /*
    Set a = b * c where b is m words in length and c is a word. 
    Return any carry out.
 */
-#define _nn_mul1(a, b, m, c) \
-   _nn_mul1_c(a, b, m, c, (word_t) 0)
+#define nn_mul1(a, b, m, c) \
+   nn_mul1_c(a, b, m, c, (word_t) 0)
 
 /*
    Set a = b * c + ci where b is m words in length, c is a word and
-   ci is a "carry in". Write any carry out to a[m]. 
+   ci is a "carry in". Write any carry out to a[m] and return it.
 */
-#define nn_mul1_c(a, b, m, c, ci) \
-   do { \
-      (a)[m] = _nn_mul1_c(a, b, m, c, ci); \
-   } while (0)
+static inline
+word_t nn_s_mul1_c(nn_t a, nn_src_t b, len_t m, word_t c, word_t ci)
+{
+   return (a[m] = nn_mul1_c(a, b, m, c, ci)); 
+}
 
 /*
    Set a = b * c where b is m words in length and c is a word.
    Write any carry out to a[m]. 
 */
-#define nn_mul1(a, b, m, c) \
-   nn_mul1_c(a, b, m, c, (word_t) 0)
+#define nn_s_mul1(a, b, m, c) \
+   nn_s_mul1_c(a, b, m, c, (word_t) 0)
 
 /*
    Set a = a + b * c + ci where a and b are m words in length, c 
    is a word and ci is a "carry in". The carry out is returned. 
 */
-word_t _nn_addmul1_c(nn_t a, nn_src_t b, len_t m, word_t c, word_t ci);
+word_t nn_addmul1_c(nn_t a, nn_src_t b, len_t m, word_t c, word_t ci);
 
 /*
    Set a = a + b * c where a and b are m words in length, and c 
    is a word. The carry out is returned. 
 */
-#define _nn_addmul1(a, b, m, c) \
-   _nn_addmul1_c(a, b, m, c, (word_t) 0)
+#define nn_addmul1(a, b, m, c) \
+   nn_addmul1_c(a, b, m, c, (word_t) 0)
 
 /*
    Set a = a + b * c + ci where a and b are m words in length, c 
    is a word and ci is a "carry in". The carry out is added to
    a[m]. 
 */
-#define nn_addmul1_c(a, b, m, c, ci) \
+#define nn_s_addmul1_c(a, b, m, c, ci) \
    do { \
-      (a)[m] += _nn_addmul1_c(a, b, m, c, ci); \
+      (a)[m] += nn_addmul1_c(a, b, m, c, ci); \
    } while (0)
 
 /*
    Set a = a + b * c where a and b are m words in length and c 
    is a word. The carry out is added to a[m].  
 */
-#define nn_addmul1(a, b, m, c) \
-   nn_addmul1_c(a, b, m, c, (word_t) 0)
+#define nn_s_addmul1(a, b, m, c) \
+   nn_s_addmul1_c(a, b, m, c, (word_t) 0)
 
 /*
    Set a = a - b * c - ci where a and b are m words in length, c 
    is a word and ci is a "borrow in". The borrow out is returned. 
 */
-word_t _nn_submul1_c(nn_t a, nn_src_t b, len_t m, word_t c, word_t ci);
+word_t nn_submul1_c(nn_t a, nn_src_t b, len_t m, word_t c, word_t ci);
 
 /*
    Set a = a - b * c where a and b are m words in length, and c 
    is a word. The borrow out is returned. 
 */
-#define _nn_submul1(a, b, m, c) \
-   _nn_submul1_c(a, b, m, c, (word_t) 0)
+#define nn_submul1(a, b, m, c) \
+   nn_submul1_c(a, b, m, c, (word_t) 0)
 
 /*
    Set a = a - b * c - ci where a and b are m words in length, c 
    is a word and ci is a "borrow in". The borrow out is subtracted
    from a[m]. 
 */
-#define nn_submul1_c(a, b, m, c, ci) \
+#define nn_s_submul1_c(a, b, m, c, ci) \
    do { \
-      (a)[m] += _nn_submul1_c(a, b, m, c, ci); \
+      (a)[m] -= nn_submul1_c(a, b, m, c, ci); \
    } while (0)
 
 /*
    Set a = a - b * c where a and b are m words in length and c 
    is a word. The borrow out is subtracted from a[m].  
 */
-#define nn_submul1(a, b, m, c) \
-   nn_submul1_c(a, b, m, c, (word_t) 0)
+#define nn_s_submul1(a, b, m, c) \
+   nn_s_submul1_c(a, b, m, c, (word_t) 0)
 
 /*
    Set q = (ci*B^m + a) / d and return the remainder, where a is m 
@@ -618,38 +680,39 @@ word_t _nn_submul1_c(nn_t a, nn_src_t b, len_t m, word_t c, word_t ci);
    reduced mod d. The quotient q requires m limbs of space.  An 
    exception will result if d is 0.
 */
-word_t _nn_divrem1_simple_c(nn_t q, nn_src_t a, len_t m, 
-                                           word_t d, word_t ci);
+word_t nn_divrem1_simple_c(nn_t q, nn_src_t a, len_t m, word_t d, word_t ci);
 
 /*
    Set q = a / d and return the remainder, where a is m words in 
    length and d is a word. The quotient q requires m limbs of space. 
    An exception will result if d is 0.
 */
-#define _nn_divrem1_simple(q, a, m, d) \
-   _nn_divrem1_simple_c(q, a, m, d, (word_t) 0)
+#define nn_divrem1_simple(q, a, m, d) \
+   nn_divrem1_simple_c(q, a, m, d, (word_t) 0)
 
 /*
    Set q = (ci*B^m + a) / d and return the remainder, where a is m 
    words in length, d is a word and ci is a "carry-in" which must be
    reduced mod d. The quotient q requires m limbs of space.  An 
-   exception will result if d is 0. Requires that d be normalised and
-   that inv is a precomputed inverse of d computed by the function
-   precompute_inverse. If division by a non-normalised d is required,
-   first normalise d, shift the carry-in by the same amount, then the
-   remainder will also be shifted by the same amount upon return. No
-   change to a or the quotient is required.
+   exception will result if d is 0. Requires that inv is a precomputed 
+   inverse of d computed by the function precompute_inverse1. 
 */
-word_t _nn_divrem1_preinv_c(nn_t q, nn_src_t a, len_t m, 
+word_t nn_divrem1_preinv_c(nn_t q, nn_src_t a, len_t m, 
                             word_t d, preinv1_t inv, word_t ci);
 
 /* 
    As per _nn_divrem1_preinv_c but with no carry-in.
 */
-#define _nn_divrem1_preinv(q, a, m, d, inv) \
-   _nn_divrem1_preinv_c(q, a, m, d, inv, (word_t) 0)
+#define nn_divrem1_preinv(q, a, m, d, inv) \
+   nn_divrem1_preinv_c(q, a, m, d, inv, (word_t) 0)
 
-word_t _nn_divrem_hensel1_preinv_c(nn_t q, nn_src_t a, len_t m, 
+/* 
+   Computes r and q such that r * B^m + a = q * d + ci, where
+   q and a are m words in length, d is an odd word_t, inv is a
+   precomputed Hensel inverse of d computed by the function
+   precompute_hensel_inverse1 and ci is a "carry-in" word.
+*/
+word_t nn_divrem_hensel1_preinv_c(nn_t q, nn_src_t a, len_t m, 
                         word_t d, hensel_preinv1_t inv, word_t ci);
 
 /*
@@ -657,6 +720,21 @@ word_t _nn_divrem_hensel1_preinv_c(nn_t q, nn_src_t a, len_t m,
 */
 #define nn_divrem_hensel1_preinv(q, a, m, d, inv) \
    nn_divrem_hensel1_preinv_c(q, a, m, d, inv, (word_t) 0)
+
+/* 
+   Return a + ci * B^m mod d given a precomputed mod_preinv1_t,
+   where ci is a "carry-in" word and a is m words in length, 
+   that ci is reduced mod d and that d is not zero.
+*/
+word_t nn_mod1_preinv_c(nn_src_t a, len_t m, word_t d, 
+                                     mod_preinv1_t inv, word_t ci);
+
+/* 
+   Return a mod d given a precomputed mod_preinv1_t, where a is m 
+   words in length and that d is not zero.
+*/
+#define nn_mod1_preinv(a, m, d, inv) \
+   nn_mod1_preinv_c(a, m, d, inv, (word_t) 0)
 
 /**********************************************************************
  
