@@ -141,6 +141,45 @@ int test_divrem_classical_preinv(void)
    return result;
 }
 
+int test_divapprox_classical_preinv(void)
+{
+   int result = 1;
+   len_t m, n;
+   nn_t a, r1, r2, s, q1, q2, d;
+   preinv1_2_t inv;
+   
+   printf("divrem_classical_preinv...");
+
+   TEST_START(ITER) /* test divapprox is at most one more than divrem */
+   {
+      randoms_upto(30, NONZERO, state, &m, &n, NULL);
+      
+      randoms_of_len(m, ANY, state, &a, &q1, &q2, NULL);
+      randoms_of_len(m + n, ANY, state, &r1, &r2, NULL);
+      
+      /* ensure s is reduced mod d */
+      do {
+         randoms_of_len(n, ANY, state, &d, &s, NULL);
+      } while (nn_cmp_m(d, s, n) <= 0);
+      
+      nn_s_muladd_classical(r1, s, d, n, a, m);
+      nn_copy(r2, r1, m + n);
+
+      precompute_inverse1_2(&inv, d[n - 1], (n == 1) ? (word_t) 0 : d[n - 2]);
+      nn_r_divrem_classical_preinv(q1, r1, m + n - 1, d, n, inv);
+
+      nn_r_divapprox_classical_preinv(q2, r2, m + n - 1, d, n, inv);
+
+      result = nn_equal_m(q1, q2, m);
+      nn_add1(q1, q1, m, 1);
+      result |= nn_equal_m(q1, q2, m);
+
+      if (!result) printf("m = %ld, n = %ld\n", m, n);
+   } TEST_END;
+
+   return result;
+}
+
 int main(void)
 {
    long pass = 0;
@@ -151,6 +190,7 @@ int main(void)
    RUN(test_mul_classical);
    RUN(test_muladd_classical);
    RUN(test_divrem_classical_preinv);
+   RUN(test_divapprox_classical_preinv);
    
    printf("%ld of %ld tests pass.\n", pass, pass + fail);
 
