@@ -6,11 +6,6 @@
 
 **********************************************************************/
 
-#if WORD_BITS == 64
-
-word_t __randval = 4035456057UL;
-word_t __randval2 = 6748392731UL;
-
 void randinit(rand_t state)
 {
 }
@@ -19,62 +14,17 @@ void randclear(rand_t state)
 {
 }
 
-word_t randword(rand_t state) 
-{   
-    __randval = (__randval*1025416097UL + 286824428UL)%4294967311UL;
-    __randval2 = (__randval2*1647637699UL + 286824428UL)%4294967357UL;
-
-    return __randval + (__randval2<<32);
-}
-
-#else
-
-void randinit(rand_t state)
-{
-}
-
-void randclear(rand_t state)
-{
-}
-
-#ifndef _MSC_VER
-
-word_t rand_w =   521288629UL;
-word_t rand_z =   362436069UL;
-
-word_t randword(rand_t state) 
-{   
-        rand_z = (rand_z >> 16) + 36969 * (rand_z & 0x0000fffful);
-        rand_w = (rand_w >> 16) + 18000 * (rand_w & 0x0000fffful);
-        return rand_w + (rand_z << 16);
-}
-
-#else
-
-#ifndef _WIN64
-
-#include <intrin.h>
-#pragma intrinsic(__emulu)
-
-static unsigned long long x = 0x12345678UL;
-
-word_t randword(rand_t state) 
-{
-	x = __emulu(0xffffda61UL,  x & 0xffffffffL) + (x >> 32);
-	return (word_t) x;
-}
-
-#else
+/* George Marsaglia's KISS 64-bit Pseudo Random Number Generator */
 
 static unsigned long long 
 	x = 1234567890987654321ULL,
 	c = 123456123456123456ULL, 
     y = 362436362436362436ULL,
-	z = 1066149217761810ULL, 
-	t; 
+	z = 1066149217761810ULL;
 
 __inline unsigned long long mwc(void)
 {
+	unsigned long long t;
 	t = (x << 58) + c;
 	c = x >> 6;
 	x += t;
@@ -99,12 +49,6 @@ word_t randword(rand_t state)
 {
 	return (word_t)(mwc() + xsh() + cng());
 }
-
-#endif
-
-#endif
-
-#endif
 
 word_t randint(word_t m, rand_t state)
 {
