@@ -29,9 +29,6 @@ word_t randword(rand_t state)
 
 #else
 
-word_t __randval = 3119766748UL;
-word_t __randval2 = 4225528843UL;
-
 void randinit(rand_t state)
 {
 }
@@ -40,13 +37,72 @@ void randclear(rand_t state)
 {
 }
 
+#ifndef _MSC_VER
+
+word_t rand_w =   521288629UL;
+word_t rand_z =   362436069UL;
+
 word_t randword(rand_t state) 
 {   
-    __randval = (__randval*1573677563UL +  1626832774UL)%65537UL;
-    __randval2 = (__randval2*897228705UL +  1626832774UL)% 65539UL;
-
-    return __randval + (__randval2<<16);
+        rand_z = (rand_z >> 16) + 36969 * (rand_z & 0x0000fffful);
+        rand_w = (rand_w >> 16) + 18000 * (rand_w & 0x0000fffful);
+        return rand_w + (rand_z << 16);
 }
+
+#else
+
+#ifndef _WIN64
+
+#include <intrin.h>
+#pragma intrinsic(__emulu)
+
+static unsigned long long x = 0x12345678UL;
+
+word_t randword(rand_t state) 
+{
+	x = __emulu(0xffffda61UL,  x & 0xffffffffL) + (x >> 32);
+	return (word_t) x;
+}
+
+#else
+
+static unsigned long long 
+	x = 1234567890987654321ULL,
+	c = 123456123456123456ULL, 
+    y = 362436362436362436ULL,
+	z = 1066149217761810ULL, 
+	t; 
+
+__inline unsigned long long mwc(void)
+{
+	t = (x << 58) + c;
+	c = x >> 6;
+	x += t;
+	c += (x < t);
+	return x;
+}
+
+__inline unsigned long long xsh(void)
+{
+	y ^= (y << 13);
+	y ^= (y >> 17);
+	y ^= (y << 43);
+	return y;
+}
+
+__inline unsigned long long cng(void)
+{
+	z = 6906969069UL * z + 1234567;
+}
+
+word_t randword(rand_t state) 
+{
+	return (word_t)(mwc() + xsh() + cng());
+}
+
+#endif
+
+#endif
 
 #endif
 

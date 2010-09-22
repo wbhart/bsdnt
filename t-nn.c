@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <crtdbg.h>
 #include "nn.h"
 #include "test.h"
 
@@ -504,19 +505,18 @@ int test_equal(void)
 
    /* test that not equal values compare not equal */
    TEST_START(ITER) 
-   {
+   {  
       randoms_upto(100, NONZERO, state, &m1, NULL);
       
       randoms_of_len(m1 + 1, ANY, state, &r1, NULL);
-      
       do {
-         randoms_of_len(m1 + 1, FULL, state, &a, &b, NULL);
+         randoms_of_len(m1, FULL, state, &a, &b, NULL);
          nn_s_add_m(r1, a, b, m1);
       } while (r1[m1]);
       
       result = !nn_equal(r1, m1, a, m1);
 
-      if (!result) printf("m1 = %ld, m2 = %ld\n", m1, m2);
+	  if (!result) printf("m1 = %ld, m2 = %ld\n", m1, m2);
    } TEST_END;
 
    return result;
@@ -978,7 +978,7 @@ int test_cmp_m(void)
       randoms_of_len(m1 + 1, ANY, state, &r1, NULL);
       
       do {
-         randoms_of_len(m1 + 1, FULL, state, &a, &b, NULL);
+         randoms_of_len(m1, FULL, state, &a, &b, NULL);
          nn_s_add_m(r1, a, b, m1);
       } while (r1[m1]);
       
@@ -1034,7 +1034,7 @@ int test_cmp(void)
       randoms_of_len(m1 + 1, ANY, state, &r1, NULL);
       
       do {
-         randoms_of_len(m1 + 1, FULL, state, &a, &b, NULL);
+         randoms_of_len(m1, FULL, state, &a, &b, NULL);
          nn_s_add_m(r1, a, b, m1);
       } while (r1[m1]);
       
@@ -1289,7 +1289,6 @@ int main(void)
    long fail = 0;
    
    randinit(state);
-
    RUN(test_gc);
    RUN(test_not);
    RUN(test_neg);
