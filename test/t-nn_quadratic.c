@@ -148,7 +148,7 @@ int test_divapprox_classical_preinv(void)
    nn_t a, r1, r2, s, q1, q2, d;
    preinv1_2_t inv;
    
-   printf("divrem_classical_preinv...");
+   printf("divapprox_classical_preinv...");
 
    TEST_START(ITER) /* test divapprox is at most one more than divrem */
    {
