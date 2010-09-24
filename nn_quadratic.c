@@ -36,7 +36,7 @@ void nn_mullow_classical(nn_t ov, nn_t r, nn_src_t a, len_t m1,
       t += (dword_t) nn_addmul1(r + i, a, m1 - i, b[i]);
 
    ov[0] = (word_t) t;
-   ov[1] = (word_t) t >> WORD_BITS;
+   ov[1] = (word_t) (t >> WORD_BITS);
 }
 
 #endif
@@ -49,6 +49,9 @@ word_t nn_mulhigh_classical(nn_t r, nn_src_t a, len_t m1,
    len_t i;
    word_t ci = 0;
    dword_t t;
+
+   if (m2 == 1)
+      return ov[0]; /* overflow is one limb in this case */
 
    t = (dword_t) a[m1 - 1] * (dword_t) b[1] + (dword_t) ov[0];
    r[0] = (word_t) t;
