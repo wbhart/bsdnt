@@ -22,6 +22,59 @@ word_t nn_mul_classical(nn_t r, nn_src_t a, len_t m1,
 
 #endif
 
+#ifndef HAVE_ARCH_nn_mullow_classical
+
+void nn_mullow_classical(nn_t ov, nn_t r, nn_src_t a, len_t m1, 
+                                              nn_src_t b, len_t m2)
+{
+   len_t i;
+   dword_t t = 0;
+  
+   t = (dword_t) nn_mul1(r, a, m1, b[0]); 
+   
+   for (i = 1; i < m2; i++)
+      t += (dword_t) nn_addmul1(r + i, a, m1 - i, b[i]);
+
+   ov[0] = (word_t) t;
+   ov[1] = (word_t) t >> WORD_BITS;
+}
+
+#endif
+
+#ifndef HAVE_ARCH_nn_mulhigh_classical
+
+word_t nn_mulhigh_classical(nn_t r, nn_src_t a, len_t m1, 
+                                       nn_src_t b, len_t m2, nn_t ov)
+{
+   len_t i;
+   word_t ci = 0;
+   dword_t t;
+
+   t = (dword_t) a[m1 - 1] * (dword_t) b[1] + (dword_t) ov[0];
+   r[0] = (word_t) t;
+   ci = (t >> WORD_BITS);
+   
+   if (m2 > 2)
+   {
+      r[1] = ci;
+      ci = nn_addmul1(r, a + m1 - 2, 2, b[2]);
+      t = (dword_t) ov[1] + (dword_t) r[1];
+      r[1] = (word_t) t;
+      ci += (word_t) (t >> WORD_BITS);
+   } else
+      ci += (dword_t) ov[1]; /* ov[1] cannot be more than 1 in this case */
+
+   for (i = 3; i < m2; i++)
+   {
+      r[i - 1] = ci;
+      ci = nn_addmul1(r, a + m1 - i, i, b[i]);
+   }
+
+   return ci;
+}
+
+#endif
+
 #ifndef HAVE_ARCH_nn_muladd_classical
 
 word_t nn_muladd_classical(nn_t r, nn_src_t a, nn_src_t b, 
