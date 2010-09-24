@@ -23,9 +23,9 @@
 AS=nasm
 AR=ar
 CC=gcc
-CFLAGS=-pedantic -O2 -g -fopenmp -fPIC -Wall
+CFLAGS=-pedantic -O2 -masm=intel -g -fopenmp -fPIC -Wall
 LIBS=-L$(CURDIR)
-INCS=-I$(CURDIR) 
+INCS=-I$(CURDIR)
 
 # QUIET MAKE
 QUIET_CC         = @echo '   ' CC '   ' $@;
@@ -42,21 +42,26 @@ SOURCES = $(wildcard *.c)
 HEADERS = $(wildcard *.h)
 OBJS = $(patsubst %.c, build/%.o, $(SOURCES))
 
-TESTS = build/test/t-nn
-
-BINARIES = $(TESTS)
+TESTS = $(wildcard test/*.c)
+TEST_OBJS = $(patsubst %.c, build/%.o, $(TESTS))
+BINARIES = $(patsubst %.c, build/%, $(TESTS))
 
 # PHONY SPEC
 .PHONY: all dist
 
 # RULES
-all: $(OBJS) $(BINARIES)
-
+all: $(OBJS) $(TEST_OBJS)
+	$(QUIET_LINK)$(foreach prog, $(BINARIES), $(CC) $(OBJS) $(prog).o -o $(prog);)
+	
 clean:
-	rm -f $(OBJS) $(BINARIES)
+	rm -f $(OBJS) $(TEST_OBJS) $(BINARIES)
+	rm -f cpuid
 
-check: $(OBJS) $(BINARIES)
-	$(foreach prog, $(TESTS), $(prog);)	
+distclean: clean
+	rm -f *_arch.h
+
+check: all 
+	$(foreach prog, $(BINARIES), $(prog);)	
 
 strip:
 	strip $(BINARIES)
@@ -64,7 +69,6 @@ strip:
 build/%.o: %.c
 	$(QUIET_CC)$(CC)  $(CFLAGS) $(INCS) -c $< -o $@
 
-build/test/t-nn: build/test.o build/nn.o build/t-nn.o
-	$(QUIET_LINK)$(CC) -o build/test/t-nn build/nn.o build/test.o build/t-nn.o 
-	
+build/test/%.o: %.c
+	$(QUIET_CC)$(CC)  $(CFLAGS) $(INCS) -c test/$< -o $@
 

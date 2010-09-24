@@ -3,6 +3,28 @@
 
 #include "nn.h"
 
+#define TEST_START(XXX) \
+   do { \
+      long __count; \
+      for (__count = 0; __count < XXX  && result == 1; __count++)
+
+#define TEST_END \
+      gc_cleanup(); \
+   } while (0)
+
+#define RUN(xxx) \
+   do { \
+      if (xxx()) \
+      { \
+         printf("PASS\n"); \
+         pass++; \
+      } else \
+      { \
+         printf("FAIL\n"); \
+         fail++; \
+      } \
+   } while (0)
+
 typedef enum
 {
    NN 
