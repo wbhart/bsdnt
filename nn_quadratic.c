@@ -53,12 +53,14 @@ word_t nn_mulhigh_classical(nn_t r, nn_src_t a, len_t m1,
    if (m2 == 1)
       return ov[0]; /* overflow is one limb in this case */
 
+   /* a[m1 - 1] * b[1] + ov[0]*/
    t = (dword_t) a[m1 - 1] * (dword_t) b[1] + (dword_t) ov[0];
    r[0] = (word_t) t;
    ci = (t >> WORD_BITS);
    
    if (m2 > 2)
    {
+      /* {a[m1 - 2], a[m1 - 1]} * b[2] + ov[1] */
       r[1] = ci;
       ci = nn_addmul1(r, a + m1 - 2, 2, b[2]);
       t = (dword_t) ov[1] + (dword_t) r[1];
