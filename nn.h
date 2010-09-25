@@ -832,7 +832,7 @@ word_t nn_mul_classical(nn_t r, nn_src_t a, len_t m1, nn_src_t b, len_t m2);
 */
 #define nn_s_mul_classical(r, a, m1, b, m2) \
    do { \
-      r[m1 + m2 - 1] = nn_mul_classical(r, a, m1, b, m2); \
+      (r)[(m1) + (m2) - 1] = nn_mul_classical(r, a, m1, b, m2); \
    } while (0)
 
 /*
