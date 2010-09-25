@@ -920,7 +920,7 @@ void nn_divapprox_classical_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d,
 */
 #define nn_r_divapprox_classical_preinv(q, a, m, d, n, inv) \
    do { \
-      nn_divapprox_classical_preinv_c(q, a, m, d, n, inv, a[m]); \
+      nn_divapprox_classical_preinv_c(q, a, m, d, n, inv, (a)[m]); \
    } while (0)
 
 #endif
