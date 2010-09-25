@@ -53,4 +53,7 @@
 25-Sep-2010:
 	v0.16 - Added nn_mullow_classical and nn_mulhigh_classical.
 
+26-Sep-2010:
+	v0.17 - Added nn_div_hensel_preinv.
+
 
