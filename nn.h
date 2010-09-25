@@ -896,7 +896,7 @@ void nn_mullow_classical(nn_t ov, nn_t r, nn_src_t a, len_t m1,
    must have space for m - n + 1 limbs. 
 */
 void nn_divrem_classical_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d, 
-                                     len_t n,preinv1_2_t inv, word_t ci);
+                                     len_t n, preinv1_2_t inv, word_t ci);
 
 /*
    As per nn_divrem_classical_preinv_c except that the carry-in is read 
