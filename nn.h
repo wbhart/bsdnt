@@ -873,7 +873,7 @@ void nn_divrem_classical_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d,
 */
 #define nn_r_divrem_classical_preinv(q, a, m, d, n, inv) \
    do { \
-      nn_divrem_classical_preinv_c(q, a, m, d, n, inv, a[m]); \
+      nn_divrem_classical_preinv_c(q, a, m, d, n, inv, (a)[m]); \
    } while (0)
 
 /*
