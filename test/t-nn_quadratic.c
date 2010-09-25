@@ -214,6 +214,81 @@ int test_mullow_classical(void)
    return result;
 }
 
+int test_div_hensel_preinv(void)
+{
+   int result = 1;
+   len_t m, n;
+   nn_t a, a1, a2, r1, q, q1, q2, d, ov, ov2, t;
+   hensel_preinv1_t inv;
+   
+   printf("div_hensel_preinv...");
+
+   TEST_START(ITER) /* test (a * d) / d = a */
+   {
+      randoms_upto(30, NONZERO, state, &m, &n, NULL);
+      
+      randoms_of_len(m, ANY, state, &a, NULL);
+      randoms_of_len(n, ODD, state, &d, NULL);
+      randoms_of_len(m + n, ANY, state, &r1, &q, NULL);
+      randoms_of_len(2, ANY, state, &ov, NULL);
+      
+      nn_s_mul_classical(r1, a, m, d, n);
+      
+      precompute_hensel_inverse1(&inv, d[0]);
+      nn_div_hensel_preinv(ov, q, r1, m + n, d, n, inv);
+
+      result = (nn_equal_m(q, a, m) && nn_normalise(q, m + n) == m);
+
+      if (!result) printf("m = %ld, n = %ld\n", m, n);
+   } TEST_END;
+
+   TEST_START(ITER) /* test inexact division yields correct overflow */
+   {
+      randoms_upto(30, NONZERO, state, &m, NULL);
+      randoms_upto(m + 1, NONZERO, state, &n, NULL);
+      
+      randoms_of_len(m, ANY, state, &a, &q, NULL);
+      randoms_of_len(n, ODD, state, &d, NULL);
+      randoms_of_len(2, ANY, state, &ov, &ov2, NULL);
+      
+      precompute_hensel_inverse1(&inv, d[0]);
+      nn_div_hensel_preinv(ov, q, a, m, d, n, inv);
+
+      nn_mullow_classical(ov2, a, q, m, d, n);
+
+      result = (nn_equal_m(ov, ov2, 2));
+
+      if (!result) printf("m = %ld, n = %ld\n", m, n);
+   } TEST_END;
+
+   TEST_START(ITER) /* test chaining of div_hensel */
+   {
+      randoms_upto(30, NONZERO, state, &m, NULL);
+      randoms_upto(m + 1, NONZERO, state, &n, NULL);
+      
+      randoms_of_len(2*m, ANY, state, &a1, &a2, &q, NULL);
+      randoms_of_len(2*m, ANY, state, &q1, &q2, NULL);
+      randoms_of_len(n, ODD, state, &d, &t, NULL);
+      randoms_of_len(2, ANY, state, &ov, NULL);
+      
+      nn_copy(a2, a1, 2*m);
+
+      precompute_hensel_inverse1(&inv, d[0]);
+      nn_div_hensel_preinv(ov, q1, a1, m, d, n, inv);
+      nn_s_mulhigh_classical(t, q1, m, d, n, ov);
+      nn_sub(a1 + m, a1 + m, m, t, n);
+      nn_div_hensel_preinv(ov, q1 + m, a1 + m, m, d, n, inv);
+
+      nn_div_hensel_preinv(ov, q2, a2, 2*m, d, n, inv);
+
+      result = (nn_equal_m(q1, q2, 2*m));
+
+      if (!result) printf("m = %ld, n = %ld\n", m, n);
+   } TEST_END;
+
+   return result;
+}
+
 int main(void)
 {
    long pass = 0;
@@ -226,6 +301,7 @@ int main(void)
    RUN(test_mullow_classical);
    RUN(test_divrem_classical_preinv);
    RUN(test_divapprox_classical_preinv);
+   RUN(test_div_hensel_preinv);
    
    printf("%ld of %ld tests pass.\n", pass, pass + fail);
 
