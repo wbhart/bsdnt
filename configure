@@ -6,14 +6,14 @@ ARCH=`uname -m &> /dev/null`
 
 case $ARCH in
 x86_64 | amd64)
-   MACHINE="_x64";;
+   MACHINE="_x86_64";;
 x86 | i*86 | pc)
    MACHINE="_x86";;
 *)
    MACHINE="unknown";;
 esac
 
-if [ $MACHINE = "_x86" -o $MACHINE = "_x64" ]
+if [ $MACHINE = "_x86" -o $MACHINE = "_x86_64" ]
 then
    $CC arch/cpuid.c -o cpuid 
    ARCH=`./cpuid &> /dev/null`
