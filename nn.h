@@ -839,7 +839,7 @@ word_t nn_mul_classical(nn_t r, nn_src_t a, len_t m1, nn_src_t b, len_t m2);
    Set {r, m1 + m2 - 1} = {a, m1} + {b, m1} * {c, m2} and return any 
    carry-out. The output r may not alias either of the inputs b or c, 
    but a may alias with r as long as the requisite space is available. 
-   We require m1, m2 > 0.
+   We require m1 >= m2 > 0.
 */
 word_t nn_muladd_classical(nn_t r, nn_src_t a, nn_src_t b, 
                                      len_t m1, nn_src_t c, len_t m2);
@@ -848,7 +848,7 @@ word_t nn_muladd_classical(nn_t r, nn_src_t a, nn_src_t b,
    Set {r, m1 + m2 - 1} = {a, m1} + {b, m1} * {c, m2} and write any 
    carry-out. The output r may not alias either of the inputs b or c, 
    but a may alias with r as long as the requisite space is available. 
-   We require m1, m2 > 0.
+   We require m1 >= m2 > 0.
 */
 #define nn_s_muladd_classical(r, a, b, m1, c, m2) \
    do { \

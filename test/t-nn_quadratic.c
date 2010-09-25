@@ -53,7 +53,8 @@ int test_muladd_classical(void)
 
    TEST_START(ITER) /* test a + b * c = muladd(a, b, c) */
    {
-      randoms_upto(30, NONZERO, state, &m, &n, NULL);
+      randoms_upto(30, NONZERO, state, &m, NULL);
+      randoms_upto(m + 1, NONZERO, state, &n, NULL);
       
       randoms_of_len(m, ANY, state, &a, &b, NULL);
       randoms_of_len(n, ANY, state, &c, NULL);
@@ -71,7 +72,8 @@ int test_muladd_classical(void)
 
    TEST_START(ITER) /* test aliasing of r and a in muladd */
    {
-      randoms_upto(30, NONZERO, state, &m, &n, NULL);
+      randoms_upto(30, NONZERO, state, &m, NULL);
+      randoms_upto(m + 1, NONZERO, state, &n, NULL);
       
       randoms_of_len(m, ANY, state, &a, &b, NULL);
       randoms_of_len(n, ANY, state, &c, NULL);
