@@ -1,31 +1,33 @@
 This directory holds files that contain assembler and other code that is 
 specific to particular architectures.  In general the type of the file
 is set by its extension and its specific function is set by its name in 
-a way that will now be described.  
+a way that is described below.
 
 1. Usage
 ========
 
-The C source code for low level functions make use of defines of the form:
+The aim is to have generic C code enhanced as necessary with architecture
+specific assembler code.  To achieve this each distinct function in the 
+C source code files for low level functions uses of defines of the form:
 
-HAVE_ARCH_<bsdnt_function>
+  HAVE_ARCH_<bsdnt_function>
 
-for each bsdnt_function they implement (angle brackets <> will be used to
-indicate where such names appear in symbols as shown above).  If such a 
-symbol is defined it mmeans that the function in question has a faster 
-version defined within the arch directory that should be used instead. 
-
-Hence, for example, the existence of the define:
+to exclude the function during compilation if this symbol is defined. 
+(angle brackets <> are used here to indicate where specific function
+names are substituted - without the <>).  If such a symbol is defined,
+it mmeans that the function in question has a version implemented in
+assembler that should be used instead of the C code version.  Hence, for 
+example, the existence of the define:
 
   HAVE_ARCH_nn_add_mc
 
-will mean that the C function calleld nn_add_mc in the generic C source 
-code will be excluded when the file it is in is compiled. 
+means that the C function calleld nn_add_mc in the generic C source code
+should be excluded when the file that contains it is compiled. 
  
 To achieve this exclusion, the generic C file <bsd_function_category>.c 
 expects to find a file <bsd_function_category>_arch.h at root level in 
 the arch directory that contains all the HAVE_ARCH_<bsdnt_function> 
-defines for the architecture  that is being built.  Hence, for example, 
+defines for the architecture that is being built.  Hence, for example, 
 the file implementing the linear arithmetic functions:
 
   nn_linear.c 
@@ -34,17 +36,19 @@ will expect to find the file:
 
   nn_linear_arch.h
 
-at root level in the arch directory having defines for all the files that
-are to be excluded when it is compiled.  It is the responsibility of the 
-build system for the architecture in question to create or copy such a 
-file into this location before the build is started.
+at root level in the arch directory containing the defines for all the
+files that are to be excluded when it is compiled.  
+
+It is the responsibility of the build system for the architecture in
+question to create or copy such a file into this location before the
+build is started.
 
 2. Architeture Specific Files
 =============================
 
 Files specific to each architecture are all placed in the arch directory
-and are distinguished by file naming conventions. The naming convention
-adopted is:
+and are distinguished by the following file naming conventions. The 
+template for the adopted naming convention is:
 
   <bsdnt_function_category>_<operating system>_<cpu type>.(c|h|asm)
   
@@ -55,28 +59,25 @@ The operating system categories so far identified are:
   win32    32-bit Windows systems
   x64      64-bit Windows systems
 
-So, for example, these files are 
+So, for example, these files:
 
-nn_linear_x86_core2.h
-nn_linear_x86_64_core2.h
-nn_linear_win32_core2.h
-nn_linear_x64_core2.h
+  nn_linear_x86_core2.h
+  nn_linear_x86_64_core2.h
+  nn_linear_win32_core2.h
+  nn_linear_x64_core2.h
 
 and:
 
-nn_linear_x86_core2.as
-nn_linear_x86_64_core2.as
-nn_linear_win32_core2.asm
-nn_linear_x64_core2.asm
+  nn_linear_x86_core2.as
+  nn_linear_x86_64_core2.as
+  nn_linear_win32_core2.asm
+  nn_linear_x64_core2.asm
 
 are the header and assembler files holding assembler implemntations of
-the linear aritmetic functions for x86 and x86_64 on *nix and for win32
-and x64 on Windows.
+the linear aritmetic functions for core2 cpus on x86 and x86_64 *nix 
+systems and for core2 cpus running win32 and x64 Windows applications.
 
 The assembler does not have to implement all functions and, if the 
-header files hold inline assembler, the assembler files might not be
-present.
-
-
-
+header files hold only inline assembler, the stand-alone assembler
+files might not be present.
 
