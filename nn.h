@@ -852,7 +852,7 @@ word_t nn_muladd_classical(nn_t r, nn_src_t a, nn_src_t b,
 */
 #define nn_s_muladd_classical(r, a, b, m1, c, m2) \
    do { \
-      r[m1 + m2 - 1] = nn_muladd_classical(r, a, b, m1, c, m2); \
+      (r)[(m1) + (m2) - 1] = nn_muladd_classical(r, a, b, m1, c, m2); \
    } while (0)
 
 /*
