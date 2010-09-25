@@ -1,0 +1,158 @@
+#!/bin/sh
+
+# Copyright William Hart, Antony Vennard 2010. All Rights Reserved.
+# License as in LICENSE.
+
+AS="gcc"
+AR="ar"
+CC="gcc"
+AFLAGS=""
+CFLAGS="-pedantic -O2 -g -fopenmp -fPIC -Wall"
+
+
+
+# Header 
+echo "BSDNT Unix Build Script."
+echo "BSDNT is a BSD-Licensed BigNum Library."
+echo "BSDNT is Copyright (C) its contributors. See LICENSE."
+echo "====================================================="
+
+
+# Detect Compiler combinations exist.
+
+if which clang &> /dev/null; then
+    COMPILER_CLANG=1;
+    echo "   CC   clang detected."
+fi
+if which icc &> /dev/null; then
+    COMPILER_ICC=1;
+    echo "   CC   icc detected."
+fi
+if which gcc &> /dev/null; then
+    COMPILER_GCC=1;
+    echo "   CC   gcc detected."
+fi
+if which yasm &> /dev/null; then
+    ASSEMBLER_YASM=1;
+    echo "   AS   yasm detected."
+fi
+if which nasm &> /dev/null; then
+    ASSEMBLER_NASM=1;
+    echo "   AS   nasm detected."
+fi
+
+if which nvcc &> /dev/null; then
+    BUILDEXT_CUDA=1;
+    echo "   CU   nvcc detected."
+fi
+
+echo "====================================================="
+echo "Select Compiler from the detected compilers below:"
+
+I=0
+
+if [ $COMPILER_GCC = 1 ] 
+then
+    echo " g) gcc [+ gas/nasm/yasm]";
+    I=1;
+fi
+
+if [ $COMPILER_CLANG = 1 ] 
+then
+    echo " c) clang [+ nasm/yasm]";
+    I=1;
+
+fi
+
+if [ $COMPILER_ICC = 1 ] 
+then
+    echo " i) icc [+ nasm/yasm]"
+    I=1;
+fi
+
+if [ I = 0 ] 
+then
+    echo "No Compilers available.";
+    exit
+else
+    echo -n "Your choice: "
+    read -n 1 CCC
+fi
+
+
+if [ CCC = "gcc" ] 
+then
+
+fi
+
+# Nicked and modified from Bill...
+
+# Set Architecture
+ARCH=`uname -m &> /dev/null`
+
+case $ARCH in
+x86_64 | amd64)
+   MACHINE="_x64";;
+x86 | i*86 | pc)
+   MACHINE="_x86";;
+*)
+   MACHINE="unknown";;
+esac
+
+# Create ARCH headers. 
+
+if [ $MACHINE = "_x86" -o $MACHINE = "_x64" ]
+then
+   $CC arch/cpuid.c -o cpuid 
+   ARCH=`./cpuid &> /dev/null`
+   case $ARCH in
+   k10)
+      EXTS="_k10 _k8";;
+   k8)
+      EXTS="_k8";;
+   atom)
+      EXTS="_atom";;
+   nehalem)
+      EXTS="_nehalem _core2";;
+   core2)
+      EXTS="_core2";;
+   p4)
+      EXTS="_p4";;
+   * | x86)
+      EXTS="";;
+    esac
+
+    for file in nn*.c
+    do
+       name=${file%\.*}
+       echo "   Writing ${name}_arch.h"
+       echo "#ifndef ${name}_H" > ${name}_arch.h
+       echo "#define ${name}_H" >> ${name}_arch.h
+       for ext in $EXTS
+       do
+          hname=arch/$name$MACHINE$ext.h
+          if [ -f $hname ]
+          then
+             echo "#include \"${hname}\"" >> ${name}_arch.h
+          fi
+          hname=arch/$name$MACHINE.h
+          if [ -f $hname ]
+          then
+             echo "#include \"${hname}\"" >> ${name}_arch.h
+          fi
+       done
+       echo "#endif" >> ${name}_arch.h
+    done
+fi
+
+if [ $MACHINE = "unknown" ]
+then
+    for file in nn*.c
+    do
+       name=${file%\.*}
+       echo "#ifndef ${name}_H" > ${name}_arch.h
+       echo "#define ${name}_H" >> ${name}_arch.h
+       echo "#endif" >> ${name}_arch.h
+    done
+fi
+
