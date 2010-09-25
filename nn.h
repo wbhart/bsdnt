@@ -792,14 +792,14 @@ void nn_not(nn_t a, nn_src_t b, len_t m)
 /*
    Set {r, m1 + m2 - 1} = {a, m1} * {b, m2} and return any carry-out. 
    The output r may not alias either of the inputs a or b. We require 
-   m1, m2 > 0.
+   m1 >= m2 > 0.
 */
 word_t nn_mul_classical(nn_t r, nn_src_t a, len_t m1, nn_src_t b, len_t m2);
 
 /*
    Set {r, m1 + m2 - 1} = {a, m1} * {b, m2} and write any carry-out. 
    The output r may not alias either of the inputs a or b. We require 
-   m1, m2 > 0.
+   m1 >= m2 > 0.
 */
 #define nn_s_mul_classical(r, a, m1, b, m2) \
    do { \
