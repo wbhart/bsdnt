@@ -13,7 +13,6 @@ x86 | i*86 | pc)
    MACHINE="unknown";;
 esac
 
-<<<<<<< HEAD:configure
 if [ $MACHINE = "_x86" -o $MACHINE = "_x86_64" ]
 then
    $CC arch/cpuid.c -o cpuid 
