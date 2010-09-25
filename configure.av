@@ -9,7 +9,8 @@ CC="gcc"
 AFLAGS=""
 CFLAGS="-pedantic -O2 -g -fopenmp -fPIC -Wall"
 
-
+CCC=x
+AAA=x
 
 # Header 
 echo "BSDNT Unix Build Script."
@@ -77,12 +78,127 @@ then
 else
     echo -n "Your choice: "
     read -n 1 CCC
+    echo ""
+fi
+
+echo "CCC is $CCC"
+
+if [ $CCC = "g" ] 
+then
+    CC=gcc
+    CFLAGS=
+    LFLAGS=
+
+    
+    echo "Please choose an assembler:"
+
+
+    echo " g) GNU AS (Default)"
+    if [ $ASSEMBLER_YASM = 1 ]
+    then
+        echo " y) YASM"
+    fi
+    if [ $ASSEMBLER_NASM = 1 ]
+    then
+        echo " n) NASM"
+    fi
+
+    echo -n "Your choice: "
+    read -n 1 AAA
+    echo ""
+        
+    if [ !$AAA -o $AAA = "g" ]
+    then
+        AS="gcc"
+        ASFLAGS=""
+    elif [ $AAA = "y" ] 
+    then
+        AS="yasm"
+        ASFLAGS=""
+    elif [ $AAA = "n" ]
+    then
+        AS="nasm"
+        ASFLAGS=""
+ 
+    fi
+
+elif [ $CCC = "i" ] 
+then
+    CC=icc
+    CFLAGS=
+    LFLAGS=
+
+    
+    echo "Please choose an assembler:"
+
+    if [ $ASSEMBLER_YASM = 1 ]
+    then
+        echo " y) YASM"
+    fi
+    if [ $ASSEMBLER_NASM = 1 ]
+    then
+        echo " n) NASM"
+    fi
+
+    echo -n "Your choice: "
+    read -n 1 AAA
+    echo ""
+
+    if [ $AAA = "y" ] 
+    then
+        AS="yasm"
+        ASFLAGS=""
+    elif [ $AAA = "n" ]
+    then
+        AS="nasm"
+        ASFLAGS=""
+    fi
+
+elif [ $CCC = "c" ] 
+then
+    CC=clang
+    CFLAGS=
+    LFLAGS=
+
+    echo "Please choose an assembler:"
+
+    if [ $ASSEMBLER_YASM = 1 ]
+    then
+        echo " y) YASM"
+    fi
+    if [ $ASSEMBLER_NASM = 1 ]
+    then
+        echo " n) NASM"
+    fi
+
+    echo -n "Your choice: "
+    read -n 1 AAA
+    echo ""
+
+    if [ $AAA = "y" ] 
+    then
+        AS="yasm"
+        ASFLAGS=""
+    elif [ $AAA = "n" ]
+    then
+        AS="nasm"
+        ASFLAGS=""
+    fi
+
 fi
 
 
-if [ CCC = "gcc" ] 
+if [ $BUILDEXT_CUDA = 1 ]
 then
+    echo -n "Do you wish to enable CUDA extensions (y/n)? "
+    read -n 1 qcuda
+    echo ""
 
+    if [ $qcuda = "y" ]
+    then
+        NVCC=nvcc
+        NVCCFLAGS=
+    fi
 fi
 
 # Nicked and modified from Bill...
