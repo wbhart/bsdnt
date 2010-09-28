@@ -32,6 +32,9 @@
 #include <stdlib.h>
 #include <limits.h>
 
+#define TEST64
+//#define USE_MACRO
+
 #ifndef _MSC_VER
 
 #if ULONG_MAX == 4294967295U
@@ -50,13 +53,37 @@ typedef unsigned int dword_t __attribute__((mode(TI)));
 
 #else
 
+#define inline __inline
+
+typedef struct
+{	uint64_t lo, hi;
+} uint128_t;
+
+#include <intrin.h>
+#pragma intrinsic(_umul128)
+#define mul_64_by_64 _umul128
+#ifndef TEST64
+
+typedef uint32_t word_t;
+typedef uint64_t dword_t;
+#define WORD_BITS 32
+
+#else
+
+typedef uint64_t word_t;
+typedef uint128_t dword_t;
+#define WORD_BITS 64
+
+#endif
+
+word_t div_128_by_64(dword_t *n,  word_t d, word_t *r);
+
+#endif
+
+#ifdef _MSC_VER
+
 #include <crtdbg.h>
 #include <intrin.h>
-
-typedef unsigned long      word_t;
-typedef unsigned long long dword_t;
-#define WORD_BITS 32
-#define inline __inline
 
 #if WORD_BITS == 32
 
@@ -148,16 +175,23 @@ typedef struct mod_preinv1_t
    start of section 3 of Moller-Granlund (see below). Does not 
    require d to be normalised. 
 */
+
 static inline
 void precompute_inverse1(preinv1_t * inv, word_t d)
 {
    dword_t t;
    word_t norm = clz(d);
-   
    d <<= norm;
+
+#if defined( _MSC_VER ) && WORD_BITS == 64
+   t.hi = ((word_t)-1) - d;
+   t.lo = ((word_t)-1);
+   inv->dinv = div_128_by_64(&t, d, &t.hi);
+#else
    t = (~(dword_t) 0) - (((dword_t) d) << WORD_BITS);
-   
    inv->dinv = t / d;
+#endif
+
    inv->norm = norm;
 }
 
@@ -181,9 +215,23 @@ void precompute_hensel_inverse1(hensel_preinv1_t * inv, word_t d)
 /*
    Precomputes B, B^2, B^3 mod d. Requires that d is not zero.
 */
+
 static inline
 void precompute_mod_inverse1(mod_preinv1_t * inv, word_t d)
 {
+#if defined( _MSC_VER ) && WORD_BITS == 64
+	dword_t u;
+	u.hi = 1;
+	u.lo = 0;
+	div_128_by_64(&u, d, &u.hi);
+	inv->b1 = u.hi;
+	u.lo = 0;
+	div_128_by_64(&u, d, &u.hi);
+	inv->b2 = u.hi;
+	u.lo = 0;
+	div_128_by_64(&u, d, &u.hi);
+	inv->b3 = u.hi;
+#else
    dword_t u = (dword_t) 1; 
    u = (u << WORD_BITS) % (dword_t) d;
    inv->b1 = (word_t) u;
@@ -191,12 +239,16 @@ void precompute_mod_inverse1(mod_preinv1_t * inv, word_t d)
    inv->b2 = (word_t) u;
    u = (u << WORD_BITS) % (dword_t) d;
    inv->b3 = (word_t) u;
+#endif
 }
 
 /*
    Given a double word u, a normalised divisor d and a precomputed
    inverse dinv of d, computes the quotient and remainder of u by d.
 */
+
+#ifdef USE_MACRO
+
 #define divrem21_preinv1(q, r, u, d, dinv) \
    do { \
       dword_t __q = ((u)>>WORD_BITS) * (dword_t) (dinv) + u; \
@@ -218,6 +270,45 @@ void precompute_mod_inverse1(mod_preinv1_t * inv, word_t d)
          (r) = __r1; \
       } \
    } while (0)
+
+#else
+
+__inline void divrem21_preinv1(word_t *q, word_t *r, dword_t *u, word_t d, word_t dinv)
+{
+	dword_t t;
+	word_t quot, rem, lo;
+
+#if defined( _MSC_VER ) && WORD_BITS == 64
+	t.lo = mul_64_by_64(u->hi, dinv, &t.hi) + u->lo;
+	t.hi += u->hi + (t.lo < u->lo ? 1 : 0); 
+	quot = t.hi + 1; 
+    rem = u->lo - (word_t)(quot * d); 
+	lo = t.lo;
+#else
+	t = (*u >> WORD_BITS) * (dword_t) dinv + *u; 
+	quot = (word_t)(t >> WORD_BITS) + 1; 
+    rem = (word_t)*u - quot * d; 
+	lo = (word_t)t;
+#endif
+
+	if(rem >= lo) 
+	{ 
+		quot--; 
+		rem += d; 
+	} 
+	if(rem >= d) 
+	{ 
+		*q = quot + 1; 
+		*r = rem - d; 
+	} 
+	else 
+	{ 
+		*q = quot; 
+		*r = rem; 
+	} 
+}
+
+#endif
 
 /**********************************************************************
  

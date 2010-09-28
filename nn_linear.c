@@ -27,6 +27,7 @@
 */
 
 #include "nn.h"
+#include "nn_linear_arch.h"
 
 /**********************************************************************
  
@@ -70,7 +71,7 @@ __inline unsigned long long xsh(void)
 
 __inline unsigned long long cng(void)
 {
-	z = 6906969069UL * z + 1234567;
+	return (z = 6906969069UL * z + 1234567);
 }
 
 word_t randword(rand_t state) 
@@ -99,139 +100,159 @@ void nn_random(nn_t a, rand_t state, len_t m)
 
 #ifndef HAVE_ARCH_nn_add_mc
 
-word_t nn_add_mc(nn_t a, nn_src_t b, nn_src_t c, len_t m, word_t ci)
+word_t nn_add_mc(nn_t a, nn_src_t b, nn_src_t c, len_t m, word_t carry)
 {
-   dword_t t;
-   long i;
+	long i = 0;
 
-   for (i = 0; i < m; i++)
-   {
-      t = (dword_t) b[i] + (dword_t) c[i] + (dword_t) ci;
-      a[i] = (word_t) t;
-      ci = (t >> WORD_BITS);
-   }
+	while(i < m)
+    {   
+		word_t sum = b[i] + c[i] + carry;
+        carry = (sum < c[i] ? 1 : sum > c[i] ? 0 : carry);
+        a[i++] = sum;
+    }
 
-   return ci;
+	return carry;
 }
 
 #endif
 
 #ifndef HAVE_ARCH_nn_sub_mc
 
-word_t nn_sub_mc(nn_t a, nn_src_t b, nn_src_t c, len_t m, word_t bi)
+word_t nn_sub_mc(nn_t a, nn_src_t b, nn_src_t c, len_t m, word_t borrow)
 {
-   dword_t t;
-   long i;
+	long i = 0;
 
-   for (i = 0; i < m; i++)
-   {
-      t = (dword_t) b[i] - (dword_t) c[i] - (dword_t) bi;
-      a[i] = (word_t) t;
-      bi = -(t >> WORD_BITS);
-   }
+	while(i < m)
+    {   
+        word_t diff = b[i] - c[i] - borrow;
+        borrow = (diff > b[i] ? 1 : diff < b[i] ? 0 : borrow);
+        a[i++] = diff;
+    }
 
-   return bi;
+	return borrow;
 }
 
 #endif
 
 #ifndef HAVE_ARCH_nn_shl_c
 
-word_t nn_shl_c(nn_t a, nn_src_t b, len_t m, bits_t bits, word_t ci)
+word_t nn_shl_c(nn_t a, nn_src_t b, len_t m, bits_t bits, word_t carry)
 {
-   dword_t t;
-   long i;
+	if(bits == 0)
+	{
+		if(a != b)
+			memcpy(a, b, m * sizeof(word_t));
+	}
+	else
+	{
+		long i = -1;
+		while(++i < m)
+		{
+			word_t t = b[i];
+			a[i] = (t << bits) + carry;
+			carry = t >> (WORD_BITS - bits);
+		}
+	}
 
-   for (i = 0; i < m; i++)
-   {
-      t = (((dword_t) b[i]) << bits);
-      a[i] = (word_t) t + ci;
-      ci = (t >> WORD_BITS); 
-   }
-
-   return ci;
+	return carry;
 }
 
 #endif
 
 #ifndef HAVE_ARCH_nn_shr_c
 
-word_t nn_shr_c(nn_t a, nn_src_t b, len_t m, bits_t bits, word_t ci)
+word_t nn_shr_c(nn_t a, nn_src_t b, len_t m, bits_t bits, word_t carry)
 {
-   dword_t t;
-   long i;
-   bits = WORD_BITS - bits;
+	if(bits == 0)
+	{
+		if(a != b)
+			memcpy(a, b, m * sizeof(word_t));
+	}
+	else
+	{
+		long i = m;
 
-   for (i = m - 1; i >= 0L; i--)
-   {
-      t = (((dword_t) b[i]) << bits);
-      a[i] = (t >> WORD_BITS) + ci;
-      ci = (word_t) t; 
-   }
+		while(i--)
+		{
+			word_t t = b[i];
+			a[i] = (t >> bits) + carry;
+			carry = t << WORD_BITS - bits; 
+		}
 
-   return ci;
+	}
+
+	return carry;
 }
 
 #endif
 
-word_t nn_add1(nn_t a, nn_src_t b, len_t m, word_t c)
+#ifndef HAVE_ARCH_nn_add1
+
+word_t nn_add1(nn_t a, nn_src_t b, len_t m, word_t carry)
 {
-   dword_t t;
-   long i;
+	if(m)
+	{
+		long i = 0;
+		carry = (a[0] = b[0] + carry) < carry ? 1 : 0;
+    
+		if(a != b)
+			while(++i < m)
+				carry = (a[i] = b[i] + carry) ? 0 : carry;
+		else
+			while(++i < m && carry)
+				carry = (a[i] = b[i] + carry) ? 0 : carry;
+	}
 
-   for (i = 0; i < m && c != 0; i++)
-   {
-      t = (dword_t) b[i] + (dword_t) c;
-      a[i] = (word_t) t;
-      c = (t >> WORD_BITS);
-   }
-
-   if (a != b)
-      for ( ; i < m; i++)
-         a[i] = b[i];
-
-   return c;
+	return carry;
 }
 
-word_t nn_sub1(nn_t a, nn_src_t b, len_t m, word_t c)
+#endif
+
+#ifndef HAVE_ARCH_nn_sub1
+
+word_t nn_sub1(nn_t a, nn_src_t b, len_t m, word_t borrow)
 {
-   dword_t t;
-   long i;
+	if(m)
+    {
+		long i = 0;
+		word_t t = b[0];
+		borrow =  ((a[0] = t - borrow) > t ? 1 : 0);
 
-   for (i = 0; i < m && c != 0; i++)
-   {
-      t = (dword_t) b[i] - (dword_t) c;
-      a[i] = (word_t) t;
-      c = -(t >> WORD_BITS);
-   }
+        if(a != b)
+            while(++i < m)
+                borrow = ~(a[i] = b[i] - borrow) ? 0 : borrow;
+        else
+            while(++i < m && borrow)
+                borrow = ~(a[i] = b[i] - borrow) ? 0 : borrow;
+    }
 
-   if (a != b)
-      for ( ; i < m; i++)
-         a[i] = b[i];
-
-   return c;
+	return borrow;
 }
+
+#endif
 
 #ifndef HAVE_ARCH_nn_neg_c
 
-word_t nn_neg_c(nn_t a, nn_src_t b, len_t m, word_t ci)
+word_t nn_neg_c(nn_t a, nn_src_t b, len_t m, word_t carry)
 {
-   dword_t t;
-   long i;
-   
-   ci = 1 - ci;
+	if(m)
+	{	
+		long i = -1;	
+		carry = 1 - carry;
 
-   for (i = 0; i < m && ci != 0; i++)
-   {
-      t = (dword_t) ~b[i] + (dword_t) ci;
-      a[i] = (word_t) t;
-      ci = (t >> WORD_BITS);
-   }
+		while(carry && ++i < m)
+		{
+			word_t t = ~b[i];
+			carry = (a[i] = t + carry) < t ? 1 : 0;
+		}
 
-   for ( ; i < m; i++)
-      a[i] = ~b[i];
+		while(++i < m)
+			a[i] = ~b[i];
 
-   return (word_t) 1 - ci;
+		carry = 1 - carry;
+	}
+
+   return carry;
 }
 
 #endif
@@ -240,17 +261,24 @@ word_t nn_neg_c(nn_t a, nn_src_t b, len_t m, word_t ci)
 
 word_t nn_mul1_c(nn_t a, nn_src_t b, len_t m, word_t c, word_t ci)
 {
-   dword_t t;
-   long i;
-
-   for (i = 0; i < m; i++)
-   {
-      t = (dword_t) b[i] * (dword_t) c + (dword_t) ci;
-      a[i] = (word_t) t;
-      ci = (t >> WORD_BITS);
-   }
-
-   return ci;
+	long i;
+#if defined( _MSC_VER ) && WORD_BITS == 64
+	for( i = 0 ; i < m ; ++i )
+	{
+		word_t hi;
+		a[i] = mul_64_by_64(b[i], c, &hi) + ci;
+		ci = hi + (a[i] < ci ? 1 : 0);
+	}
+#else
+	dword_t t;
+	for( i = 0 ; i < m ; ++i )
+	{
+		t = (dword_t) b[i] * (dword_t) c + (dword_t) ci;
+		a[i] = (word_t) t;
+		ci = (t >> WORD_BITS);
+	}
+#endif
+	return ci;
 }
 
 #endif
@@ -259,17 +287,24 @@ word_t nn_mul1_c(nn_t a, nn_src_t b, len_t m, word_t c, word_t ci)
 
 word_t nn_addmul1_c(nn_t a, nn_src_t b, len_t m, word_t c, word_t ci)
 {
-   dword_t t;
-   long i;
-
-   for (i = 0; i < m; i++)
-   {
-      t = (dword_t) a[i] + (dword_t) b[i] * (dword_t) c + (dword_t) ci;
-      a[i] = (word_t) t;
-      ci = (t >> WORD_BITS);
-   }
-
-   return ci;
+	long i;
+#if defined( _MSC_VER ) && WORD_BITS == 64
+	for( i = 0 ; i < m ; ++i )
+	{
+		word_t hi, lo;
+		a[i] += (lo = mul_64_by_64(b[i], c, &hi) + ci);
+		ci = hi + (lo < ci ? 1 : 0) + (a[i] < lo ? 1 : 0);
+	}
+#else
+	dword_t t;
+	for( i = 0 ; i < m ; ++i )
+	{
+		t = (dword_t) a[i] + (dword_t) b[i] * (dword_t) c + (dword_t) ci;
+		a[i] = (word_t) t;
+		ci = (t >> WORD_BITS);
+	}
+#endif
+	return ci;
 }
 
 #endif
@@ -278,34 +313,52 @@ word_t nn_addmul1_c(nn_t a, nn_src_t b, len_t m, word_t c, word_t ci)
 
 word_t nn_submul1_c(nn_t a, nn_src_t b, len_t m, word_t c, word_t ci)
 {
-   dword_t t;
-   long i;
+	long i;
 
-   for (i = 0; i < m; i++)
-   {
-      t = (dword_t) a[i] - (dword_t) b[i] * (dword_t) c - (dword_t) ci;
-      a[i] = (word_t) t;
-      ci = -(t >> WORD_BITS);
-   }
-
-   return ci;
+#if defined( _MSC_VER ) && WORD_BITS == 64
+	for( i = 0 ; i < m ; ++i )
+	{
+		word_t hi, lo;
+		lo = mul_64_by_64(b[i], c, &hi) + ci;
+		ci = hi + (lo < ci ? 1 : 0) + (a[i] < lo ? 1 : 0);
+		a[i] -= lo;
+	}
+#else
+	dword_t t;
+	for( i = 0 ; i < m ; ++i )
+	{
+		t = (dword_t) a[i] - (dword_t) b[i] * (dword_t) c - (dword_t) ci;
+		a[i] = (word_t) t;
+		ci = -(t >> WORD_BITS);
+	}
+#endif
+	return ci;
 }
 
 #endif
 
 word_t nn_divrem1_simple_c(nn_t q, nn_src_t a, len_t m, word_t d, word_t ci)
 {
-   dword_t t;
-   long i;
+	dword_t t;
+	long i;
 
-   for (i = m - 1; i >= 0; i--)
-   {
-      t = (((dword_t) ci) << WORD_BITS) + (dword_t) a[i];
-      q[i] = t / (dword_t) d;
-      ci = (word_t) (t % (dword_t) d);
-   }
+#if defined( _MSC_VER ) && WORD_BITS == 64
 
-   return ci;
+	for( i = m - 1 ; i >= 0; --i )
+	{
+		t.lo = a[i];
+		t.hi = ci;
+		q[i] = div_128_by_64(&t,  d, &ci);
+	}
+#else
+	for( i = m - 1 ; i >= 0 ; --i )
+	{
+		t = (((dword_t) ci) << WORD_BITS) + (dword_t) a[i];
+		q[i] = t / (dword_t) d;
+		ci = (word_t) (t % (dword_t) d);
+	}
+#endif
+	return ci;
 }
 
 #ifndef HAVE_ARCH_nn_divrem1_preinv_c
@@ -313,21 +366,33 @@ word_t nn_divrem1_simple_c(nn_t q, nn_src_t a, len_t m, word_t d, word_t ci)
 word_t nn_divrem1_preinv_c(nn_t q, nn_src_t a, len_t m, 
                             word_t d, preinv1_t inv, word_t ci)
 {
-   dword_t t;
-   long i;
-   word_t norm = inv.norm;
-   word_t dinv = inv.dinv;
+	dword_t t;
+	long i;
+	word_t norm = inv.norm;
+	word_t dinv = inv.dinv;
    
-   d <<= norm;
-   ci <<= norm;
+	d <<= norm;
+	ci <<= norm;
 
-   for (i = m - 1; i >= 0; i--)
-   {
-      t = (((dword_t) ci) << WORD_BITS) + (((dword_t) a[i]) << norm);
-      divrem21_preinv1(q[i], ci, t, d, dinv);
-   }
-
-   return (ci >> norm);
+#if defined( _MSC_VER ) && WORD_BITS == 64
+	for( i = m - 1 ; i >= 0 ; --i )
+	{
+		t.lo = a[i] << norm;
+		t.hi = (norm ? (a[i] >> (WORD_BITS - norm)) : 0) + ci;
+		divrem21_preinv1(q + i, &ci, &t, d, dinv);
+	}
+#else
+	for( i = m - 1 ; i >= 0 ; --i )
+	{
+		t = (((dword_t) ci) << WORD_BITS) + (((dword_t) a[i]) << norm);
+#ifdef USE_MACRO
+		divrem21_preinv1(q[i], ci, t, d, dinv);	
+#else
+		divrem21_preinv1(q + i, &ci, &t, d, dinv);
+#endif
+	}
+#endif
+	return (ci >> norm);
 }
 
 #endif
@@ -337,17 +402,27 @@ word_t nn_divrem1_preinv_c(nn_t q, nn_src_t a, len_t m,
 word_t nn_divrem_hensel1_preinv_c(nn_t q, nn_src_t a, len_t m, 
                         word_t d, hensel_preinv1_t inv, word_t ci)
 {
-   long i;
-   dword_t t, r;
-   
-   for (i = 0; i < m; i++)
-   {
-      t = (dword_t) a[i] - (dword_t) ci;
-      q[i] = (word_t) t * inv;
-      r = (dword_t) q[i] * (dword_t) d;
-      ci = (word_t) (r >> WORD_BITS) - (word_t) (t >> WORD_BITS);
-   }
+	long i;
+	dword_t t, r;
 
+#if defined( _MSC_VER ) && WORD_BITS == 64
+	for( i = 0 ; i < m ; ++i )
+	{
+		t.lo = a[i] - ci;
+		t.hi = (a[i] < ci ? (word_t)-1 : 0);
+		q[i] = t.lo * inv;
+		r.lo = mul_64_by_64(q[i], d, &r.hi);
+		ci = r.hi - t.hi;
+   }
+#else
+	for( i = 0 ; i < m ; ++i )
+	{
+		t = (dword_t) a[i] - (dword_t) ci;
+		q[i] = (word_t) t * inv;
+		r = (dword_t) q[i] * (dword_t) d;
+		ci = (word_t) (r >> WORD_BITS) - (word_t) (t >> WORD_BITS);
+	}
+#endif
    return ci;
 }
 
@@ -358,42 +433,83 @@ word_t nn_divrem_hensel1_preinv_c(nn_t q, nn_src_t a, len_t m,
 word_t nn_mod1_preinv_c(nn_src_t a, len_t m, word_t d, 
                                      mod_preinv1_t inv, word_t ci)
 {
-   dword_t t, u;
-   word_t a1, a0;
-      
-   if (m & 1) /* odd number of words plus carry word */
-   {
-      a1 = ci;
-      a0 = a[--m];
-   } else /* even number of words plus carry word */
-   {
-      if (m == 0) return ci;
-
-      m -= 2;
-      t = (dword_t) a[m] + (((dword_t) a[m + 1]) << WORD_BITS);
-      u = t + (dword_t) ci * (dword_t) inv.b2;
-      if (u < t) u += (dword_t) inv.b2;
-      a1 = (word_t) (u >> WORD_BITS);
-      a0 = (word_t) u;
+	dword_t t, u;
+	word_t a1, a0;
+   
+	if (m & 1) /* odd number of words plus carry word */
+	{
+		a1 = ci;
+		a0 = a[--m];
+	} 
+	else /* even number of words plus carry word */
+	{
+		if (m == 0)
+			return ci;
+		m -= 2;
+#if defined( _MSC_VER ) && WORD_BITS == 64
+		u.lo = mul_64_by_64(ci, inv.b2, &u.hi) + a[m];
+		u.hi += a[m + 1] + (u.lo < a[m] ? 1 : 0);
+		if(u.hi < a[m + 1] || u.hi == a[m + 1] && u.lo < a[m]) 
+		{
+			u.lo += inv.b2;
+			u.hi += (u.lo < inv.b2 ? 1 : 0);
+		}
+		a1 = u.hi;
+		a0 = u.lo;
+#else
+		t = (dword_t) a[m] + (((dword_t) a[m + 1]) << WORD_BITS);
+		u = t + (dword_t) ci * (dword_t) inv.b2;
+		if (u < t) 
+			u += (dword_t) inv.b2;
+		a1 = (word_t) (u >> WORD_BITS);
+		a0 = (word_t) u;
+#endif
    }
 
    /* reduce to two words */
    while (m >= 2)
    {
-      m -= 2;
-      u = (dword_t) a[m] + (((dword_t) a[m + 1]) << WORD_BITS);
-      t = u + (dword_t) a0 * (dword_t) inv.b2;
-      if (t < u) t += (dword_t) inv.b2;
-      u = t + (dword_t) a1 * (dword_t) inv.b3;
-      if (u < t) u += (dword_t) inv.b2;
-      a1 = (word_t) (u >> WORD_BITS);
-      a0 = (word_t) u;
+		m -= 2;
+#if defined( _MSC_VER ) && WORD_BITS == 64
+		t.lo = mul_64_by_64(a0, inv.b2, &t.hi) + a[m];
+		t.hi += a[m + 1] + (t.lo < a[m] ? 1 : 0);
+		if(t.hi < a[m + 1] || t.hi == a[m + 1] && t.lo < a[m]) 
+		{
+			t.lo += inv.b2;
+			t.hi += (t.lo < inv.b2 ? 1 : 0);
+		}
+		u.lo = mul_64_by_64(a1, inv.b3, &u.hi) + t.lo;
+		u.hi += t.hi + (u.lo < t.lo ? 1 : 0);
+		if(u.hi < t.hi || u.hi == t.hi && u.lo < t.lo) 
+		{
+			u.lo += inv.b2;
+			u.hi += (u.lo < inv.b2 ? 1 : 0);
+		}
+		a1 = u.hi;
+		a0 = u.lo;
+#else
+		u = (dword_t) a[m] + (((dword_t) a[m + 1]) << WORD_BITS);
+		t = u + (dword_t) a0 * (dword_t) inv.b2;
+		if (t < u) 
+			t += (dword_t) inv.b2;
+		u = t + (dword_t) a1 * (dword_t) inv.b3;
+		if (u < t) 
+			u += (dword_t) inv.b2;
+		a1 = (word_t) (u >> WORD_BITS);
+		a0 = (word_t) u;
+#endif
    }
    
    /* reduce top word mod d */
-   u = (dword_t) a0 + (dword_t) a1 * (dword_t) inv.b1;
-
-   return u % (dword_t) d;
+#if defined( _MSC_VER ) && WORD_BITS == 64
+	u.lo = mul_64_by_64(a1, inv.b1, &u.hi) + a0;
+	u.hi += (u.lo < a0 ? 1 : 0);
+	div_128_by_64(&u, d, &a0);
+	return a0;
+#else
+	u = (dword_t) a0 + (dword_t) a1 * (dword_t) inv.b1;
+	return u % (dword_t) d;
+#endif
 }
 
 #endif

@@ -32,4 +32,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
+  <ItemGroup>
+    <MASM Include="arch\nn_linear_x64_div128_by_64.asm">
+      <Filter>Source Files</Filter>
+    </MASM>
+    <MASM Include="arch\nn_linear_x64_core2.asm">
+      <Filter>Source Files</Filter>
+    </MASM>
+  </ItemGroup>
 </Project>

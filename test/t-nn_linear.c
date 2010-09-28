@@ -1141,7 +1141,8 @@ int test_divrem1_preinv(void)
 
       result = (nn_equal_m(r1, a, m) && ci == 0);
 
-      if (!result) printf("m = %ld, ci = %lu, r = %lu\n", m, ci, r);
+      if (!result) 
+		  printf("m = %ld, ci = %lu, r = %lu\n", m, ci, r);
    } TEST_END;
 
    /* test chaining of divrem1_preinv */
@@ -1171,7 +1172,8 @@ int test_divrem1_preinv(void)
 
       result = (nn_equal_m(r1, r2, m + n) && rem1 == rem2);
 
-      if (!result) printf("m = %ld, n = %ld, d = %lu, rem1 = %lu, rem2 = %lu\n", 
+      if (!result) 
+		  printf("m = %ld, n = %ld, d = %lu, rem1 = %lu, rem2 = %lu\n", 
             m, n, d, rem1, rem2);
    } TEST_END;
 
@@ -1261,7 +1263,8 @@ int test_mod1_preinv(void)
       
       result = (rem1 == rem2);
 
-      if (!result) printf("m = %ld, rem1 = %lu, rem2 = %lu\n", m, rem1, rem2);
+      if (!result) 
+		  printf("m = %ld, rem1 = %lu, rem2 = %lu\n", m, rem1, rem2);
    } TEST_END;
 
    /* test chaining of mod1_preinv */
@@ -1281,7 +1284,8 @@ int test_mod1_preinv(void)
 
       result = (rem1 == rem2);
 
-      if (!result) printf("m = %ld, n = %ld, d = %ld, rem1 = %lu, rem2 = %lu\n", 
+      if (!result) 
+		  printf("m = %ld, n = %ld, d = %ld, rem1 = %lu, rem2 = %lu\n", 
             m, n, d, rem1, rem2);
    } TEST_END;
 
@@ -1294,6 +1298,7 @@ int main(void)
    long fail = 0;
    
    randinit(state);
+
    RUN(test_gc);
    RUN(test_not);
    RUN(test_neg);
@@ -1319,7 +1324,7 @@ int main(void)
    RUN(test_divrem1_preinv);
    RUN(test_divrem_hensel1_preinv);
    RUN(test_mod1_preinv);
-   
+
    printf("%ld of %ld tests pass.\n", pass, pass + fail);
 
    randclear(state);
