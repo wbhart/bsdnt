@@ -272,3 +272,15 @@ then
     done
 fi
 
+# collate everything we need to put into the makefile
+
+echo "Configuring Makefile "
+
+# SED the makefile template
+
+echo "Creating Makefile "
+
+
+echo " Done. "
+echo " "
+echo "Type make to build this library. We strongly recommend you run make check and ensure all tests pass."

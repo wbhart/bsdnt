@@ -24,9 +24,9 @@
 # Build tools and environment
 AS=__ASSEMBLER__
 AR=__ARCHIVE__
-CC=gcc
-AFLAGS=-felf64 -F dwarf
-CFLAGS=-pedantic -O2 -g -fopenmp -fPIC -Wall
+CC=__COMPILER__
+AFLAGS=__AFLAGS__
+CFLAGS=__CFLAGS__
 LIBS=-L$(CURDIR)
 INCS=-I$(CURDIR) 
 
@@ -47,11 +47,11 @@ ASFILES = __ASFILES__
 ASOBJS  = $(patsubst %.asm, build/%.o, $(ASFILES))
 
 # FILES
-SOURCES = $(wildcard *.c)
-HEADERS = $(wildcard *.h)
+SOURCES = __SOURCES__
+HEADERS = __HEADERS__
 OBJS = $(patsubst %.c, build/%.o, $(SOURCES))
 
-TESTS = build/test/t-nn
+TESTS = __TESTS__
 
 BINARIES = $(TESTS)
 
@@ -70,14 +70,14 @@ check: $(OBJS) $(BINARIES)
 strip:
 	strip $(BINARIES)
 
-build/arch/%.o: arch/%.asm
+build/arch/%.o: __ASFILES__
 	$(QUIET_AS)$(AS)  $(AFLAGS) $< -o $@
 
-build/%.o: %.c
-	$(QUIET_CC)$(CC)  $(CFLAGS) $(INCS) -c $< -o $@
+build/%.o: __SOURCES__
+	$(QUIET_CC)$(CC) $(CFLAGS) $(INCS) -c $< -o $@
 
-#build/test/t-nn: build/nn.o build/t-nn.o build/arch/x86-64/nn_add_mc_intel.o build/arch/x86-64/nn_sub_mc.o
-#	$(QUIET_LINK)$(CC) -o build/test/t-nn build/nn.o build/t-nn.o build/arch/x86-64/nn_add_mc_intel.o  build/arch/x86-64/nn_sub_mc.o
-
+# Per-test configuration.
+#
+#
 	
-
+# Per output configuration.
