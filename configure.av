@@ -274,13 +274,42 @@ fi
 
 # collate everything we need to put into the makefile
 
-echo "Configuring Makefile "
+echo "Examining source"
 
-# SED the makefile template
+CFILESARR=`ls -1 *.c`
+HFILESARR=`ls -1 *.h`
+TFILESARR=`ls -1 test/*.c`
+
+for C in `echo ${CFILESARR[*]}`;
+do
+    CFILES="$CFILES $C"
+done
+
+for H in `echo ${HFILESARR[*]}`;
+do
+    HFILES="$HFILES $H"
+done
+
+for T in `echo ${TFILESARR[*]}`;
+do
+    TFILES="$TFILES $T"
+done
 
 echo "Creating Makefile "
 
+cp -f Makefile.unix Makefile
 
-echo " Done. "
+sed -i "s|__ASSEMBLER__|${AS}|g" Makefile
+sed -i "s|__ARCHIVE__|${AR}|g" Makefile
+sed -i "s|__COMPILER__|${CC}|g" Makefile
+sed -i "s|__AFLAGS__|${ASFLAGS}|g" Makefile
+sed -i "s|__CFLAGS__|${CFLAGS}|g" Makefile
+sed -i "s|__ASFILES__|e|g" Makefile
+sed -i "s|__SOURCES__|${CFILES}|g" Makefile
+sed -i "s|__HEADERS__|${HFILES}|g" Makefile
+sed -i "s|__TESTS__|${TFILES}|g" Makefile
+
+
+echo "Done. "
 echo " "
 echo "Type make to build this library. We strongly recommend you run make check and ensure all tests pass."
