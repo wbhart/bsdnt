@@ -15,7 +15,7 @@ int test_mul_classical(void)
 
    printf("mul_classical...");
 
-   TEST_START(ITER) /* test a * (b + c) = a * b + a * c */
+   TEST_START(1, ITER) /* test a * (b + c) = a * b + a * c */
    {
       randoms_upto(30, NONZERO, state, &m, NULL);
       randoms_upto(m + 1, NONZERO, state, &n, NULL);
@@ -51,7 +51,7 @@ int test_muladd_classical(void)
 
    printf("muladd_classical...");
 
-   TEST_START(ITER) /* test a + b * c = muladd(a, b, c) */
+   TEST_START(1, ITER) /* test a + b * c = muladd(a, b, c) */
    {
       randoms_upto(30, NONZERO, state, &m, NULL);
       randoms_upto(m + 1, NONZERO, state, &n, NULL);
@@ -70,7 +70,7 @@ int test_muladd_classical(void)
       if (!result) printf("m = %ld, n = %ld\n", m, n);
    } TEST_END;
 
-   TEST_START(ITER) /* test aliasing of r and a in muladd */
+   TEST_START(aliasing, ITER) /* test aliasing of r and a in muladd */
    {
       randoms_upto(30, NONZERO, state, &m, NULL);
       randoms_upto(m + 1, NONZERO, state, &n, NULL);
@@ -101,7 +101,7 @@ int test_divrem_classical_preinv(void)
    
    printf("divrem_classical_preinv...");
 
-   TEST_START(ITER) /* test (a * d) / d = a remainder 0 */
+   TEST_START(1, ITER) /* test (a * d) / d = a remainder 0 */
    {
       randoms_upto(30, NONZERO, state, &m, &n, NULL);
       
@@ -119,7 +119,7 @@ int test_divrem_classical_preinv(void)
       if (!result) printf("m = %ld, n = %ld\n", m, n);
    } TEST_END;
 
-   TEST_START(ITER) /* test (a * d + s) / d = a remainder s */
+   TEST_START(2, ITER) /* test (a * d + s) / d = a remainder s */
    {
       randoms_upto(30, NONZERO, state, &m, &n, NULL);
       
@@ -153,7 +153,7 @@ int test_divapprox_classical_preinv(void)
    
    printf("divapprox_classical_preinv...");
 
-   TEST_START(ITER) /* test divapprox is at most one more than divrem */
+   TEST_START(1, ITER) /* test divapprox is at most one more than divrem */
    {
       randoms_upto(30, NONZERO, state, &m, &n, NULL);
       
@@ -191,7 +191,7 @@ int test_mullow_classical(void)
    
    printf("mullow_classical...");
 
-   TEST_START(ITER) /* test a * (b + c) = a * b + a * c */
+   TEST_START(1, ITER) /* test a * (b + c) = a * b + a * c */
    {
       randoms_upto(30, NONZERO, state, &m, NULL);
       randoms_upto(m + 1, NONZERO, state, &n, NULL);
@@ -223,7 +223,7 @@ int test_div_hensel_preinv(void)
    
    printf("div_hensel_preinv...");
 
-   TEST_START(ITER) /* test (a * d) / d = a */
+   TEST_START(1, ITER) /* test (a * d) / d = a */
    {
       randoms_upto(30, NONZERO, state, &m, &n, NULL);
       
@@ -242,7 +242,7 @@ int test_div_hensel_preinv(void)
       if (!result) printf("m = %ld, n = %ld\n", m, n);
    } TEST_END;
 
-   TEST_START(ITER) /* test inexact division yields correct overflow */
+   TEST_START(1, ITER) /* test inexact division yields correct overflow */
    {
       randoms_upto(30, NONZERO, state, &m, NULL);
       randoms_upto(m + 1, NONZERO, state, &n, NULL);
@@ -261,7 +261,7 @@ int test_div_hensel_preinv(void)
       if (!result) printf("m = %ld, n = %ld\n", m, n);
    } TEST_END;
 
-   TEST_START(ITER) /* test chaining of div_hensel */
+   TEST_START(chaining, ITER) /* test chaining of div_hensel */
    {
       randoms_upto(30, NONZERO, state, &m, NULL);
       randoms_upto(m + 1, NONZERO, state, &n, NULL);

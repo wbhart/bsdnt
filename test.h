@@ -3,12 +3,14 @@
 
 #include "nn.h"
 
-#define TEST_START(XXX) \
+#define TEST_START(XXX, YYY) \
    do { \
       long __count; \
-      for (__count = 0; __count < XXX  && result == 1; __count++)
+      const char * __test_name = #XXX; \
+      for (__count = 0; __count < YYY  && result == 1; __count++)
 
 #define TEST_END \
+      if (!result && __count) printf("Test %s, iteration %ld...", __test_name, __count); \
       gc_cleanup(); \
    } while (0)
 
