@@ -61,6 +61,14 @@ void nn_printx(nn_src_t a, len_t m);
 */
 void nn_printx_short(nn_src_t a, len_t m);
 
+/*
+   Print information about which words of a and b differ and actually
+   print the first and last words which differ, for both bignums. 
+   This function is used for diagnostic purposes in test code. If there
+   is no difference, nothing is printed.
+*/
+void nn_printx_diff(nn_src_t a, nn_src_t b, len_t m);
+
 /**********************************************************************
  
     Basic manipulation

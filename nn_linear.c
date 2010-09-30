@@ -51,6 +51,32 @@ void nn_printx_short(nn_src_t a, len_t m)
    }
 }
 
+void nn_printx_diff(nn_src_t a, nn_src_t b, len_t m)
+{
+   long i, end = m, start = m;
+
+   for (start = 0; start < m; start++)
+      if (a[start] != b[start])
+         break;
+
+   for (i = start; i < m; i++)
+      if (a[i] != b[i])
+         end = i;
+
+   if (start != m)
+   {
+      printf("diff at word %ld (", start);
+      printx_word(a[start]);
+      printf(" vs ");
+      printx_word(b[start]);
+      printf(") to word %ld (", end);
+      printx_word(a[end]);
+      printf(" vs ");
+      printx_word(b[end]);
+      printf(") of %ld word bignums", m);
+   }        
+}
+
 /**********************************************************************
  
     Linear arithmetic functions
