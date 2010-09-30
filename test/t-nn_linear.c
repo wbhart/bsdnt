@@ -54,14 +54,8 @@ int test_add_m(void)
 
       if (!result) 
       {
-         printf("m = %ld\n", m);
-         printf("a = "); nn_printx_short(a, m); printf("\n");
-         printf("b = "); nn_printx_short(b, m); printf("\n");
-         printf("c = "); nn_printx_short(c, m); printf("\n");
-         printf("r1 = "); nn_printx_short(r1, m + 1); printf("\n");
-         printf("r2 = "); nn_printx_short(r2, m + 1); printf("\n");
-         nn_printx_diff(r1, r2, m + 1);
-         break;
+         print_debug(a, m); print_debug(b, m); print_debug(c, m); 
+         print_debug_diff(r1, r2, m + 1);
       }
    } TEST_END;
 

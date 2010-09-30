@@ -44,7 +44,7 @@ void nn_printx_short(nn_src_t a, len_t m)
       printx_word(a[0]);
       printf(" ");
       printx_word(a[1]);
-      printf(" ... ");
+      printf("...");
       printx_word(a[m - 2]);
       printf(" ");
       printx_word(a[m - 1]);
@@ -69,12 +69,13 @@ void nn_printx_diff(nn_src_t a, nn_src_t b, len_t m)
       printx_word(a[start]);
       printf(" vs ");
       printx_word(b[start]);
-      printf(") to word %ld (", end);
+      printf(") through word %ld (", end);
       printx_word(a[end]);
       printf(" vs ");
       printx_word(b[end]);
-      printf(") of %ld word bignums", m);
-   }        
+      printf(")");
+   } else
+      printf("don't differ");
 }
 
 /**********************************************************************

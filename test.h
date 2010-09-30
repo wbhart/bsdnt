@@ -25,6 +25,16 @@
       } \
    } while (0)
 
+#define print_debug(a, m) \
+   do { \
+      printf(#a "(%ld) = ", m); nn_printx_short(a, m); printf("\n"); \
+   } while (0)
+
+#define print_debug_diff(a, b, m) \
+   do { \
+   printf(#a " vs " #b "(%ld) ", m); nn_printx_diff(a, b, m); printf("\n"); \
+   } while (0)
+
 typedef enum
 {
    NN 
