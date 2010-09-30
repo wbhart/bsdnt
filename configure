@@ -34,7 +34,7 @@ then
       EXTS="";;
     esac
 
-    for file in nn*.c
+    for file in *.c
     do
        name=${file%\.*}
        echo "#ifndef ${name}_H" > ${name}_arch.h

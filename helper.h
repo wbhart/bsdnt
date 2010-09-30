@@ -183,5 +183,17 @@ word_t randword(rand_t state);
    Generate a random word in the range [0, m). 
 */
 word_t randint(word_t m, rand_t state);
+
+/**********************************************************************
+ 
+    Printing functions
+
+**********************************************************************/
+
+/*
+   Print a word in hexacdecimal.
+*/
+void printx_word(word_t a);
+
 #endif
 

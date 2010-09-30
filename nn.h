@@ -1,9 +1,7 @@
 #ifndef BSDNT_NN_H
 #define BSDNT_NN_H
 
-#include <stdint.h>
 #include <stdlib.h>
-#include <limits.h>
 #include "helper.h"
 
 /**********************************************************************

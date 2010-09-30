@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include "helper.h"
+#include "helper_arch.h"
 
 /**********************************************************************
  
@@ -47,3 +48,18 @@ word_t randint(word_t m, rand_t state)
 {
    return (randword(state) % m);
 }
+
+/**********************************************************************
+ 
+    Printing functions
+
+**********************************************************************/
+
+#ifndef HAVE_ARCH_printx_word
+
+void printx_word(word_t a)
+{
+   printf("%lx", a);
+}
+
+#endif
