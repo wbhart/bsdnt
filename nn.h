@@ -43,6 +43,26 @@ void nn_clear(nn_t a)
 
 /**********************************************************************
  
+    Printing functions
+
+**********************************************************************/
+
+/*
+   Print the nn_t {a, m} in hexadecimal, with a space between each
+   word. If m is zero, only 0 is printed.
+*/
+void nn_printx(nn_src_t a, len_t m);
+
+/*
+   Print the nn_t {a, m} in hexadecimal, with a space between each
+   word, but only printing at worst, the first two words of a, an 
+   ellipsis (if m > 4) and the final two words of a. If m is zero, 
+   only 0 is printed.
+*/
+void nn_printx_short(nn_src_t a, len_t m);
+
+/**********************************************************************
+ 
     Basic manipulation
 
 **********************************************************************/
