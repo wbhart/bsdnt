@@ -583,6 +583,40 @@ word_t nn_addmul1_c(nn_t a, nn_src_t b, len_t m, word_t c, word_t ci);
    nn_s_addmul1_c(a, b, m, c, (word_t) 0)
 
 /*
+   Set r = a + b * c + ci where a and b are m words in length, c 
+   is a word and ci is a "carry in". The carry out is returned. 
+*/
+word_t nn_muladd1_c(nn_t r, nn_src_t a, nn_src_t b, len_t m, word_t c, word_t ci);
+
+/*
+   Set r = a + b * c where a and b are m words in length, and c 
+   is a word. The carry out is returned. 
+*/
+#define nn_muladd1(r, a, b, m, c) \
+   nn_muladd1_c(r, a, b, m, c, (word_t) 0)
+
+/*
+   Set r = a + b * c + ci where a and b are m words in length, c 
+   is a word and ci is a "carry in". The carry out is added to
+   a[m] if r aliases a, otherwise it is written to r[m]. 
+*/
+#define nn_s_muladd1_c(r, a, b, m, c, ci) \
+   do { \
+      if ((r) == (a)) \
+         (a)[m] += nn_addmul1_c(a, b, m, c, ci); \
+      else \
+         (r)[m] = nn_muladd1_c(r, a, b, m, c, ci); \
+   } while (0)
+
+/*
+   Set r = a + b * c where a and b are m words in length and c 
+   is a word. The carry out is added to a[m] if r aliases a, 
+   otherwise it is written to r[m].   
+*/
+#define nn_s_muladd1(r, a, b, m, c) \
+   nn_s_muladd1_c(r, a, b, m, c, (word_t) 0)
+
+/*
    Set a = a - b * c - ci where a and b are m words in length, c 
    is a word and ci is a "borrow in". The borrow out is returned. 
 */
@@ -770,6 +804,26 @@ word_t nn_mul_classical(nn_t r, nn_src_t a, len_t m1, nn_src_t b, len_t m2);
 #define nn_s_mul_classical(r, a, m1, b, m2) \
    do { \
       (r)[(m1) + (m2) - 1] = nn_mul_classical(r, a, m1, b, m2); \
+   } while (0)
+
+/*
+   Set {r, m1 + m2 - 1} = {a, m1} + {b, m1} * {c, m2} and return any 
+   carry-out. The output r may not alias either of the inputs b or c, 
+   but a may alias with r as long as the requisite space is available. 
+   We require m1 >= m2 > 0.
+*/
+word_t nn_muladd_classical(nn_t r, nn_src_t a, nn_src_t b, 
+                                     len_t m1, nn_src_t c, len_t m2);
+
+/*
+   Set {r, m1 + m2 - 1} = {a, m1} + {b, m1} * {c, m2} and write any 
+   carry-out. The output r may not alias either of the inputs b or c, 
+   but a may alias with r as long as the requisite space is available. 
+   We require m1 >= m2 > 0.
+*/
+#define nn_s_muladd_classical(r, a, b, m1, c, m2) \
+   do { \
+      (r)[(m1) + (m2) - 1] = nn_muladd_classical(r, a, b, m1, c, m2); \
    } while (0)
 
 #endif

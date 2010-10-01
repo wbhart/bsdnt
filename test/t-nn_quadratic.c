@@ -43,6 +43,55 @@ int test_mul_classical(void)
    return result;
 }
 
+int test_muladd_classical(void)
+{
+   int result = 1;
+   len_t m, n;
+   nn_t a, b, c, r1, r2;
+
+   printf("muladd_classical...");
+
+   TEST_START(ITER) /* test a + b * c = muladd(a, b, c) */
+   {
+      randoms_upto(30, NONZERO, state, &m, NULL);
+      randoms_upto(m + 1, NONZERO, state, &n, NULL);
+      
+      randoms_of_len(m, ANY, state, &a, &b, NULL);
+      randoms_of_len(n, ANY, state, &c, NULL);
+      randoms_of_len(m + n, ANY, state, &r1, &r2, NULL);
+      
+      nn_s_mul_classical(r1, b, m, c, n);
+      nn_add(r1, r1, m + n, a, m);
+      
+      nn_s_muladd_classical(r2, a, b, m, c, n);
+      
+      result = nn_equal_m(r1, r2, m + n);
+
+      if (!result) printf("m = %ld, n = %ld\n", m, n);
+   } TEST_END;
+
+   TEST_START(ITER) /* test aliasing of r and a in muladd */
+   {
+      randoms_upto(30, NONZERO, state, &m, NULL);
+      randoms_upto(m + 1, NONZERO, state, &n, NULL);
+      
+      randoms_of_len(m, ANY, state, &a, &b, NULL);
+      randoms_of_len(n, ANY, state, &c, NULL);
+      randoms_of_len(m + n, ANY, state, &r1, &r2, NULL);
+      
+      nn_copy(r1, a, m);
+      nn_s_muladd_classical(r1, r1, b, m, c, n);
+      
+      nn_s_muladd_classical(r2, a, b, m, c, n);
+      
+      result = nn_equal_m(r1, r2, m + n);
+
+      if (!result) printf("m = %ld, n = %ld\n", m, n);
+   } TEST_END;
+
+   return result;
+}
+
 int main(void)
 {
    long pass = 0;
@@ -51,6 +100,7 @@ int main(void)
    randinit(state);
 
    RUN(test_mul_classical);
+   RUN(test_muladd_classical);
    
    printf("%ld of %ld tests pass.\n", pass, pass + fail);
 
