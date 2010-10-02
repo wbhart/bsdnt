@@ -111,7 +111,8 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <PreBuildEvent>
-      <Command>copy arch\nn_linear_x64_core2.h nn_linear_arch.h</Command>
+      <Command>copy arch\nn_linear_x64_core2.h nn_linear_arch.h
+copy arch\nn_quadratic_x64_core2.h nn_quadratic_arch.h</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -128,7 +129,8 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <PreBuildEvent>
-      <Command>copy arch\nn_linear_x64_core2.h nn_linear_arch.h</Command>
+      <Command>copy arch\nn_linear_x64_core2.h nn_linear_arch.h
+copy arch\nn_quadratic_x64_core2.h nn_quadratic_arch.h</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -149,7 +151,8 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <PreBuildEvent>
-      <Command>copy arch\nn_linear_x64_core2.h nn_linear_arch.h</Command>
+      <Command>copy arch\nn_linear_x64_core2.h nn_linear_arch.h
+copy arch\nn_quadratic_x64_core2.h nn_quadratic_arch.h</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -170,7 +173,8 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <PreBuildEvent>
-      <Command>copy arch\nn_linear_x64_core2.h nn_linear_arch.h</Command>
+      <Command>copy arch\nn_linear_x64_core2.h nn_linear_arch.h
+copy arch\nn_quadratic_x64_core2.h nn_quadratic_arch.h</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
