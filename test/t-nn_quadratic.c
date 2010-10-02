@@ -269,8 +269,9 @@ int test_div_hensel_preinv(void)
       randoms_of_len(m + n, ANY, state, &r1, &q, NULL);
       randoms_of_len(2, ANY, state, &ov, NULL);
       
-      nn_s_mul_classical(r1, a, m, d, n);
-      
+      if (m >= n) nn_s_mul_classical(r1, a, m, d, n);
+      else nn_s_mul_classical(r1, d, n, a, m);
+
       precompute_hensel_inverse1(&inv, d[0]);
       nn_div_hensel_preinv(ov, q, r1, m + n, d, n, inv);
 
