@@ -9,6 +9,11 @@ word_t nn_mul_classical(nn_t r, nn_src_t a, len_t m1,
    len_t i;
    word_t ci = 0;
   
+   ASSERT(r != a);
+   ASSERT(r != b);
+   ASSERT(m1 >= m2);
+   ASSERT(m2 > 0);
+
    ci = nn_mul1(r, a, m1, b[0]); 
    
    for (i = 1; i < m2; i++)
@@ -30,6 +35,11 @@ void nn_mullow_classical(nn_t ov, nn_t r, nn_src_t a, len_t m1,
    len_t i;
    dword_t t = 0;
   
+   ASSERT(r != a);
+   ASSERT(r != b);
+   ASSERT(m1 >= m2);
+   ASSERT(m2 > 0);
+
    t = (dword_t) nn_mul1(r, a, m1, b[0]); 
    
    for (i = 1; i < m2; i++)
@@ -49,6 +59,11 @@ word_t nn_mulhigh_classical(nn_t r, nn_src_t a, len_t m1,
    len_t i;
    word_t ci = 0;
    dword_t t;
+
+   ASSERT(r != a);
+   ASSERT(r != b);
+   ASSERT(m1 >= m2);
+   ASSERT(m2 > 0);
 
    if (m2 == 1)
       return ov[0]; /* overflow is one limb in this case */
@@ -88,6 +103,11 @@ word_t nn_muladd_classical(nn_t r, nn_src_t a, nn_src_t b,
    len_t i;
    word_t ci = 0;
   
+   ASSERT(r != b);
+   ASSERT(r != c);
+   ASSERT(m1 >= m2);
+   ASSERT(m2 > 0);
+
    ci = nn_muladd1(r, a, b, m1, c[0]); 
 
    for (i = 1; i < m2; i++)
@@ -112,6 +132,12 @@ void nn_divrem_classical_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d,
    word_t norm = inv.norm;
    word_t dinv = inv.dinv;
    word_t d1 = inv.d1;
+
+   ASSERT(q != d);
+   ASSERT(m >= n);
+   ASSERT(n > 0);
+   ASSERT((ci < d[n - 1]) 
+      || ((ci == d[n - 1]) && (nn_cmp_m(a + m - n + 1, d, n - 1) < 0)));
 
    for (i = m - 1; i >= n - 1; i--, j--)
    {
@@ -154,6 +180,13 @@ void nn_divapprox_classical_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d,
    s = 2 + s + (d[n-1] <= 2*s); /* need two normalised words at that point */
    if (s > i + 1) s = i + 1; /* ensure we don't do too many iterations */
    
+   ASSERT(q != d);
+   ASSERT(q != a);
+   ASSERT(m >= n);
+   ASSERT(n > 0);
+   ASSERT((ci < d[n - 1]) 
+      || ((ci == d[n - 1]) && (nn_cmp_m(a + m - n + 1, d, n - 1) < 0)));
+
    for ( ; s >= n; i--, j--, s--)
    {
       /* top "two words" of remaining dividend, shifted */
@@ -216,6 +249,12 @@ void nn_div_hensel_preinv(nn_t ov, nn_t q, nn_t a, len_t m,
    dword_t t;
    word_t ci, ct = 0;
    
+   ASSERT(q != d);
+   ASSERT(q != a);
+   ASSERT(m >= n);
+   ASSERT(n > 0);
+   ASSERT(d[0] & 1);
+
    for (i = 0; i < m - n; i++)
    {
       q[i] = a[i] * inv;

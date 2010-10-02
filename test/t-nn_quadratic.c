@@ -121,8 +121,9 @@ int test_divrem_classical_preinv(void)
       randoms_of_len(n, ANY, state, &d, NULL);
       randoms_of_len(m + n, ANY, state, &r1, NULL);
       
-      nn_s_mul_classical(r1, a, m, d, n);
-      
+      if (m >= n) nn_s_mul_classical(r1, a, m, d, n);
+      else nn_s_mul_classical(r1, d, n, a, m);
+
       precompute_inverse1_2(&inv, d[n - 1], (n == 1) ? (word_t) 0 : d[n - 2]);
       nn_r_divrem_classical_preinv(q, r1, m + n - 1, d, n, inv);
 
@@ -137,7 +138,8 @@ int test_divrem_classical_preinv(void)
 
    TEST_START(2, ITER) /* test (a * d + s) / d = a remainder s */
    {
-      randoms_upto(30, NONZERO, state, &m, &n, NULL);
+      randoms_upto(30, NONZERO, state, &n, NULL);
+      randoms_upto(n + 1, NONZERO, state, &m, NULL);
       
       randoms_of_len(m, ANY, state, &a, &q, NULL);
       randoms_of_len(m + n, ANY, state, &r1, NULL);
@@ -178,7 +180,8 @@ int test_divapprox_classical_preinv(void)
 
    TEST_START(1, ITER) /* test divapprox is at most one more than divrem */
    {
-      randoms_upto(30, NONZERO, state, &m, &n, NULL);
+      randoms_upto(30, NONZERO, state, &n, NULL);
+      randoms_upto(n + 1, NONZERO, state, &m, NULL);
       
       randoms_of_len(m, ANY, state, &a, &q1, &q2, NULL);
       randoms_of_len(m + n, ANY, state, &r1, &r2, NULL);
@@ -266,8 +269,9 @@ int test_div_hensel_preinv(void)
       randoms_of_len(m + n, ANY, state, &r1, &q, NULL);
       randoms_of_len(2, ANY, state, &ov, NULL);
       
-      nn_s_mul_classical(r1, a, m, d, n);
-      
+      if (m >= n) nn_s_mul_classical(r1, a, m, d, n);
+      else nn_s_mul_classical(r1, d, n, a, m);
+
       precompute_hensel_inverse1(&inv, d[0]);
       nn_div_hensel_preinv(ov, q, r1, m + n, d, n, inv);
 
