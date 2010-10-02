@@ -88,6 +88,8 @@ void nn_printx_diff(nn_src_t a, nn_src_t b, len_t m)
 
 word_t nn_add_mc(nn_t a, nn_src_t b, nn_src_t c, len_t m, word_t ci)
 {
+   ASSERT(ci <= 1);
+   
    dword_t t;
    long i;
 
@@ -107,6 +109,8 @@ word_t nn_add_mc(nn_t a, nn_src_t b, nn_src_t c, len_t m, word_t ci)
 
 word_t nn_sub_mc(nn_t a, nn_src_t b, nn_src_t c, len_t m, word_t bi)
 {
+   ASSERT(bi <= 1);
+   
    dword_t t;
    long i;
 

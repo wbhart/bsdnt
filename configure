@@ -2,6 +2,18 @@
 
 CC=gcc
 
+WANT_ASSERT=0
+
+while test "$1" != "" ; do
+        if test "$1" = "-assert"
+        then
+           WANT_ASSERT=1
+        fi
+        shift
+done
+
+echo "#define WANT_ASSERT ${WANT_ASSERT}" > config.h
+
 ARCH=`uname -m &> /dev/null`
 
 case $ARCH in

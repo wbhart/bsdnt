@@ -3,6 +3,8 @@
 
 #include <stdint.h>
 #include <limits.h>
+#include <assert.h>
+#include "config.h"
 
 #if ULONG_MAX == 4294967295U
 
@@ -16,6 +18,12 @@ typedef uint64_t word_t;
 typedef unsigned int dword_t __attribute__((mode(TI)));
 #define WORD_BITS 64
 
+#endif
+
+#if WANT_ASSERT
+#define ASSERT assert
+#else
+#define ASSERT(xxx) 
 #endif
 
 typedef word_t * nn_t;
