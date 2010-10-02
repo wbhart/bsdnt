@@ -46,6 +46,8 @@ word_t randword(rand_t state)
 
 word_t randint(word_t m, rand_t state)
 {
+   ASSERT(m != 0);
+   
    return (randword(state) % m);
 }
 

@@ -738,7 +738,7 @@ void nn_mullow_classical(nn_t ov, nn_t r, nn_src_t a, len_t m1,
    {b, m2}. The output requires m2 - 1 words and any carry will be 
    returned in a carry-out. We require m1 >= m2 > 0. If ov from mullow
    is passed to mulhigh then a mullow followed by a mulhigh is the same
-   as a full mul.
+   as a full mul. The output r may not alias either a or b.
 */
    word_t nn_mulhigh_classical(nn_t r, nn_src_t a, len_t m1, 
                                        nn_src_t b, len_t m2, nn_t ov);
@@ -759,7 +759,7 @@ void nn_mullow_classical(nn_t ov, nn_t r, nn_src_t a, len_t m1,
    be computed from the leading two limbs of d (or the leading limb and 0 
    if n is 1) using precompute_inverse_lead. If a_n is the leading n limbs 
    of a, then ci*B^m + a_n must be less than B * d. The quotient
-   must have space for m - n + 1 limbs. 
+   must have space for m - n + 1 limbs. The quotient may not alias d.
 */
 void nn_divrem_classical_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d, 
                                      len_t n, preinv1_2_t inv, word_t ci);
@@ -776,11 +776,12 @@ void nn_divrem_classical_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d,
 /*
    As per nn_divrem_classical_preinv_c, however no remainder is computed
    and the quotient is either correct or one too large, i.e. |a - q*d| < d.
+   The dividend a is destroyed and may not alias q.
 */
 void nn_divapprox_classical_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d, 
                                   len_t n, preinv1_2_t inv, word_t ci);
 
-                                  /*
+/*
    As per nn_divapprox_classical_preinv_c except that the carry-in is read 
    from a[m]. The approx. quotient will therefore be {a, m + 1} by {d, n}.
 */
@@ -793,8 +794,9 @@ void nn_divapprox_classical_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d,
    Perform Hensel division of {a, m} by {d, n} with the quotient mod B^m
    being returned in q and any overflow from mullow(q, d) being returned
    in ov. We require m >= n > 0. The quotient q requires m words of space
-   and ov requires 2 words. The dividend, a, is destroyed. The divisor d
-   must be odd and inv must be a precomputed inverse of d[0] computed with
+   and ov requires 2 words. The dividend, a, is destroyed and may not alias
+   q. We also require that q does not alias d. The divisor d must be odd 
+   and inv must be a precomputed inverse of d[0] computed with
    precompute_hensel_inverse1.
 */
 void nn_div_hensel_preinv(nn_t ov, nn_t q, nn_t a, len_t m, 
