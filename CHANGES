@@ -59,4 +59,7 @@
 01-Oct-2010:
 	v0.18 - Added printx_word, nn_printx, nn_printx_short, test diagnostics.
 
+02-Oct-2010:
+	v0.19 - Added ASSERT macro.
+
 
