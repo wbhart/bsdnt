@@ -48,6 +48,7 @@ SECTION .code
 
 ; global symbols
 GLOBAL _nn_add_mc
+GLOBAL _nn_sub_mc: 
 
 
 ; function code.
@@ -109,4 +110,59 @@ _nn_add_mc_exit:
     ret
 
 
+_nn_sub_mc:
+
+    ; Stack frame for this function
+
+    ; push    rbp
+    ; mov     rbp, rsp
+
+    ; arguments to functions. 
+    ; arguments are in:
+    ; * rdi (a)
+    ; * rsi (b)
+    ; * rdx (c)
+    ; * rcx  (m)
+    ; * r8  (ci)
+
+    ; zero rax
+    xor      rax, rax
+
+    ; load the address of the ends of the word_t arrays.
+    lea rdi, [rdi + rcx*8]
+    lea rsi, [rsi + rcx*8]
+    lea rdx, [rdx + rcx*8]
+
+    ; rcx is a positive value of m. Negate it.
+    neg      rcx
+
+    ; determine if there is a carry.
+    sar      r8d, 1
+
+    ; if rcx==0, exit.
+    jrcxz    _nn_sub_mc_exit
+
+_nn_sub_mc_loop:
+
+    ; add the two word_t's for each nn_t together.
+    mov     r10, [rsi + rcx*8]
+    sbb     r10, [rdx + rcx*8]
+    
+    ; store the result
+    mov     [rdi+rcx*8], r10
+
+    ; increase rcx until it is zero, then exit.
+    inc     rcx
+    jnz     _nn_sub_mc_loop 
+
+_nn_sub_mc_exit:
+
+    ; set return value (rax)
+    SETC      al
+    
+    ; destroy stack frame
+    ; pop     rbp
+
+    ; return
+    ret
 
