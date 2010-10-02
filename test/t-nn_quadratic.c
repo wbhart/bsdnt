@@ -121,8 +121,9 @@ int test_divrem_classical_preinv(void)
       randoms_of_len(n, ANY, state, &d, NULL);
       randoms_of_len(m + n, ANY, state, &r1, NULL);
       
-      nn_s_mul_classical(r1, a, m, d, n);
-      
+      if (m >= n) nn_s_mul_classical(r1, a, m, d, n);
+      else nn_s_mul_classical(r1, d, n, a, m);
+
       precompute_inverse1_2(&inv, d[n - 1], (n == 1) ? (word_t) 0 : d[n - 2]);
       nn_r_divrem_classical_preinv(q, r1, m + n - 1, d, n, inv);
 
@@ -137,7 +138,8 @@ int test_divrem_classical_preinv(void)
 
    TEST_START(2, ITER) /* test (a * d + s) / d = a remainder s */
    {
-      randoms_upto(30, NONZERO, state, &m, &n, NULL);
+      randoms_upto(30, NONZERO, state, &m, NULL);
+      randoms_upto(m + 1, NONZERO, state, &n, NULL);
       
       randoms_of_len(m, ANY, state, &a, &q, NULL);
       randoms_of_len(m + n, ANY, state, &r1, NULL);
