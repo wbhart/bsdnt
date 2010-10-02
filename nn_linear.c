@@ -88,11 +88,11 @@ void nn_printx_diff(nn_src_t a, nn_src_t b, len_t m)
 
 word_t nn_add_mc(nn_t a, nn_src_t b, nn_src_t c, len_t m, word_t ci)
 {
-   ASSERT(ci <= 1);
-   
    dword_t t;
    long i;
 
+   ASSERT(ci <= 1);
+   
    for (i = 0; i < m; i++)
    {
       t = (dword_t) b[i] + (dword_t) c[i] + (dword_t) ci;
@@ -109,11 +109,11 @@ word_t nn_add_mc(nn_t a, nn_src_t b, nn_src_t c, len_t m, word_t ci)
 
 word_t nn_sub_mc(nn_t a, nn_src_t b, nn_src_t c, len_t m, word_t bi)
 {
-   ASSERT(bi <= 1);
-   
    dword_t t;
    long i;
 
+   ASSERT(bi <= 1);
+   
    for (i = 0; i < m; i++)
    {
       t = (dword_t) b[i] - (dword_t) c[i] - (dword_t) bi;
@@ -133,6 +133,9 @@ word_t nn_shl_c(nn_t a, nn_src_t b, len_t m, bits_t bits, word_t ci)
    dword_t t;
    long i;
 
+   ASSERT(bits < WORD_BITS);
+   ASSERT(ci < ((word_t) 1 << bits)); 
+
    for (i = 0; i < m; i++)
    {
       t = (((dword_t) b[i]) << bits);
@@ -151,8 +154,12 @@ word_t nn_shr_c(nn_t a, nn_src_t b, len_t m, bits_t bits, word_t ci)
 {
    dword_t t;
    long i;
+   
+   ASSERT(bits < WORD_BITS);
+   ASSERT((ci << bits) == (word_t) 0); 
+   
    bits = WORD_BITS - bits;
-
+   
    for (i = m - 1; i >= 0L; i--)
    {
       t = (((dword_t) b[i]) << bits);
@@ -209,6 +216,8 @@ word_t nn_neg_c(nn_t a, nn_src_t b, len_t m, word_t ci)
 {
    dword_t t;
    long i;
+   
+   ASSERT (ci <= 1);
    
    ci = 1 - ci;
 
@@ -310,6 +319,9 @@ word_t nn_divrem1_simple_c(nn_t q, nn_src_t a, len_t m, word_t d, word_t ci)
    dword_t t;
    long i;
 
+   ASSERT(d != 0);
+   ASSERT(ci < d);
+
    for (i = m - 1; i >= 0; i--)
    {
       t = (((dword_t) ci) << WORD_BITS) + (dword_t) a[i];
@@ -332,6 +344,9 @@ word_t nn_divrem1_preinv_c(nn_t q, nn_src_t a, len_t m,
    word_t norm = inv.norm;
    word_t dinv = inv.dinv;
    
+   ASSERT(d != 0);
+   ASSERT(ci < d);
+
    d <<= norm;
    ci <<= norm;
 
@@ -354,6 +369,8 @@ word_t nn_divrem_hensel1_preinv_c(nn_t q, nn_src_t a, len_t m,
    long i;
    dword_t t, r;
    
+   ASSERT(d & (word_t) 1);
+   
    for (i = 0; i < m; i++)
    {
       t = (dword_t) a[i] - (dword_t) ci;
@@ -374,6 +391,9 @@ word_t nn_mod1_preinv_c(nn_src_t a, len_t m, word_t d,
 {
    dword_t t, u;
    word_t a1, a0;
+
+   ASSERT(d != 0);
+   ASSERT(ci < d);
       
    if (m & 1) /* odd number of words plus carry word */
    {
