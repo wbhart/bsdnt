@@ -27,16 +27,23 @@
 ;  OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 ;  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+IFNDEF  CPP
+sym_add	EQU	nn_add_mc
+sym_sub	EQU	nn_sub_mc
+ELSE
+sym_add EQU ?nn_add_mc@@YA_KPEA_KPEB_K1J_K@Z
+sym_sub EQU ?nn_sub_mc@@YA_KPEA_KPEB_K1J_K@Z
+ENDIF
+
 	.CODE
-	PUBLIC      nn_add_mc
-	PUBLIC      nn_sub_mc
+	PUBLIC      sym_add
+	PUBLIC      sym_sub
 
 ; word_t nn_add_mc(nn_t a, nn_src_t b, nn_src_t c, len_t m, word_t ci)
 ; rax                 rcx         rdx          r8       r9   [rsp+40]
 
 	ALIGN	16
-nn_add_mc	PROC
-
+sym_add		PROC
 	mov		r10, rcx
 	mov		rcx, r9
 	mov		rax, [rsp+40]
@@ -54,15 +61,13 @@ L1:	mov		r9, [rdx+rcx*8]
     jnz		L1
     setc	al
 L2:	ret
-
-	ALIGN	16
-nn_add_mc	ENDP
+sym_add		ENDP
 
 ; word_t nn_sub_mc(nn_t a, nn_src_t b, nn_src_t c, len_t m, word_t ci)
 ; rax                 rcx         rdx          r8       r9   [rsp+40]
 
-nn_sub_mc	PROC
-
+	ALIGN	16
+sym_sub	PROC
 	mov		r10, rcx
 	mov		rcx, r9
 	mov		rax, [rsp+40]
@@ -80,7 +85,6 @@ M1:	mov		r9, [rdx+rcx*8]
     jnz		M1
     setc	al
 M2:	ret
-
-nn_sub_mc	ENDP
+sym_sub     ENDP
 
 	END
