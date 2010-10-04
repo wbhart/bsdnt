@@ -1,1 +1,4 @@
 build/
+
+/arch/nn_linear_x86_64_core2.h
+/arch/nn_linear_x86_64_k8.h
