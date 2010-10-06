@@ -44,3 +44,6 @@
 17-Sep-2010:
 	v0.13 - Added nn_muladd1 and nn_muladd_classical.
 
+19-Sep-2010:
+	v0.14 - Added nn_divrem_classical.
+
