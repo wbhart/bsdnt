@@ -107,7 +107,11 @@ void nn_divrem_classical_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d,
       if ((t >> WORD_BITS) == d1) 
           q1 = ~(word_t) 0;
       else 
-          divrem21_preinv1(q1, rem, t, d1, dinv);
+#ifdef USE_MACRO
+		divrem21_preinv1(q1, rem, t, d1, dinv);	
+#else
+		divrem21_preinv1(&q1, &rem, &t, d1, dinv);
+#endif
 #endif
       /* a -= d*q1 */
       ci -= nn_submul1(a + j, d, n, q1);
