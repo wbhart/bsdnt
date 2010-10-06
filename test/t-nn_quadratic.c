@@ -153,8 +153,8 @@ int main(void)
    
    randinit(state);
 
-//   RUN(test_mul_classical);
-//   RUN(test_muladd_classical);
+   RUN(test_mul_classical);
+   RUN(test_muladd_classical);
    RUN(test_divrem_classical_preinv);
    
    printf("%ld of %ld tests pass.\n", pass, pass + fail);

@@ -35,6 +35,6 @@
 
 int main(void)
 {
-//	test_linear();
+	test_linear();
 	test_quadratic();
 }
