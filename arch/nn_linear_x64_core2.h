@@ -26,5 +26,7 @@
   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#define HAVE_ARCH_nn_add_mc
-#define HAVE_ARCH_nn_sub_mc
+#ifdef _WIN64
+#  define HAVE_ARCH_nn_add_mc
+#  define HAVE_ARCH_nn_sub_mc
+#endif

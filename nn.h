@@ -134,8 +134,19 @@ __inline unsigned int count_trailing_zeros(word_t x)
 typedef word_t * nn_t;
 typedef const word_t * nn_src_t;
 
+#if !defined( _MSC_VER ) 
 typedef long len_t;
 typedef long bits_t;
+#else
+#  if  WORD_BITS == 64
+     typedef int64_t len_t;
+     typedef int64_t bits_t;
+#  else
+     typedef int32_t len_t;
+     typedef int32_t bits_t;
+#  endif
+
+#endif
 
 typedef void * rand_t;
 
