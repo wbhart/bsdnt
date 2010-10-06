@@ -2,6 +2,14 @@
 #define BSDNT_GENERIC_H
 
 #include "nn.h"
+#include "config.h"
+
+#if WANT_REDZONES
+#define REDZONE_WORDS 4 /* number of words of redzone */
+#else
+#define REDZONE_WORDS 0
+#endif
+#define REDZONE_BYTE 0xA /* byte of data to use in a redzone */
 
 #define TEST_START(XXX, YYY) \
    do { \
@@ -51,6 +59,7 @@ typedef struct node_t
 {
    type_t type;
    void * ptr;
+   len_t length;
    struct node_t * next;
 } node_t;
 

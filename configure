@@ -3,16 +3,22 @@
 CC=gcc
 
 WANT_ASSERT=0
+WANT_REDZONES=1
 
 while test "$1" != "" ; do
         if test "$1" = "-assert"
         then
            WANT_ASSERT=1
         fi
+        if test "$1" = "-noredzones"
+        then
+           WANT_REDZONES=0
+        fi
         shift
 done
 
 echo "#define WANT_ASSERT ${WANT_ASSERT}" > config.h
+echo "#define WANT_REDZONES ${WANT_REDZONES}" >> config.h
 
 ARCH=`uname -m &> /dev/null`
 
