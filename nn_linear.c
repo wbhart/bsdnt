@@ -281,10 +281,6 @@ word_t nn_mul1_c(nn_t a, nn_src_t b, len_t m, word_t c, word_t ci)
 	return ci;
 }
 
-#endif
-
-#ifndef HAVE_ARCH_nn_addmul1_c
-
 word_t nn_addmul1_c(nn_t a, nn_src_t b, len_t m, word_t c, word_t ci)
 {
 	long i;
@@ -550,7 +546,7 @@ word_t nn_mod1_preinv_c(nn_src_t a, len_t m, word_t d,
 
 **********************************************************************/
 
-#ifndef HAVE_ARCH_nn_cmp_c
+#ifndef HAVE_ARCH_nn_cmp_m
 
 int nn_cmp_m(nn_src_t a, nn_src_t b, len_t m)
 {

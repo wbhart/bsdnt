@@ -145,6 +145,13 @@ typedef struct preinv1_t
    word_t dinv; /* the precomputed inverse of d (see below) */
 } preinv1_t;
 
+typedef struct preinv1_2_t
+{
+   word_t norm; /* the number of leading zero bits in d */
+   word_t dinv; /* the precomputed inverse of d1 (see below) */
+   word_t d1; /* the normalised leading WORD_BITS of d */
+} preinv1_2_t;
+
 typedef word_t hensel_preinv1_t;
 
 typedef struct mod_preinv1_t
@@ -191,8 +198,34 @@ void precompute_inverse1(preinv1_t * inv, word_t d)
    t = (~(dword_t) 0) - (((dword_t) d) << WORD_BITS);
    inv->dinv = t / d;
 #endif
-
    inv->norm = norm;
+}
+
+/*
+   Precomputes an inverse of the leading WORD_BITS of d with leading words 
+   d1, d2 (or d1, 0 if d has only one word) as per the definition of \nu at 
+   the start of section 3 of Moller-Granlund (see below). Does not require 
+   d1, d2 to be normalised. A normalised version of d1, d2 is returned.
+*/
+static inline
+void precompute_inverse1_2(preinv1_2_t * inv, word_t d1, word_t d2)
+{
+   dword_t t;
+   word_t norm = clz(d1);
+
+   d1 <<= norm;
+   if (norm) d1 += (d2 >> (WORD_BITS - norm));
+
+#if defined( _MSC_VER ) && WORD_BITS == 64
+   t.hi = ((word_t)-1) - d1;
+   t.lo = ((word_t)-1);
+   inv->dinv = div_128_by_64(&t, d1, &t.hi);
+#else
+   t = (~(dword_t) 0) - (((dword_t) d1) << WORD_BITS);
+   inv->dinv = t / d1;
+#endif
+   inv->norm = norm;
+   inv->d1 = d1;
 }
 
 /*
@@ -846,8 +879,12 @@ word_t nn_divrem1_simple_c(nn_t q, nn_src_t a, len_t m, word_t d, word_t ci);
    Set q = (ci*B^m + a) / d and return the remainder, where a is m 
    words in length, d is a word and ci is a "carry-in" which must be
    reduced mod d. The quotient q requires m limbs of space.  An 
-   exception will result if d is 0. Requires that inv is a precomputed 
-   inverse of d computed by the function precompute_inverse1. 
+   exception will result if d is 0. Requires that d be normalised and
+   that inv is a precomputed inverse of d computed by the function
+   precompute_inverse1. If division by a non-normalised d is required,
+   first normalise d, shift the carry-in by the same amount, then the
+   remainder will also be shifted by the same amount upon return. No
+   change to a or the quotient is required.
 */
 word_t nn_divrem1_preinv_c(nn_t q, nn_src_t a, len_t m, 
                             word_t d, preinv1_t inv, word_t ci);
@@ -972,25 +1009,25 @@ void nn_not(nn_t a, nn_src_t b, len_t m)
 /*
    Set {r, m1 + m2 - 1} = {a, m1} * {b, m2} and return any carry-out. 
    The output r may not alias either of the inputs a or b. We require 
-   m1 >= m2 > 0.
+   m1, m2 > 0.
 */
 word_t nn_mul_classical(nn_t r, nn_src_t a, len_t m1, nn_src_t b, len_t m2);
 
 /*
    Set {r, m1 + m2 - 1} = {a, m1} * {b, m2} and write any carry-out. 
    The output r may not alias either of the inputs a or b. We require 
-   m1 >= m2 > 0.
+   m1, m2 > 0.
 */
 #define nn_s_mul_classical(r, a, m1, b, m2) \
    do { \
-      (r)[(m1) + (m2) - 1] = nn_mul_classical(r, a, m1, b, m2); \
+      r[m1 + m2 - 1] = nn_mul_classical(r, a, m1, b, m2); \
    } while (0)
 
 /*
    Set {r, m1 + m2 - 1} = {a, m1} + {b, m1} * {c, m2} and return any 
    carry-out. The output r may not alias either of the inputs b or c, 
    but a may alias with r as long as the requisite space is available. 
-   We require m1 >= m2 > 0.
+   We require m1, m2 > 0.
 */
 word_t nn_muladd_classical(nn_t r, nn_src_t a, nn_src_t b, 
                                      len_t m1, nn_src_t c, len_t m2);
@@ -999,11 +1036,32 @@ word_t nn_muladd_classical(nn_t r, nn_src_t a, nn_src_t b,
    Set {r, m1 + m2 - 1} = {a, m1} + {b, m1} * {c, m2} and write any 
    carry-out. The output r may not alias either of the inputs b or c, 
    but a may alias with r as long as the requisite space is available. 
-   We require m1 >= m2 > 0.
+   We require m1, m2 > 0.
 */
 #define nn_s_muladd_classical(r, a, b, m1, c, m2) \
    do { \
-      (r)[(m1) + (m2) - 1] = nn_muladd_classical(r, a, b, m1, c, m2); \
+      r[m1 + m2 - 1] = nn_muladd_classical(r, a, b, m1, c, m2); \
+   } while (0)
+
+/*
+   Given a of length m and d of length n with a carry-in ci, compute
+   the quotient of ci*B^m + a by d, and leave the remainder in the bottom 
+   n limbs of a. Requires m >= n > 0. The precomputed inverse inv should 
+   be computed from the leading two limbs of d (or the leading limb and 0 
+   if n is 1) using precompute_inverse_lead. If a_n is the leading n limbs 
+   of a, then ci*B^m + a_n must be less than B * d. The quotient
+   must have space for m - n + 1 limbs. 
+*/
+void nn_divrem_classical_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d, 
+                                     len_t n, preinv1_2_t inv, word_t ci);
+
+/*
+   As per nn_divrem_classical_preinv_c except that the carry-in is read 
+   from a[m]. The quotient will therefore be {a, m + 1} by {d, n}.
+*/
+#define nn_r_divrem_classical_preinv(q, a, m, d, n, inv) \
+   do { \
+      nn_divrem_classical_preinv_c(q, a, m, d, n, inv, (a)[m]); \
    } while (0)
 
 #endif

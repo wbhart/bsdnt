@@ -29,8 +29,14 @@
     <ClCompile Include="test.c" />
   </ItemGroup>
   <ItemGroup>
-    <MASM Include="arch\nn_linear_x64_core2.asm" />
-    <MASM Include="arch\nn_linear_x64_div128_by_64.asm" />
+    <MASM Include="arch\nn_linear_x64_core2.asm">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </MASM>
+    <MASM Include="arch\nn_linear_x64_div128_by_64.asm">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </MASM>
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{BF1E1E2F-57A5-4474-B58E-A26EB1D6E60A}</ProjectGuid>
@@ -111,8 +117,8 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <PreBuildEvent>
-      <Command>copy arch\nn_linear_x64_core2.h nn_linear_arch.h
-copy arch\nn_quadratic_x64_core2.h nn_quadratic_arch.h</Command>
+      <Command>
+      </Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -151,8 +157,8 @@ copy arch\nn_quadratic_x64_core2.h nn_quadratic_arch.h</Command>
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <PreBuildEvent>
-      <Command>copy arch\nn_linear_x64_core2.h nn_linear_arch.h
-copy arch\nn_quadratic_x64_core2.h nn_quadratic_arch.h</Command>
+      <Command>
+      </Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
