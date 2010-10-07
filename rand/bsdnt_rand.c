@@ -58,7 +58,7 @@ void rand_end(rand_t ctx)
         kiss_end((kiss_ctx*)ctx);
         break;
     case SUPER_KISS:
-        kiss_end((skiss_ctx*)ctx);
+        skiss_end((skiss_ctx*)ctx);
         break;
     case MERSENNE_TWISTER:
         mt_end((mt_ctx*)ctx);
