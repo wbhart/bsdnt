@@ -337,7 +337,7 @@ void precompute_mod_inverse1(mod_preinv1_t * inv, word_t d)
 /*
    Initialise a random state for use. 
 */
-void randinit(rand_t state);
+void randinit(rand_t *state);
 
 /*
    Clear a random state after use. 
