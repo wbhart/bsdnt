@@ -117,8 +117,8 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <PreBuildEvent>
-      <Command>copy arch\nn_linear_x64_core2.h nn_linear_arch.h
-copy arch\nn_quadratic_x64_core2.h nn_quadratic_arch.h</Command>
+      <Command>copy arch\nn_linear_win32_core2.h nn_linear_arch.h
+copy arch\nn_quadratic_win32_core2.h nn_quadratic_arch.h</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -157,8 +157,8 @@ copy arch\nn_quadratic_x64_core2.h nn_quadratic_arch.h</Command>
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <PreBuildEvent>
-      <Command>copy arch\nn_linear_x64_core2.h nn_linear_arch.h
-copy arch\nn_quadratic_x64_core2.h nn_quadratic_arch.h</Command>
+      <Command>copy arch\nn_linear_win32_core2.h nn_linear_arch.h
+copy arch\nn_quadratic_win32_core2.h nn_quadratic_arch.h</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
