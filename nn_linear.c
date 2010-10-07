@@ -380,17 +380,13 @@ word_t nn_divrem1_preinv_c(nn_t q, nn_src_t a, len_t m,
 	{
 		t.lo = a[i] << norm;
 		t.hi = (norm ? (a[i] >> (WORD_BITS - norm)) : 0) + ci;
-		divrem21_preinv1(q + i, &ci, &t, d, dinv);
+		divrem21_preinv1(q[i], ci, t, d, dinv);
 	}
 #else
 	for( i = m - 1 ; i >= 0 ; --i )
 	{
 		t = (((dword_t) ci) << WORD_BITS) + (((dword_t) a[i]) << norm);
-#ifdef USE_MACRO
 		divrem21_preinv1(q[i], ci, t, d, dinv);	
-#else
-		divrem21_preinv1(q + i, &ci, &t, d, dinv);
-#endif
 	}
 #endif
 	return (ci >> norm);
