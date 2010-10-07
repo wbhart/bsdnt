@@ -31,122 +31,47 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <limits.h>
-
-#define TEST64
-//#define USE_MACRO
-
-#ifndef _MSC_VER
-
-#if ULONG_MAX == 4294967295U
-
-typedef uint32_t word_t;
-typedef unsigned int dword_t __attribute__((mode(DI)));
-#define WORD_BITS 32
-
-#else
-
-typedef uint64_t word_t;
-typedef unsigned int dword_t __attribute__((mode(TI)));
-#define WORD_BITS 64
-
-#endif
-
-#else
-
-#define inline __inline
-
-typedef struct
-{	uint64_t lo, hi;
-} uint128_t;
-
-#include <intrin.h>
-#pragma intrinsic(_umul128)
-#define mul_64_by_64 _umul128
-#ifndef TEST64
-
-typedef uint32_t word_t;
-typedef uint64_t dword_t;
-#define WORD_BITS 32
-
-#else
-
-typedef uint64_t word_t;
-typedef uint128_t dword_t;
-#define WORD_BITS 64
-
-#endif
-
-word_t div_128_by_64(dword_t *n,  word_t d, word_t *r);
-
-#endif
+#include <malloc.h>
 
 #ifdef _MSC_VER
 
-#include <crtdbg.h>
-#include <intrin.h>
+# ifdef _WIN64
+    typedef struct uint128_t
+    {	uint64_t lo, hi;
+    } uint128_t;
+    typedef uint64_t word_t;
+    typedef uint128_t dword_t;
+    typedef int64_t len_t;
+    typedef int64_t bits_t;
+#   define WORD_BITS 64
+# else
+    typedef uint32_t word_t;
+    typedef uint64_t dword_t;
+    typedef int32_t len_t;
+    typedef int32_t bits_t;
+#   define WORD_BITS 32
+# endif
 
-#if WORD_BITS == 32
+#else
 
-#pragma intrinsic(_BitScanReverse)
-__inline unsigned int count_leading_zeros(word_t x)
-{
-	unsigned long pos;
-	_ASSERTE(x != 0);
-	_BitScanReverse(&pos, x);
-	return WORD_BITS - 1 - pos;
-}
-
-#pragma intrinsic(_BitScanForward)
-__inline unsigned int count_trailing_zeros(word_t x)
-{
-	unsigned long pos;
-	_ASSERTE(x != 0);
-	_BitScanForward(&pos, x);
-	return pos;
-}
-
-#endif
-
-#if WORD_BITS == 64
-
-#pragma intrinsic(_BitScanReverse64)
-__inline unsigned int count_leading_zeros(word_t x)
-{
-	unsigned long pos;
-	_ASSERTE(x != 0);
-	_BitScanReverse64(&pos, x);
-	return WORD_BITS - 1 - pos;
-}
-
-#pragma intrinsic(_BitScanForward64)
-__inline unsigned int count_trailing_zeros(word_t x)
-{
-	unsigned long pos;
-	_ASSERTE(x != 0);
-	_BitScanForward64(&pos, x);
-	return pos;
-}
-
-#endif
+# if ULONG_MAX == 4294967295U
+    typedef uint32_t word_t;
+    typedef unsigned int dword_t __attribute__((mode(DI)));
+    typedef int32_t len_t;
+    typedef int32_t bits_t;
+#   define WORD_BITS 32
+# else
+    typedef uint64_t word_t;
+    typedef unsigned int dword_t __attribute__((mode(TI)));
+    typedef int64_t len_t;
+    typedef int64_t bits_t;
+#   define WORD_BITS 64
+# endif
 
 #endif
 
 typedef word_t * nn_t;
 typedef const word_t * nn_src_t;
-
-#if !defined( _MSC_VER ) 
-typedef long len_t;
-typedef long bits_t;
-#else
-#  if  WORD_BITS == 64
-     typedef int64_t len_t;
-     typedef int64_t bits_t;
-#  else
-     typedef int32_t len_t;
-     typedef int32_t bits_t;
-#  endif
-
-#endif
 
 typedef void * rand_t;
 
@@ -177,6 +102,63 @@ typedef struct mod_preinv1_t
     Helper functions/macros
 
 **********************************************************************/
+
+#ifdef _MSC_VER
+
+#include <crtdbg.h>
+#include <intrin.h>
+
+#define inline __inline
+word_t div_128_by_64(dword_t *n,  word_t d, word_t *r);
+
+#if WORD_BITS == 32
+
+#pragma intrinsic(_BitScanReverse)
+__inline uint32_t count_leading_zeros(word_t x)
+{
+	uint32_t pos;
+	_ASSERTE(x != 0);
+	_BitScanReverse(&pos, x);
+	return WORD_BITS - 1 - pos;
+}
+
+#pragma intrinsic(_BitScanForward)
+__inline uint32_t count_trailing_zeros(word_t x)
+{
+	uint32_t pos;
+	_ASSERTE(x != 0);
+	_BitScanForward(&pos, x);
+	return pos;
+}
+
+#endif
+
+#if WORD_BITS == 64
+
+#pragma intrinsic(_umul128)
+#define mul_64_by_64 _umul128
+
+#pragma intrinsic(_BitScanReverse64)
+__inline uint64_t count_leading_zeros(word_t x)
+{
+	uint64_t pos;
+	_ASSERTE(x != 0);
+	_BitScanReverse64(&pos, x);
+	return WORD_BITS - 1 - pos;
+}
+
+#pragma intrinsic(_BitScanForward64)
+__inline uint64_t count_trailing_zeros(word_t x)
+{
+	uint64_t pos;
+	_ASSERTE(x != 0);
+	_BitScanForward64(&pos, x);
+	return pos;
+}
+
+#endif
+
+#endif
 
 /*
    Computes the number of leading zeroes in the binary representation
@@ -209,6 +191,7 @@ void precompute_inverse1(preinv1_t * inv, word_t d)
    t = (~(dword_t) 0) - (((dword_t) d) << WORD_BITS);
    inv->dinv = t / d;
 #endif
+
    inv->norm = norm;
 }
 
@@ -235,6 +218,7 @@ void precompute_inverse1_2(preinv1_2_t * inv, word_t d1, word_t d2)
    t = (~(dword_t) 0) - (((dword_t) d1) << WORD_BITS);
    inv->dinv = t / d1;
 #endif
+
    inv->norm = norm;
    inv->d1 = d1;
 }
@@ -340,6 +324,7 @@ __inline void divrem21_preinv1(word_t *q, word_t *r, dword_t *u, word_t d, word_
 		quot--; 
 		rem += d; 
 	} 
+
 	if(rem >= d) 
 	{ 
 		*q = quot + 1; 
