@@ -73,7 +73,7 @@
 typedef word_t * nn_t;
 typedef const word_t * nn_src_t;
 
-typedef void * rand_t;
+#include "rand/bsdnt_rand.h"
 
 typedef struct preinv1_t
 {
@@ -139,18 +139,18 @@ __inline uint32_t count_trailing_zeros(word_t x)
 #define mul_64_by_64 _umul128
 
 #pragma intrinsic(_BitScanReverse64)
-__inline uint64_t count_leading_zeros(word_t x)
+__inline uint32_t count_leading_zeros(word_t x)
 {
-	uint64_t pos;
+	uint32_t pos;
 	_ASSERTE(x != 0);
 	_BitScanReverse64(&pos, x);
 	return WORD_BITS - 1 - pos;
 }
 
 #pragma intrinsic(_BitScanForward64)
-__inline uint64_t count_trailing_zeros(word_t x)
+__inline uint32_t count_trailing_zeros(word_t x)
 {
-	uint64_t pos;
+	uint32_t pos;
 	_ASSERTE(x != 0);
 	_BitScanForward64(&pos, x);
 	return pos;

@@ -35,53 +35,24 @@
 
 **********************************************************************/
 
-void randinit(rand_t state)
-{
+void randinit(rand_t *state)
+{   
+    *state = rand_start(SUPER_KISS);
 }
 
 void randclear(rand_t state)
 {
-}
-
-/* George Marsaglia's KISS 64-bit Pseudo Random Number Generator */
-
-static unsigned long long 
-	x = 1234567890987654321ULL,
-	c = 123456123456123456ULL, 
-    y = 362436362436362436ULL,
-	z = 1066149217761810ULL;
-
-__inline unsigned long long mwc(void)
-{
-	unsigned long long t;
-	t = (x << 58) + c;
-	c = x >> 6;
-	x += t;
-	c += (x < t);
-	return x;
-}
-
-__inline unsigned long long xsh(void)
-{
-	y ^= (y << 13);
-	y ^= (y >> 17);
-	y ^= (y << 43);
-	return y;
-}
-
-__inline unsigned long long cng(void)
-{
-	return (z = 6906969069UL * z + 1234567);
+    rand_end(state);
 }
 
 word_t randword(rand_t state) 
 {
-	return (word_t)(mwc() + xsh() + cng());
+	return (word_t)rand_uint64(state);
 }
 
 word_t randint(word_t m, rand_t state)
 {
-   return (randword(state) % m);
+   return ((word_t)rand_uint64(state) % m);
 }
 
 void nn_random(nn_t a, rand_t state, len_t m)
@@ -89,7 +60,7 @@ void nn_random(nn_t a, rand_t state, len_t m)
    long i;
 
    for (i = 0; i < m; i++)
-      a[i] = randword(state);
+      a[i] = (word_t)rand_uint64(state);
 }
 
 /**********************************************************************
@@ -176,7 +147,7 @@ word_t nn_shr_c(nn_t a, nn_src_t b, len_t m, bits_t bits, word_t carry)
 		{
 			word_t t = b[i];
 			a[i] = (t >> bits) + carry;
-			carry = t << WORD_BITS - bits; 
+			carry = t << (WORD_BITS - bits); 
 		}
 
 	}

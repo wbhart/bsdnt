@@ -31,6 +31,18 @@
     <ClCompile Include="nn_quadratic.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="rand\bsdnt_rand.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="rand\kiss64.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="rand\skiss64.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="rand\mt64.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <MASM Include="arch\nn_linear_x64_div128_by_64.asm">
