@@ -19,9 +19,6 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="nn_linear.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="test.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -41,6 +38,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="rand\mt64.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="nn_linear_win.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

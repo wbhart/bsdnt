@@ -24,7 +24,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ms_test.c" />
-    <ClCompile Include="nn_linear.c" />
+    <ClCompile Include="nn_linear_win.c" />
     <ClCompile Include="nn_quadratic.c" />
     <ClCompile Include="rand\bsdnt_rand.c" />
     <ClCompile Include="rand\kiss64.c" />
