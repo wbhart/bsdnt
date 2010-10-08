@@ -29,37 +29,25 @@
 
 #include "internal_rand.h"
 
-static __inline uint64_t cng(skiss_ctx *ctx)
+#define CNG(x)  ( x->xcng = 6906969069ull * x->xcng + 123 )
+#define XS(x)   ( x->xs ^= x->xs << 13, x->xs ^= x->xs >> 17, x->xs ^= x->xs << 43 )
+#define SUPR(x) ( x->indx < 20632 ? x->q[x->indx++] : refill(x) )
+#define KISS(x) ( SUPR(x) + CNG(x) + XS(x) )
+
+uint64_t refill(skiss_ctx *ctx)
 {
-    return (ctx->xcng = 6906969069LL * ctx->xcng + 123);
-}
+    uint64_t i, z, h;
 
-static __inline uint64_t xs(skiss_ctx *ctx)
-{
-    ctx->xs ^= ctx->xs << 13;
-    ctx->xs ^= ctx->xs >> 17;
-    ctx->xs ^= ctx->xs << 43;
-    return ctx->xs;
-}
-
-static uint64_t refill(skiss_ctx *ctx)
-{   uint64_t i, z, h;
-
-	for( i = 0 ; i < 20632 ; ++i )
-	{ 
-		h = ctx->carry & 1;
-		z = ( (ctx->q[i] << 41) >> 1) + ((ctx->q[i] << 39) >> 1) + (ctx->carry >> 1);
-		ctx->carry = (ctx->q[i] >> 23) + (ctx->q[i] >> 25) + (z >> 63);
-		ctx->q[i] = ~((z << 1) + h); 
-	}
-
-	ctx->indx = 1; 
-	return ctx->q[0];
-}
-
-static __inline uint64_t supr(skiss_ctx *ctx)
-{
-    return ctx->indx < 20632 ? ctx->q[ctx->indx++] : refill(ctx);
+    for( i = 0 ; i < 20632 ; ++i)
+    { 
+        h = ctx->carry & 1;
+        z = ((ctx->q[i] << 41) >> 1) + ((ctx->q[i] << 39) >> 1) 
+                    + (ctx->carry >> 1);
+        ctx->carry = (ctx->q[i] >> 23) + (ctx->q[i] >> 25) + (z >> 63);
+        ctx->q[i] = ~((z << 1) + h); 
+    }
+    ctx->indx = 1; 
+    return ctx->q[0];
 }
 
 skiss_ctx *skiss_start(void)
@@ -72,7 +60,7 @@ skiss_ctx *skiss_start(void)
 	ctx->indx = 20632ull;
 
     for( i = 0 ; i < 20632 ; ++i ) 
-		ctx->q[i] = cng(ctx) + xs(ctx);
+		ctx->q[i] = CNG(ctx) + XS(ctx);
 
     return ctx; 
 }
@@ -84,5 +72,5 @@ void skiss_end(skiss_ctx *ctx)
 
 uint64_t skiss_rand_uint64(skiss_ctx *ctx)
 {
-    return supr(ctx) + cng(ctx) + xs(ctx);
+    return  SUPR(ctx) + CNG(ctx) + XS(ctx);
 }
