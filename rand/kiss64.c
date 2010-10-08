@@ -44,30 +44,19 @@ void kiss_end(kiss_ctx *ctx)
 	free(ctx);
 }
 
-static __inline uint64_t mwc(kiss_ctx *ctx)
-{
-	uint64_t t;
+uint64_t kiss_rand_uint64(kiss_ctx *ctx)
+{   uint64_t t;
+
 	t = (ctx->x << 58) + ctx->c;
 	ctx->c = ctx->x >> 6;
 	ctx->x += t;
 	ctx->c += (ctx->x < t);
-	return ctx->x;
-}
 
-static __inline uint64_t xsh(kiss_ctx *ctx)
-{
 	ctx->y ^= (ctx->y << 13);
 	ctx->y ^= (ctx->y >> 17);
 	ctx->y ^= (ctx->y << 43);
-	return ctx->y;
-}
 
-static __inline uint64_t cng(kiss_ctx *ctx)
-{
-	return (ctx->z = 6906969069UL * ctx->z + 1234567);
-}
+    ctx->z = 6906969069UL * ctx->z + 1234567;
 
-uint64_t kiss_rand_uint64(kiss_ctx *ctx)
-{
-	return (uint64_t)(mwc(ctx) + xsh(ctx) + cng(ctx));
+	return (uint64_t)( ctx->x + ctx->y + ctx->z );
 }
