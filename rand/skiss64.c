@@ -29,48 +29,58 @@
 
 #include "internal_rand.h"
 
-#define CNG(x)  ( x->xcng = 6906969069ull * x->xcng + 123 )
-#define XS(x)   ( x->xs ^= x->xs << 13, x->xs ^= x->xs >> 17, x->xs ^= x->xs << 43 )
-#define SUPR(x) ( x->indx < 20632 ? x->q[x->indx++] : refill(x) )
+typedef struct
+{	uint64_t q[20632]; 
+	uint64_t carry;
+	uint64_t xcng;
+	uint64_t xs;
+	uint64_t indx;
+} skiss_ctx;
+
+#define CTX(x) ((skiss_ctx*)(x))
+
+#define CNG(x)  ( (x)->xcng = 6906969069ull * (x)->xcng + 123 )
+#define XS(x)   ( (x)->xs ^= (x)->xs << 13, (x)->xs ^= (x)->xs >> 17, (x)->xs ^= (x)->xs << 43 )
+#define SUPR(x) ( (x)->indx < 20632 ? (x)->q[(x)->indx++] : refill((x)) )
 #define KISS(x) ( SUPR(x) + CNG(x) + XS(x) )
 
-uint64_t refill(skiss_ctx *ctx)
+uint64_t refill(rand_t c)
 {
     uint64_t i, z, h;
 
     for( i = 0 ; i < 20632 ; ++i)
     { 
-        h = ctx->carry & 1;
-        z = ((ctx->q[i] << 41) >> 1) + ((ctx->q[i] << 39) >> 1) 
-                    + (ctx->carry >> 1);
-        ctx->carry = (ctx->q[i] >> 23) + (ctx->q[i] >> 25) + (z >> 63);
-        ctx->q[i] = ~((z << 1) + h); 
+        h = CTX(c)->carry & 1;
+        z = ((CTX(c)->q[i] << 41) >> 1) + ((CTX(c)->q[i] << 39) >> 1) 
+                    + (CTX(c)->carry >> 1);
+        CTX(c)->carry = (CTX(c)->q[i] >> 23) + (CTX(c)->q[i] >> 25) + (z >> 63);
+        CTX(c)->q[i] = ~((z << 1) + h); 
     }
-    ctx->indx = 1; 
-    return ctx->q[0];
+    CTX(c)->indx = 1; 
+    return CTX(c)->q[0];
 }
 
-skiss_ctx *skiss_start(void)
+rand_t skiss_start(void)
 {   uint64_t i;
-	skiss_ctx *ctx = (skiss_ctx*)malloc(sizeof(skiss_ctx));
+	rand_t c = malloc(sizeof(skiss_ctx));
     
-    ctx->carry = 36243678541ull;
-	ctx->xcng = 12367890123456ull;
-	ctx->xs = 521288629546311ull;
-	ctx->indx = 20632ull;
+    CTX(c)->carry = 36243678541ull;
+	CTX(c)->xcng = 12367890123456ull;
+	CTX(c)->xs = 521288629546311ull;
+	CTX(c)->indx = 20632ull;
 
     for( i = 0 ; i < 20632 ; ++i ) 
-		ctx->q[i] = CNG(ctx) + XS(ctx);
+		CTX(c)->q[i] = CNG(CTX(c)) + XS(CTX(c));
 
-    return ctx; 
+    return c; 
 }
 
-void skiss_end(skiss_ctx *ctx)
+void skiss_end(rand_t ctx)
 {
 	free(ctx);
 }
 
-uint64_t skiss_rand_uint64(skiss_ctx *ctx)
+uint64_t skiss_uint64(rand_t c)
 {
-    return  SUPR(ctx) + CNG(ctx) + XS(ctx);
+    return  SUPR(CTX(c)) + CNG(CTX(c)) + XS(CTX(c));
 }

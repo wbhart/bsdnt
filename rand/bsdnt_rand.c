@@ -27,58 +27,32 @@
 
 #include "internal_rand.h"
 
-rand_t rand_start(random_algorithm a)
-{   rand_t ctx;
+extern rand_start_f  rand_start = kiss_start;
+extern rand_end_f    rand_end = kiss_end;
+extern rand_uint64_f rand_uint64 = kiss_uint64;
 
+int64_t set_rand_algorithm(random_algorithm a)
+{
     switch(a)
     {
     case KISS:
-        ctx = kiss_start();
-        *((uint64_t*)ctx) = (uint64_t)KISS;
+        rand_start = kiss_start;
+        rand_end = kiss_end;
+        rand_uint64 = kiss_uint64;
         break;
     case SUPER_KISS:
-        ctx = skiss_start();
-        *((uint64_t*)ctx) = (uint64_t)SUPER_KISS;
+        rand_start = skiss_start;
+        rand_end = skiss_end;
+        rand_uint64 = skiss_uint64;
         break;
     case MERSENNE_TWISTER:
-        ctx = mt_start();
-        *((uint64_t*)ctx) = (uint64_t)MERSENNE_TWISTER;
+        rand_start = mt_start;
+        rand_end = mt_end;
+        rand_uint64 = mt_uint64;
         break;
     default:
-        ctx = 0;
+        return -1;
     }
-    return ctx;
-}
+    return 0;
 
-void rand_end(rand_t ctx)
-{
-    switch((random_algorithm)*((uint64_t*)ctx))
-    {
-    case KISS:
-        kiss_end((kiss_ctx*)ctx);
-        break;
-    case SUPER_KISS:
-        skiss_end((skiss_ctx*)ctx);
-        break;
-    case MERSENNE_TWISTER:
-        mt_end((mt_ctx*)ctx);
-        break;
-    default:
-        ;
-    }
-}
-
-uint64_t rand_uint64(rand_t ctx)
-{
-    switch((random_algorithm)*((uint64_t*)ctx))
-    {
-    case KISS:
-        return kiss_rand_uint64((kiss_ctx*)ctx);
-    case SUPER_KISS:
-        return skiss_rand_uint64((skiss_ctx*)ctx);
-    case MERSENNE_TWISTER:
-        return mt_rand_uint64((mt_ctx*)ctx);
-    default:
-        abort();
-    }
 }

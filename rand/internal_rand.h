@@ -36,45 +36,21 @@
 
 /* George Marsaglia's KISS 64-bit Pseudo Random Number Generator */
 
-typedef struct kiss_ctx
-{
-    uint64_t ty;
-    uint64_t x, c, y, z;
-} kiss_ctx;
-
-kiss_ctx *kiss_start(void);
-uint64_t kiss_rand_uint64(kiss_ctx *ctx);
-void kiss_end(kiss_ctx *ctx);
+extern rand_t kiss_start(void);
+extern uint64_t kiss_uint64(rand_t ctx);
+extern void kiss_end(rand_t ctx);
 
 /* George Marsaglia's Super KISS 64-bit Pseudo Random Number Generator */
 
-typedef struct
-{	uint64_t ty;
-    uint64_t q[20632]; 
-	uint64_t carry;
-	uint64_t xcng;
-	uint64_t xs;
-	uint64_t indx;
-} skiss_ctx;
-
-skiss_ctx *skiss_start(void);
-uint64_t skiss_rand_uint64(skiss_ctx *ctx);
-void skiss_end(skiss_ctx *ctx);
+extern rand_t skiss_start(void);
+extern uint64_t skiss_uint64(rand_t ctx);
+extern void skiss_end(rand_t ctx);
 
 /* Mersenne Twister */
 
-#define NN 312
-
-typedef struct
-{	uint64_t ty;
-    uint64_t mt[NN];
-	uint64_t mag01[2];
-	uint64_t mti;
-} mt_ctx;
-
-mt_ctx *mt_start(void);
-void init_by_array64(uint64_t init_key[], uint64_t key_length, mt_ctx *ctx);
-uint64_t mt_rand_uint64(mt_ctx *ctx);
-void mt_end(mt_ctx *ctx);
+extern rand_t mt_start(void);
+extern void init_by_array64(uint64_t init_key[], uint64_t key_length, rand_t ctx);
+extern uint64_t mt_uint64(rand_t ctx);
+extern void mt_end(rand_t ctx);
 
 #endif
