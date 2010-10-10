@@ -36,14 +36,6 @@ void nn_printx(nn_src_t a, len_t m)
    else printx_word(0);
 }
 
-void randinit(rand_t *state)
-{   
-}
-
-void randclear(rand_t state)
-{
-}
-
 void nn_printx_short(nn_src_t a, len_t m)
 {
    if (m < 5) nn_printx(a, m);
