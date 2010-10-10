@@ -319,6 +319,26 @@ __inline void divrem21_preinv1(word_t *q, word_t *r, dword_t *u, word_t d, word_
 **********************************************************************/
 
 /*
+   Initialise a random state for use. 
+*/
+void randinit(rand_t *state);
+
+/*
+   Clear a random state after use. 
+*/
+void randclear(rand_t state);
+
+/*
+   Generate a random word of data. 
+*/
+word_t randword(rand_t state);
+
+/*
+   Generate a random word in the range [0, m). 
+*/
+word_t randint(word_t m, rand_t state);
+
+/*
    Set the first m limbs of a to random words. 
 */
 void nn_random(nn_t a, rand_t state, len_t m);
