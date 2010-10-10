@@ -36,6 +36,14 @@ void nn_printx(nn_src_t a, len_t m)
    else printx_word(0);
 }
 
+void randinit(rand_t *state)
+{   
+}
+
+void randclear(rand_t state)
+{
+}
+
 void nn_printx_short(nn_src_t a, len_t m)
 {
    if (m < 5) nn_printx(a, m);
@@ -54,6 +62,9 @@ void nn_printx_short(nn_src_t a, len_t m)
 void nn_printx_diff(nn_src_t a, nn_src_t b, len_t m)
 {
    long i, end = m, start = m;
+
+   return ((word_t)rand_uint64(state) % m);
+}
 
    for (start = 0; start < m; start++)
       if (a[start] != b[start])

@@ -1564,7 +1564,7 @@ int main(void)
    long pass = 0;
    long fail = 0;
    
-   randinit(state);
+   randinit(&state);
 
    RUN(test_gc);
    RUN(test_not);

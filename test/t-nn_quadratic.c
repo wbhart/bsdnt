@@ -343,7 +343,7 @@ int main(void)
    long pass = 0;
    long fail = 0;
    
-   randinit(state);
+   randinit(&state);
 
    RUN(test_mul_classical);
    RUN(test_muladd_classical);
