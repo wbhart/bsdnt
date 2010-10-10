@@ -19,7 +19,7 @@
    inverse dinv of d, computes the quotient and remainder of u by d.
 */
 
-#ifdef USE_MACRO
+#if !defined( _MSC_VER ) || WORD_BITS != 64
 
 #define divrem21_preinv1(q, r, u, d, dinv) \
    do { \
@@ -45,41 +45,30 @@
 
 #else
 
-__inline void divrem21_preinv1(word_t *q, word_t *r, dword_t *u, word_t d, word_t dinv)
-{
-	dword_t t;
-	word_t quot, rem, lo;
-
-#if defined( _MSC_VER ) && WORD_BITS == 64
-	t.lo = mul_64_by_64(u->hi, dinv, &t.hi) + u->lo;
-	t.hi += u->hi + (t.lo < u->lo ? 1 : 0); 
-	quot = t.hi + 1; 
-    rem = u->lo - (word_t)(quot * d); 
-	lo = t.lo;
-#else
-	t = (*u >> WORD_BITS) * (dword_t) dinv + *u; 
-	quot = (word_t)(t >> WORD_BITS) + 1; 
-    rem = (word_t)*u - quot * d; 
-	lo = (word_t)t;
-#endif
-
-	if(rem >= lo) 
-	{ 
-		quot--; 
-		rem += d; 
-	} 
-
-	if(rem >= d) 
-	{ 
-		*q = quot + 1; 
-		*r = rem - d; 
-	} 
-	else 
-	{ 
-		*q = quot; 
-		*r = rem; 
-	} 
-}
+#define divrem21_preinv1(q, r, u, d, dinv) \
+   do { \
+      dword_t __q; \
+      word_t __q0, __q1, __r1; \
+	  __q.lo = mul_64_by_64(u.hi, dinv, &__q.hi) + u.lo; \
+	  __q.hi += u.hi + (__q.lo < u.lo ? 1 : 0); \
+	  __q1 = __q.hi + 1; \
+      __r1 = u.lo - (word_t)(__q1 * (d)); \
+  	  __q0 = __q.lo; \
+      if (__r1 >= __q0) \
+      { \
+         __q1--; \
+         __r1 += (d); \
+      } \
+      if (__r1 >= (d)) \
+      { \
+         (q) = __q1 + 1; \
+         (r) = __r1 - (d); \
+      } else \
+      { \
+         (q) = __q1; \
+         (r) = __r1; \
+      } \
+   } while (0)
 
 #endif
 
