@@ -39,7 +39,8 @@
 
 void randinit(rand_t *state)
 {   
-    *state = rand_start(SUPER_KISS);
+    set_rand_algorithm(SUPER_KISS);
+    *state = rand_start();
 }
 
 void randclear(rand_t state)

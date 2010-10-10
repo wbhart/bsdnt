@@ -29,34 +29,40 @@
 
 #include "internal_rand.h"
 
-kiss_ctx *kiss_start(void)
+typedef struct kiss_ctx
+{   uint64_t x, c, y, z;
+} kiss_ctx;
+
+#define CTX(x) ((kiss_ctx*)(x))
+
+rand_t kiss_start(void)
 {
-	kiss_ctx *ctx = (kiss_ctx*)malloc(sizeof(kiss_ctx));
-    ctx->x = 1234567890987654321ull;
-	ctx->c = 123456123456123456ull; 
-    ctx->y = 362436362436362436ull;
-	ctx->z = 1066149217761810ull;
-    return ctx;
+	rand_t c = malloc(sizeof(kiss_ctx));
+    CTX(c)->x = 1234567890987654321ull;
+	CTX(c)->c = 123456123456123456ull; 
+    CTX(c)->y = 362436362436362436ull;
+	CTX(c)->z = 1066149217761810ull;
+    return c;
 }
 
-void kiss_end(kiss_ctx *ctx)
+void kiss_end(rand_t c)
 {
-	free(ctx);
+	free(c);
 }
 
-uint64_t kiss_rand_uint64(kiss_ctx *ctx)
+uint64_t kiss_uint64(rand_t c)
 {   uint64_t t;
 
-	t = (ctx->x << 58) + ctx->c;
-	ctx->c = ctx->x >> 6;
-	ctx->x += t;
-	ctx->c += (ctx->x < t);
+	t = (CTX(c)->x << 58) + CTX(c)->c;
+	CTX(c)->c = CTX(c)->x >> 6;
+	CTX(c)->x += t;
+	CTX(c)->c += (CTX(c)->x < t);
 
-	ctx->y ^= (ctx->y << 13);
-	ctx->y ^= (ctx->y >> 17);
-	ctx->y ^= (ctx->y << 43);
+	CTX(c)->y ^= (CTX(c)->y << 13);
+	CTX(c)->y ^= (CTX(c)->y >> 17);
+	CTX(c)->y ^= (CTX(c)->y << 43);
 
-    ctx->z = 6906969069UL * ctx->z + 1234567;
+    CTX(c)->z = 6906969069UL * CTX(c)->z + 1234567;
 
-	return (uint64_t)( ctx->x + ctx->y + ctx->z );
+	return (uint64_t)( CTX(c)->x + CTX(c)->y + CTX(c)->z );
 }

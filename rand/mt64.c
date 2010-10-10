@@ -45,56 +45,66 @@
 
 #include "internal_rand.h"
 
+#define NN 312
+
+typedef struct
+{   uint64_t mt[NN];
+	uint64_t mag01[2];
+	uint64_t mti;
+} mt_ctx;
+
+#define CTX(x) ((mt_ctx*)(x))
+
 #define MM 156
 #define MATRIX_A 0xb5026f5aa96619e9ull
 #define LM 0x7fffffffull
 
-#define MT(x)	((mt_ctx*)x)->mt
-#define IX(x)	((mt_ctx*)x)->mti
-#define MG(x)	((mt_ctx*)x)->mag01
+#define MT(x)	((x)->mt)
+#define IX(x)	((x)->mti)
+#define MG(x)	((x)->mag01)
 
-mt_ctx *mt_start(void)
+rand_t mt_start(void)
 {
-	mt_ctx *ctx = (mt_ctx*)malloc(sizeof(mt_ctx));
-	IX(ctx) = NN + 1;
-	MG(ctx)[0] = 0;
-	MG(ctx)[1] = MATRIX_A;
-	return ctx;
+	rand_t c = malloc(sizeof(mt_ctx));
+	IX(CTX(c)) = NN + 1;
+	MG(CTX(c))[0] = 0;
+	MG(CTX(c))[1] = MATRIX_A;
+	return c;
 }
 
-void mt_end(mt_ctx *ctx)
+void mt_end(rand_t ctx)
 {
 	free(ctx);
 }
 
-void init_genrand64(uint64_t seed, mt_ctx *ctx)
+void init_genrand64(uint64_t seed, rand_t c)
 {
-    MT(ctx)[0] = seed;
-    for( IX(ctx) = 1 ; IX(ctx) < NN ; ++(IX(ctx)) ) 
-        MT(ctx)[IX(ctx)] = (6364136223846793005ULL * 
-		    (MT(ctx)[IX(ctx) - 1] ^ (MT(ctx)[IX(ctx) - 1] >> 62)) + IX(ctx));
+    MT(CTX(c))[0] = seed;
+    for( IX(CTX(c)) = 1 ; IX(CTX(c)) < NN ; ++(IX(CTX(c))) ) 
+        MT(CTX(c))[IX(CTX(c))] = (6364136223846793005ULL * 
+		    (MT(CTX(c))[IX(CTX(c)) - 1] ^ (MT(CTX(c))[IX(CTX(c)) - 1] >> 62)) + IX(CTX(c)));
 }
 
 /* initialize by an array with array-length */
 /* init_key is the array for initializing keys */
 /* key_length is its length */
 
-void init_by_array64(uint64_t init_key[], uint64_t key_length, mt_ctx *ctx)
+void init_by_array64(uint64_t init_key[], uint64_t key_length, rand_t c)
 {
     uint64_t i, j, k;
-    init_genrand64(19650218ull, ctx);
+    init_genrand64(19650218ull, CTX(c));
     i = 1; j = 0;
 
     k = NN > key_length ? NN : key_length;
     for( ; k ; --k ) 
 	{
-		MT(ctx)[i] = (MT(ctx)[i] ^ ((MT(ctx)[i - 1] ^ 
-			(MT(ctx)[i - 1] >> 62)) * 3935559000370003845ULL)) + init_key[j] + j;
+		MT(CTX(c))[i] = (MT(CTX(c))[i] ^ ((MT(CTX(c))[i - 1] ^ 
+			(MT(CTX(c))[i - 1] >> 62)) * 3935559000370003845ULL)) + init_key[j] + j;
         i++; j++;
 
         if(i >= NN) 
 		{ 
-			MT(ctx)[0] = MT(ctx)[NN - 1];
+			MT(CTX(c))[0] = MT(CTX(c))[NN - 1];
 			i = 1; 
 		}
         
@@ -104,48 +114,48 @@ void init_by_array64(uint64_t init_key[], uint64_t key_length, mt_ctx *ctx)
 
     for( k = NN - 1 ; k ; --k) 
 	{
-        MT(ctx)[i] = (MT(ctx)[i] ^ ((MT(ctx)[i - 1] ^ 
-			(MT(ctx)[i - 1] >> 62)) * 2862933555777941757ULL)) -i;
+        MT(CTX(c))[i] = (MT(CTX(c))[i] ^ ((MT(CTX(c))[i - 1] ^ 
+			(MT(CTX(c))[i - 1] >> 62)) * 2862933555777941757ULL)) -i;
         i++;
         
 		if(i >= NN) 
 		{ 
-			MT(ctx)[0] = MT(ctx)[NN - 1];
+			MT(CTX(c))[0] = MT(CTX(c))[NN - 1];
 			i = 1; 
 		}
     }
 
-    MT(ctx)[0] = 1ULL << 63; 
+    MT(CTX(c))[0] = 1ULL << 63; 
 }
 
 /* generates a random number on [0, 2^64-1]-interval */
 
-uint64_t mt_rand_uint64(mt_ctx *ctx)
+uint64_t mt_uint64(rand_t c)
 {
     uint64_t i, x;
 
-	if(IX(ctx) >= NN) 
+	if(IX(CTX(c)) >= NN) 
 	{
-        if(IX(ctx) == NN + 1) 
-            init_genrand64(5489ull, ctx); 
+        if(IX(CTX(c)) == NN + 1) 
+            init_genrand64(5489ull, (CTX(c))); 
 
         for( i = 0 ; i < NN - MM ; ++i ) 
 		{
-			x = (MT(ctx)[i] & ~LM) | (MT(ctx)[i + 1] & LM);
-            MT(ctx)[i] = MT(ctx)[i + MM] ^ (x >> 1) ^ MG(ctx)[x & 1];
+			x = (MT(CTX(c))[i] & ~LM) | (MT(CTX(c))[i + 1] & LM);
+            MT(CTX(c))[i] = MT(CTX(c))[i + MM] ^ (x >> 1) ^ MG(CTX(c))[x & 1];
         }
         for( ; i < NN - 1 ; ++i ) 
 		{
-            x = (MT(ctx)[i] & ~LM) | (MT(ctx)[i + 1] & LM);
-            MT(ctx)[i] = MT(ctx)[i + (MM - NN)] ^ (x >> 1) ^ MG(ctx)[x & 1];
+            x = (MT(CTX(c))[i] & ~LM) | (MT(CTX(c))[i + 1] & LM);
+            MT(CTX(c))[i] = MT(CTX(c))[i + (MM - NN)] ^ (x >> 1) ^ MG(CTX(c))[x & 1];
         }
-        x = (MT(ctx)[NN - 1] & ~LM) | (MT(ctx)[0] & LM);
-        MT(ctx)[NN - 1] = MT(ctx)[MM - 1] ^ (x >> 1) ^ MG(ctx)[x & 1];
+        x = (MT(CTX(c))[NN - 1] & ~LM) | (MT(CTX(c))[0] & LM);
+        MT(CTX(c))[NN - 1] = MT(CTX(c))[MM - 1] ^ (x >> 1) ^ MG(CTX(c))[x & 1];
 
-        IX(ctx) = 0;
+        IX(CTX(c)) = 0;
     }
   
-    x = MT(ctx)[IX(ctx)++];
+    x = MT(CTX(c))[IX(CTX(c))++];
     x ^= (x >> 29) & 0x5555555555555555ull;
     x ^= (x << 17) & 0x71D67FFFEDA60000ull;
     x ^= (x << 37) & 0xFFF7EEE000000000ull;
