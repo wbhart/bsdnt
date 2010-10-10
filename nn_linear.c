@@ -55,9 +55,6 @@ void nn_printx_diff(nn_src_t a, nn_src_t b, len_t m)
 {
    long i, end = m, start = m;
 
-   return ((word_t)rand_uint64(state) % m);
-}
-
    for (start = 0; start < m; start++)
       if (a[start] != b[start])
          break;

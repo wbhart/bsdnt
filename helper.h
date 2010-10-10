@@ -5,6 +5,7 @@
 #include <limits.h>
 #include <assert.h>
 #include "config.h"
+#include "rand/bsdnt_rand.h"
 
 #ifdef _MSC_VER
 
@@ -51,8 +52,6 @@
 
 typedef word_t * nn_t;
 typedef const word_t * nn_src_t;
-
-typedef void * rand_t;
 
 typedef struct preinv1_t
 {
@@ -264,6 +263,8 @@ void precompute_mod_inverse1(mod_preinv1_t * inv, word_t d)
    Given a double word u, a normalised divisor d and a precomputed
    inverse dinv of d, computes the quotient and remainder of u by d.
 */
+#if !defined( _MSC_VER ) || WORD_BITS != 64
+
 #define divrem21_preinv1(q, r, u, d, dinv) \
    do { \
       dword_t __q = ((u)>>WORD_BITS) * (dword_t) (dinv) + u; \
@@ -285,6 +286,35 @@ void precompute_mod_inverse1(mod_preinv1_t * inv, word_t d)
          (r) = __r1; \
       } \
    } while (0)
+
+#else
+
+#define divrem21_preinv1(q, r, u, d, dinv) \
+   do { \
+      dword_t __q; \
+      word_t __q0, __q1, __r1; \
+	  __q.lo = mul_64_by_64(u.hi, dinv, &__q.hi) + u.lo; \
+	  __q.hi += u.hi + (__q.lo < u.lo ? 1 : 0); \
+	  __q1 = __q.hi + 1; \
+      __r1 = u.lo - (word_t)(__q1 * (d)); \
+  	  __q0 = __q.lo; \
+      if (__r1 >= __q0) \
+      { \
+         __q1--; \
+         __r1 += (d); \
+      } \
+      if (__r1 >= (d)) \
+      { \
+         (q) = __q1 + 1; \
+         (r) = __r1 - (d); \
+      } else \
+      { \
+         (q) = __q1; \
+         (r) = __r1; \
+      } \
+   } while (0)
+
+#endif
 
 /**********************************************************************
  

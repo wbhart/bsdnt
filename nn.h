@@ -10,97 +10,10 @@
 
 /**********************************************************************
  
-    Helper functions/macros
+    Memory management
 
 **********************************************************************/
 
-/*
-   Given a double word u, a normalised divisor d and a precomputed
-   inverse dinv of d, computes the quotient and remainder of u by d.
-*/
-
-#if !defined( _MSC_VER ) || WORD_BITS != 64
-
-#define divrem21_preinv1(q, r, u, d, dinv) \
-   do { \
-      dword_t __q = ((u)>>WORD_BITS) * (dword_t) (dinv) + u; \
-      word_t __q1 = (word_t)(__q >> WORD_BITS) + 1; \
-      word_t __q0 = (word_t) __q; \
-      word_t __r1 = (word_t)(u) - __q1*(d); \
-      if (__r1 >= __q0) \
-      { \
-         __q1--; \
-         __r1 += (d); \
-      } \
-      if (__r1 >= (d)) \
-      { \
-         (q) = __q1 + 1; \
-         (r) = __r1 - (d); \
-      } else \
-      { \
-         (q) = __q1; \
-         (r) = __r1; \
-      } \
-   } while (0)
-
-#else
-
-#define divrem21_preinv1(q, r, u, d, dinv) \
-   do { \
-      dword_t __q; \
-      word_t __q0, __q1, __r1; \
-	  __q.lo = mul_64_by_64(u.hi, dinv, &__q.hi) + u.lo; \
-	  __q.hi += u.hi + (__q.lo < u.lo ? 1 : 0); \
-	  __q1 = __q.hi + 1; \
-      __r1 = u.lo - (word_t)(__q1 * (d)); \
-  	  __q0 = __q.lo; \
-      if (__r1 >= __q0) \
-      { \
-         __q1--; \
-         __r1 += (d); \
-      } \
-      if (__r1 >= (d)) \
-      { \
-         (q) = __q1 + 1; \
-         (r) = __r1 - (d); \
-      } else \
-      { \
-         (q) = __q1; \
-         (r) = __r1; \
-      } \
-   } while (0)
-
-#endif
-
-/**********************************************************************
- 
-    Random generation
-
-**********************************************************************/
-
-/*
-   Initialise a random state for use. 
-*/
-void randinit(rand_t *state);
-
-/*
-   Clear a random state after use. 
-*/
-void randclear(rand_t state);
-
-/*
-   Generate a random word of data. 
-*/
-word_t randword(rand_t state);
-
-/*
-   Generate a random word in the range [0, m). 
-*/
-word_t randint(word_t m, rand_t state);
-
-/*
-   Set the first m limbs of a to random words. 
-*/
 void nn_random(nn_t a, rand_t state, len_t m);
 
 /**********************************************************************
