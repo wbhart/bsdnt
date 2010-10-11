@@ -38,9 +38,9 @@ rand_t set_rand_algorithm(random_algorithm a)
         r.uint64 = kiss_uint64;
         break;
     case SUPER_KISS:
-        r.start = skiss_start;
-        r.end = skiss_end;
-        r.uint64 = skiss_uint64;
+        r.start = skiss64_start;
+        r.end = skiss64_end;
+        r.uint64 = skiss64_uint64;
         break;
     case MERSENNE_TWISTER:
         r.start = mt_start;

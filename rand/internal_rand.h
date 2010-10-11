@@ -42,9 +42,9 @@ extern void kiss_end(rand_ctx ctx);
 
 /* George Marsaglia's Super KISS 64-bit Pseudo Random Number Generator */
 
-extern rand_ctx skiss_start(void);
-extern uint64_t skiss_uint64(rand_ctx ctx);
-extern void skiss_end(rand_ctx ctx);
+extern rand_ctx skiss64_start(void);
+extern uint64_t skiss64_uint64(rand_ctx ctx);
+extern void skiss64_end(rand_ctx ctx);
 
 /* Mersenne Twister */
 

@@ -35,19 +35,19 @@ typedef struct
 	uint64_t xcng;
 	uint64_t xs;
 	uint64_t indx;
-} skiss_ctx;
+} skiss64_t;
 
-#define CTX(c) ((skiss_ctx*)(c))
+#define CTX(c) ((skiss64_t*)(c))
 
 #define CNG(p)  ( p->xcng = 6906969069ull * p->xcng + 123ull )
 #define XS(p)   ( p->xs ^= p->xs << 13, p->xs ^= p->xs >> 17, p->xs ^= p->xs << 43 )
 #define SUPR(p) ( (p->indx < 20632) ? p->q[p->indx++] : refill(p) )
 #define KISS(p) ( SUPR(p) + CNG(p) + XS(p) )
 
-uint64_t refill(rand_ctx c)
+static uint64_t refill(rand_ctx c)
 {	uint64_t i, z, h;
 
-    for( i = 0 ; i < 20632 ; ++i ) 
+    for( i = 0 ; i < 20632ull ; ++i ) 
     {
         h = CTX(c)->carry & 1ull;
         z = ((CTX(c)->q[i] << 41) >> 1) + ((CTX(c)->q[i] << 39) >> 1) + (CTX(c)->carry >> 1);
@@ -59,9 +59,9 @@ uint64_t refill(rand_ctx c)
     return CTX(c)->q[0];
 }
 
-rand_ctx skiss_start(void)
+rand_ctx skiss64_start(void)
 {   uint64_t i;
-	rand_ctx c = malloc(sizeof(skiss_ctx));
+	rand_ctx c = malloc(sizeof(skiss64_t));
     
     CTX(c)->carry = 36243678541ull;
 	CTX(c)->xcng = 12367890123456ull;
@@ -74,12 +74,12 @@ rand_ctx skiss_start(void)
     return c; 
 }
 
-void skiss_end(rand_ctx c)
+void skiss64_end(rand_ctx c)
 {
 	free(c);
 }
 
-uint64_t skiss_uint64(rand_ctx c)
+uint64_t skiss64_uint64(rand_ctx c)
 {
     return  KISS(CTX(c));
 }
