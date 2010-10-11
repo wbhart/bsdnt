@@ -39,7 +39,7 @@
 
 void randinit(rand_t *state)
 {   
-    *state = set_rand_algorithm(KISS);
+    *state = set_rand_algorithm(SUPER_KISS);
     state->ctx = state->start();
 }
 
