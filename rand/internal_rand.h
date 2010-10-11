@@ -45,12 +45,12 @@
    Initialise the KISS random state. 
    A default random seed is used.
 */
-rand_t kiss_start(void);
+rand_t kiss_init(void);
 
 /* 
    Clean up the KISS random state 
 */
-void kiss_end(rand_t ctx);
+void kiss_clear(rand_t ctx);
 
 /* 
    Generate a random word with the KISS PRNG. 
@@ -67,12 +67,12 @@ word_t kiss_word(rand_t ctx);
    Initialise the SKISS random state. 
    A default random seed is used.
 */
-rand_t skiss_start(void);
+rand_t skiss_init(void);
 
 /* 
    Clean up the SKISS random state 
 */
-void skiss_end(rand_t ctx);
+void skiss_clear(rand_t ctx);
 
 /* 
    Generate a random word with the SKISS PRNG. 
@@ -89,12 +89,12 @@ word_t skiss_word(rand_t ctx);
    Initialise the Mersenne twister random state. 
    A default random seed is used.
 */
-rand_t mt_start(void);
+rand_t mt_init(void);
 
 /* 
    Clean up the Mersenne twister random state 
 */
-void mt_end(rand_t ctx);
+void mt_clear(rand_t ctx);
 
 /* 
    Initialise the Mersenne twister with a random seed.

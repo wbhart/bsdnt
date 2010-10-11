@@ -67,7 +67,7 @@ word_t refill(rand_t c)
     return CTX(c)->q[0];
 }
 
-rand_t skiss_start(void)
+rand_t skiss_init(void)
 {   
    word_t i;
 	rand_t c = malloc(sizeof(skiss_ctx));
@@ -83,7 +83,7 @@ rand_t skiss_start(void)
    return c; 
 }
 
-void skiss_end(rand_t ctx)
+void skiss_clear(rand_t ctx)
 {
 	free(ctx);
 }

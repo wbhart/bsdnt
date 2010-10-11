@@ -68,7 +68,7 @@ typedef struct
 #define IX(x)	((x)->mti)
 #define MG(x)	((x)->mag01)
 
-rand_t mt_start(void)
+rand_t mt_init(void)
 {
 	rand_t c = malloc(sizeof(mt_ctx));
 
@@ -79,7 +79,7 @@ rand_t mt_start(void)
 	return c;
 }
 
-void mt_end(rand_t ctx)
+void mt_clear(rand_t ctx)
 {
 	free(ctx);
 }

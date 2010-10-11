@@ -28,8 +28,8 @@
 #include "../helper.h"
 #include "internal_rand.h"
 
-rand_init_f  randinit = kiss_start;
-rand_clear_f randclear = kiss_end;
+rand_init_f  randinit = kiss_init;
+rand_clear_f randclear = kiss_clear;
 rand_word_f randword = kiss_word;
 
 int set_rand_algorithm(random_algorithm a)
@@ -37,18 +37,18 @@ int set_rand_algorithm(random_algorithm a)
     switch(a)
     {
     case KISS:
-        randinit = kiss_start;
-        randclear = kiss_end;
+        randinit = kiss_init;
+        randclear = kiss_clear;
         randword = kiss_word;
         break;
     case SUPER_KISS:
-        randinit = skiss_start;
-        randclear = skiss_end;
+        randinit = skiss_init;
+        randclear = skiss_clear;
         randword = skiss_word;
         break;
     case MERSENNE_TWISTER:
-        randinit = mt_start;
-        randclear = mt_end;
+        randinit = mt_init;
+        randclear = mt_clear;
         randword = mt_word;
         break;
     default:
