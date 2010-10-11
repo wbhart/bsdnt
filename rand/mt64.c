@@ -43,21 +43,26 @@
 -------------------------------------------------------------------------
 */
 
+#include "../helper.h"
+
+#if WORD_BITS == 64
+
 #include "internal_rand.h"
 
 #define NN 312
 
 typedef struct
-{   uint64_t mt[NN];
-	uint64_t mag01[2];
-	uint64_t mti;
+{   
+   word_t mt[NN];
+	word_t mag01[2];
+	word_t mti;
 } mt_ctx;
 
 #define CTX(x) ((mt_ctx*)(x))
 
 #define MM 156
-#define MATRIX_A 0xb5026f5aa96619e9ull
-#define LM 0x7fffffffull
+#define MATRIX_A 0xb5026f5aa96619e9ULL /* constant vector a */
+#define LM 0x7fffffffULL
 
 #define MT(x)	((x)->mt)
 #define IX(x)	((x)->mti)
@@ -66,9 +71,11 @@ typedef struct
 rand_t mt_start(void)
 {
 	rand_t c = malloc(sizeof(mt_ctx));
+
 	IX(CTX(c)) = NN + 1;
 	MG(CTX(c))[0] = 0;
 	MG(CTX(c))[1] = MATRIX_A;
+
 	return c;
 }
 
@@ -77,32 +84,36 @@ void mt_end(rand_t ctx)
 	free(ctx);
 }
 
-void init_genrand64(uint64_t seed, rand_t c)
+void init_genrand(word_t seed, rand_t c)
 {
     MT(CTX(c))[0] = seed;
-    for( IX(CTX(c)) = 1 ; IX(CTX(c)) < NN ; ++(IX(CTX(c))) ) 
-        MT(CTX(c))[IX(CTX(c))] = (6364136223846793005ULL * 
-		    (MT(CTX(c))[IX(CTX(c)) - 1] ^ (MT(CTX(c))[IX(CTX(c)) - 1] >> 62)) + IX(CTX(c)));
+
+    for (IX(CTX(c)) = 1 ; IX(CTX(c)) < NN ; ++(IX(CTX(c)))) 
+    {
+       MT(CTX(c))[IX(CTX(c))] = (6364136223846793005ULL * 
+		         (MT(CTX(c))[IX(CTX(c)) - 1] ^ 
+               (MT(CTX(c))[IX(CTX(c)) - 1] >> 62)) + IX(CTX(c)));
+    }
 }
 
 /* initialize by an array with array-length */
 /* init_key is the array for initializing keys */
 /* key_length is its length */
 
-void init_by_array64(uint64_t init_key[], uint64_t key_length, rand_t c)
+void init_by_array(word_t * init_key, word_t key_length, rand_t c)
 {
-    uint64_t i, j, k;
-    init_genrand64(19650218ull, CTX(c));
-    i = 1; j = 0;
-
-    k = NN > key_length ? NN : key_length;
-    for( ; k ; --k ) 
+   word_t i = 1, j = 0, k = NN > key_length ? NN : key_length;
+   init_genrand(19650218ULL, CTX(c));
+   
+   for( ; k ; --k ) 
 	{
 		MT(CTX(c))[i] = (MT(CTX(c))[i] ^ ((MT(CTX(c))[i - 1] ^ 
-			(MT(CTX(c))[i - 1] >> 62)) * 3935559000370003845ULL)) + init_key[j] + j;
-        i++; j++;
+			(MT(CTX(c))[i - 1] >> 62)) * 3935559000370003845ULL)) 
+         + init_key[j] + j; /* non linear */
+      
+      i++; j++;
 
-        if(i >= NN) 
+      if(i >= NN) 
 		{ 
 			MT(CTX(c))[0] = MT(CTX(c))[NN - 1];
 			i = 1; 
@@ -110,56 +121,66 @@ void init_by_array64(uint64_t init_key[], uint64_t key_length, rand_t c)
         
 		if(j >= key_length) 
 			j = 0;
-    }
+   }
 
-    for( k = NN - 1 ; k ; --k) 
-	{
-        MT(CTX(c))[i] = (MT(CTX(c))[i] ^ ((MT(CTX(c))[i - 1] ^ 
-			(MT(CTX(c))[i - 1] >> 62)) * 2862933555777941757ULL)) -i;
-        i++;
+   for (k = NN - 1 ; k ; --k) 
+   {
+      MT(CTX(c))[i] = (MT(CTX(c))[i] ^ ((MT(CTX(c))[i - 1] ^ 
+		  (MT(CTX(c))[i - 1] >> 62)) * 2862933555777941757ULL)) 
+        - i; /* non linear */
+        
+      i++;
         
 		if(i >= NN) 
 		{ 
 			MT(CTX(c))[0] = MT(CTX(c))[NN - 1];
 			i = 1; 
-		}
-    }
+      }
+   }
 
-    MT(CTX(c))[0] = 1ULL << 63; 
+   MT(CTX(c))[0] = 1ULL << 63; /* MSB is 1; assuring non-zero initial array */
 }
 
-/* generates a random number on [0, 2^64-1]-interval */
+/* generates a random number in [0, 2^64-1]-interval */
 
-uint64_t mt_uint64(rand_t c)
+word_t mt_word(rand_t c)
 {
-    uint64_t i, x;
+   word_t i, x;
 
-	if(IX(CTX(c)) >= NN) 
+	if (IX(CTX(c)) >= NN) 
 	{
-        if(IX(CTX(c)) == NN + 1) 
-            init_genrand64(5489ull, (CTX(c))); 
+      if (IX(CTX(c)) == NN + 1) /* if init_genrand() has not been called, */
+         init_genrand(5489ULL, (CTX(c))); /* a default initial seed is used */
 
-        for( i = 0 ; i < NN - MM ; ++i ) 
+      for( i = 0 ; i < NN - MM ; ++i ) 
 		{
 			x = (MT(CTX(c))[i] & ~LM) | (MT(CTX(c))[i + 1] & LM);
-            MT(CTX(c))[i] = MT(CTX(c))[i + MM] ^ (x >> 1) ^ MG(CTX(c))[x & 1];
-        }
-        for( ; i < NN - 1 ; ++i ) 
+         MT(CTX(c))[i] = MT(CTX(c))[i + MM] ^ (x >> 1) 
+                       ^ MG(CTX(c))[x & 1];
+      }
+        
+      for( ; i < NN - 1 ; ++i ) 
 		{
-            x = (MT(CTX(c))[i] & ~LM) | (MT(CTX(c))[i + 1] & LM);
-            MT(CTX(c))[i] = MT(CTX(c))[i + (MM - NN)] ^ (x >> 1) ^ MG(CTX(c))[x & 1];
-        }
-        x = (MT(CTX(c))[NN - 1] & ~LM) | (MT(CTX(c))[0] & LM);
-        MT(CTX(c))[NN - 1] = MT(CTX(c))[MM - 1] ^ (x >> 1) ^ MG(CTX(c))[x & 1];
+         x = (MT(CTX(c))[i] & ~LM) | (MT(CTX(c))[i + 1] & LM);
+          MT(CTX(c))[i] = MT(CTX(c))[i + (MM - NN)] ^ (x >> 1) 
+                        ^ MG(CTX(c))[x & 1];
+      }
+        
+      x = (MT(CTX(c))[NN - 1] & ~LM) | (MT(CTX(c))[0] & LM);
+      MT(CTX(c))[NN - 1] = MT(CTX(c))[MM - 1] ^ (x >> 1) 
+                         ^ MG(CTX(c))[x & 1];
 
-        IX(CTX(c)) = 0;
-    }
+      IX(CTX(c)) = 0;
+   }
   
-    x = MT(CTX(c))[IX(CTX(c))++];
-    x ^= (x >> 29) & 0x5555555555555555ull;
-    x ^= (x << 17) & 0x71D67FFFEDA60000ull;
-    x ^= (x << 37) & 0xFFF7EEE000000000ull;
-    x ^= (x >> 43);
+   /* Tempering */
+   x = MT(CTX(c))[IX(CTX(c))++];
+   x ^= (x >> 29) & 0x5555555555555555ULL;
+   x ^= (x << 17) & 0x71D67FFFEDA60000ULL;
+   x ^= (x << 37) & 0xFFF7EEE000000000ULL;
+   x ^= (x >> 43);
 
-    return x;
+   return x;
 }
+
+#endif

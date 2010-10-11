@@ -46,11 +46,37 @@ extern rand_t skiss_start(void);
 extern uint64_t skiss_uint64(rand_t ctx);
 extern void skiss_end(rand_t ctx);
 
-/* Mersenne Twister */
+/***************************************************************************
+ 
+   Mersenne twister
 
+***************************************************************************/
+
+/* 
+   Initialise the Mersenne twister random state. 
+   A default random seed is used.
+*/
 extern rand_t mt_start(void);
-extern void init_by_array64(uint64_t init_key[], uint64_t key_length, rand_t ctx);
-extern uint64_t mt_uint64(rand_t ctx);
+
+/* 
+   Clean up the Mersenne twister random state 
+*/
 extern void mt_end(rand_t ctx);
+
+/* 
+   Initialise the Mersenne twister with a random seed.
+*/
+void init_genrand(word_t seed, rand_t c)
+
+/* 
+   Initialise the Mersenne twister with a "key" of length 
+   key_length instead of a random seed. 
+*/
+extern void init_by_array(word_t init_key[], word_t key_length, rand_t ctx);
+
+/* 
+   Generate a random word with the Mersenne twister. 
+*/
+extern word_t mt_word(rand_t ctx);
 
 #endif
