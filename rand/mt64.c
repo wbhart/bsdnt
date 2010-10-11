@@ -63,21 +63,21 @@ typedef struct
 #define IX(x)	((x)->mti)
 #define MG(x)	((x)->mag01)
 
-rand_t mt_start(void)
+rand_ctx mt_start(void)
 {
-	rand_t c = malloc(sizeof(mt_ctx));
+	rand_ctx c = malloc(sizeof(mt_ctx));
 	IX(CTX(c)) = NN + 1;
 	MG(CTX(c))[0] = 0;
 	MG(CTX(c))[1] = MATRIX_A;
 	return c;
 }
 
-void mt_end(rand_t ctx)
+void mt_end(rand_ctx ctx)
 {
 	free(ctx);
 }
 
-void init_genrand64(uint64_t seed, rand_t c)
+void init_genrand64(uint64_t seed, rand_ctx c)
 {
     MT(CTX(c))[0] = seed;
     for( IX(CTX(c)) = 1 ; IX(CTX(c)) < NN ; ++(IX(CTX(c))) ) 
@@ -89,7 +89,7 @@ void init_genrand64(uint64_t seed, rand_t c)
 /* init_key is the array for initializing keys */
 /* key_length is its length */
 
-void init_by_array64(uint64_t init_key[], uint64_t key_length, rand_t c)
+void init_by_array64(uint64_t init_key[], uint64_t key_length, rand_ctx c)
 {
     uint64_t i, j, k;
     init_genrand64(19650218ull, CTX(c));
@@ -130,7 +130,7 @@ void init_by_array64(uint64_t init_key[], uint64_t key_length, rand_t c)
 
 /* generates a random number on [0, 2^64-1]-interval */
 
-uint64_t mt_uint64(rand_t c)
+uint64_t mt_uint64(rand_ctx c)
 {
     uint64_t i, x;
 

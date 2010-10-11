@@ -27,32 +27,32 @@
 
 #include "internal_rand.h"
 
-extern rand_start_f  rand_start = kiss_start;
-extern rand_end_f    rand_end = kiss_end;
-extern rand_uint64_f rand_uint64 = kiss_uint64;
+rand_t set_rand_algorithm(random_algorithm a)
+{   rand_t r;
 
-int64_t set_rand_algorithm(random_algorithm a)
-{
     switch(a)
     {
     case KISS:
-        rand_start = kiss_start;
-        rand_end = kiss_end;
-        rand_uint64 = kiss_uint64;
+        r.start = kiss_start;
+        r.end = kiss_end;
+        r.uint64 = kiss_uint64;
         break;
     case SUPER_KISS:
-        rand_start = skiss_start;
-        rand_end = skiss_end;
-        rand_uint64 = skiss_uint64;
+        r.start = skiss_start;
+        r.end = skiss_end;
+        r.uint64 = skiss_uint64;
         break;
     case MERSENNE_TWISTER:
-        rand_start = mt_start;
-        rand_end = mt_end;
-        rand_uint64 = mt_uint64;
+        r.start = mt_start;
+        r.end = mt_end;
+        r.uint64 = mt_uint64;
         break;
     default:
-        return -1;
+        r.start = kiss_start;
+        r.end = kiss_end;
+        r.uint64 = kiss_uint64;
+        break;
     }
-    return 0;
+    return r;
 
 }

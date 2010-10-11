@@ -32,15 +32,20 @@
 /* BSDNT Interface */
 
 typedef enum { KISS, MERSENNE_TWISTER, SUPER_KISS } random_algorithm;
-typedef void *rand_t;
-int64_t set_rand_algorithm(random_algorithm a);
+typedef void *rand_ctx;
 
-typedef rand_t (*rand_start_f)(void);
-typedef void   (*rand_end_f)(rand_t);
-typedef uint64_t (*rand_uint64_f)(rand_t);
+typedef rand_ctx (*rand_start_f)(void);
+typedef void     (*rand_end_f)(rand_ctx);
+typedef uint64_t (*rand_uint64_f)(rand_ctx);
 
-extern rand_start_f  rand_start;
-extern rand_end_f    rand_end;
-extern rand_uint64_f rand_uint64;
+typedef struct rand_t
+{
+    rand_start_f  start;
+    rand_end_f    end;
+    rand_uint64_f uint64;
+    rand_ctx      ctx;
+} rand_t;
+
+rand_t set_rand_algorithm(random_algorithm a);
 
 #endif

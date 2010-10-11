@@ -35,9 +35,9 @@ typedef struct kiss_ctx
 
 #define CTX(x) ((kiss_ctx*)(x))
 
-rand_t kiss_start(void)
+rand_ctx kiss_start(void)
 {
-	rand_t c = malloc(sizeof(kiss_ctx));
+	rand_ctx c = malloc(sizeof(kiss_ctx));
     CTX(c)->x = 1234567890987654321ull;
 	CTX(c)->c = 123456123456123456ull; 
     CTX(c)->y = 362436362436362436ull;
@@ -45,12 +45,12 @@ rand_t kiss_start(void)
     return c;
 }
 
-void kiss_end(rand_t c)
+void kiss_end(rand_ctx c)
 {
 	free(c);
 }
 
-uint64_t kiss_uint64(rand_t c)
+uint64_t kiss_uint64(rand_ctx c)
 {   uint64_t t;
 
 	t = (CTX(c)->x << 58) + CTX(c)->c;

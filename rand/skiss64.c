@@ -44,7 +44,7 @@ typedef struct
 #define SUPR(x) ( (x)->indx < 20632 ? (x)->q[(x)->indx++] : refill((x)) )
 #define KISS(x) ( SUPR(x) + CNG(x) + XS(x) )
 
-uint64_t refill(rand_t c)
+uint64_t refill(rand_ctx c)
 {
     uint64_t i, z, h;
 
@@ -60,9 +60,9 @@ uint64_t refill(rand_t c)
     return CTX(c)->q[0];
 }
 
-rand_t skiss_start(void)
+rand_ctx skiss_start(void)
 {   uint64_t i;
-	rand_t c = malloc(sizeof(skiss_ctx));
+	rand_ctx c = malloc(sizeof(skiss_ctx));
     
     CTX(c)->carry = 36243678541ull;
 	CTX(c)->xcng = 12367890123456ull;
@@ -75,12 +75,12 @@ rand_t skiss_start(void)
     return c; 
 }
 
-void skiss_end(rand_t ctx)
+void skiss_end(rand_ctx ctx)
 {
 	free(ctx);
 }
 
-uint64_t skiss_uint64(rand_t c)
+uint64_t skiss_uint64(rand_ctx c)
 {
     return  SUPR(CTX(c)) + CNG(CTX(c)) + XS(CTX(c));
 }

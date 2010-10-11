@@ -36,21 +36,21 @@
 
 /* George Marsaglia's KISS 64-bit Pseudo Random Number Generator */
 
-extern rand_t kiss_start(void);
-extern uint64_t kiss_uint64(rand_t ctx);
-extern void kiss_end(rand_t ctx);
+extern rand_ctx kiss_start(void);
+extern uint64_t kiss_uint64(rand_ctx ctx);
+extern void kiss_end(rand_ctx ctx);
 
 /* George Marsaglia's Super KISS 64-bit Pseudo Random Number Generator */
 
-extern rand_t skiss_start(void);
-extern uint64_t skiss_uint64(rand_t ctx);
-extern void skiss_end(rand_t ctx);
+extern rand_ctx skiss_start(void);
+extern uint64_t skiss_uint64(rand_ctx ctx);
+extern void skiss_end(rand_ctx ctx);
 
 /* Mersenne Twister */
 
-extern rand_t mt_start(void);
-extern void init_by_array64(uint64_t init_key[], uint64_t key_length, rand_t ctx);
-extern uint64_t mt_uint64(rand_t ctx);
-extern void mt_end(rand_t ctx);
+extern rand_ctx mt_start(void);
+extern void init_by_array64(uint64_t init_key[], uint64_t key_length, rand_ctx ctx);
+extern uint64_t mt_uint64(rand_ctx ctx);
+extern void mt_end(rand_ctx ctx);
 
 #endif

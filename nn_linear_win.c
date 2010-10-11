@@ -39,23 +39,23 @@
 
 void randinit(rand_t *state)
 {   
-    set_rand_algorithm(SUPER_KISS);
-    *state = rand_start();
+    *state = set_rand_algorithm(KISS);
+    state->ctx = state->start();
 }
 
 void randclear(rand_t state)
 {
-    rand_end(state);
+    state.end(state.ctx);
 }
 
 word_t randword(rand_t state) 
 {
-	return (word_t)rand_uint64(state);
+	return state.uint64(state.ctx);
 }
 
 word_t randint(word_t m, rand_t state)
 {
-   return ((word_t)rand_uint64(state) % m);
+   return ((word_t)state.uint64(state.ctx) % m);
 }
 
 void nn_random(nn_t a, rand_t state, len_t m)
@@ -63,7 +63,7 @@ void nn_random(nn_t a, rand_t state, len_t m)
    long i;
 
    for (i = 0; i < m; i++)
-      a[i] = (word_t)rand_uint64(state);
+      a[i] = (word_t)state.uint64(state.ctx);
 }
 
 /**********************************************************************
