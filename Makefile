@@ -38,7 +38,7 @@ QUIET_DISTBIN    = @echo '   ' DIST BINARY;
 QUIET_DISTSRC    = @echo '   ' ARCH SOURCE;
 
 # FILES
-SOURCES = $(wildcard *.c)
+SOURCES = $(wildcard *.c) $(wildcard rand/*.c)
 HEADERS = $(wildcard *.h)
 OBJS = $(patsubst %.c, build/%.o, $(SOURCES))
 

@@ -29,18 +29,28 @@
 #ifndef BSDNT_RAND_H
 #define BSDNT_RAND_H
 
+#include "../helper.h"
+
 /* BSDNT Interface */
 
 typedef enum { KISS, MERSENNE_TWISTER, SUPER_KISS } random_algorithm;
-typedef void *rand_t;
-int64_t set_rand_algorithm(random_algorithm a);
+typedef void * rand_t;
+int set_rand_algorithm(random_algorithm a);
 
-typedef rand_t (*rand_start_f)(void);
-typedef void   (*rand_end_f)(rand_t);
-typedef uint64_t (*rand_uint64_f)(rand_t);
+typedef rand_t (*rand_init_f)(void);
+typedef void   (*rand_clear_f)(rand_t);
+typedef word_t (*rand_word_f)(rand_t);
 
-extern rand_start_f  rand_start;
-extern rand_end_f    rand_end;
-extern rand_uint64_f rand_uint64;
+extern rand_init_f randinit;
+extern rand_clear_f randclear;
+extern rand_word_f randword;
+
+static inline
+word_t randint(word_t m, rand_t state)
+{
+   ASSERT (m != 0);
+   
+   return randword(state) % m;
+}
 
 #endif

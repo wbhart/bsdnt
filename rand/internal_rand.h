@@ -32,19 +32,52 @@
 #include <stdlib.h>
 #include <malloc.h>
 
+#include "../helper.h"
 #include "bsdnt_rand.h"
 
-/* George Marsaglia's KISS 64-bit Pseudo Random Number Generator */
+/***************************************************************************
+ 
+   George Marsaglia's KISS Pseudo Random Number Generator
 
-extern rand_t kiss_start(void);
-extern uint64_t kiss_uint64(rand_t ctx);
-extern void kiss_end(rand_t ctx);
+***************************************************************************/
 
-/* George Marsaglia's Super KISS 64-bit Pseudo Random Number Generator */
+/* 
+   Initialise the KISS random state. 
+   A default random seed is used.
+*/
+rand_t kiss_start(void);
 
-extern rand_t skiss_start(void);
-extern uint64_t skiss_uint64(rand_t ctx);
-extern void skiss_end(rand_t ctx);
+/* 
+   Clean up the KISS random state 
+*/
+void kiss_end(rand_t ctx);
+
+/* 
+   Generate a random word with the KISS PRNG. 
+*/
+word_t kiss_word(rand_t ctx);
+
+/***************************************************************************
+ 
+   George Marsaglia's Super KISS Pseudo Random Number Generator
+
+***************************************************************************/
+
+/* 
+   Initialise the SKISS random state. 
+   A default random seed is used.
+*/
+rand_t skiss_start(void);
+
+/* 
+   Clean up the SKISS random state 
+*/
+void skiss_end(rand_t ctx);
+
+/* 
+   Generate a random word with the SKISS PRNG. 
+*/
+word_t skiss_word(rand_t ctx);
 
 /***************************************************************************
  
@@ -56,27 +89,27 @@ extern void skiss_end(rand_t ctx);
    Initialise the Mersenne twister random state. 
    A default random seed is used.
 */
-extern rand_t mt_start(void);
+rand_t mt_start(void);
 
 /* 
    Clean up the Mersenne twister random state 
 */
-extern void mt_end(rand_t ctx);
+void mt_end(rand_t ctx);
 
 /* 
    Initialise the Mersenne twister with a random seed.
 */
-void init_genrand(word_t seed, rand_t c)
+void init_genrand(word_t seed, rand_t c);
 
 /* 
    Initialise the Mersenne twister with a "key" of length 
    key_length instead of a random seed. 
 */
-extern void init_by_array(word_t init_key[], word_t key_length, rand_t ctx);
+void init_by_array(word_t * init_key, word_t key_length, rand_t ctx);
 
 /* 
    Generate a random word with the Mersenne twister. 
 */
-extern word_t mt_word(rand_t ctx);
+word_t mt_word(rand_t ctx);
 
 #endif

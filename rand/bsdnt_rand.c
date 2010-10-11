@@ -25,34 +25,34 @@
   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "../helper.h"
 #include "internal_rand.h"
 
-extern rand_start_f  rand_start = kiss_start;
-extern rand_end_f    rand_end = kiss_end;
-extern rand_uint64_f rand_uint64 = kiss_uint64;
+rand_init_f  randinit = kiss_start;
+rand_clear_f randclear = kiss_end;
+rand_word_f randword = kiss_word;
 
-int64_t set_rand_algorithm(random_algorithm a)
+int set_rand_algorithm(random_algorithm a)
 {
     switch(a)
     {
     case KISS:
-        rand_start = kiss_start;
-        rand_end = kiss_end;
-        rand_uint64 = kiss_uint64;
+        randinit = kiss_start;
+        randclear = kiss_end;
+        randword = kiss_word;
         break;
     case SUPER_KISS:
-        rand_start = skiss_start;
-        rand_end = skiss_end;
-        rand_uint64 = skiss_uint64;
+        randinit = skiss_start;
+        randclear = skiss_end;
+        randword = skiss_word;
         break;
     case MERSENNE_TWISTER:
-        rand_start = mt_start;
-        rand_end = mt_end;
-        rand_uint64 = mt_uint64;
+        randinit = mt_start;
+        randclear = mt_end;
+        randword = mt_word;
         break;
     default:
         return -1;
     }
     return 0;
-
 }

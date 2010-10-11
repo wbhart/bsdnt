@@ -5,7 +5,6 @@
 #include <limits.h>
 #include <assert.h>
 #include "config.h"
-#include "rand/bsdnt_rand.h"
 
 #ifdef _MSC_VER
 
@@ -18,12 +17,14 @@
     typedef int64_t len_t;
     typedef int64_t bits_t;
 #   define WORD_BITS 64
+#   define WORD_CONST(x) (x##ULL)
 # else
     typedef uint32_t word_t;
     typedef uint64_t dword_t;
     typedef int32_t len_t;
     typedef int32_t bits_t;
 #   define WORD_BITS 32
+#   define WORD_CONST(x) (x##UL)
 # endif
 
 #else
@@ -34,12 +35,14 @@
     typedef int32_t len_t;
     typedef int32_t bits_t;
 #   define WORD_BITS 32
+#   define WORD_CONST(x) (x##UL)
 # else
     typedef uint64_t word_t;
     typedef unsigned int dword_t __attribute__((mode(TI)));
     typedef int64_t len_t;
     typedef int64_t bits_t;
 #   define WORD_BITS 64
+#   define WORD_CONST(x) (x##UL)
 # endif
 
 #endif
@@ -52,6 +55,8 @@
 
 typedef word_t * nn_t;
 typedef const word_t * nn_src_t;
+
+#include "rand/bsdnt_rand.h"
 
 typedef struct preinv1_t
 {
@@ -315,33 +320,6 @@ void precompute_mod_inverse1(mod_preinv1_t * inv, word_t d)
    } while (0)
 
 #endif
-
-/**********************************************************************
- 
-    Random generation
-
-**********************************************************************/
-
-/*
-   Initialise a random state for use. 
-*/
-void randinit(rand_t state);
-
-/*
-   Clear a random state after use. 
-*/
-void randclear(rand_t state);
-
-/*
-   Generate a random word of data. 
-*/
-word_t randword(rand_t state);
-
-/*
-   Generate a random word in the range [0, m). Requires m to not
-   be zero.
-*/
-word_t randint(word_t m, rand_t state);
 
 /**********************************************************************
  

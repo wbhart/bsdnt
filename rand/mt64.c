@@ -61,8 +61,8 @@ typedef struct
 #define CTX(x) ((mt_ctx*)(x))
 
 #define MM 156
-#define MATRIX_A 0xb5026f5aa96619e9ULL /* constant vector a */
-#define LM 0x7fffffffULL
+#define MATRIX_A WORD_CONST(0xb5026f5aa96619e9) /* constant vector a */
+#define LM WORD_CONST(0x7fffffff)
 
 #define MT(x)	((x)->mt)
 #define IX(x)	((x)->mti)
@@ -90,7 +90,7 @@ void init_genrand(word_t seed, rand_t c)
 
     for (IX(CTX(c)) = 1 ; IX(CTX(c)) < NN ; ++(IX(CTX(c)))) 
     {
-       MT(CTX(c))[IX(CTX(c))] = (6364136223846793005ULL * 
+       MT(CTX(c))[IX(CTX(c))] = (WORD_CONST(6364136223846793005) * 
 		         (MT(CTX(c))[IX(CTX(c)) - 1] ^ 
                (MT(CTX(c))[IX(CTX(c)) - 1] >> 62)) + IX(CTX(c)));
     }
@@ -103,12 +103,12 @@ void init_genrand(word_t seed, rand_t c)
 void init_by_array(word_t * init_key, word_t key_length, rand_t c)
 {
    word_t i = 1, j = 0, k = NN > key_length ? NN : key_length;
-   init_genrand(19650218ULL, CTX(c));
+   init_genrand(WORD_CONST(19650218), CTX(c));
    
    for( ; k ; --k ) 
 	{
 		MT(CTX(c))[i] = (MT(CTX(c))[i] ^ ((MT(CTX(c))[i - 1] ^ 
-			(MT(CTX(c))[i - 1] >> 62)) * 3935559000370003845ULL)) 
+			(MT(CTX(c))[i - 1] >> 62)) * WORD_CONST(3935559000370003845))) 
          + init_key[j] + j; /* non linear */
       
       i++; j++;
@@ -126,7 +126,7 @@ void init_by_array(word_t * init_key, word_t key_length, rand_t c)
    for (k = NN - 1 ; k ; --k) 
    {
       MT(CTX(c))[i] = (MT(CTX(c))[i] ^ ((MT(CTX(c))[i - 1] ^ 
-		  (MT(CTX(c))[i - 1] >> 62)) * 2862933555777941757ULL)) 
+		  (MT(CTX(c))[i - 1] >> 62)) * WORD_CONST(2862933555777941757))) 
         - i; /* non linear */
         
       i++;
@@ -138,7 +138,7 @@ void init_by_array(word_t * init_key, word_t key_length, rand_t c)
       }
    }
 
-   MT(CTX(c))[0] = 1ULL << 63; /* MSB is 1; assuring non-zero initial array */
+   MT(CTX(c))[0] = WORD_CONST(1) << 63; /* MSB is 1; assuring non-zero initial array */
 }
 
 /* generates a random number in [0, 2^64-1]-interval */
@@ -150,7 +150,7 @@ word_t mt_word(rand_t c)
 	if (IX(CTX(c)) >= NN) 
 	{
       if (IX(CTX(c)) == NN + 1) /* if init_genrand() has not been called, */
-         init_genrand(5489ULL, (CTX(c))); /* a default initial seed is used */
+         init_genrand(WORD_CONST(5489), (CTX(c))); /* a default initial seed is used */
 
       for( i = 0 ; i < NN - MM ; ++i ) 
 		{
@@ -175,9 +175,9 @@ word_t mt_word(rand_t c)
   
    /* Tempering */
    x = MT(CTX(c))[IX(CTX(c))++];
-   x ^= (x >> 29) & 0x5555555555555555ULL;
-   x ^= (x << 17) & 0x71D67FFFEDA60000ULL;
-   x ^= (x << 37) & 0xFFF7EEE000000000ULL;
+   x ^= (x >> 29) & WORD_CONST(0x5555555555555555);
+   x ^= (x << 17) & WORD_CONST(0x71D67FFFEDA60000);
+   x ^= (x << 37) & WORD_CONST(0xFFF7EEE000000000);
    x ^= (x >> 43);
 
    return x;

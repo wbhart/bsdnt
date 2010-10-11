@@ -27,10 +27,14 @@
   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "../helper.h"
+
+#if WORD_BITS == 64
+
 #include "internal_rand.h"
 
 typedef struct kiss_ctx
-{   uint64_t x, c, y, z;
+{   word_t x, c, y, z;
 } kiss_ctx;
 
 #define CTX(x) ((kiss_ctx*)(x))
@@ -38,11 +42,13 @@ typedef struct kiss_ctx
 rand_t kiss_start(void)
 {
 	rand_t c = malloc(sizeof(kiss_ctx));
-    CTX(c)->x = 1234567890987654321ull;
-	CTX(c)->c = 123456123456123456ull; 
-    CTX(c)->y = 362436362436362436ull;
-	CTX(c)->z = 1066149217761810ull;
-    return c;
+
+   CTX(c)->x = WORD_CONST(1234567890987654321);
+	CTX(c)->c = WORD_CONST(123456123456123456); 
+   CTX(c)->y = WORD_CONST(362436362436362436);
+	CTX(c)->z = WORD_CONST(1066149217761810);
+    
+   return c;
 }
 
 void kiss_end(rand_t c)
@@ -50,10 +56,12 @@ void kiss_end(rand_t c)
 	free(c);
 }
 
-uint64_t kiss_uint64(rand_t c)
-{   uint64_t t;
+word_t kiss_word(rand_t c)
+{   
+   word_t t;
 
 	t = (CTX(c)->x << 58) + CTX(c)->c;
+
 	CTX(c)->c = CTX(c)->x >> 6;
 	CTX(c)->x += t;
 	CTX(c)->c += (CTX(c)->x < t);
@@ -62,7 +70,9 @@ uint64_t kiss_uint64(rand_t c)
 	CTX(c)->y ^= (CTX(c)->y >> 17);
 	CTX(c)->y ^= (CTX(c)->y << 43);
 
-    CTX(c)->z = 6906969069UL * CTX(c)->z + 1234567;
+   CTX(c)->z = WORD_CONST(6906969069) * CTX(c)->z + WORD_CONST(1234567);
 
-	return (uint64_t)( CTX(c)->x + CTX(c)->y + CTX(c)->z );
+	return CTX(c)->x + CTX(c)->y + CTX(c)->z;
 }
+
+#endif

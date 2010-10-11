@@ -27,26 +27,31 @@
   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "../helper.h"
+
+#if WORD_BITS == 64
+
 #include "internal_rand.h"
 
 typedef struct
-{	uint64_t q[20632]; 
-	uint64_t carry;
-	uint64_t xcng;
-	uint64_t xs;
-	uint64_t indx;
+{	
+   word_t q[20632]; 
+	word_t carry;
+	word_t xcng;
+	word_t xs;
+	word_t indx;
 } skiss_ctx;
 
 #define CTX(x) ((skiss_ctx*)(x))
 
-#define CNG(x)  ( (x)->xcng = 6906969069ull * (x)->xcng + 123 )
+#define CNG(x)  ( (x)->xcng = WORD_CONST(6906969069) * (x)->xcng + 123 )
 #define XS(x)   ( (x)->xs ^= (x)->xs << 13, (x)->xs ^= (x)->xs >> 17, (x)->xs ^= (x)->xs << 43 )
 #define SUPR(x) ( (x)->indx < 20632 ? (x)->q[(x)->indx++] : refill((x)) )
 #define KISS(x) ( SUPR(x) + CNG(x) + XS(x) )
 
-uint64_t refill(rand_t c)
+word_t refill(rand_t c)
 {
-    uint64_t i, z, h;
+    word_t i, z, h;
 
     for( i = 0 ; i < 20632 ; ++i)
     { 
@@ -56,23 +61,26 @@ uint64_t refill(rand_t c)
         CTX(c)->carry = (CTX(c)->q[i] >> 23) + (CTX(c)->q[i] >> 25) + (z >> 63);
         CTX(c)->q[i] = ~((z << 1) + h); 
     }
+
     CTX(c)->indx = 1; 
+
     return CTX(c)->q[0];
 }
 
 rand_t skiss_start(void)
-{   uint64_t i;
+{   
+   word_t i;
 	rand_t c = malloc(sizeof(skiss_ctx));
     
-    CTX(c)->carry = 36243678541ull;
-	CTX(c)->xcng = 12367890123456ull;
-	CTX(c)->xs = 521288629546311ull;
-	CTX(c)->indx = 20632ull;
+   CTX(c)->carry = WORD_CONST(36243678541);
+	CTX(c)->xcng = WORD_CONST(12367890123456);
+	CTX(c)->xs = WORD_CONST(521288629546311);
+	CTX(c)->indx = WORD_CONST(20632);
 
-    for( i = 0 ; i < 20632 ; ++i ) 
-		CTX(c)->q[i] = CNG(CTX(c)) + XS(CTX(c));
+   for (i = 0 ; i < 20632 ; ++i) 
+	   CTX(c)->q[i] = CNG(CTX(c)) + XS(CTX(c));
 
-    return c; 
+   return c; 
 }
 
 void skiss_end(rand_t ctx)
@@ -80,7 +88,9 @@ void skiss_end(rand_t ctx)
 	free(ctx);
 }
 
-uint64_t skiss_uint64(rand_t c)
+word_t skiss_word(rand_t c)
 {
     return  SUPR(CTX(c)) + CNG(CTX(c)) + XS(CTX(c));
 }
+
+#endif
