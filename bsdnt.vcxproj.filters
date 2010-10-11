@@ -46,7 +46,13 @@
     <ClCompile Include="rand\mt64.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="nn_linear_win.c">
+    <ClCompile Include="nn_linear.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="arch\nn_linear_x64.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="arch\nn_quadratic_x64.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
