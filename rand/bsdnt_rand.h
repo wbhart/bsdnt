@@ -31,9 +31,7 @@
 
 /* BSDNT Interface */
 
-typedef enum { KISS, MERSENNE_TWISTER, SUPER_KISS } random_algorithm;
 typedef void *rand_ctx;
-
 typedef rand_ctx (*rand_start_f)(void);
 typedef void     (*rand_end_f)(rand_ctx);
 typedef uint64_t (*rand_uint64_f)(rand_ctx);
@@ -46,6 +44,7 @@ typedef struct rand_t
     rand_ctx      ctx;
 } rand_t;
 
+typedef enum { KISS, MERSENNE_TWISTER, SUPER_KISS } random_algorithm;
 rand_t set_rand_algorithm(random_algorithm a);
 
 #endif

@@ -20,6 +20,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="nn.h" />
+    <ClInclude Include="rand\bsdnt_rand.h" />
+    <ClInclude Include="rand\internal_rand.h" />
     <ClInclude Include="test.h" />
   </ItemGroup>
   <ItemGroup>
