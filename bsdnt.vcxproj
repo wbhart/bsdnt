@@ -146,7 +146,8 @@ copy arch\nn_quadratic_win32_core2.h nn_quadratic_arch.h</Command>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <PreBuildEvent>
-      <Command>copy arch\nn_linear_x64.h nn_linear_arch.h
+      <Command>copy arch\nn_linear_x64_core2.h arch\nn_linear_x64_asm.h
+copy arch\nn_linear_x64.h +  arch\nn_linear_x64_asm.h nn_linear_arch.h
 copy arch\nn_quadratic_x64.h nn_quadratic_arch.h
 </Command>
     </PreBuildEvent>
@@ -191,8 +192,8 @@ copy arch\nn_quadratic_win32_core2.h nn_quadratic_arch.h</Command>
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <PreBuildEvent>
-      <Command>copy arch\nn_linear_x64.h nn_linear_arch.h
-copy arch\nn_linear_x64_core2.h arch\nn_linear_x64_asm.h
+      <Command>copy arch\nn_linear_x64_core2.h arch\nn_linear_x64_asm.h
+copy arch\nn_linear_x64.h +  arch\nn_linear_x64_asm.h nn_linear_arch.h
 copy arch\nn_quadratic_x64.h nn_quadratic_arch.h
 </Command>
     </PreBuildEvent>

@@ -26,8 +26,6 @@
   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#define HAVE_ARCH_nn_add_mc
-#define HAVE_ARCH_nn_sub_mc
 #define HAVE_ARCH_nn_shl_c
 #define HAVE_ARCH_nn_shr_c
 #define HAVE_ARCH_nn_add1
