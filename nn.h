@@ -876,5 +876,21 @@ void nn_divrem_classical_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d,
       nn_divrem_classical_preinv_c(q, a, m, d, n, inv, (a)[m]); \
    } while (0)
 
+/*
+   As per nn_divrem_classical_preinv_c, however no remainder is computed
+   and the quotient is either correct or one too large, i.e. |a - q*d| < d.
+*/
+void nn_divapprox_classical_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d, 
+                                  len_t n, preinv1_2_t inv, word_t ci);
+
+                                  /*
+   As per nn_divapprox_classical_preinv_c except that the carry-in is read 
+   from a[m]. The approx. quotient will therefore be {a, m + 1} by {d, n}.
+*/
+#define nn_r_divapprox_classical_preinv(q, a, m, d, n, inv) \
+   do { \
+      nn_divapprox_classical_preinv_c(q, a, m, d, n, inv, (a)[m]); \
+   } while (0)
+
 #endif
 

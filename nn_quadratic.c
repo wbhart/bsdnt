@@ -80,3 +80,71 @@ void nn_divrem_classical_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d,
 }
 
 #endif
+
+#ifndef HAVE_ARCH_nn_divapprox_classical_preinv_c
+
+void nn_divapprox_classical_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d, 
+                                  len_t n, preinv1_2_t inv, word_t ci)
+{
+   dword_t t;
+   long i = m - 1, j = m - n;
+   word_t q1, rem;
+   word_t norm = inv.norm;
+   word_t dinv = inv.dinv;
+   word_t d1 = inv.d1;
+   len_t s = m - n; /* this many iterations to get to last quotient */
+   s = 2 + s + (d[n-1] <= 2*s); /* need two normalised words at that point */
+   if (s > i + 1) s = i + 1; /* ensure we don't do too many iterations */
+   
+   for ( ; s >= n; i--, j--, s--)
+   {
+      /* top "two words" of remaining dividend, shifted */
+      t = (((((dword_t) ci) << WORD_BITS) + (dword_t) a[i]) << norm);
+      
+      /* check for special case, a1 == d1 which would cause overflow */
+      if ((t >> WORD_BITS) == d1) q1 = ~(word_t) 0;
+      else divrem21_preinv1(q1, rem, t, d1, dinv);
+
+      /* a -= d*q1 */
+      ci -= nn_submul1(a + j, d, n, q1);
+      
+      /* correct if remainder has become negative */
+      while (ci)
+      {
+         q1--;
+         ci += nn_add_m(a + j, a + j, d, n);
+      }
+
+      q[j] = q1;
+      ci = a[i];
+   }
+   
+   d = d + n - s; /* make d length s */
+   a = a + i + 1 - s; /* make a length s + carry */
+   
+   for ( ; i >= n - 1; i--, j--, s--)
+   {
+      /* top "two words" of remaining dividend, shifted */
+      t = (((((dword_t) ci) << WORD_BITS) + (dword_t) a[s - 1]) << norm);
+      
+      /* check for special case, a1 == d1 which would cause overflow */
+      if ((t >> WORD_BITS) == d1) q1 = ~(word_t) 0;
+      else divrem21_preinv1(q1, rem, t, d1, dinv);
+
+      /* a -= d*q1 */
+      ci -= nn_submul1(a, d, s, q1);
+ 
+      /* correct if remainder has become negative */
+      while (ci)
+      {
+         q1--;
+         ci += nn_add_m(a, a, d, s);
+      }
+
+      q[j] = q1;
+      ci = a[s - 1];
+      d++;
+   }   
+}
+
+#endif
