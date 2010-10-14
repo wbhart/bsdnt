@@ -31,6 +31,7 @@
 
 #if WORD_BITS == 64
 
+#include <stdlib.h>
 #include "internal_rand.h"
 
 typedef struct
@@ -42,7 +43,7 @@ typedef struct
 	word_t indx;
 } skiss_ctx;
 
-#define CTX(x) ((skiss_ctx*)(x))
+#define CTX(x) ((skiss_ctx *)(x))
 
 #define CNG(x)  ( (x)->xcng = WORD_CONST(6906969069) * (x)->xcng + 123 )
 #define XS(x)   ( (x)->xs ^= (x)->xs << 13, (x)->xs ^= (x)->xs >> 17, (x)->xs ^= (x)->xs << 43 )
@@ -51,20 +52,20 @@ typedef struct
 
 word_t refill(rand_t c)
 {
-    word_t i, z, h;
+   word_t i, z, h;
 
-    for( i = 0 ; i < 20632 ; ++i)
-    { 
-        h = CTX(c)->carry & 1;
-        z = ((CTX(c)->q[i] << 41) >> 1) + ((CTX(c)->q[i] << 39) >> 1) 
-                    + (CTX(c)->carry >> 1);
-        CTX(c)->carry = (CTX(c)->q[i] >> 23) + (CTX(c)->q[i] >> 25) + (z >> 63);
-        CTX(c)->q[i] = ~((z << 1) + h); 
-    }
+   for( i = 0 ; i < 20632 ; ++i)
+   { 
+      h = CTX(c)->carry & 1;
+      z = ((CTX(c)->q[i] << 41) >> 1) + ((CTX(c)->q[i] << 39) >> 1) 
+                  + (CTX(c)->carry >> 1);
+      CTX(c)->carry = (CTX(c)->q[i] >> 23) + (CTX(c)->q[i] >> 25) + (z >> 63);
+      CTX(c)->q[i] = ~((z << 1) + h); 
+   }
 
-    CTX(c)->indx = 1; 
+   CTX(c)->indx = 1; 
 
-    return CTX(c)->q[0];
+   return CTX(c)->q[0];
 }
 
 rand_t skiss_init(void)
@@ -83,14 +84,14 @@ rand_t skiss_init(void)
    return c; 
 }
 
-void skiss_clear(rand_t ctx)
+void skiss_clear(rand_t c)
 {
-	free(ctx);
+	free(c);
 }
 
 word_t skiss_word(rand_t c)
 {
-    return  SUPR(CTX(c)) + CNG(CTX(c)) + XS(CTX(c));
+   return  SUPR(CTX(c)) + CNG(CTX(c)) + XS(CTX(c));
 }
 
 #endif

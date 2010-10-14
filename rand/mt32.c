@@ -51,6 +51,7 @@
 
 #if WORD_BITS == 32
 
+#include <stdlib.h>
 #include "internal_rand.h"
 
 #define NN 624

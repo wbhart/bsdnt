@@ -1,5 +1,5 @@
 /* 
-  George Marsaglia's KISS 64-bit Pseudo Random Number Generator
+  George Marsaglia's SUPRKISS32, period 5 * 2^1320481 * (2^32 - 1)
 
   Copyright (C) 2010, Brian Gladman
 
@@ -29,51 +29,74 @@
 
 #include "../helper.h"
 
-#if WORD_BITS == 64
+#if WORD_BITS == 32
 
 #include <stdlib.h>
 #include "internal_rand.h"
 
-typedef struct kiss_ctx
-{   word_t x, c, y, z;
-} kiss_ctx;
+typedef void * rand_ctx;
 
-#define CTX(x) ((kiss_ctx*)(x))
+typedef struct
+{   
+   word_t q[41265];
+	word_t carry;
+	word_t xcng;
+	word_t xs;
+	word_t indx;
+} skiss_ctx;
 
-rand_t kiss_init(void)
-{
-	rand_t c = malloc(sizeof(kiss_ctx));
+#define CTX(c) ((skiss_ctx *)(c))
 
-   CTX(c)->x = WORD_CONST(1234567890987654321);
-	CTX(c)->c = WORD_CONST(123456123456123456); 
-   CTX(c)->y = WORD_CONST(362436362436362436);
-	CTX(c)->z = WORD_CONST(1066149217761810);
-    
+#define CNG(p)  (p->xcng = 69069UL * p->xcng + 123ul)
+#define XS(p)   (p->xs ^= p->xs << 13, p->xs ^= p->xs >> 17, \
+                  p->xs ^= p->xs << 5)
+#define SUPR(p) ((p->indx < 41265L) ? p->q[p->indx++] : refill(p))
+#define KISS(p) (SUPR(p) + CNG(p) + XS(p))
+
+rand_ctx skiss_init(void)
+{   
+   long i;
+	rand_t c = malloc(sizeof(skiss_ctx));
+
+   CTX(c)->carry = 362UL;
+	CTX(c)->xcng = 1236789UL;
+	CTX(c)->xs = 521288629UL;
+	CTX(c)->indx = 41265UL;
+
+   for (i = 0; i < 41265; ++i)
+      CTX(c)->q[i] = (CNG(CTX(c)) + XS(CTX(c)));
+
    return c;
 }
 
-void kiss_clear(rand_t c)
+void skiss_clear(rand_t c)
 {
 	free(c);
 }
 
-word_t kiss_word(rand_t c)
+word_t refill(rand_t c)
 {   
-   word_t t;
+   long i;
+   word_t z, h;
 
-	t = (CTX(c)->x << 58) + CTX(c)->c;
+   for (i = 0; i < 41265; ++i)
+   {
+      h = CTX(c)->carry & 1UL;
+      z = ((CTX(c)->q[i] << 9) >> 1) + ((CTX(c)->q[i] << 7) >> 1) 
+         + (CTX(c)->carry >> 1);
+      CTX(c)->carry = (CTX(c)->q[i] >> 23) + (CTX(c)->q[i] >> 25) 
+         + (z >> 31);
+      CTX(c)->q[i] = ~((z << 1) + h);
+   }
 
-	CTX(c)->c = CTX(c)->x >> 6;
-	CTX(c)->x += t;
-	CTX(c)->c += (CTX(c)->x < t);
+   CTX(c)->indx = 1UL;
+    
+   return CTX(c)->q[0];
+}
 
-	CTX(c)->y ^= (CTX(c)->y << 13);
-	CTX(c)->y ^= (CTX(c)->y >> 17);
-	CTX(c)->y ^= (CTX(c)->y << 43);
-
-   CTX(c)->z = WORD_CONST(6906969069) * CTX(c)->z + WORD_CONST(1234567);
-
-	return CTX(c)->x + CTX(c)->y + CTX(c)->z;
+word_t skiss_word(rand_t c)
+{
+   return  KISS(CTX(c));
 }
 
 #endif
