@@ -7,10 +7,14 @@ ARCH=`uname -m &> /dev/null`
 case $ARCH in
 x86_64 | amd64)
 <<<<<<< HEAD
+<<<<<<< HEAD
    MACHINE="_x64";;
 =======
    MACHINE="_x86_64";;
 >>>>>>> ffce644dd4d866e348523464ceed4dbac573f66b
+=======
+   MACHINE="_x86_64";;
+>>>>>>> e099ac210e5c2735de28eea50ba92b377752e37b
 x86 | i*86 | pc)
    MACHINE="_x86";;
 *)
@@ -18,10 +22,14 @@ x86 | i*86 | pc)
 esac
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 if [ $MACHINE = "_x86" -o $MACHINE = "_x64" ]
 =======
 if [ $MACHINE = "_x86" -o $MACHINE = "_x86_64" ]
 >>>>>>> ffce644dd4d866e348523464ceed4dbac573f66b
+=======
+if [ $MACHINE = "_x86" -o $MACHINE = "_x86_64" ]
+>>>>>>> e099ac210e5c2735de28eea50ba92b377752e37b
 then
    $CC arch/cpuid.c -o cpuid 
    ARCH=`./cpuid &> /dev/null`

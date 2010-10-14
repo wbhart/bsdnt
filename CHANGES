@@ -27,10 +27,14 @@
 	v0.8 - nn_divrem1_preinv.
 
 09-Sep-2010:
+<<<<<<< HEAD
 	v0.9 - nn_divrem_hensel1_preinv.
+=======
+	v0.9 - nn_divrem_hensel1_preinv
+>>>>>>> e099ac210e5c2735de28eea50ba92b377752e37b
 
 09-Sep-2010:
-	v0.10 - nn_mod1_preinv.
+	v0.10 - nn_mod1_preinv
 
 10-Sep-2010:
 	v0.11 - generics.
@@ -47,4 +51,10 @@
 19-Sep-2010:
 	v0.14 - Added nn_divrem_classical.
 
+<<<<<<< HEAD
+=======
+20-Sep-2010:
+	v0.15 - Added nn_divapprox_classical.
+
+>>>>>>> e099ac210e5c2735de28eea50ba92b377752e37b
 

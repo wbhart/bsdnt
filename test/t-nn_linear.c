@@ -401,7 +401,6 @@ int test_shr(void)
       
       randoms_of_len(m + n, ANY, state, &a, &r1, &r2, NULL);
       
-        
       ci = nn_shr(r1 + n, a + n, m, sh1);
       nn_shr_c(r1, a, n, sh1, ci);
       
@@ -1227,7 +1226,7 @@ int test_divrem1_preinv(void)
          
       ci = nn_divrem1_preinv(r1 + n, a + n, m, d, inv);
       rem1 = nn_divrem1_preinv_c(r1, a, n, d, inv, ci);
-     
+
       rem2 = nn_divrem1_preinv(r2, a, m + n, d, inv);
 
       result = (nn_equal_m(r1, r2, m + n) && rem1 == rem2);
@@ -1261,7 +1260,6 @@ int test_divrem_hensel1_preinv(void)
       precompute_hensel_inverse1(&inv, d);
 
       r = nn_divrem_hensel1_preinv(q, a, m, d, inv);
-     
       ci = nn_mul1(r1, q, m, d);
 
       result = (nn_equal_m(r1, a, m) && ci == r);
@@ -1286,7 +1284,7 @@ int test_divrem_hensel1_preinv(void)
 
       result = (nn_equal_m(r1, r2, m + n) && (rem1 == rem2));
 
-      if (!result) printf("m = %ld, n = %ld, c = %lu, rem1 = %lu, rem2 = %lu\n", 
+      if (!result) printf("m = %ld, n = %ld, d = %lu, rem1 = %lu, rem2 = %lu\n", 
             m, n, d, rem1, rem2);
    } TEST_END;
 
@@ -1314,7 +1312,6 @@ int test_mod1_preinv(void)
       randoms(NONZERO, state, &d, NULL);
 
       precompute_inverse1(&inv, d);
-
       rem1 = nn_divrem1_preinv(q, a, m, d, inv);
       
       precompute_mod_inverse1(&minv, d);
