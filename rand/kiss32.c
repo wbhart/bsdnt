@@ -65,7 +65,7 @@ word_t kiss_word(rand_t c)
 	CTX(c)->z = 36969*(CTX(c)->z & 65536) + (CTX(c)->z>>16);
 	CTX(c)->w = 18000*(CTX(c)->w & 65536) + (CTX(c)->w>>16);
 	
-   t = (CTX(c)->z << 16) + CTX(c)->w;
+   t = (CTX(c)->z << 16) + (CTX(c)->w & 65536);
 
 	CTX(c)->c = 69069*CTX(c)->c + 1234567;
 
