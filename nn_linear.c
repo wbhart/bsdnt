@@ -358,21 +358,13 @@ word_t nn_divrem1_preinv_c(nn_t q, nn_src_t a, len_t m,
 	d <<= norm;
 	ci <<= norm;
 
-#if defined( _MSC_VER ) && WORD_BITS == 64
-	for( i = m - 1 ; i >= 0 ; --i )
-	{
-		t.lo = a[i] << norm;
-		t.hi = (norm ? (a[i] >> (WORD_BITS - norm)) : 0) + ci;
-		divrem21_preinv1(q[i], ci, t, d, dinv);
-	}
-#else
 	for( i = m - 1 ; i >= 0 ; --i )
 	{
 		t = (((dword_t) ci) << WORD_BITS) + (((dword_t) a[i]) << norm);
 		divrem21_preinv1(q[i], ci, t, d, dinv);	
 	}
-#endif
-	return (ci >> norm);
+
+   return (ci >> norm);
 }
 
 #endif
