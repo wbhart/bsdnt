@@ -50,4 +50,7 @@
 20-Sep-2010:
 	v0.15 - Added nn_divapprox_classical.
 
+25-Sep-2010:
+	v0.16 - Added nn_mullow_classical and nn_mulhigh_classical.
+
 
