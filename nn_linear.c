@@ -139,6 +139,8 @@ word_t nn_shr_c(nn_t a, nn_src_t b, len_t m, bits_t bits, word_t ci)
 
 #endif
 
+#ifndef HAVE_ARCH_nn_add1
+
 word_t nn_add1(nn_t a, nn_src_t b, len_t m, word_t c)
 {
    dword_t t;
@@ -158,6 +160,10 @@ word_t nn_add1(nn_t a, nn_src_t b, len_t m, word_t c)
    return c;
 }
 
+#endif
+
+#ifndef HAVE_ARCH_nn_sub1
+
 word_t nn_sub1(nn_t a, nn_src_t b, len_t m, word_t c)
 {
    dword_t t;
@@ -176,6 +182,8 @@ word_t nn_sub1(nn_t a, nn_src_t b, len_t m, word_t c)
 
    return c;
 }
+
+#endif
 
 #ifndef HAVE_ARCH_nn_neg_c
 
@@ -258,6 +266,8 @@ word_t nn_submul1_c(nn_t a, nn_src_t b, len_t m, word_t c, word_t ci)
 
 #endif
 
+#ifndef HAVE_ARCH_nn_divrem1_simple_c
+
 word_t nn_divrem1_simple_c(nn_t q, nn_src_t a, len_t m, word_t d, word_t ci)
 {
    dword_t t;
@@ -272,6 +282,8 @@ word_t nn_divrem1_simple_c(nn_t q, nn_src_t a, len_t m, word_t d, word_t ci)
 
    return ci;
 }
+
+#endif
 
 #ifndef HAVE_ARCH_nn_divrem1_preinv_c
 
