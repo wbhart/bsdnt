@@ -186,6 +186,37 @@ int test_divapprox_classical_preinv(void)
    return result;
 }
 
+int test_mullow_classical(void)
+{
+   int result = 1;
+   len_t m, n;
+   nn_t a, b, r1, r2, ov;
+   
+   printf("mullow_classical...");
+
+   TEST_START(ITER) /* test a * (b + c) = a * b + a * c */
+   {
+      randoms_upto(30, NONZERO, state, &m, NULL);
+      randoms_upto(m + 1, NONZERO, state, &n, NULL);
+      
+      randoms_of_len(m, ANY, state, &a, NULL);
+      randoms_of_len(n, ANY, state, &b, NULL);
+      randoms_of_len(2, ANY, state, &ov, NULL);
+      randoms_of_len(m + n, ANY, state, &r1, &r2, NULL);
+      
+      nn_s_mul_classical(r1, a, m, b, n);
+      
+      nn_mullow_classical(ov, r2, a, m, b, n);
+      nn_s_mulhigh_classical(r2 + m, a, m, b, n, ov);
+      
+      result = nn_equal_m(r1, r2, m + n);
+
+      if (!result) printf("m = %ld, n = %ld\n", m, n);
+   } TEST_END;
+
+   return result;
+}
+
 int main(void)
 {
    long pass = 0;
@@ -195,6 +226,7 @@ int main(void)
 
    RUN(test_mul_classical);
    RUN(test_muladd_classical);
+   RUN(test_mullow_classical);
    RUN(test_divrem_classical_preinv);
    RUN(test_divapprox_classical_preinv);
    

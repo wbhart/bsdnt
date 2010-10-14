@@ -1025,6 +1025,37 @@ word_t nn_muladd_classical(nn_t r, nn_src_t a, nn_src_t b,
    } while (0)
 
 /*
+   Set ov*B^m1 + {r, m1} to sum_{i + j < m1} a[i]*b[j]*B^{i + j}. In 
+   other words, {r, m1} will be the low m1 words of the product 
+   {a, m1}*{b, m2} and ov will contain any overflow from word by word 
+   multiplications that don't fit in the m1 words of r and is 2 words
+   in length. The output r may not alias either of the inputs a or b. 
+   We require m1 >= m2 > 0.
+*/
+void nn_mullow_classical(nn_t ov, nn_t r, nn_src_t a, len_t m1, 
+                                              nn_src_t b, len_t m2);
+
+/*
+   Set r to ov + sum_{i + j > m1} a[i]*b[j]*B^{i + j - m1}. In other
+   words, this returns the high part of the multiplication {a, m1}*
+   {b, m2}. The output requires m2 - 1 words and any carry will be 
+   returned in a carry-out. We require m1 >= m2 > 0. If ov from mullow
+   is passed to mulhigh then a mullow followed by a mulhigh is the same
+   as a full mul.
+*/
+   word_t nn_mulhigh_classical(nn_t r, nn_src_t a, len_t m1, 
+                                       nn_src_t b, len_t m2, nn_t ov);
+
+/*
+   As per nn_mullhigh_classical except the carry-out is written at
+   word r[m2 - 1].
+*/
+#define nn_s_mulhigh_classical(r, a, m1, b, m2, ov) \
+   do { \
+      (r)[(m2) - 1] = nn_mulhigh_classical(r, a, m1, b, m2, ov); \
+   } while (0)
+
+/*
    Given a of length m and d of length n with a carry-in ci, compute
    the quotient of ci*B^m + a by d, and leave the remainder in the bottom 
    n limbs of a. Requires m >= n > 0. The precomputed inverse inv should 
@@ -1062,3 +1093,4 @@ void nn_divapprox_classical_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d,
    } while (0)
 
 #endif
+

@@ -28,6 +28,66 @@
 
 #include "nn.h"
 
+#ifndef HAVE_ARCH_nn_mullow_classical
+
+void nn_mullow_classical(nn_t ov, nn_t r, nn_src_t a, len_t m1, 
+                                              nn_src_t b, len_t m2)
+{
+   len_t i;
+   dword_t t;
+  
+   t.lo = nn_mul1(r, a, m1, b[0]); 
+   t.hi = 0;
+
+   for (i = 1; i < m2; i++)
+   {
+       word_t v = nn_addmul1(r + i, a, m1 - i, b[i]);
+       t.hi += ((t.lo += v) < v ? 1 : 0);
+   }
+   ov[0] = t.lo;
+   ov[1] = t.hi;
+}
+
+#endif
+
+#ifndef HAVE_ARCH_nn_mulhigh_classical
+
+word_t nn_mulhigh_classical(nn_t r, nn_src_t a, len_t m1, 
+                                       nn_src_t b, len_t m2, nn_t ov)
+{
+   len_t i;
+   word_t t, ci;
+
+   if (m2 == 1)
+      return ov[0]; /* overflow is one limb in this case */
+
+   /* a[m1 - 1] * b[1] + ov[0]*/
+   t = mul_64_by_64(a[m1 - 1], b[1], &ci);
+   ci += ((r[0] = t + ov[0]) < t ? 1 : 0);
+   
+   if (m2 > 2)
+   {
+      /* {a[m1 - 2], a[m1 - 1]} * b[2] + ov[1] */
+      r[1] = ci;
+      ci = nn_addmul1(r, a + m1 - 2, 2, b[2]);
+
+      ci += ((t = r[1] + ov[1]) < r[1] ? 1 : 0);
+      r[1] = t;
+   } 
+   else
+      ci += ov[1]; /* ov[1] cannot be more than 1 in this case */
+
+   for (i = 3; i < m2; i++)
+   {
+      r[i - 1] = ci;
+      ci = nn_addmul1(r, a + m1 - i, i, b[i]);
+   }
+
+   return ci;
+}
+
+#endif
+
 #ifndef HAVE_ARCH_nn_divrem_classical_preinv_c
 
 void nn_divrem_classical_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d, 

@@ -26,5 +26,7 @@
   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#define HAVE_ARCH_nn_mullow_classical
+#define HAVE_ARCH_nn_mulhigh_classical
 #define HAVE_ARCH_nn_divrem_classical_preinv_c
 #define HAVE_ARCH_nn_divapprox_classical_preinv_c
