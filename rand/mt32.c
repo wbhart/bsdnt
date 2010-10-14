@@ -111,7 +111,7 @@ void init_by_array(word_t * init_key, word_t key_length, rand_t c)
 {
     word_t i = 1, j = 0, k = (NN > key_length ? NN : key_length);
 
-    init_genrand(WORD_CONST(19650218));
+    init_genrand(WORD_CONST(19650218), CTX(c));
 
     for ( ; k; k--) 
     {
@@ -148,7 +148,7 @@ word_t mt_word(rand_t c)
    if (IX(CTX(c)) >= NN)  /* generate NN words at one time */
    {
       if (IX(CTX(c)) == NN + 1)   /* if init_genrand() has not been called, */
-         init_genrand(WORD_CONST(5489)); /* a default initial seed is used */
+         init_genrand(WORD_CONST(5489), CTX(c)); /* a default initial seed is used */
 
       for (kk = 0; kk < NN - MM; kk++) 
       {
