@@ -47,7 +47,7 @@ typedef struct
 
 #define CTX(c) ((skiss_ctx *)(c))
 
-#define CNG(p)  (p->xcng = 69069UL * p->xcng + 123ul)
+#define CNG(p)  (p->xcng = WORD(69069) * p->xcng + WORD(123))
 #define XS(p)   (p->xs ^= p->xs << 13, p->xs ^= p->xs >> 17, \
                   p->xs ^= p->xs << 5)
 #define SUPR(p) ((p->indx < 41265L) ? p->q[p->indx++] : refill(p))
@@ -58,10 +58,10 @@ rand_ctx skiss_init(void)
    long i;
 	rand_t c = malloc(sizeof(skiss_ctx));
 
-   CTX(c)->carry = 362UL;
-	CTX(c)->xcng = 1236789UL;
-	CTX(c)->xs = 521288629UL;
-	CTX(c)->indx = 41265UL;
+   CTX(c)->carry = WORD(362);
+	CTX(c)->xcng = WORD(1236789);
+	CTX(c)->xs = WORD(521288629);
+	CTX(c)->indx = WORD(41265);
 
    for (i = 0; i < 41265; ++i)
       CTX(c)->q[i] = (CNG(CTX(c)) + XS(CTX(c)));
@@ -81,7 +81,7 @@ word_t refill(rand_t c)
 
    for (i = 0; i < 41265; ++i)
    {
-      h = CTX(c)->carry & 1UL;
+      h = CTX(c)->carry & WORD(1);
       z = ((CTX(c)->q[i] << 9) >> 1) + ((CTX(c)->q[i] << 7) >> 1) 
          + (CTX(c)->carry >> 1);
       CTX(c)->carry = (CTX(c)->q[i] >> 23) + (CTX(c)->q[i] >> 25) 
@@ -89,7 +89,7 @@ word_t refill(rand_t c)
       CTX(c)->q[i] = ~((z << 1) + h);
    }
 
-   CTX(c)->indx = 1UL;
+   CTX(c)->indx = WORD(1);
     
    return CTX(c)->q[0];
 }

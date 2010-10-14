@@ -17,14 +17,14 @@
     typedef int64_t len_t;
     typedef int64_t bits_t;
 #   define WORD_BITS 64
-#   define WORD_CONST(x) (x##ULL)
+#   define WORD(x) (x##ULL)
 # else
     typedef uint32_t word_t;
     typedef uint64_t dword_t;
     typedef int32_t len_t;
     typedef int32_t bits_t;
 #   define WORD_BITS 32
-#   define WORD_CONST(x) (x##UL)
+#   define WORD(x) (x##UL)
 # endif
 
 #else
@@ -35,14 +35,14 @@
     typedef int32_t len_t;
     typedef int32_t bits_t;
 #   define WORD_BITS 32
-#   define WORD_CONST(x) (x##UL)
+#   define WORD(x) (x##UL)
 # else
     typedef uint64_t word_t;
     typedef unsigned int dword_t __attribute__((mode(TI)));
     typedef int64_t len_t;
     typedef int64_t bits_t;
 #   define WORD_BITS 64
-#   define WORD_CONST(x) (x##UL)
+#   define WORD(x) (x##UL)
 # endif
 
 #endif

@@ -45,7 +45,7 @@ typedef struct
 
 #define CTX(x) ((skiss_ctx *)(x))
 
-#define CNG(x)  ( (x)->xcng = WORD_CONST(6906969069) * (x)->xcng + 123 )
+#define CNG(x)  ( (x)->xcng = WORD(6906969069) * (x)->xcng + 123 )
 #define XS(x)   ( (x)->xs ^= (x)->xs << 13, (x)->xs ^= (x)->xs >> 17, (x)->xs ^= (x)->xs << 43 )
 #define SUPR(x) ( (x)->indx < 20632 ? (x)->q[(x)->indx++] : refill((x)) )
 #define KISS(x) ( SUPR(x) + CNG(x) + XS(x) )
@@ -73,10 +73,10 @@ rand_t skiss_init(void)
    word_t i;
 	rand_t c = malloc(sizeof(skiss_ctx));
     
-   CTX(c)->carry = WORD_CONST(36243678541);
-	CTX(c)->xcng = WORD_CONST(12367890123456);
-	CTX(c)->xs = WORD_CONST(521288629546311);
-	CTX(c)->indx = WORD_CONST(20632);
+   CTX(c)->carry = WORD(36243678541);
+	CTX(c)->xcng = WORD(12367890123456);
+	CTX(c)->xs = WORD(521288629546311);
+	CTX(c)->indx = WORD(20632);
 
    for (i = 0 ; i < 20632 ; ++i) 
 	   CTX(c)->q[i] = CNG(CTX(c)) + XS(CTX(c));

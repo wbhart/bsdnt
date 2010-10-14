@@ -44,10 +44,10 @@ rand_t kiss_init(void)
 {
 	rand_t c = malloc(sizeof(kiss_ctx));
 
-   CTX(c)->x = WORD_CONST(1234567890987654321);
-	CTX(c)->c = WORD_CONST(123456123456123456); 
-   CTX(c)->y = WORD_CONST(362436362436362436);
-	CTX(c)->z = WORD_CONST(1066149217761810);
+   CTX(c)->x = WORD(1234567890987654321);
+	CTX(c)->c = WORD(123456123456123456); 
+   CTX(c)->y = WORD(362436362436362436);
+	CTX(c)->z = WORD(1066149217761810);
     
    return c;
 }
@@ -71,7 +71,7 @@ word_t kiss_word(rand_t c)
 	CTX(c)->y ^= (CTX(c)->y >> 17);
 	CTX(c)->y ^= (CTX(c)->y << 43);
 
-   CTX(c)->z = WORD_CONST(6906969069) * CTX(c)->z + WORD_CONST(1234567);
+   CTX(c)->z = WORD(6906969069) * CTX(c)->z + WORD(1234567);
 
 	return CTX(c)->x + CTX(c)->y + CTX(c)->z;
 }

@@ -45,10 +45,10 @@ rand_t kiss_init(void)
 {
 	rand_t c = malloc(sizeof(kiss_ctx));
 
-   CTX(c)->w = WORD_CONST(521288629);
-	CTX(c)->z = WORD_CONST(362436069);
-	CTX(c)->s = WORD_CONST(123456789); 
-   CTX(c)->c = WORD_CONST(380116160); 
+   CTX(c)->w = WORD(521288629);
+	CTX(c)->z = WORD(362436069);
+	CTX(c)->s = WORD(123456789); 
+   CTX(c)->c = WORD(380116160); 
     
    return c;
 }
