@@ -42,16 +42,9 @@ void nn_divrem_classical_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d,
 
    for (i = m - 1; i >= n - 1; i--, j--)
    {
-     if(norm)
-     {
-         t.hi = (ci << norm) | (a[i] >> (WORD_BITS - norm));
-         t.lo = a[i] << norm;
-     }
-     else
-     {
-         t.hi = ci;
-         t.lo = a[i];
-     }
+     t.hi = (ci << norm) | (norm ? a[i] >> (WORD_BITS - norm) : 0);
+     t.lo = a[i] << norm; 
+
      if(t.hi == d1)
           q1 = ~(word_t) 0;
       else 
@@ -92,16 +85,8 @@ void nn_divapprox_classical_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d,
    for ( ; s >= n; i--, j--, s--)
    {
       /* top "two words" of remaining dividend, shifted */
-     if(norm)
-     {
-         t.hi = (ci << norm) | (a[i] >> (WORD_BITS - norm));
-         t.lo = a[i] << norm;
-     }
-     else
-     {
-         t.hi = ci;
-         t.lo = a[i];
-     }
+      t.hi = (ci << norm) | (norm ? a[i] >> (WORD_BITS - norm) : 0);
+      t.lo = a[i] << norm; 
       
       /* check for special case, a1 == d1 which would cause overflow */
      if(t.hi == d1)
@@ -128,16 +113,8 @@ void nn_divapprox_classical_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d,
    for ( ; i >= n - 1; i--, j--, s--)
    {
       /* top "two words" of remaining dividend, shifted */
-     if(norm)
-     {
-         t.hi = (ci << norm) | (a[s - 1] >> (WORD_BITS - norm));
-         t.lo = a[s - 1] << norm;
-     }
-     else
-     {
-         t.hi = ci;
-         t.lo = a[s - 1];
-     }
+      t.hi = (ci << norm) | (norm ? a[s - 1] >> (WORD_BITS - norm) : 0);
+      t.lo = a[s - 1] << norm; 
 
       /* check for special case, a1 == d1 which would cause overflow */
      if(t.hi == d1)
