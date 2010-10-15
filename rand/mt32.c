@@ -74,9 +74,9 @@ typedef struct
 #define IX(x)	((x)->mti)
 #define MG(x)	((x)->mag01)
 
-rand_t mt_init(void)
+rand_ctx mt_init(void)
 {
-	rand_t c = malloc(sizeof(mt_ctx));
+	rand_ctx c = malloc(sizeof(mt_ctx));
 
 	IX(CTX(c)) = NN + 1;
 	MG(CTX(c))[0] = 0;
@@ -85,12 +85,12 @@ rand_t mt_init(void)
 	return c;
 }
 
-void mt_clear(rand_t ctx)
+void mt_clear(rand_ctx ctx)
 {
 	free(ctx);
 }
 
-void init_genrand(word_t seed, rand_t c)
+void init_genrand(word_t seed, rand_ctx c)
 {
    MT(CTX(c))[0] = seed;
 
@@ -107,7 +107,7 @@ void init_genrand(word_t seed, rand_t c)
    init_key is the array for initializing keys 
    key_length is its length 
 */
-void init_by_array(word_t * init_key, word_t key_length, rand_t c)
+void init_by_array(word_t * init_key, word_t key_length, rand_ctx c)
 {
     word_t i = 1, j = 0, k = (NN > key_length ? NN : key_length);
 
@@ -141,7 +141,7 @@ void init_by_array(word_t * init_key, word_t key_length, rand_t c)
 
 /* generates a random number in [0, 2^32-1]-interval */
 
-word_t mt_word(rand_t c)
+word_t mt_word(rand_ctx c)
 {
    word_t kk, y;
 

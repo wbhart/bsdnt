@@ -35,14 +35,15 @@
 #include "internal_rand.h"
 
 typedef struct kiss_ctx
-{   word_t x, c, y, z;
+{   
+   word_t x, c, y, z;
 } kiss_ctx;
 
 #define CTX(x) ((kiss_ctx*)(x))
 
-rand_t kiss_init(void)
+rand_ctx kiss_init(void)
 {
-	rand_t c = malloc(sizeof(kiss_ctx));
+	rand_ctx c = malloc(sizeof(kiss_ctx));
 
    CTX(c)->x = WORD(1234567890987654321);
 	CTX(c)->c = WORD(123456123456123456); 
@@ -52,12 +53,12 @@ rand_t kiss_init(void)
    return c;
 }
 
-void kiss_clear(rand_t c)
+void kiss_clear(rand_ctx c)
 {
 	free(c);
 }
 
-word_t kiss_word(rand_t c)
+word_t kiss_word(rand_ctx c)
 {   
    word_t t;
 

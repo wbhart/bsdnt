@@ -1,11 +1,32 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include "nn.h"
-#include "test.h"
+/* 
+  Copyright (C) 2010, William Hart
 
+  All rights reserved.
+
+  Redistribution and use in source and binary forms, with or without
+  modification, are permitted provided that the following conditions are met:
+
+  1. Redistributions of source code must retain the above copyright notice, 
+     this list of conditions and the following disclaimer.
+
+  2. Redistributions in binary form must reproduce the above copyright
+     notice, this list of conditions and the following disclaimer in the
+	 documentation and/or other materials provided with the distribution.
+
+  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS''
+  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+  DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDERS OR CONTRIBUTORS BE LIABLE
+  FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+  DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+  SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+  CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+  OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+*/
+
+#undef ITER
 #define ITER 50000
-
-rand_t state;
 
 int test_gc(void)
 {
@@ -436,7 +457,6 @@ int test_shr(void)
       
       randoms_of_len(m + n, ANY, state, &a, &r1, &r2, NULL);
       
-        
       ci = nn_shr(r1 + n, a + n, m, sh1);
       nn_shr_c(r1, a, n, sh1, ci);
       
@@ -1411,7 +1431,7 @@ int test_divrem1_preinv(void)
          
       ci = nn_divrem1_preinv(r1 + n, a + n, m, d, inv);
       rem1 = nn_divrem1_preinv_c(r1, a, n, d, inv, ci);
-     
+
       rem2 = nn_divrem1_preinv(r2, a, m + n, d, inv);
 
       result = (nn_equal_m(r1, r2, m + n) && rem1 == rem2);
@@ -1450,7 +1470,6 @@ int test_divrem_hensel1_preinv(void)
       precompute_hensel_inverse1(&inv, d);
 
       r = nn_divrem_hensel1_preinv(q, a, m, d, inv);
-     
       ci = nn_mul1(r1, q, m, d);
 
       result = (nn_equal_m(r1, a, m) && ci == r);
@@ -1513,7 +1532,6 @@ int test_mod1_preinv(void)
       randoms(NONZERO, state, &d, NULL);
 
       precompute_inverse1(&inv, d);
-
       rem1 = nn_divrem1_preinv(q, a, m, d, inv);
       
       precompute_mod_inverse1(&minv, d);
@@ -1559,13 +1577,11 @@ int test_mod1_preinv(void)
    return result;
 }
 
-int main(void)
+int test_linear(void)
 {
    long pass = 0;
    long fail = 0;
    
-   state = randinit();
-
    RUN(test_gc);
    RUN(test_not);
    RUN(test_neg);
@@ -1595,8 +1611,6 @@ int main(void)
    
    printf("%ld of %ld tests pass.\n", pass, pass + fail);
 
-   randclear(state);
-
-   return 0;
+   return (fail != 0);
 }
 

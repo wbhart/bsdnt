@@ -1,11 +1,5 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include "nn.h"
-#include "test.h"
-
+#undef ITER
 #define ITER 30000
-
-rand_t state;
 
 int test_mul_classical(void)
 {
@@ -338,13 +332,11 @@ int test_div_hensel_preinv(void)
    return result;
 }
 
-int main(void)
+int test_quadratic(void)
 {
    long pass = 0;
    long fail = 0;
    
-   state = randinit();
-
    RUN(test_mul_classical);
    RUN(test_muladd_classical);
    RUN(test_mullow_classical);
@@ -354,9 +346,7 @@ int main(void)
    
    printf("%ld of %ld tests pass.\n", pass, pass + fail);
 
-   randclear(state);
-
-   return 0;
+   return (fail != 0);
 }
 
 

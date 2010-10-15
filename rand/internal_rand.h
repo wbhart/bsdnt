@@ -45,17 +45,17 @@
    Initialise the KISS random state. 
    A default random seed is used.
 */
-rand_t kiss_init(void);
+rand_ctx kiss_init(void);
 
 /* 
    Clean up the KISS random state 
 */
-void kiss_clear(rand_t ctx);
+void kiss_clear(rand_ctx c);
 
 /* 
    Generate a random word with the KISS PRNG. 
 */
-word_t kiss_word(rand_t ctx);
+word_t kiss_word(rand_ctx c);
 
 /***************************************************************************
  
@@ -67,17 +67,17 @@ word_t kiss_word(rand_t ctx);
    Initialise the SKISS random state. 
    A default random seed is used.
 */
-rand_t skiss_init(void);
+rand_ctx skiss_init(void);
 
 /* 
    Clean up the SKISS random state 
 */
-void skiss_clear(rand_t ctx);
+void skiss_clear(rand_ctx c);
 
 /* 
    Generate a random word with the SKISS PRNG. 
 */
-word_t skiss_word(rand_t ctx);
+word_t skiss_word(rand_ctx c);
 
 /***************************************************************************
  
@@ -89,27 +89,27 @@ word_t skiss_word(rand_t ctx);
    Initialise the Mersenne twister random state. 
    A default random seed is used.
 */
-rand_t mt_init(void);
+rand_ctx mt_init(void);
 
 /* 
    Clean up the Mersenne twister random state 
 */
-void mt_clear(rand_t ctx);
+void mt_clear(rand_ctx c);
 
 /* 
    Initialise the Mersenne twister with a random seed.
 */
-void init_genrand(word_t seed, rand_t c);
+void init_genrand(word_t seed, rand_ctx c);
 
 /* 
    Initialise the Mersenne twister with a "key" of length 
    key_length instead of a random seed. 
 */
-void init_by_array(word_t * init_key, word_t key_length, rand_t ctx);
+void init_by_array(word_t * init_key, word_t key_length, rand_ctx c);
 
 /* 
    Generate a random word with the Mersenne twister. 
 */
-word_t mt_word(rand_t ctx);
+word_t mt_word(rand_ctx c);
 
 #endif

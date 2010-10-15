@@ -13,7 +13,7 @@ void nn_random(nn_t a, rand_t state, len_t m)
    long i;
 
    for (i = 0; i < m; i++)
-      a[i] = randword(state);
+      a[i] = (word_t) state.word(state.ctx);
 }
 
 /**********************************************************************

@@ -33,24 +33,47 @@
 
 /* BSDNT Interface */
 
+typedef void * rand_ctx;
+
+typedef rand_ctx (* rand_init_f)(void);
+typedef void     (* rand_clear_f)(rand_ctx);
+typedef word_t (* rand_word_f)(rand_ctx);
+
+typedef struct rand_t
+{
+    rand_init_f init;
+    rand_clear_f clear;
+    rand_word_f word;
+    rand_ctx ctx;
+} rand_t;
+
 typedef enum { KISS, MERSENNE_TWISTER, SUPER_KISS } random_algorithm;
-typedef void * rand_t;
-int set_rand_algorithm(random_algorithm a);
 
-typedef rand_t (*rand_init_f)(void);
-typedef void   (*rand_clear_f)(rand_t);
-typedef word_t (*rand_word_f)(rand_t);
+rand_t set_rand_algorithm(random_algorithm a);
 
-extern rand_init_f randinit;
-extern rand_clear_f randclear;
-extern rand_word_f randword;
+static inline
+void randinit(rand_t * state)
+{   
+    *state = set_rand_algorithm(SUPER_KISS);
+    state->ctx = state->init();
+}
+
+static inline
+void randclear(rand_t state)
+{
+    state.clear(state.ctx);
+}
+
+static inline
+word_t randword(rand_t state) 
+{
+	return state.word(state.ctx);
+}
 
 static inline
 word_t randint(word_t m, rand_t state)
 {
-   ASSERT (m != 0);
-   
-   return randword(state) % m;
+   return ((word_t) state.word(state.ctx) % m);
 }
 
 #endif

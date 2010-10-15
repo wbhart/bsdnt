@@ -28,31 +28,35 @@
 #include "../helper.h"
 #include "internal_rand.h"
 
-rand_init_f  randinit = kiss_init;
-rand_clear_f randclear = kiss_clear;
-rand_word_f randword = kiss_word;
+rand_t set_rand_algorithm(random_algorithm a)
+{   
+   rand_t r;
 
-int set_rand_algorithm(random_algorithm a)
-{
-    switch(a)
-    {
-    case KISS:
-        randinit = kiss_init;
-        randclear = kiss_clear;
-        randword = kiss_word;
-        break;
-    case SUPER_KISS:
-        randinit = skiss_init;
-        randclear = skiss_clear;
-        randword = skiss_word;
-        break;
-    case MERSENNE_TWISTER:
-        randinit = mt_init;
-        randclear = mt_clear;
-        randword = mt_word;
-        break;
-    default:
-        return -1;
-    }
-    return 0;
+   switch(a)
+   {
+   case KISS:
+      r.init = (rand_init_f) kiss_init;
+      r.clear = (rand_clear_f) kiss_clear;
+      r.word = (rand_word_f) kiss_word;
+      break;
+   case SUPER_KISS:
+      r.init = (rand_init_f) skiss_init;
+      r.clear = (rand_clear_f) skiss_clear;
+      r.word = (rand_word_f) skiss_word;
+      break;
+   case MERSENNE_TWISTER:
+      r.init = (rand_init_f) mt_init;
+      r.clear = (rand_clear_f) mt_clear;
+      r.word = (rand_word_f) mt_word;
+      break;
+   default:
+      r.init = (rand_init_f) kiss_init;
+      r.clear = (rand_clear_f) kiss_clear;
+      r.word = (rand_word_f) kiss_word;
+      break;
+   }
+   
+   r.ctx = NULL;
+
+   return r;
 }

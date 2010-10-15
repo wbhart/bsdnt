@@ -50,7 +50,7 @@ typedef struct
 #define SUPR(x) ( (x)->indx < 20632 ? (x)->q[(x)->indx++] : refill((x)) )
 #define KISS(x) ( SUPR(x) + CNG(x) + XS(x) )
 
-word_t refill(rand_t c)
+word_t refill(rand_ctx c)
 {
    word_t i, z, h;
 
@@ -68,10 +68,10 @@ word_t refill(rand_t c)
    return CTX(c)->q[0];
 }
 
-rand_t skiss_init(void)
+rand_ctx skiss_init(void)
 {   
    word_t i;
-	rand_t c = malloc(sizeof(skiss_ctx));
+	rand_ctx c = malloc(sizeof(skiss_ctx));
     
    CTX(c)->carry = WORD(36243678541);
 	CTX(c)->xcng = WORD(12367890123456);
@@ -84,12 +84,12 @@ rand_t skiss_init(void)
    return c; 
 }
 
-void skiss_clear(rand_t c)
+void skiss_clear(rand_ctx c)
 {
 	free(c);
 }
 
-word_t skiss_word(rand_t c)
+word_t skiss_word(rand_ctx c)
 {
    return  SUPR(CTX(c)) + CNG(CTX(c)) + XS(CTX(c));
 }
