@@ -19,6 +19,8 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="config.h" />
+    <ClInclude Include="helper.h" />
     <ClInclude Include="nn.h" />
     <ClInclude Include="rand\bsdnt_rand.h" />
     <ClInclude Include="rand\internal_rand.h" />
@@ -29,15 +31,22 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="arch\nn_quadratic_x64.c" />
-    <ClCompile Include="ms_test.c" />
+    <ClCompile Include="arch\nn_quadratic_x64.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="helper.c" />
     <ClCompile Include="nn_linear.c" />
     <ClCompile Include="nn_quadratic.c" />
     <ClCompile Include="rand\bsdnt_rand.c" />
+    <ClCompile Include="rand\kiss32.c" />
     <ClCompile Include="rand\kiss64.c" />
+    <ClCompile Include="rand\mt32.c" />
     <ClCompile Include="rand\mt64.c" />
+    <ClCompile Include="rand\skiss32.c" />
     <ClCompile Include="rand\skiss64.c" />
     <ClCompile Include="test.c" />
+    <ClCompile Include="test\t-nn_all.c" />
   </ItemGroup>
   <ItemGroup>
     <MASM Include="arch\nn_linear_x64_core2.asm">

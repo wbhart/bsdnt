@@ -36,6 +36,8 @@
 
 #ifdef _MSC_VER
 
+#define inline __inline
+
 # ifdef _WIN64
     typedef struct uint128_t
     {	
