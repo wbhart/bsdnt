@@ -43,8 +43,8 @@ HEADERS = $(wildcard *.h)
 OBJS = $(patsubst %.c, build/%.o, $(SOURCES))
 
 TESTS = test/t-nn_all.c
-TEST_OBJS = test/t-nn_all.o
-BINARIES = build/t-nn_all
+TEST_OBJS = build/test/t-nn_all.o
+BINARIES = build/test/t-nn_all
 
 # PHONY SPEC
 .PHONY: all dist
