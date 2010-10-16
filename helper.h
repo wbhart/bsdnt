@@ -33,10 +33,7 @@
 #include <limits.h>
 #include <assert.h>
 #include "config.h"
-
-#ifdef _MSC_VER
-#include "arch\types_arch.h"
-#endif
+#include "types_arch.h"
 
 #ifndef HAVE_ARCH_TYPES
 
@@ -89,10 +86,7 @@ typedef struct mod_preinv1_t
    word_t b3; /* B^3 mod d */
 } mod_preinv1_t;
 
-#ifdef _MSC_VER
-#include "arch\helper_arch.h"
-#endif
-
+#include "helper_arch.h"
 #include "rand/bsdnt_rand.h"
 
 /**********************************************************************

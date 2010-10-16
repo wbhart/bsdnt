@@ -140,8 +140,8 @@
       <Command>copy arch\win32\nn_linear_win32_core2.h nn_linear_arch.h
 copy arch\nn_linear_win32.h +  arch\nn_linear_win32_asm.h nn_linear_arch.h
 copy arch\win32\nn_quadratic_win32_core2.h nn_quadratic_arch.h
-copy arch\helper_win32.h arch\helper_arch.h
-copy arch\types_win32.h arch\types_arch.h
+copy arch\helper_win32.h helper_arch.h
+copy arch\types_win32.h types_arch.h
 </Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
@@ -162,8 +162,8 @@ copy arch\types_win32.h arch\types_arch.h
       <Command>copy arch\x64\nn_linear_x64_core2.h arch\nn_linear_x64_asm.h
 copy arch\nn_linear_x64.h +  arch\nn_linear_x64_asm.h nn_linear_arch.h
 copy arch\nn_quadratic_x64.h nn_quadratic_arch.h
-copy arch\helper_x64.h arch\helper_arch.h
-copy arch\types_x64.h arch\types_arch.h
+copy arch\helper_x64.h helper_arch.h
+copy arch\types_x64.h types_arch.h
 </Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
@@ -188,8 +188,8 @@ copy arch\types_x64.h arch\types_arch.h
       <Command>copy arch\win32\nn_linear_win32_core2.h nn_linear_arch.h
 copy arch\nn_linear_win32.h +  arch\nn_linear_win32_asm.h nn_linear_arch.h
 copy arch\win32\nn_quadratic_win32_core2.h nn_quadratic_arch.h
-copy arch\helper_win32.h arch\helper_arch.h
-copy arch\types_win32.h arch\types_arch.h
+copy arch\helper_win32.h helper_arch.h
+copy arch\types_win32.h types_arch.h
 </Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
@@ -214,8 +214,8 @@ copy arch\types_win32.h arch\types_arch.h
       <Command>copy arch\x64\nn_linear_x64_core2.h arch\nn_linear_x64_asm.h
 copy arch\nn_linear_x64.h +  arch\nn_linear_x64_asm.h nn_linear_arch.h
 copy arch\nn_quadratic_x64.h nn_quadratic_arch.h
-copy arch\helper_x64.h arch\helper_arch.h
-copy arch\types_x64.h arch\types_arch.h
+copy arch\helper_x64.h helper_arch.h
+copy arch\types_x64.h types_arch.h
 </Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
