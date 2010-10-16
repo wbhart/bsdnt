@@ -923,5 +923,16 @@ void nn_divapprox_classical_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d,
       nn_divapprox_classical_preinv_c(q, a, m, d, n, inv, (a)[m]); \
    } while (0)
 
+/*
+   Perform Hensel division of {a, m} by {d, n} with the quotient mod B^m
+   being returned in q and any overflow from mullow(q, d) being returned
+   in ov. We require m >= n > 0. The quotient q requires m words of space
+   and ov requires 2 words. The dividend, a, is destroyed. The divisor d
+   must be odd and inv must be a precomputed inverse of d[0] computed with
+   precompute_hensel_inverse1.
+*/
+void nn_div_hensel_preinv(nn_t ov, nn_t q, nn_t a, len_t m, 
+                            nn_src_t d, len_t n, hensel_preinv1_t inv);
+
 #endif
 

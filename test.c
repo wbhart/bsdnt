@@ -112,6 +112,7 @@ void randoms_of_len(len_t n, flag_t flag, rand_t state, ...)
       case FULL: while (nn_normalise(*obj, n) != n)
                     nn_random(*obj, state, n);
                  break;
+      case ODD: (*obj)[0] |= (word_t) 1; break;
       default: talker("Unknown flag in randoms_of_len");
          abort();
       }
