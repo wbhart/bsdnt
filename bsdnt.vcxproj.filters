@@ -23,12 +23,15 @@
     <ClInclude Include="rand\internal_rand.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="helper.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="config.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="test.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ms_test.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="nn_quadratic.c">
@@ -55,12 +58,27 @@
     <ClCompile Include="arch\nn_quadratic_x64.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="helper.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="test\t-nn_all.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="rand\kiss32.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="rand\mt32.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="rand\skiss32.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <MASM Include="arch\nn_linear_x64_div128_by_64.asm">
+    <MASM Include="arch\x64\nn_linear_x64_core2.asm">
       <Filter>Source Files</Filter>
     </MASM>
-    <MASM Include="arch\nn_linear_x64_core2.asm">
+    <MASM Include="arch\x64\nn_linear_x64_div128_by_64.asm">
       <Filter>Source Files</Filter>
     </MASM>
   </ItemGroup>

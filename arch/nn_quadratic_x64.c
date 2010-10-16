@@ -94,7 +94,7 @@ void nn_divrem_classical_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d,
                                   len_t n, preinv1_2_t inv, word_t ci)
 {
    dword_t t;
-   long i, j = m - n;
+   len_t i, j = m - n;
    word_t q1, rem;
    word_t norm = inv.norm;
    word_t dinv = inv.dinv;
@@ -133,7 +133,7 @@ void nn_divapprox_classical_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d,
                                   len_t n, preinv1_2_t inv, word_t ci)
 {
    dword_t t;
-   long i = m - 1, j = m - n;
+   len_t i = m - 1, j = m - n;
    word_t q1, rem;
    word_t norm = inv.norm;
    word_t dinv = inv.dinv;
@@ -195,6 +195,44 @@ void nn_divapprox_classical_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d,
       ci = a[s - 1];
       d++;
    }   
+}
+
+#endif
+
+#ifndef HAVE_ARCH_nn_div_hensel_preinv
+
+void nn_div_hensel_preinv(nn_t ov, nn_t q, nn_t a, len_t m, 
+                            nn_src_t d, len_t n, hensel_preinv1_t inv)
+{
+   long i;
+   dword_t t;
+   word_t ci, ct = 0;
+   
+   ASSERT(q != d);
+   ASSERT(q != a);
+   ASSERT(m >= n);
+   ASSERT(n > 0);
+   ASSERT(d[0] & 1);
+
+   for (i = 0; i < m - n; i++)
+   {
+      q[i] = a[i] * inv;
+      ci = nn_submul1(a + i, d, n, q[i]);
+      ct += nn_sub1(a + i + n, a + i + n, m - i - n, ci);
+   }
+
+   t.lo = ct;
+   t.hi = 0;
+
+   for ( ; i < m; i++)
+   {
+      q[i] = a[i] * inv;
+      ct = nn_submul1(a + i, d, m - i, q[i]);
+      t.hi += ((t.lo += ct) < ct ? 1 : 0);
+   }
+   
+   ov[0] = t.lo;
+   ov[1] = t.hi;
 }
 
 #endif

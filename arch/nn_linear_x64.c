@@ -27,6 +27,7 @@
 */
 
 #include "nn.h"
+#include "helper.h"
 #include "nn_linear_x64_asm.h"
 
 #ifndef HAVE_ARCH_nn_add_mc
