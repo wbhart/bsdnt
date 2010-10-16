@@ -274,6 +274,25 @@ word_t nn_addmul1_c(nn_t a, nn_src_t b, len_t m, word_t c, word_t ci)
 
 #endif
 
+#ifndef HAVE_ARCH_nn_muladd1_c
+
+word_t nn_muladd1_c(nn_t r, nn_src_t a, nn_src_t b, len_t m, word_t c, word_t ci)
+{
+   dword_t t;
+   long i;
+
+   for (i = 0; i < m; i++)
+   {
+      t = (dword_t) a[i] + (dword_t) b[i] * (dword_t) c + (dword_t) ci;
+      r[i] = (word_t) t;
+      ci = (t >> WORD_BITS);
+   }
+
+   return ci;
+}
+
+#endif
+
 #ifndef HAVE_ARCH_nn_submul1_c
 
 word_t nn_submul1_c(nn_t a, nn_src_t b, len_t m, word_t c, word_t ci)
@@ -293,6 +312,8 @@ word_t nn_submul1_c(nn_t a, nn_src_t b, len_t m, word_t c, word_t ci)
 
 #endif
 
+#ifndef HAVE_ARCH_nn_divrem1_simple_c
+
 word_t nn_divrem1_simple_c(nn_t q, nn_src_t a, len_t m, word_t d, word_t ci)
 {
    dword_t t;
@@ -307,6 +328,8 @@ word_t nn_divrem1_simple_c(nn_t q, nn_src_t a, len_t m, word_t d, word_t ci)
 
    return ci;
 }
+
+#endif
 
 #ifndef HAVE_ARCH_nn_divrem1_preinv_c
 

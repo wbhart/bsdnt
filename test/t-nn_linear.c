@@ -653,7 +653,7 @@ int test_mul1(void)
 int test_addmul1(void)
 {
    int result = 1;
-   nn_t a, b, r1, r2, t1;
+   nn_t a, b, r1, r2;
    word_t c1, c2, ci;
    len_t m, n;
 
@@ -665,7 +665,7 @@ int test_addmul1(void)
       randoms_upto(100, ANY, state, &m, NULL);
       
       randoms_of_len(m, ANY, state, &a, &b, NULL);
-      randoms_of_len(m + 1, ANY, state, &t1, &r1, &r2, NULL);
+      randoms_of_len(m + 1, ANY, state, &r1, &r2, NULL);
       
       do randoms(ANY, state, &c1, &c2, NULL);
       while (c1 + c2 < c1);
@@ -708,10 +708,70 @@ int test_addmul1(void)
    return result;
 }
 
+int test_muladd1(void)
+{
+   int result = 1;
+   nn_t a, b, r1, r2, t1, t2;
+   word_t c1, c2, ci;
+   len_t m, n;
+
+   printf("nn_muladd1...");
+
+   /* test a + b * (c1 + c2) = a + b * c1 + b * c2 */
+   TEST_START(ITER) 
+   {
+      randoms_upto(100, ANY, state, &m, NULL);
+      
+      randoms_of_len(m, ANY, state, &a, &b, NULL);
+      randoms_of_len(m, ANY, state, &t1, &t2, NULL);
+      randoms_of_len(m + 1, ANY, state, &r1, &r2, NULL);
+      
+      do randoms(ANY, state, &c1, &c2, NULL);
+      while (c1 + c2 < c1);
+
+      nn_copy(t1, a, m);
+      nn_copy(t2, a, m);
+
+      r1[m] = nn_muladd1(r1, t1, b, m, c1);
+      nn_s_muladd1(r1, r1, b, m, c2);
+      
+      r2[m] = nn_muladd1(r2, t2, b, m, c1 + c2);
+
+      result = nn_equal_m(r1, r2, m + 1);
+
+      if (!result) printf("m = %ld, c1 = %ld, c2 = %ld\n", m, c1, c2);
+   } TEST_END;
+
+   /* test chaining of addmul1 */
+   TEST_START(ITER) 
+   {
+      randoms_upto(100, ANY, state, &m, &n, NULL);
+      
+      randoms_of_len(m + n, ANY, state, &a, NULL);
+      randoms_of_len(m + n + 1, ANY, state, &r1, &r2, NULL);
+      randoms_of_len(m + n, ANY, state, &t1, &t2, NULL);
+      
+      nn_copy(t2, t1, m + n);
+
+      randoms(ANY, state, &c1, NULL);
+
+      ci = nn_muladd1(r1, t1, a, m, c1);
+      r1[m + n] = nn_muladd1_c(r1 + m, t1 + m, a + m, n, c1, ci);
+      
+      r2[m + n] = nn_muladd1(r2, t2, a, m + n, c1);
+      
+      result = nn_equal_m(r1, r2, m + n + 1);
+
+      if (!result) printf("m = %ld, n = %ld, c1 = %ld\n", m, n, c1);
+   } TEST_END;
+
+   return result;
+}
+
 int test_submul1(void)
 {
    int result = 1;
-   nn_t a, b, r1, r2, t1;
+   nn_t a, b, r1, r2;
    word_t c1, c2, ci;
    len_t m, n;
 
@@ -723,7 +783,7 @@ int test_submul1(void)
       randoms_upto(100, ANY, state, &m, NULL);
       
       randoms_of_len(m, ANY, state, &a, &b, NULL);
-      randoms_of_len(m + 1, ANY, state, &t1, &r1, &r2, NULL);
+      randoms_of_len(m + 1, ANY, state, &r1, &r2, NULL);
       
       do randoms(ANY, state, &c1, &c2, NULL);
       while (c1 + c2 < c1);
@@ -1311,6 +1371,7 @@ int main(void)
    RUN(test_normalise);
    RUN(test_mul1);
    RUN(test_addmul1);
+   RUN(test_muladd1);
    RUN(test_submul1);
    RUN(test_cmp_m);
    RUN(test_cmp);

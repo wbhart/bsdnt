@@ -118,6 +118,13 @@ typedef struct preinv1_t
    word_t dinv; /* the precomputed inverse of d (see below) */
 } preinv1_t;
 
+typedef struct preinv1_2_t
+{
+   word_t norm; /* the number of leading zero bits in d */
+   word_t dinv; /* the precomputed inverse of d1 (see below) */
+   word_t d1; /* the normalised leading WORD_BITS of d */
+} preinv1_2_t;
+
 typedef word_t hensel_preinv1_t;
 
 typedef struct mod_preinv1_t
@@ -159,6 +166,28 @@ void precompute_inverse1(preinv1_t * inv, word_t d)
    
    inv->dinv = t / d;
    inv->norm = norm;
+}
+
+/*
+   Precomputes an inverse of the leading WORD_BITS of d with leading words 
+   d1, d2 (or d1, 0 if d has only one word) as per the definition of \nu at 
+   the start of section 3 of Moller-Granlund (see below). Does not require 
+   d1, d2 to be normalised. A normalised version of d1, d2 is returned.
+*/
+static inline
+void precompute_inverse1_2(preinv1_2_t * inv, word_t d1, word_t d2)
+{
+   dword_t t;
+   word_t norm = clz(d1);
+   
+   d1 <<= norm;
+   if (norm) d1 += (d2 >> (WORD_BITS - norm));
+
+   t = (~(dword_t) 0) - (((dword_t) d1) << WORD_BITS);
+   
+   inv->dinv = t / d1;
+   inv->norm = norm;
+   inv->d1 = d1;
 }
 
 /*
@@ -672,6 +701,40 @@ word_t nn_addmul1_c(nn_t a, nn_src_t b, len_t m, word_t c, word_t ci);
    nn_s_addmul1_c(a, b, m, c, (word_t) 0)
 
 /*
+   Set r = a + b * c + ci where a and b are m words in length, c 
+   is a word and ci is a "carry in". The carry out is returned. 
+*/
+word_t nn_muladd1_c(nn_t r, nn_src_t a, nn_src_t b, len_t m, word_t c, word_t ci);
+
+/*
+   Set r = a + b * c where a and b are m words in length, and c 
+   is a word. The carry out is returned. 
+*/
+#define nn_muladd1(r, a, b, m, c) \
+   nn_muladd1_c(r, a, b, m, c, (word_t) 0)
+
+/*
+   Set r = a + b * c + ci where a and b are m words in length, c 
+   is a word and ci is a "carry in". The carry out is added to
+   a[m] if r aliases a, otherwise it is written to r[m]. 
+*/
+#define nn_s_muladd1_c(r, a, b, m, c, ci) \
+   do { \
+      if ((r) == (a)) \
+         (a)[m] += nn_addmul1_c(a, b, m, c, ci); \
+      else \
+         (r)[m] = nn_muladd1_c(r, a, b, m, c, ci); \
+   } while (0)
+
+/*
+   Set r = a + b * c where a and b are m words in length and c 
+   is a word. The carry out is added to a[m] if r aliases a, 
+   otherwise it is written to r[m].   
+*/
+#define nn_s_muladd1(r, a, b, m, c) \
+   nn_s_muladd1_c(r, a, b, m, c, (word_t) 0)
+
+/*
    Set a = a - b * c - ci where a and b are m words in length, c 
    is a word and ci is a "borrow in". The borrow out is returned. 
 */
@@ -859,6 +922,94 @@ word_t nn_mul_classical(nn_t r, nn_src_t a, len_t m1, nn_src_t b, len_t m2);
 #define nn_s_mul_classical(r, a, m1, b, m2) \
    do { \
       (r)[(m1) + (m2) - 1] = nn_mul_classical(r, a, m1, b, m2); \
+   } while (0)
+
+/*
+   Set {r, m1 + m2 - 1} = {a, m1} + {b, m1} * {c, m2} and return any 
+   carry-out. The output r may not alias either of the inputs b or c, 
+   but a may alias with r as long as the requisite space is available. 
+   We require m1 >= m2 > 0.
+*/
+word_t nn_muladd_classical(nn_t r, nn_src_t a, nn_src_t b, 
+                                     len_t m1, nn_src_t c, len_t m2);
+
+/*
+   Set {r, m1 + m2 - 1} = {a, m1} + {b, m1} * {c, m2} and write any 
+   carry-out. The output r may not alias either of the inputs b or c, 
+   but a may alias with r as long as the requisite space is available. 
+   We require m1 >= m2 > 0.
+*/
+#define nn_s_muladd_classical(r, a, b, m1, c, m2) \
+   do { \
+      (r)[(m1) + (m2) - 1] = nn_muladd_classical(r, a, b, m1, c, m2); \
+   } while (0)
+
+/*
+   Set ov*B^m1 + {r, m1} to sum_{i + j < m1} a[i]*b[j]*B^{i + j}. In 
+   other words, {r, m1} will be the low m1 words of the product 
+   {a, m1}*{b, m2} and ov will contain any overflow from word by word 
+   multiplications that don't fit in the m1 words of r and is 2 words
+   in length. The output r may not alias either of the inputs a or b. 
+   We require m1 >= m2 > 0.
+*/
+void nn_mullow_classical(nn_t ov, nn_t r, nn_src_t a, len_t m1, 
+                                              nn_src_t b, len_t m2);
+
+/*
+   Set r to ov + sum_{i + j > m1} a[i]*b[j]*B^{i + j - m1}. In other
+   words, this returns the high part of the multiplication {a, m1}*
+   {b, m2}. The output requires m2 - 1 words and any carry will be 
+   returned in a carry-out. We require m1 >= m2 > 0. If ov from mullow
+   is passed to mulhigh then a mullow followed by a mulhigh is the same
+   as a full mul.
+*/
+   word_t nn_mulhigh_classical(nn_t r, nn_src_t a, len_t m1, 
+                                       nn_src_t b, len_t m2, nn_t ov);
+
+/*
+   As per nn_mullhigh_classical except the carry-out is written at
+   word r[m2 - 1].
+*/
+#define nn_s_mulhigh_classical(r, a, m1, b, m2, ov) \
+   do { \
+      (r)[(m2) - 1] = nn_mulhigh_classical(r, a, m1, b, m2, ov); \
+   } while (0)
+
+/*
+   Given a of length m and d of length n with a carry-in ci, compute
+   the quotient of ci*B^m + a by d, and leave the remainder in the bottom 
+   n limbs of a. Requires m >= n > 0. The precomputed inverse inv should 
+   be computed from the leading two limbs of d (or the leading limb and 0 
+   if n is 1) using precompute_inverse_lead. If a_n is the leading n limbs 
+   of a, then ci*B^m + a_n must be less than B * d. The quotient
+   must have space for m - n + 1 limbs. 
+*/
+void nn_divrem_classical_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d, 
+                                     len_t n, preinv1_2_t inv, word_t ci);
+
+/*
+   As per nn_divrem_classical_preinv_c except that the carry-in is read 
+   from a[m]. The quotient will therefore be {a, m + 1} by {d, n}.
+*/
+#define nn_r_divrem_classical_preinv(q, a, m, d, n, inv) \
+   do { \
+      nn_divrem_classical_preinv_c(q, a, m, d, n, inv, (a)[m]); \
+   } while (0)
+
+/*
+   As per nn_divrem_classical_preinv_c, however no remainder is computed
+   and the quotient is either correct or one too large, i.e. |a - q*d| < d.
+*/
+void nn_divapprox_classical_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d, 
+                                  len_t n, preinv1_2_t inv, word_t ci);
+
+                                  /*
+   As per nn_divapprox_classical_preinv_c except that the carry-in is read 
+   from a[m]. The approx. quotient will therefore be {a, m + 1} by {d, n}.
+*/
+#define nn_r_divapprox_classical_preinv(q, a, m, d, n, inv) \
+   do { \
+      nn_divapprox_classical_preinv_c(q, a, m, d, n, inv, (a)[m]); \
    } while (0)
 
 #endif
