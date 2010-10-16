@@ -20,14 +20,16 @@
 # BSDNT UNIX Build System.
 
 # Build tools and environment
-AS=nasm
+AS=yasm
 AR=ar
 CC=gcc
-CFLAGS=-pedantic -O2 -masm=intel -g -fopenmp -fPIC -Wall
+AFLAGS=-felf64 -F dwarf
+CFLAGS=-pedantic -O2 -g -fopenmp -fPIC -Wall
 LIBS=-L$(CURDIR)
-INCS=-I$(CURDIR)
+INCS=-I$(CURDIR) 
 
 # QUIET MAKE
+QUIET_AS         = @echo '   ' AS '   ' $@;
 QUIET_CC         = @echo '   ' CC '   ' $@;
 QUIET_LINK       = @echo '   ' LINK ' ' $@;
 QUIET_AR         = @echo '   ' AR '   ' $@;
@@ -37,38 +39,43 @@ QUIET_SO         = @echo '   ' SO '   ' $@;
 QUIET_DISTBIN    = @echo '   ' DIST BINARY;
 QUIET_DISTSRC    = @echo '   ' ARCH SOURCE;
 
+# Assembly
+
+ASFILES = $(wildcard arch/x86-64/*.asm)
+ASOBJS  = $(patsubst %.asm, build/%.o, $(ASFILES))
+
 # FILES
-SOURCES = $(wildcard *.c) $(wildcard rand/*.c)
+SOURCES = $(wildcard *.c)
 HEADERS = $(wildcard *.h)
 OBJS = $(patsubst %.c, build/%.o, $(SOURCES))
 
-TESTS = test/t-nn_all.c
-TEST_OBJS = build/test/t-nn_all.o
-BINARIES = build/test/t-nn_all
+TESTS = build/test/t-nn
+
+BINARIES = $(TESTS)
 
 # PHONY SPEC
 .PHONY: all dist
 
 # RULES
-all: $(OBJS) $(TEST_OBJS)
-	$(QUIET_LINK)$(foreach prog, $(BINARIES), $(CC) $(OBJS) $(TEST_OBJS) -o $(prog);)
-	
+all: $(ASOBJS) $(OBJS) $(BINARIES)
+
 clean:
-	rm -f $(OBJS) $(TEST_OBJS) $(BINARIES)
-	rm -f cpuid
+	rm -f $(ASOBJS) $(OBJS) $(BINARIES)
 
-distclean: clean
-	rm -f *_arch.h
-
-check: all 
-	$(foreach prog, $(BINARIES), $(prog);)	
+check: $(OBJS) $(BINARIES)
+	$(foreach prog, $(TESTS), $(prog);)	
 
 strip:
 	strip $(BINARIES)
 
+build/arch/%.o: arch/%.asm
+	$(QUIET_AS)$(AS)  $(AFLAGS) $< -o $@
+
 build/%.o: %.c
 	$(QUIET_CC)$(CC)  $(CFLAGS) $(INCS) -c $< -o $@
 
-build/test/%.o: %.c
-	$(QUIET_CC)$(CC)  $(CFLAGS) $(INCS) -c test/$< -o $@
+build/test/t-nn: build/nn.o build/t-nn.o build/arch/x86-64/nn_add_mc_intel.o build/arch/x86-64/nn_sub_mc.o
+	$(QUIET_LINK)$(CC) -o build/test/t-nn build/nn.o build/t-nn.o build/arch/x86-64/nn_add_mc_intel.o  build/arch/x86-64/nn_sub_mc.o
+
+	
 

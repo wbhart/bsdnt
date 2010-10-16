@@ -1,11 +1,83 @@
-#! /bin/sh
+#!/bin/bash
 
-CC=gcc
+# Copyright (c):
+# * William Hart 2010. All rights reserved.
+# * Antony Vennard 2010. All rights reserved.
+# 
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions
+# are met:
+#  
+#  1. Redistributions of source code must retain the above copyright
+#     notice, this list of conditions and the following disclaimer.
+#  2. Redistributions in binary form must reproduce the above copyright
+#     notice, this list of conditions and the following disclaimer in
+#     the documentation and/or other materials provided with the
+#     distribution.
+#  
+# THIS SOFTWARE IS PROVIDED ``AS IS'' AND WITHOUT ANY EXPRESS OR
+# IMPLIED WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED
+# WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 
-WANT_ASSERT=0
-WANT_REDZONES=1
 
-while test "$1" != "" ; do
+# BSDNT UNIX Build System.
+
+
+AS="gcc"
+ASFILES=
+AR="ar"
+CC="gcc"
+AFLAGS=""
+CFLAGS="-pedantic -O2 -g -fopenmp -fPIC -Wall"
+
+UNIXBUILDMAP=unixbuild.map
+
+CCC=x
+AAA=x
+
+# Header 
+echo "BSDNT Unix Build Script."
+echo "BSDNT is a BSD-Licensed BigNum Library."
+echo "BSDNT is Copyright (C) its contributors. See LICENSE."
+echo "====================================================="
+
+detect_compilers()
+{
+    # Detect which compiler combinations exist.
+
+    if which clang &> /dev/null; then
+        COMPILER_CLANG=1;
+        echo "   CC   clang detected."
+    fi
+    if which icc &> /dev/null; then
+        COMPILER_ICC=1;
+        echo "   CC   icc detected."
+    fi
+    if which gcc &> /dev/null; then
+        COMPILER_GCC=1;
+        echo "   CC   gcc detected."
+    fi
+    if which yasm &> /dev/null; then
+        ASSEMBLER_YASM=1;
+        echo "   AS   yasm detected."
+    fi
+    if which nasm &> /dev/null; then
+        ASSEMBLER_NASM=1;
+        echo "   AS   nasm detected."
+    fi
+    
+    if which nvcc &> /dev/null; then
+        BUILDEXT_CUDA=1;
+        echo "   CU   nvcc detected."
+    fi  
+}
+
+create_config_h()
+{
+    WANT_ASSERT=0
+    WANT_REDZONES=1
+
+    while test "$1" != "" ; do
         if test "$1" = "-assert"
         then
            WANT_ASSERT=1
@@ -15,73 +87,419 @@ while test "$1" != "" ; do
            WANT_REDZONES=0
         fi
         shift
-done
+    done
 
-echo "#define WANT_ASSERT ${WANT_ASSERT}" > config.h
-echo "#define WANT_REDZONES ${WANT_REDZONES}" >> config.h
+    echo "#define WANT_ASSERT ${WANT_ASSERT}" > config.h
+    echo "#define WANT_REDZONES ${WANT_REDZONES}" >> config.h
+}
 
-ARCH=`uname -m &> /dev/null`
 
-case $ARCH in
-x86_64 | amd64)
-   MACHINE="_x86_64";;
-x86 | i*86 | pc)
-   MACHINE="_x86";;
-*)
-   MACHINE="unknown";;
-esac
+offer_compiler_choice()
+{
+    echo "====================================================="
+    echo "Select Compiler from the detected compilers below:"
 
-if [ $MACHINE = "_x86" -o $MACHINE = "_x86_64" ]
-then
-   $CC arch/cpuid.c -o cpuid 
-   ARCH=`./cpuid &> /dev/null`
-   case $ARCH in
-   k10)
-      EXTS="_k10 _k8";;
-   k8)
-      EXTS="_k8";;
-   atom)
-      EXTS="_atom";;
-   nehalem)
-      EXTS="_nehalem _core2";;
-   core2)
-      EXTS="_core2";;
-   p4)
-      EXTS="_p4";;
-   * | x86)
-      EXTS="";;
+    I=0
+
+    if [ $COMPILER_GCC = 1 ] 
+    then
+        echo " g) gcc [+ gas/nasm/yasm]";
+        I=1;
+    fi
+
+    if [ $COMPILER_CLANG = 1 ] 
+    then
+        echo " c) clang [+ nasm/yasm]";
+        I=1;
+
+    fi
+
+    if [ $COMPILER_ICC = 1 ] 
+    then
+        echo " i) icc [+ nasm/yasm]"
+        I=1;
+    fi
+
+    if [ I = 0 ] 
+    then
+        echo "No Compilers available.";
+        exit
+    else
+        echo -n "Your choice: "
+        read -n 1 CCC
+        echo ""
+    fi
+
+    echo "CCC is $CCC"
+
+    if [ $CCC = "g" ] 
+    then
+        CC=gcc
+        CFLAGS=
+        LFLAGS=
+
+        
+        echo "Please choose an assembler:"
+
+
+        echo " g) GNU AS (Default)"
+        if [ $ASSEMBLER_YASM = 1 ]
+        then
+            echo " y) YASM"
+        fi
+        if [ $ASSEMBLER_NASM = 1 ]
+        then
+            echo " n) NASM"
+        fi
+
+        echo -n "Your choice: "
+        read -n 1 AAA
+        echo ""
+            
+        if [ !$AAA -o $AAA = "g" ]
+        then
+            AS="gcc"
+        elif [ $AAA = "y" ] 
+        then
+            AS="yasm"
+            ASFLAGS=""
+        elif [ $AAA = "n" ]
+        then
+            AS="nasm"
+            ASFLAGS=""
+     
+        fi
+
+    elif [ $CCC = "i" ] 
+    then
+        CC=icc
+        CFLAGS=
+        LFLAGS=
+
+        
+        echo "Please choose an assembler:"
+
+        if [ $ASSEMBLER_YASM = 1 ]
+        then
+            echo " y) YASM"
+        fi
+        if [ $ASSEMBLER_NASM = 1 ]
+        then
+            echo " n) NASM"
+        fi
+
+        echo -n "Your choice: "
+        read -n 1 AAA
+        echo ""
+
+        if [ $AAA = "y" ] 
+        then
+            AS="yasm"
+        elif [ $AAA = "n" ]
+        then
+            AS="nasm"
+        fi
+
+    elif [ $CCC = "c" ] 
+    then
+        CC=clang
+        CFLAGS=
+        LFLAGS=
+
+        echo "Please choose an assembler:"
+
+        if [ $ASSEMBLER_YASM = 1 ]
+        then
+            echo " y) YASM"
+        fi
+        if [ $ASSEMBLER_NASM = 1 ]
+        then
+            echo " n) NASM"
+        fi
+
+        echo -n "Your choice: "
+        read -n 1 AAA
+        echo ""
+
+        if [ $AAA = "y" ] 
+        then
+            AS="yasm"
+        elif [ $AAA = "n" ]
+        then
+            AS="nasm"
+        fi
+
+    fi
+
+
+    if [ $BUILDEXT_CUDA = 1 ]
+    then
+        echo -n "Do you wish to enable CUDA extensions (y/n)? "
+        read -n 1 qcuda
+        echo ""
+
+        if [ $qcuda = "y" ]
+        then
+            NVCC=nvcc
+            NVCCFLAGS=
+        fi
+    fi
+
+}
+
+arch_handler()
+{
+    # Set Architecture
+    ARCH=`uname -m`
+
+    case $ARCH in
+    x86_64 | amd64)
+       MACHINE="_x86_64";;
+    x86 | i*86 | pc)
+       MACHINE="_x86";;
+    *)
+       MACHINE="unknown";;
     esac
 
-    for file in *.c
-    do
-       name=${file%\.*}
-       echo "#ifndef ${name}_H" > ${name}_arch.h
-       echo "#define ${name}_H" >> ${name}_arch.h
-       for ext in $EXTS
-       do
-          hname=arch/$name$MACHINE$ext.h
-          if [ -f $hname ]
-          then
-             echo "#include \"${hname}\"" >> ${name}_arch.h
-          fi
-          hname=arch/$name$MACHINE.h
-          if [ -f $hname ]
-          then
-             echo "#include \"${hname}\"" >> ${name}_arch.h
-          fi
-       done
-       echo "#endif" >> ${name}_arch.h
-    done
-fi
+    # Create ARCH headers. 
 
-if [ $MACHINE = "unknown" ]
-then
-    for file in nn*.c
-    do
-       name=${file%\.*}
-       echo "#ifndef ${name}_H" > ${name}_arch.h
-       echo "#define ${name}_H" >> ${name}_arch.h
-       echo "#endif" >> ${name}_arch.h
-    done
-fi
+    if [ $MACHINE = "_x86" -o $MACHINE = "_x86_64" ]
+    then
+        $CC arch/cpuid.c -o cpuid 
+        ARCH=`./cpuid`
+        case $ARCH in
+        k10)
+            EXTS="_k10 _k8";;
+        k8)
+            EXTS="_k8";;
+        atom)
+            EXTS="_atom";;
+        nehalem)
+            EXTS="_nehalem _core2";;
+        core2)
+            EXTS="_core2";;
+        p4)
+            EXTS="_p4";;
+        * | x86)
+            EXTS="";;
+        esac
 
+        if [ $MACHINE = "_x86_64" ]
+        then
+            ASFLAGS="-felf64"
+        elif [ $MACHINE = "_x86" ]
+        then
+            ASFLAGS="-felf32"
+        fi
+
+        for file in nn*.c
+        do
+            name=${file%\.*}
+            #echo "   Writing ${name}_arch.h"
+            echo "#ifndef ${name}_H" > ${name}_arch.h
+            echo "#define ${name}_H" >> ${name}_arch.h
+            for ext in $EXTS
+            do
+                # under certain conditions, we 
+                # want to add to the ASFILES 
+                # variable and not include these 
+                # inline assembly files.
+                # I know you like them Bill.
+                # I am truly sorry.
+
+
+                if [ $AS = "yasm" -o $AS = "nasm" ]
+                then
+                    asname=arch/$name$MACHINE$ext.asm
+                    if [ -f $asname ]
+                    then 
+                        ASFILES=`echo "$ASFILES $asname"`
+                    fi
+                else
+                    hname=arch/$name$MACHINE$ext.h
+                    if [ -f $hname ]
+                    then
+                        echo "#include \"${hname}\"" >> ${name}_arch.h
+                    fi
+                    hname=arch/$name$MACHINE.h
+                    if [ -f $hname ]
+                    then
+                        echo "#include \"${hname}\"" >> ${name}_arch.h
+                    fi
+                fi
+            done
+            echo "#endif" >> ${name}_arch.h
+        done
+    fi
+
+    if [ $MACHINE = "unknown" ]
+    then
+        for file in nn*.c
+        do
+           name=${file%\.*}
+           echo "#ifndef ${name}_H" > ${name}_arch.h
+           echo "#define ${name}_H" >> ${name}_arch.h
+           echo "#endif" >> ${name}_arch.h
+        done
+    fi
+
+}
+
+fill_makefile_wireframe()
+{
+    echo "Examining source"
+
+    CFILESARR=`ls -1 *.c`
+    HFILESARR=`ls -1 *.h`
+    TFILESARR=`ls -1 test/*.c`
+
+    for C in `echo ${CFILESARR[*]}`;
+    do
+        CFILES="$CFILES $C"
+    done
+
+    for H in `echo ${HFILESARR[*]}`;
+    do
+        HFILES="$HFILES $H"
+    done
+
+    for T in `echo ${TFILESARR[*]}`;
+    do
+        TFILES="$TFILES $T"
+    done
+
+    echo "Creating Makefile "
+
+    cp -f Makefile.unix Makefile
+}
+
+process_build_item()
+{
+    mlout=
+    mldeps=
+    mlfdep=
+    mlfbuild=
+    i=0
+ 
+    target="$(echo ${1%\:})" # g
+
+    firstchar=${target:0:2}
+    fext_loc=`expr match "$target" '^.*\.'`
+    if [ $fext_loc > 0 ]
+    then
+        fext=${target:$fext_loc:${#target}}
+
+        if [ $fext = "a" ]
+        then
+            # Create a build line pair beginning AR
+            mlout=`echo "dist/lib/$target"`
+            BINARIES=`echo "$BINARIES $mlout"`
+            mlfbuild='\t$(QUIET_AR)$(AR) rcs '
+
+        elif [ $fext = "so" ]
+        then
+            # create a build line pair with the SO Seq.
+            mlout=`echo "dist/lib/$target"`
+            BINARIES=`echo "$BINARIES $mlout"`
+            mlfbuild='\t$(QUIET_SO)$(CC) -o '
+        fi
+        # Ignore unknown extensions!
+    fi
+
+    if [ $firstchar = "t-" ] 
+    then
+        mlout=`echo "build/test/$target"`
+        TESTS=`echo "$TESTS $mlout"`
+        mlfbuild='\t$(QUIET_LINK)$(CC) -o '
+    fi
+
+    for object in "$@"
+    do
+        if [ $i != "0" ] 
+        then
+            if [ $object = "-asm-" ]
+            then
+                for asfile in $ASFILES
+                do
+
+                    object=`echo "build/${asfile%\.*}.o"`
+                done
+
+            else
+                firstchar_obj=${object:0:2}
+                if [ $firstchar_obj = "t-" ] 
+                then
+                    
+                    object=`echo "build/test/$object"`
+                else
+                    object=`echo "build/$object"`
+                fi
+            fi
+
+        fi
+
+    i=$1+1
+    done
+
+    mlfdep=`echo "$mlout: $mldeps"`
+
+    mlfbuild="$mlfbuild $mlout $mldeps"
+
+    echo $mlfdep >> Makefile
+    echo -e $mlfbuild >> Makefile
+    echo "" >> Makefile
+}
+
+parse_build_maps() 
+{
+    while read -r line
+    do
+        if [ -n "$line" ]
+        then
+            process_build_item $line
+        fi
+    done < "$1"
+
+    rm "0"
+}
+
+
+sed_makefile()
+{
+    sed -i "s|__ASSEMBLER__|${AS}|g" Makefile
+    sed -i "s|__ARCHIVE__|${AR}|g" Makefile
+    sed -i "s|__COMPILER__|${CC}|g" Makefile
+    sed -i "s|__AFLAGS__|${ASFLAGS}|g" Makefile
+    sed -i "s|__CFLAGS__|${CFLAGS}|g" Makefile
+    sed -i "s|__ASFILES__|${ASFILES}|g" Makefile
+    sed -i "s|__SOURCES__|${CFILES}|g" Makefile
+    sed -i "s|__HEADERS__|${HFILES}|g" Makefile
+    sed -i "s|__TSOURCES__|${TFILES}|g" Makefile
+    sed -i "s|__TESTS__|${TESTS}|g" Makefile
+    sed -i "s|__BINARIES__|${BINARIES}|g" Makefile
+}
+
+
+make_directory_structure()
+{
+    mkdir -p build/arch
+    mkdir -p build/test
+    mkdir -p dist/lib
+}
+
+create_config_h
+detect_compilers
+offer_compiler_choice
+arch_handler
+fill_makefile_wireframe
+parse_build_maps $UNIXBUILDMAP
+sed_makefile
+make_directory_structure
+
+
+echo "Done. "
+echo " "
+echo "Type make to build this library. We strongly recommend you run "
+echo "make check and ensure all tests pass."
+
+exit 0

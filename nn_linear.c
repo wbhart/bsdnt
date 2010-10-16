@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include "nn.h"
-#include "nn_linear_arch.h"
 
 /**********************************************************************
  
