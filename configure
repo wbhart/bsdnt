@@ -1,7 +1,27 @@
-#!/bin/sh
+#!/bin/bash
 
-# Copyright William Hart, Antony Vennard 2010. All Rights Reserved.
-# License as in LICENSE.
+# Copyright (c):
+# * William Hart 2010. All rights reserved.
+# * Antony Vennard 2010. All rights reserved.
+# 
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions
+# are met:
+#  
+#  1. Redistributions of source code must retain the above copyright
+#     notice, this list of conditions and the following disclaimer.
+#  2. Redistributions in binary form must reproduce the above copyright
+#     notice, this list of conditions and the following disclaimer in
+#     the documentation and/or other materials provided with the
+#     distribution.
+#  
+# THIS SOFTWARE IS PROVIDED ``AS IS'' AND WITHOUT ANY EXPRESS OR
+# IMPLIED WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED
+# WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+
+
+# BSDNT UNIX Build System.
+
 
 AS="gcc"
 ASFILES=
@@ -118,7 +138,6 @@ offer_compiler_choice()
         if [ !$AAA -o $AAA = "g" ]
         then
             AS="gcc"
-            ASFLAGS=""
         elif [ $AAA = "y" ] 
         then
             AS="yasm"
@@ -155,11 +174,9 @@ offer_compiler_choice()
         if [ $AAA = "y" ] 
         then
             AS="yasm"
-            ASFLAGS=""
         elif [ $AAA = "n" ]
         then
             AS="nasm"
-            ASFLAGS=""
         fi
 
     elif [ $CCC = "c" ] 
@@ -186,11 +203,9 @@ offer_compiler_choice()
         if [ $AAA = "y" ] 
         then
             AS="yasm"
-            ASFLAGS=""
         elif [ $AAA = "n" ]
         then
             AS="nasm"
-            ASFLAGS=""
         fi
 
     fi
@@ -252,22 +267,38 @@ arch_handler()
         do
            name=${file%\.*}
            echo "   Writing ${name}_arch.h"
-           #echo "#ifndef ${name}_H" > ${name}_arch.h
-           #echo "#define ${name}_H" >> ${name}_arch.h
-           #for ext in $EXTS
-           #do
-           #   hname=arch/$name$MACHINE$ext.h
-           #   if [ -f $hname ]
-           #   then
-           #      echo "#include \"${hname}\"" >> ${name}_arch.h
-           #   fi
-           #   hname=arch/$name$MACHINE.h
-           #   if [ -f $hname ]
-           #   then
-           #      echo "#include \"${hname}\"" >> ${name}_arch.h
-           #   fi
-           #done
-           #echo "#endif" >> ${name}_arch.h
+           echo "#ifndef ${name}_H" > ${name}_arch.h
+           echo "#define ${name}_H" >> ${name}_arch.h
+           for ext in $EXTS
+           do
+               # under certain conditions, we 
+               # want to add to the ASFILES 
+               # variable and not include these 
+               # inline assembly files.
+               # I know you like them Bill.
+               # I am truly sorry.
+
+               if [ $AS = "yasm" -o $AS = "nasm" ]
+               then
+                   asname=arch/$name$MACHINE$ext.asm
+                   if [ -f asname ]
+                   then 
+                       ASFILES=`echo "$ASFILES $asname"`
+                   fi
+               else
+                   hname=arch/$name$MACHINE$ext.h
+                   if [ -f $hname ]
+                   then
+                       echo "#include \"${hname}\"" >> ${name}_arch.h
+                   fi
+                   hname=arch/$name$MACHINE.h
+                   if [ -f $hname ]
+                   then
+                       echo "#include \"${hname}\"" >> ${name}_arch.h
+                   fi
+               fi
+           done
+           echo "#endif" >> ${name}_arch.h
         done
     fi
 
@@ -316,7 +347,7 @@ fill_makefile_wireframe()
     sed -i "s|__COMPILER__|${CC}|g" Makefile
     sed -i "s|__AFLAGS__|${ASFLAGS}|g" Makefile
     sed -i "s|__CFLAGS__|${CFLAGS}|g" Makefile
-    sed -i "s|__ASFILES__|e|g" Makefile
+    sed -i "s|__ASFILES__|${ASFILES}|g" Makefile
     sed -i "s|__SOURCES__|${CFILES}|g" Makefile
     sed -i "s|__HEADERS__|${HFILES}|g" Makefile
     sed -i "s|__TESTS__|${TFILES}|g" Makefile
@@ -362,7 +393,7 @@ process_build_item()
         then
             if [ $object = "-asm-" ]
             then
-                object="--asm--"
+                object=$ASFILES
             fi
             mldeps=`echo "$mldeps $object"`
         fi
@@ -371,32 +402,35 @@ process_build_item()
     done
 
     mlfdep=`echo "$mlout: $mldeps"`
-    echo $mlfdep
+    #echo $mlfdep
 
-    mlfbuild="$\(CC\) $\(LFLAGS\) -o $mlout $mldeps"
-    echo $mlfbuild
+    mlfbuild='\t$(CC) $(LFLAGS) -o '
+    mlfbuild="$mlfbuild $mlout $mldeps"
+    #echo $mlfbuild
 
-    echo " "
+    echo $mlfdep >> Makefile
+    echo -e $mlfbuild >> Makefile
+    echo "" >> Makefile
 }
 
 parse_build_maps() 
 {
-    exec 3<&0
-    exec 0<"$1"
-    
     while read -r line
     do
         if [ -n "$line" ]
         then
             process_build_item $line
         fi
-    done
-    exec 0<&3
+    done < "$1"
+
+    rm "0"
 }
 
 
-
-
+detect_compilers
+offer_compiler_choice
+arch_handler
+fill_makefile_wireframe
 parse_build_maps $UNIXBUILDMAP
 
 
