@@ -78,7 +78,7 @@ create_config_h()
     WANT_REDZONES=1
 
     while test "$1" != "" ; do
-        if test "$1" = "-assert"
+	if test "$1" = "-assert"
         then
            WANT_ASSERT=1
         fi
@@ -88,7 +88,7 @@ create_config_h()
         fi
         shift
     done
-
+    
     echo "#define WANT_ASSERT ${WANT_ASSERT}" > config.h
     echo "#define WANT_REDZONES ${WANT_REDZONES}" >> config.h
 }
@@ -497,7 +497,7 @@ make_directory_structure()
     mkdir -p dist/lib
 }
 
-create_config_h
+create_config_h $@
 detect_compilers
 offer_compiler_choice
 arch_handler
