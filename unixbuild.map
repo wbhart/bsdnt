@@ -1,7 +1,5 @@
-
-nn_linear.o: nn_linear.X
-t-nn_linear.o: t-nn_linear.c
-t-nn_linear: t-nn_linear.o nn_linear.o
-t-nn_quadratic: t-nn_quadratic.o nn_quadratic.o
+libbsdnt.a: nn_linear.o nn_quadratic.o -asm-
+t-nn_linear: t-nn_linear.o nn_linear.o -asm-
+t-nn_quadratic: t-nn_quadratic.o nn_quadratic.o -asm-
 
 
