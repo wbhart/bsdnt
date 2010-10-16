@@ -168,29 +168,12 @@ void nn_divrem_classical_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d,
 
    for (i = m - 1; i >= n - 1; i--, j--)
    {
-#if defined( _MSC_VER ) && WORD_BITS == 64
-     if(norm)
-     {
-         t.hi = (ci << norm) | (a[i] >> (WORD_BITS - norm));
-         t.lo = a[i] << norm;
-     }
-     else
-     {
-         t.hi = ci;
-         t.lo = a[i];
-     }
-     if(t.hi == d1)
-          q1 = ~(word_t) 0;
-      else 
-          divrem21_preinv1(q1, rem, t, d1, dinv);
-#else
       /* top "two words" of remaining dividend, shifted */
       t = (((((dword_t) ci) << WORD_BITS) + (dword_t) a[i]) << norm);
       
       /* check for special case, a1 == d1 which would cause overflow */
       if ((t >> WORD_BITS) == d1) q1 = ~(word_t) 0;
       else divrem21_preinv1(q1, rem, t, d1, dinv);
-#endif
 
       /* a -= d*q1 */
       ci -= nn_submul1(a + j, d, n, q1);
