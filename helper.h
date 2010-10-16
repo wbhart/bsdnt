@@ -35,30 +35,10 @@
 #include "config.h"
 
 #ifdef _MSC_VER
+#include "arch\types_arch.h"
+#endif
 
-#define inline __inline
-
-# ifdef _WIN64
-    typedef struct uint128_t
-    {	
-       uint64_t lo, hi;
-    } uint128_t;
-    typedef uint64_t word_t;
-    typedef uint128_t dword_t;
-    typedef int64_t len_t;
-    typedef int64_t bits_t;
-#   define WORD_BITS 64
-#   define WORD(x) (x##ULL)
-# else
-    typedef uint32_t word_t;
-    typedef uint64_t dword_t;
-    typedef int32_t len_t;
-    typedef int32_t bits_t;
-#   define WORD_BITS 32
-#   define WORD(x) (x##UL)
-# endif
-
-#else
+#ifndef HAVE_ARCH_TYPES
 
 # if ULONG_MAX == 4294967295U
     typedef uint32_t word_t;
@@ -109,7 +89,10 @@ typedef struct mod_preinv1_t
    word_t b3; /* B^3 mod d */
 } mod_preinv1_t;
 
-#include "helper_arch.h"
+#ifdef _MSC_VER
+#include "arch\helper_arch.h"
+#endif
+
 #include "rand/bsdnt_rand.h"
 
 /**********************************************************************
