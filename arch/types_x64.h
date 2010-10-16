@@ -26,18 +26,25 @@
   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#define HAVE_ARCH_nn_add_mc
-#define HAVE_ARCH_nn_sub_mc
-#define HAVE_ARCH_nn_shl_c
-#define HAVE_ARCH_nn_shr_c
-#define HAVE_ARCH_nn_add1
-#define HAVE_ARCH_nn_sub1
-#define HAVE_ARCH_nn_neg_c
-#define HAVE_ARCH_nn_mul1_c
-#define HAVE_ARCH_nn_addmul1_c
-#define HAVE_ARCH_nn_muladd1_c
-#define HAVE_ARCH_nn_submul1_c
-#define HAVE_ARCH_nn_divrem1_simple_c
-#define HAVE_ARCH_nn_divrem1_preinv_c
-#define HAVE_ARCH_nn_divrem_hensel1_preinv_c
-#define HAVE_ARCH_nn_mod1_preinv_c
+#ifndef TYPES_ARCH_H
+#define TYPES_ARCH_H
+
+#include <stdint.h>
+#define HAVE_ARCH_TYPES
+
+#define inline __inline
+#define ASSERT _ASSERT
+
+typedef struct uint128_t
+{	
+    uint64_t lo, hi;
+} uint128_t;
+
+typedef uint64_t word_t;
+typedef uint128_t dword_t;
+typedef int64_t len_t;
+typedef int64_t bits_t;
+#define WORD_BITS 64
+#define WORD(x) (x##ULL)
+
+#endif

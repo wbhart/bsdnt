@@ -26,18 +26,19 @@
   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#define HAVE_ARCH_nn_add_mc
-#define HAVE_ARCH_nn_sub_mc
-#define HAVE_ARCH_nn_shl_c
-#define HAVE_ARCH_nn_shr_c
-#define HAVE_ARCH_nn_add1
-#define HAVE_ARCH_nn_sub1
-#define HAVE_ARCH_nn_neg_c
-#define HAVE_ARCH_nn_mul1_c
-#define HAVE_ARCH_nn_addmul1_c
-#define HAVE_ARCH_nn_muladd1_c
-#define HAVE_ARCH_nn_submul1_c
-#define HAVE_ARCH_nn_divrem1_simple_c
-#define HAVE_ARCH_nn_divrem1_preinv_c
-#define HAVE_ARCH_nn_divrem_hensel1_preinv_c
-#define HAVE_ARCH_nn_mod1_preinv_c
+#ifndef TYPES_ARCH_H
+#define TYPES_ARCH_H
+
+#define HAVE_ARCH_TYPES
+
+#define inline __inline
+#define ASSERT _ASSERT
+
+typedef uint32_t word_t;
+typedef uint64_t dword_t;
+typedef int32_t len_t;
+typedef int32_t bits_t;
+#define WORD_BITS 32
+#define WORD(x) (x##UL)
+
+#endif 
