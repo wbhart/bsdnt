@@ -65,6 +65,9 @@ clean:
 	rm -f $(ASOBJS) $(OBJS) $(BINARIES)
 	rm -f cpuid
 
+distclean: clean
+	rm -f *arch.h
+
 check: $(OBJS) $(BINARIES)
 	$(foreach prog, $(TESTS), $(prog);)	
 
