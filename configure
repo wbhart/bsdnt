@@ -419,11 +419,17 @@ process_build_item()
         then
             if [ $object = "-asm-" ]
             then
-                for asfile in $ASFILES
-                do
-
-                    object=`echo "build/${asfile%\.*}.o"`
-                done
+                
+                if [ $AS = "yasm" -o $AS = "nasm" ]
+                then
+                    for asfile in $ASFILES
+                    do
+    
+                        object=`echo "build/${asfile%\.*}.o"`
+                    done
+                else
+                    object=""
+                fi
 
             else
                 firstchar_obj=${object:0:2}
@@ -436,6 +442,8 @@ process_build_item()
                 fi
             fi
 
+
+            mldeps=`echo "$mldeps $object"`
         fi
 
     i=$1+1
