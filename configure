@@ -229,11 +229,11 @@ offer_compiler_choice()
 arch_handler()
 {
     # Set Architecture
-    ARCH=`uname -m &> /dev/null`
+    ARCH=`uname -m`
 
     case $ARCH in
     x86_64 | amd64)
-       MACHINE="_x64";;
+       MACHINE="_x86_64";;
     x86 | i*86 | pc)
        MACHINE="_x86";;
     *)
@@ -242,63 +242,72 @@ arch_handler()
 
     # Create ARCH headers. 
 
-    if [ $MACHINE = "_x86" -o $MACHINE = "_x64" ]
+    if [ $MACHINE = "_x86" -o $MACHINE = "_x86_64" ]
     then
-       $CC arch/cpuid.c -o cpuid 
-       ARCH=`./cpuid &> /dev/null`
-       case $ARCH in
-       k10)
-          EXTS="_k10 _k8";;
-       k8)
-          EXTS="_k8";;
-       atom)
-          EXTS="_atom";;
-       nehalem)
-          EXTS="_nehalem _core2";;
-       core2)
-          EXTS="_core2";;
-       p4)
-          EXTS="_p4";;
-       * | x86)
-          EXTS="";;
+        $CC arch/cpuid.c -o cpuid 
+        ARCH=`./cpuid`
+        case $ARCH in
+        k10)
+            EXTS="_k10 _k8";;
+        k8)
+            EXTS="_k8";;
+        atom)
+            EXTS="_atom";;
+        nehalem)
+            EXTS="_nehalem _core2";;
+        core2)
+            EXTS="_core2";;
+        p4)
+            EXTS="_p4";;
+        * | x86)
+            EXTS="";;
         esac
+
+        if [ $MACHINE = "_x86_64" ]
+        then
+            ASFLAGS="-felf64"
+        elif [ $MACHINE = "_x86" ]
+        then
+            ASFLAGS="-felf32"
+        fi
 
         for file in nn*.c
         do
-           name=${file%\.*}
-           echo "   Writing ${name}_arch.h"
-           echo "#ifndef ${name}_H" > ${name}_arch.h
-           echo "#define ${name}_H" >> ${name}_arch.h
-           for ext in $EXTS
-           do
-               # under certain conditions, we 
-               # want to add to the ASFILES 
-               # variable and not include these 
-               # inline assembly files.
-               # I know you like them Bill.
-               # I am truly sorry.
+            name=${file%\.*}
+            #echo "   Writing ${name}_arch.h"
+            echo "#ifndef ${name}_H" > ${name}_arch.h
+            echo "#define ${name}_H" >> ${name}_arch.h
+            for ext in $EXTS
+            do
+                # under certain conditions, we 
+                # want to add to the ASFILES 
+                # variable and not include these 
+                # inline assembly files.
+                # I know you like them Bill.
+                # I am truly sorry.
 
-               if [ $AS = "yasm" -o $AS = "nasm" ]
-               then
-                   asname=arch/$name$MACHINE$ext.asm
-                   if [ -f asname ]
-                   then 
-                       ASFILES=`echo "$ASFILES $asname"`
-                   fi
-               else
-                   hname=arch/$name$MACHINE$ext.h
-                   if [ -f $hname ]
-                   then
-                       echo "#include \"${hname}\"" >> ${name}_arch.h
-                   fi
-                   hname=arch/$name$MACHINE.h
-                   if [ -f $hname ]
-                   then
-                       echo "#include \"${hname}\"" >> ${name}_arch.h
-                   fi
-               fi
-           done
-           echo "#endif" >> ${name}_arch.h
+
+                if [ $AS = "yasm" -o $AS = "nasm" ]
+                then
+                    asname=arch/$name$MACHINE$ext.asm
+                    if [ -f $asname ]
+                    then 
+                        ASFILES=`echo "$ASFILES $asname"`
+                    fi
+                else
+                    hname=arch/$name$MACHINE$ext.h
+                    if [ -f $hname ]
+                    then
+                        echo "#include \"${hname}\"" >> ${name}_arch.h
+                    fi
+                    hname=arch/$name$MACHINE.h
+                    if [ -f $hname ]
+                    then
+                        echo "#include \"${hname}\"" >> ${name}_arch.h
+                    fi
+                fi
+            done
+            echo "#endif" >> ${name}_arch.h
         done
     fi
 
@@ -341,17 +350,6 @@ fill_makefile_wireframe()
     echo "Creating Makefile "
 
     cp -f Makefile.unix Makefile
-
-    sed -i "s|__ASSEMBLER__|${AS}|g" Makefile
-    sed -i "s|__ARCHIVE__|${AR}|g" Makefile
-    sed -i "s|__COMPILER__|${CC}|g" Makefile
-    sed -i "s|__AFLAGS__|${ASFLAGS}|g" Makefile
-    sed -i "s|__CFLAGS__|${CFLAGS}|g" Makefile
-    sed -i "s|__ASFILES__|${ASFILES}|g" Makefile
-    sed -i "s|__SOURCES__|${CFILES}|g" Makefile
-    sed -i "s|__HEADERS__|${HFILES}|g" Makefile
-    sed -i "s|__TESTS__|${TFILES}|g" Makefile
-
 }
 
 process_build_item()
@@ -374,10 +372,15 @@ process_build_item()
         then
             # Create a build line pair beginning AR
             mlout=`echo "dist/lib/$target"`
+            BINARIES=`echo "$BINARIES $mlout"`
+            mlfbuild='\t$(QUIET_AR)$(AR) rcs '
+
         elif [ $fext = "so" ]
         then
             # create a build line pair with the SO Seq.
             mlout=`echo "dist/lib/$target"`
+            BINARIES=`echo "$BINARIES $mlout"`
+            mlfbuild='\t$(QUIET_SO)$(CC) -o '
         fi
         # Ignore unknown extensions!
     fi
@@ -385,6 +388,8 @@ process_build_item()
     if [ $firstchar = "t-" ] 
     then
         mlout=`echo "build/test/$target"`
+        TESTS=`echo "$TESTS $mlout"`
+        mlfbuild='\t$(QUIET_LINK)$(CC) -o '
     fi
 
     for object in "$@"
@@ -393,8 +398,16 @@ process_build_item()
         then
             if [ $object = "-asm-" ]
             then
-                object=$ASFILES
+                for asfile in $ASFILES
+                do
+
+                    object=`echo "build/${asfile%\.*}.o"`
+                done
+
+            else
+                object=`echo "build/$object"`
             fi
+
             mldeps=`echo "$mldeps $object"`
         fi
 
@@ -404,7 +417,6 @@ process_build_item()
     mlfdep=`echo "$mlout: $mldeps"`
     #echo $mlfdep
 
-    mlfbuild='\t$(CC) $(LFLAGS) -o '
     mlfbuild="$mlfbuild $mlout $mldeps"
     #echo $mlfbuild
 
@@ -427,11 +439,36 @@ parse_build_maps()
 }
 
 
+sed_makefile()
+{
+    sed -i "s|__ASSEMBLER__|${AS}|g" Makefile
+    sed -i "s|__ARCHIVE__|${AR}|g" Makefile
+    sed -i "s|__COMPILER__|${CC}|g" Makefile
+    sed -i "s|__AFLAGS__|${ASFLAGS}|g" Makefile
+    sed -i "s|__CFLAGS__|${CFLAGS}|g" Makefile
+    sed -i "s|__ASFILES__|${ASFILES}|g" Makefile
+    sed -i "s|__SOURCES__|${CFILES}|g" Makefile
+    sed -i "s|__HEADERS__|${HFILES}|g" Makefile
+    sed -i "s|__TSOURCES__|${TFILES}|g" Makefile
+    sed -i "s|__TESTS__|${TESTS}|g" Makefile
+    sed -i "s|__BINARIES__|${BINARIES}|g" Makefile
+}
+
+
+make_directory_structure()
+{
+    mkdir -p build/arch
+    mkdir -p build/test
+    mkdir -p dist/lib
+}
+
 detect_compilers
 offer_compiler_choice
 arch_handler
 fill_makefile_wireframe
 parse_build_maps $UNIXBUILDMAP
+sed_makefile
+make_directory_structure
 
 
 echo "Done. "

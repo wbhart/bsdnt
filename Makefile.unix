@@ -37,10 +37,6 @@ QUIET_LINK       = @echo '   ' LINK ' ' $@;
 QUIET_AR         = @echo '   ' AR '   ' $@;
 QUIET_SO         = @echo '   ' SO '   ' $@;
 
-# QUIET DIST
-QUIET_DISTBIN    = @echo '   ' DIST BINARY;
-QUIET_DISTSRC    = @echo '   ' ARCH SOURCE;
-
 # Assembly
 
 ASFILES = __ASFILES__
@@ -51,9 +47,13 @@ SOURCES = __SOURCES__
 HEADERS = __HEADERS__
 OBJS = $(patsubst %.c, build/%.o, $(SOURCES))
 
+# TEST FILES
+TSOURCES = __TSOURCES__
+TOBJS = $(patsubst %.c, build/%.o, $(TSOURCES))
+
 TESTS = __TESTS__
 
-BINARIES = $(TESTS)
+BINARIES = __BINARIES__ $(TESTS)
 
 # PHONY SPEC
 .PHONY: all dist
@@ -73,11 +73,12 @@ strip:
 build/arch/%.o: __ASFILES__
 	$(QUIET_AS)$(AS)  $(AFLAGS) $< -o $@
 
-build/%.o: __SOURCES__
+build/%.o: __SOURCES__ __TSOURCES__
 	$(QUIET_CC)$(CC) $(CFLAGS) $(INCS) -c $< -o $@
 
-# Per-test configuration.
-#
-#
-	
-# Per output configuration.
+
+
+# ---------------------------------------------------------
+# BUILD OBJECTS from unixbuild.map (./configure to gen)
+# ---------------------------------------------------------
+
