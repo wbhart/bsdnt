@@ -49,11 +49,11 @@
     <ClCompile Include="test\t-nn_all.c" />
   </ItemGroup>
   <ItemGroup>
-    <MASM Include="arch\nn_linear_x64_core2.asm">
+    <MASM Include="arch\x64\nn_linear_x64_core2.asm">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
     </MASM>
-    <MASM Include="arch\nn_linear_x64_div128_by_64.asm">
+    <MASM Include="arch\x64\nn_linear_x64_div128_by_64.asm">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
     </MASM>
@@ -137,8 +137,11 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <PreBuildEvent>
-      <Command>copy arch\nn_linear_win32_core2.h nn_linear_arch.h
-copy arch\nn_quadratic_win32_core2.h nn_quadratic_arch.h</Command>
+      <Command>copy arch\win32\nn_linear_win32_core2.h nn_linear_arch.h
+copy arch\nn_linear_win32.h +  arch\nn_linear_win32_asm.h nn_linear_arch.h
+copy arch\win32\nn_quadratic_win32_core2.h nn_quadratic_arch.h
+copy arch\helper_win32.h helper_arch.h
+</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -155,9 +158,11 @@ copy arch\nn_quadratic_win32_core2.h nn_quadratic_arch.h</Command>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <PreBuildEvent>
-      <Command>copy arch\nn_linear_x64_core2.h arch\nn_linear_x64_asm.h
+      <Command>copy arch\x64\nn_linear_x64_core2.h arch\nn_linear_x64_asm.h
 copy arch\nn_linear_x64.h +  arch\nn_linear_x64_asm.h nn_linear_arch.h
 copy arch\nn_quadratic_x64.h nn_quadratic_arch.h
+copy arch\helper_x64.h helper_arch.h
+
 </Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
@@ -179,8 +184,11 @@ copy arch\nn_quadratic_x64.h nn_quadratic_arch.h
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <PreBuildEvent>
-      <Command>copy arch\nn_linear_win32_core2.h nn_linear_arch.h
-copy arch\nn_quadratic_win32_core2.h nn_quadratic_arch.h</Command>
+      <Command>copy arch\win32\nn_linear_win32_core2.h nn_linear_arch.h
+copy arch\nn_linear_win32.h +  arch\nn_linear_win32_asm.h nn_linear_arch.h
+copy arch\win32\nn_quadratic_win32_core2.h nn_quadratic_arch.h
+copy arch\helper_win32.h helper_arch.h
+</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -201,9 +209,11 @@ copy arch\nn_quadratic_win32_core2.h nn_quadratic_arch.h</Command>
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <PreBuildEvent>
-      <Command>copy arch\nn_linear_x64_core2.h arch\nn_linear_x64_asm.h
+      <Command>copy arch\x64\nn_linear_x64_core2.h arch\nn_linear_x64_asm.h
 copy arch\nn_linear_x64.h +  arch\nn_linear_x64_asm.h nn_linear_arch.h
 copy arch\nn_quadratic_x64.h nn_quadratic_arch.h
+copy arch\helper_x64.h helper_arch.h
+
 </Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
