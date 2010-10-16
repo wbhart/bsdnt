@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include "nn.h"
 #include "nn_linear_arch.h"
 
@@ -7,53 +8,74 @@
 
 **********************************************************************/
 
-#if WORD_BITS == 64
-
-word_t __randval = 4035456057UL;
-word_t __randval2 = 6748392731UL;
-
-void randinit(rand_t state)
-{
-}
-
-void randclear(rand_t state)
-{
-}
-
-word_t randword(rand_t state) 
-{   
-    __randval = (__randval*1025416097UL + 286824428UL)%4294967311UL;
-    __randval2 = (__randval2*1647637699UL + 286824428UL)%4294967357UL;
-
-    return __randval + (__randval2<<32);
-}
-
-#else
-
-word_t __randval = 3119766748UL;
-word_t __randval2 = 4225528843UL;
-
-word_t randword(rand_t state) 
-{   
-    __randval = (__randval*1573677563UL +  1626832774UL)%65537UL;
-    __randval2 = (__randval2*897228705UL +  1626832774UL)% 65539UL;
-
-    return __randval + (__randval2<<16);
-}
-
-#endif
-
-word_t randint(word_t m, rand_t state)
-{
-   return (randword(state) % m);
-}
-
 void nn_random(nn_t a, rand_t state, len_t m)
 {
    long i;
 
    for (i = 0; i < m; i++)
       a[i] = randword(state);
+}
+
+/**********************************************************************
+ 
+    Printing functions
+
+**********************************************************************/
+
+void nn_printx(nn_src_t a, len_t m)
+{
+   long i;
+
+   for (i = 0; i < m - 1; i++)
+   {
+      printx_word(a[i]);
+      printf(" ");
+   }
+
+   if (m) printx_word(a[m - 1]);
+   else printx_word(0);
+}
+
+void nn_printx_short(nn_src_t a, len_t m)
+{
+   if (m < 5) nn_printx(a, m);
+   else
+   {
+      printx_word(a[0]);
+      printf(" ");
+      printx_word(a[1]);
+      printf("...");
+      printx_word(a[m - 2]);
+      printf(" ");
+      printx_word(a[m - 1]);
+   }
+}
+
+void nn_printx_diff(nn_src_t a, nn_src_t b, len_t m)
+{
+   long i, end = m, start = m;
+
+   for (start = 0; start < m; start++)
+      if (a[start] != b[start])
+         break;
+
+   for (i = start; i < m; i++)
+      if (a[i] != b[i])
+         end = i;
+
+   if (start != m)
+   {
+      printf("diff at word %ld (", start);
+      printx_word(a[start]);
+      printf(" vs ");
+      printx_word(b[start]);
+      printf(") through word %ld (", end);
+      printx_word(a[end]);
+      printf(" vs ");
+      printx_word(b[end]);
+      printf(")");
+   } else
+      printf("don't differ");
 }
 
 /**********************************************************************

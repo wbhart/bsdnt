@@ -3,12 +3,14 @@
 
 #include "nn.h"
 
-#define TEST_START(XXX) \
+#define TEST_START(XXX, YYY) \
    do { \
       long __count; \
-      for (__count = 0; __count < XXX  && result == 1; __count++)
+      const char * __test_name = #XXX; \
+      for (__count = 0; __count < YYY  && result == 1; __count++)
 
 #define TEST_END \
+      if (!result && __count) printf("Test %s, iteration %ld...", __test_name, __count); \
       gc_cleanup(); \
    } while (0)
 
@@ -23,6 +25,16 @@
          printf("FAIL\n"); \
          fail++; \
       } \
+   } while (0)
+
+#define print_debug(a, m) \
+   do { \
+      printf(#a "(%ld) = ", m); nn_printx_short(a, m); printf("\n"); \
+   } while (0)
+
+#define print_debug_diff(a, b, m) \
+   do { \
+   printf(#a " vs " #b "(%ld) ", m); nn_printx_diff(a, b, m); printf("\n"); \
    } while (0)
 
 typedef enum

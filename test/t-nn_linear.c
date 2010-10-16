@@ -16,7 +16,7 @@ int test_gc(void)
 
    printf("gc...");
 
-   TEST_START(ITER) 
+   TEST_START(1, ITER) 
    {
       randoms_upto(100, NONZERO, state, &m, NULL);
       randoms_upto(m, ANY, state, &w1, &w2, &w3, &w4, NULL);
@@ -37,7 +37,7 @@ int test_add_m(void)
    printf("nn_add_m...");
 
    /* test (a + b) + c = a + (b + c) */
-   TEST_START(ITER) 
+   TEST_START(1, ITER) 
    {
       randoms_upto(100, ANY, state, &m, NULL);
 
@@ -52,11 +52,15 @@ int test_add_m(void)
 
       result = nn_equal_m(r1, r2, m + 1);
 
-      if (!result) printf("m = %ld\n", m);
+      if (!result) 
+      {
+         print_debug(a, m); print_debug(b, m); print_debug(c, m); 
+         print_debug_diff(r1, r2, m + 1);
+      }
    } TEST_END;
 
    /* test chaining of addition */
-   TEST_START(ITER) 
+   TEST_START(chaining, ITER) 
    {
       randoms_upto(100, ANY, state, &m, &n, NULL);
 
@@ -70,7 +74,12 @@ int test_add_m(void)
       
       result = nn_equal_m(r1, r2, m + n + 1);
 
-      if (!result) printf("m = %ld, n = %ld\n", m, n);
+      if (!result) 
+      {
+         printf("m = %ld, n = %ld\n", m, n);
+         print_debug(a, m + n); print_debug(b, m + n);
+         print_debug_diff(r1, r2, m + n + 1);
+      }
    } TEST_END;
 
    return result;
@@ -86,7 +95,7 @@ int test_add(void)
    printf("nn_add...");
 
    /* test (a + b) + c = (a + c) + b */
-   TEST_START(ITER) 
+   TEST_START(1, ITER) 
    {
       randoms_upto(100, NONZERO, state, &m1, NULL);
       randoms_upto(m1, ANY, state, &m2, &m3, NULL);
@@ -104,11 +113,15 @@ int test_add(void)
 
       result = nn_equal_m(r1, r2, m1 + 1);
 
-      if (!result) printf("m1 = %ld, m2 = %ld, m3 = %ld\n", m1, m2, m3);
+      if (!result) 
+      {
+         print_debug(a, m1); print_debug(b, m2); print_debug(c, m3);
+         print_debug_diff(r1, r2, m1 + 1);
+      }
    } TEST_END;
 
    /* test chaining of addition */
-   TEST_START(ITER) 
+   TEST_START(chaining, ITER) 
    {
       randoms_upto(100, ANY, state, &m1, &m2, &m3, NULL);
       
@@ -123,7 +136,12 @@ int test_add(void)
       
       result = nn_equal_m(r1, r2, m1 + m2 + m3 + 1);
 
-      if (!result) printf("m1 = %ld, m2 = %ld, m3 = %ld\n", m1, m2, m3);
+      if (!result) 
+      {
+         printf("m1 = %ld, m2 = %ld, m3 = %ld\n", m1, m2, m3);
+         print_debug(a, m1 + m2 + m3); print_debug(b, m2 + m3); 
+         print_debug_diff(r1, r2, m1 + m2 + m3 + 1);
+      }
    } TEST_END;
 
    return result;
@@ -139,7 +157,7 @@ int test_sub_m(void)
    printf("nn_sub_m...");
 
    /* test (a - b) - c = (a - c) - b */
-   TEST_START(ITER) 
+   TEST_START(1, ITER) 
    {
       randoms_upto(100, ANY, state, &m, NULL);
 
@@ -154,11 +172,15 @@ int test_sub_m(void)
 
       result = nn_equal_m(r1, r2, m + 1);
 
-      if (!result) printf("m = %ld\n", m);
+      if (!result) 
+      {
+         print_debug(a, m); print_debug(b, m); print_debug(c, m); 
+         print_debug_diff(r1, r2, m + 1);
+      }
    } TEST_END;
 
    /* test chaining of subtraction */
-   TEST_START(ITER) 
+   TEST_START(chaining, ITER) 
    {
       randoms_upto(100, ANY, state, &m, &n, NULL);
 
@@ -172,11 +194,16 @@ int test_sub_m(void)
       
       result = nn_equal_m(r1, r2, m + n + 1);
 
-      if (!result) printf("m = %ld, n = %ld\n", m, n);
+      if (!result) 
+      {
+         printf("m = %ld, n = %ld\n", m, n);
+         print_debug(a, m + n); print_debug(b, m + n);
+         print_debug_diff(r1, r2, m + n + 1);
+      }
    } TEST_END;
 
    /* test (a + b) - b = a */
-   TEST_START(ITER) 
+   TEST_START(2, ITER) 
    {
       randoms_upto(100, ANY, state, &m, NULL);
 
@@ -188,11 +215,16 @@ int test_sub_m(void)
 
       result = (nn_equal_m(r1, a, m) && (r1[m] == 0));
 
-      if (!result) printf("m = %ld\n", m);
+      if (!result) 
+      {
+         print_debug(a, m); print_debug(b, m); 
+         print_debug_diff(r1, a, m);
+         printf("r1[m] = "); printx_word(r1[m]); printf("\n");
+      }
    } TEST_END;
 
    /* test a - b = a + (-b) */
-   TEST_START(ITER) 
+   TEST_START(3, ITER) 
    {
       randoms_upto(100, ANY, state, &m, NULL);
 
@@ -206,7 +238,11 @@ int test_sub_m(void)
       
       result = nn_equal_m(r1, r2, m + 1);
 
-      if (!result) printf("m = %ld\n", m);
+      if (!result) 
+      {
+         print_debug(a, m); print_debug(b, m); 
+         print_debug_diff(r1, r2, m + 1);
+      }
    } TEST_END;
 
    return result;
@@ -222,7 +258,7 @@ int test_sub(void)
    printf("nn_sub...");
 
    /* test (a - b) - c = (a - c) - b */
-   TEST_START(ITER) 
+   TEST_START(1, ITER) 
    {
       randoms_upto(100, NONZERO, state, &m1, NULL);
       randoms_upto(m1, ANY, state, &m2, &m3, NULL);
@@ -240,11 +276,15 @@ int test_sub(void)
 
       result = nn_equal_m(r1, r2, m1 + 1);
 
-      if (!result) printf("m1 = %ld, m2 = %ld, m3 = %ld\n", m1, m2, m3);
+      if (!result) 
+      {
+         print_debug(a, m1); print_debug(b, m2); print_debug(c, m3);
+         print_debug_diff(r1, r2, m1 + 1);
+      }
    } TEST_END;
 
    /* test chaining of subtraction */
-   TEST_START(ITER) 
+   TEST_START(chaining, ITER) 
    {
       randoms_upto(100, ANY, state, &m1, &m2, &m3, NULL);
       
@@ -259,7 +299,12 @@ int test_sub(void)
       
       result = nn_equal_m(r1, r2, m1 + m2 + m3 + 1);
 
-      if (!result) printf("m1 = %ld, m2 = %ld, m3 = %ld\n", m1, m2, m3);
+      if (!result) 
+      {
+         printf("m1 = %ld, m2 = %ld, m3 = %ld\n", m1, m2, m3);
+         print_debug(a, m1 + m2 + m3); print_debug(b, m2 + m3); 
+         print_debug_diff(r1, r2, m1 + m2 + m3 + 1);
+      }
    } TEST_END;
 
    return result;
@@ -276,7 +321,7 @@ int test_shl(void)
    printf("nn_shl...");
 
    /* test (a << sh1) << sh2 = (a << sh2) << sh1 */
-   TEST_START(ITER) 
+   TEST_START(1, ITER) 
    {
       randoms_upto(100, ANY, state, &m, NULL);
       randoms_upto(WORD_BITS, ANY, state, &sh1, NULL);
@@ -293,11 +338,16 @@ int test_shl(void)
 
       result = nn_equal_m(r1, r2, m + 1);
 
-      if (!result) printf("m = %ld, sh1 = %ld, sh2 = %ld\n", m, sh1, sh2);
+      if (!result) 
+      {
+         printf("m = %ld, sh1 = %ld, sh2 = %ld\n", m, sh1, sh2);
+         print_debug(a, m); 
+         print_debug_diff(r1, r2, m + 1);
+      }
    } TEST_END;
 
    /* test chaining of shl */
-   TEST_START(ITER) 
+   TEST_START(chaining, ITER) 
    {
       randoms_upto(100, ANY, state, &m, &n, NULL);
       randoms_upto(WORD_BITS, ANY, state, &sh1, NULL);
@@ -312,11 +362,16 @@ int test_shl(void)
 
       result = nn_equal_m(r1, r2, m + n + 1);
 
-      if (!result) printf("m = %ld, n = %ld\n", m, n);
+      if (!result) 
+      {
+         printf("m = %ld, n = %ld, sh1 = %ld\n", m, n, sh1);
+         print_debug(a, m + n); 
+         print_debug_diff(r1, r2, m + n + 1);
+      }
    } TEST_END;
 
    /* test a << 1 = a + a */
-   TEST_START(ITER) 
+   TEST_START(2, ITER) 
    {
       randoms_upto(100, ANY, state, &m, NULL);
       
@@ -329,7 +384,11 @@ int test_shl(void)
       
       result = nn_equal_m(r1, r2, m + 1);
 
-      if (!result) printf("m = %ld\n", m);
+      if (!result) 
+      {
+         print_debug(a, m); 
+         print_debug_diff(r1, r2, m + 1);
+      }
    } TEST_END;
 
    return result;
@@ -346,7 +405,7 @@ int test_shr(void)
    printf("nn_shr...");
 
    /* test (a >> sh1) >> sh2 = (a >> sh2) >> sh1 */
-   TEST_START(ITER) 
+   TEST_START(1, ITER) 
    {
       randoms_upto(100, ANY, state, &m, NULL);
       randoms_upto(WORD_BITS, ANY, state, &sh1, NULL);
@@ -362,11 +421,16 @@ int test_shr(void)
 
       result = nn_equal_m(r1, r2, m);
 
-      if (!result) printf("m = %ld, sh1 = %ld, sh2 = %ld\n", m, sh1, sh2);
+      if (!result) 
+      {
+         printf("m = %ld, sh1 = %ld, sh2 = %ld\n", m, sh1, sh2);
+         print_debug(a, m); 
+         print_debug_diff(r1, r2, m);
+      }
    } TEST_END;
 
    /* test chaining of shr */
-   TEST_START(ITER) 
+   TEST_START(chaining, ITER) 
    {
       randoms_upto(100, ANY, state, &m, &n, NULL);
       randoms_upto(WORD_BITS, ANY, state, &sh1, NULL);
@@ -380,11 +444,16 @@ int test_shr(void)
 
       result = nn_equal_m(r1, r2, m + n);
 
-      if (!result) printf("m = %ld, n = %ld\n", m, n);
+      if (!result) 
+      {
+         printf("m = %ld, n = %ld, sh1 = %ld\n", m, n, sh1);
+         print_debug(a, m + n); 
+         print_debug_diff(r1, r2, m + n + 1);
+      }
    }  TEST_END;
 
    /* test (a << sh1) >> sh1 = a */
-   TEST_START(ITER) 
+   TEST_START(2, ITER) 
    {
       randoms_upto(100, ANY, state, &m, NULL);
       randoms_upto(WORD_BITS, ANY, state, &sh1, NULL);
@@ -398,7 +467,12 @@ int test_shr(void)
       
       result = nn_equal_m(a, r2, m);
 
-      if (!result) printf("m = %ld, sh1 = %ld\n", m, sh1);
+      if (!result) 
+      {
+         printf("m = %ld, sh1 = %ld\n", m, sh1);
+         print_debug(a, m); print_debug(r1, m + 1); 
+         print_debug_diff(a, r2, m);
+      }
    }  TEST_END;
 
    return result;
@@ -412,7 +486,7 @@ int test_copy(void)
 
    printf("nn_copy...");
 
-   TEST_START(ITER) 
+   TEST_START(1, ITER) 
    {
       randoms_upto(100, ANY, state, &m, NULL);
       
@@ -422,7 +496,11 @@ int test_copy(void)
       
       result = nn_equal_m(r1, a, m);
 
-      if (!result) printf("m = %ld\n", m);
+      if (!result) 
+      {
+         print_debug(a, m); 
+         print_debug_diff(a, r1, m);
+      }
    } TEST_END;
 
    return result;
@@ -438,7 +516,7 @@ int test_equal_m(void)
    printf("nn_equal_m...");
 
    /* test copying and then modifiying yields non-equal integer */
-   TEST_START(ITER) 
+   TEST_START(1, ITER) 
    {
       randoms_upto(100, NONZERO, state, &m, NULL);
       randoms_upto(m, ANY, state, &s, NULL);
@@ -450,7 +528,11 @@ int test_equal_m(void)
 
       result = !nn_equal_m(r1, a, m);
 
-      if (!result) printf("m = %ld\n", m);
+      if (!result) 
+      {
+         print_debug(a, m); 
+         print_debug_diff(a, r1, m);
+      }
    } TEST_END;
 
    return result;
@@ -465,7 +547,7 @@ int test_equal(void)
    printf("nn_equal...");
 
    /* test that equal things compare equal */
-   TEST_START(ITER) 
+   TEST_START(1, ITER) 
    {
       randoms_upto(100, ANY, state, &m1, NULL);
       
@@ -475,11 +557,15 @@ int test_equal(void)
 
       result = nn_equal(r1, m1, r2, m1);
 
-      if (!result) printf("m1 = %ld\n", m1);
+      if (!result) 
+      {
+         print_debug(r1, m1); print_debug(r2, m1);
+         print_debug_diff(r1, r2, m1);
+      }
    } TEST_END;
 
    /* test that not equal lengths compare not equal */
-   TEST_START(ITER) 
+   TEST_START(2, ITER) 
    {
       randoms_upto(100, NONZERO, state, &m1, NULL);
       randoms_upto(m1, ANY, state, &m2, NULL);
@@ -489,11 +575,14 @@ int test_equal(void)
             
       result = !nn_equal(r1, m1, r2, m2);
 
-      if (!result) printf("m1 = %ld, m2 = %ld\n", m1, m2);
+      if (!result) 
+      {
+         print_debug(r1, m1); print_debug(r2, m2);
+      }
    } TEST_END;
 
    /* test that not equal values compare not equal */
-   TEST_START(ITER) 
+   TEST_START(3, ITER) 
    {
       randoms_upto(100, NONZERO, state, &m1, NULL);
       
@@ -506,7 +595,11 @@ int test_equal(void)
       
       result = !nn_equal(r1, m1, a, m1);
 
-      if (!result) printf("m1 = %ld, m2 = %ld\n", m1, m2);
+      if (!result) 
+      {
+         print_debug(r1, m1); print_debug(a, m1);  print_debug(b, m1);
+         print_debug_diff(r1, a, m1);
+      }
    } TEST_END;
 
    return result;
@@ -521,7 +614,7 @@ int test_zero(void)
    printf("nn_zero...");
 
    /* test zeroing */
-   TEST_START(ITER) 
+   TEST_START(1, ITER) 
    {
       randoms_upto(100, ANY, state, &m, NULL);
       
@@ -531,7 +624,10 @@ int test_zero(void)
 
       result = (nn_normalise(a, m) == 0);
 
-      if (!result) printf("m = %ld\n", m);
+      if (!result) 
+      {
+         print_debug(a, m); 
+      }
    } TEST_END;
 
    return result;
@@ -547,7 +643,7 @@ int test_normalise(void)
    printf("nn_normalise...");
 
    /* test normalising then copying normalised part yields same integer */
-   TEST_START(ITER) 
+   TEST_START(1, ITER) 
    {
       randoms_upto(100, NONZERO, state, &m, NULL);
       randoms_upto(m, ANY, state, &s1, NULL);
@@ -563,7 +659,12 @@ int test_normalise(void)
       result = ((s1 >= s2) && ((s2 == 0) || (a[s2 - 1] != 0))
              && nn_equal_m(a, r1, m));
 
-      if (!result) printf("m = %ld, s1 = %ld, s2 = %ld\n", m, s1, s2);
+      if (!result) 
+      {
+         printf("m = %ld, s1 = %ld, s2 = %ld\n", m, s1, s2);
+         print_debug(r1, m); print_debug(a, m);
+         print_debug_diff(r1, a, m);
+      }
    } TEST_END;
 
    return result;
@@ -579,7 +680,7 @@ int test_mul1(void)
    printf("nn_mul1...");
 
    /* test a * (c1 + c2) = a * c1 + a * c2 */
-   TEST_START(ITER) 
+   TEST_START(1, ITER) 
    {
       randoms_upto(100, ANY, state, &m, NULL);
       
@@ -597,11 +698,16 @@ int test_mul1(void)
 
       result = nn_equal_m(r1, r2, m + 1);
 
-      if (!result) printf("m = %ld, c1 = %lu, c2 = %lu\n", m, c1, c2);
+      if (!result) 
+      {
+         printf("m = %ld, c1 = %lx, c2 = %lx\n", m, c1, c2);
+         print_debug(a, m);  print_debug(t1, m + 1);
+         print_debug_diff(r1, r2, m + 1);
+      }
    } TEST_END;
 
    /* test chaining of mul1 */
-   TEST_START(ITER) 
+   TEST_START(chaining, ITER) 
    {
       randoms_upto(100, ANY, state, &m, &n, NULL);
       
@@ -617,7 +723,12 @@ int test_mul1(void)
       
       result = nn_equal_m(r1, r2, m + n + 1);
 
-      if (!result) printf("m = %ld, n = %ld, c1 = %lu\n", m, n, c1);
+      if (!result) 
+      {
+         printf("m = %ld, n = %ld, c1 = %lx\n", m, n, c1);
+         print_debug(a, m + n);  
+         print_debug_diff(r1, r2, m + n + 1);
+      }
    } TEST_END;
 
    return result;
@@ -633,7 +744,7 @@ int test_addmul1(void)
    printf("nn_addmul1...");
 
    /* test a + b * (c1 + c2) = a + b * c1 + b * c2 */
-   TEST_START(ITER) 
+   TEST_START(1, ITER) 
    {
       randoms_upto(100, ANY, state, &m, NULL);
       
@@ -653,11 +764,16 @@ int test_addmul1(void)
 
       result = nn_equal_m(r1, r2, m + 1);
 
-      if (!result) printf("m = %ld, c1 = %ld, c2 = %ld\n", m, c1, c2);
+      if (!result) 
+      {
+         printf("m = %ld, c1 = %lx, c2 = %lx\n", m, c1, c2);
+         print_debug(a, m); print_debug(b, m);  
+         print_debug_diff(r1, r2, m + 1);
+      }
    } TEST_END;
 
    /* test chaining of addmul1 */
-   TEST_START(ITER) 
+   TEST_START(chaining, ITER) 
    {
       randoms_upto(100, ANY, state, &m, &n, NULL);
       
@@ -675,7 +791,12 @@ int test_addmul1(void)
       
       result = nn_equal_m(r1, r2, m + n + 1);
 
-      if (!result) printf("m = %ld, n = %ld, c1 = %ld\n", m, n, c1);
+      if (!result) 
+      {
+         printf("m = %ld, n = %ld, c1 = %lx\n", m, n, c1);
+         print_debug(a, m + n);  
+         print_debug_diff(r1, r2, m + n + 1);
+      }
    } TEST_END;
 
    return result;
@@ -691,7 +812,7 @@ int test_muladd1(void)
    printf("nn_muladd1...");
 
    /* test a + b * (c1 + c2) = a + b * c1 + b * c2 */
-   TEST_START(ITER) 
+   TEST_START(1, ITER) 
    {
       randoms_upto(100, ANY, state, &m, NULL);
       
@@ -712,11 +833,16 @@ int test_muladd1(void)
 
       result = nn_equal_m(r1, r2, m + 1);
 
-      if (!result) printf("m = %ld, c1 = %ld, c2 = %ld\n", m, c1, c2);
+     if (!result) 
+      {
+         printf("m = %ld, c1 = %lx, c2 = %lx\n", m, c1, c2);
+         print_debug(a, m); print_debug(b, m);  
+         print_debug_diff(r1, r2, m + 1);
+      }
    } TEST_END;
 
    /* test chaining of addmul1 */
-   TEST_START(ITER) 
+   TEST_START(chaining, ITER) 
    {
       randoms_upto(100, ANY, state, &m, &n, NULL);
       
@@ -735,7 +861,12 @@ int test_muladd1(void)
       
       result = nn_equal_m(r1, r2, m + n + 1);
 
-      if (!result) printf("m = %ld, n = %ld, c1 = %ld\n", m, n, c1);
+      if (!result) 
+      {
+         printf("m = %ld, n = %ld, c1 = %lx\n", m, n, c1);
+         print_debug(a, m + n); print_debug(t1, m + n); print_debug(t2, m + n);  
+         print_debug_diff(r1, r2, m + n + 1);
+      }
    } TEST_END;
 
    return result;
@@ -751,7 +882,7 @@ int test_submul1(void)
    printf("nn_submul1...");
 
    /* test a - b * (c1 + c2) = a - b * c1 - b * c2 */
-   TEST_START(ITER) 
+   TEST_START(1, ITER) 
    {
       randoms_upto(100, ANY, state, &m, NULL);
       
@@ -771,11 +902,16 @@ int test_submul1(void)
 
       result = nn_equal_m(r1, r2, m + 1);
 
-      if (!result) printf("m = %ld, c1 = %ld, c2 = %ld\n", m, c1, c2);
+      if (!result) 
+      {
+         printf("m = %ld, c1 = %lx, c2 = %lx\n", m, c1, c2);
+         print_debug(a, m); print_debug(b, m);  
+         print_debug_diff(r1, r2, m + 1);
+      }
    } TEST_END;
 
    /* test chaining of submul1 */
-   TEST_START(ITER) 
+   TEST_START(chaining, ITER) 
    {
       randoms_upto(100, ANY, state, &m, &n, NULL);
       
@@ -793,7 +929,12 @@ int test_submul1(void)
       
       result = nn_equal_m(r1, r2, m + n + 1);
 
-      if (!result) printf("m = %ld, n = %ld, c1 = %ld\n", m, n, c1);
+      if (!result) 
+      {
+         printf("m = %ld, n = %ld, c1 = %lx\n", m, n, c1);
+         print_debug(a, m + n);  
+         print_debug_diff(r1, r2, m + n + 1);
+      }
    } TEST_END;
 
    return result;
@@ -809,7 +950,7 @@ int test_add1(void)
    printf("nn_add1...");
 
    /* test a + c1 + c2 = a + c2 + c1 */
-   TEST_START(ITER) 
+   TEST_START(1, ITER) 
    {
       randoms_upto(100, ANY, state, &m, NULL);
       
@@ -826,11 +967,16 @@ int test_add1(void)
 
       result = nn_equal_m(r1, r2, m + 1);
 
-      if (!result) printf("m = %ld, c1 = %lu, c2 = %lu\n", m, c1, c2);
+      if (!result) 
+      {
+         printf("m = %ld, c1 = %lx, c2 = %lx\n", m, c1, c2);
+         print_debug(a, m);  
+         print_debug_diff(r1, r2, m + 1);
+      }
    } TEST_END;
 
    /* test chaining of add1 */
-   TEST_START(ITER) 
+   TEST_START(chaining, ITER) 
    {
       randoms_upto(100, ANY, state, &m, &n, NULL);
       
@@ -846,7 +992,12 @@ int test_add1(void)
       
       result = nn_equal_m(r1, r2, m + n + 1);
 
-      if (!result) printf("m = %ld, n = %lu, c1 = %lu\n", m, n, c1);
+      if (!result) 
+      {
+         printf("m = %ld, n = %ld, c1 = %lx\n", m, n, c1);
+         print_debug(a, m + n);  
+         print_debug_diff(r1, r2, m + n + 1);
+      }
    } TEST_END;
 
    return result;
@@ -862,7 +1013,7 @@ int test_sub1(void)
    printf("nn_sub1...");
 
    /* test a - c1 - c2 = a - c2 - c1 */
-   TEST_START(ITER) 
+   TEST_START(1, ITER) 
    {
       randoms_upto(100, ANY, state, &m, NULL);
       
@@ -879,11 +1030,16 @@ int test_sub1(void)
 
       result = nn_equal_m(r1, r2, m + 1);
 
-      if (!result) printf("m = %ld, c1 = %lu, c2 = %lu\n", m, c1, c2);
+      if (!result) 
+      {
+         printf("m = %ld, c1 = %lx, c2 = %lx\n", m, c1, c2);
+         print_debug(a, m);  
+         print_debug_diff(r1, r2, m + 1);
+      }
    } TEST_END;
 
    /* test chaining of sub1 */
-   TEST_START(ITER) 
+   TEST_START(chaining, ITER) 
    {
       randoms_upto(100, ANY, state, &m, &n, NULL);
       
@@ -899,11 +1055,16 @@ int test_sub1(void)
       
       result = nn_equal_m(r1, r2, m + n + 1);
 
-      if (!result) printf("m = %ld, n = %lu, c1 = %lu\n", m, n, c1);
+      if (!result) 
+      {
+         printf("m = %ld, n = %ld, c1 = %lx\n", m, n, c1);
+         print_debug(a, m + n);  
+         print_debug_diff(r1, r2, m + n + 1);
+      }
    } TEST_END;
 
    /* test a + c1 - c1 = a */
-   TEST_START(ITER) 
+   TEST_START(2, ITER) 
    {
       randoms_upto(100, ANY, state, &m, NULL);
       
@@ -917,7 +1078,12 @@ int test_sub1(void)
       
       result = nn_equal_m(r1, a, m + 1);
 
-      if (!result) printf("m = %ld, c1 = %lu\n", m, c1);
+      if (!result) 
+      {
+         printf("m = %ld, c1 = %lx\n", m, c1);
+         print_debug(a, m + 1);  
+         print_debug_diff(r1, a, m + 1);
+      }
    } TEST_END;
 
    return result;
@@ -932,7 +1098,7 @@ int test_not(void)
    printf("nn_not...");
 
    /* test not not a = a */
-   TEST_START(ITER) 
+   TEST_START(1, ITER) 
    {
       randoms_upto(100, ANY, state, &m, NULL);
       
@@ -943,7 +1109,11 @@ int test_not(void)
       
       result = nn_equal_m(r1, a, m);
 
-      if (!result) printf("m = %ld\n", m);
+      if (!result) 
+      {
+         print_debug(a, m);  
+         print_debug_diff(r1, a, m);
+      }
    } TEST_END;
 
    return result;
@@ -959,7 +1129,7 @@ int test_neg(void)
    printf("nn_neg...");
 
    /* test neg a = (not a) + 1 */
-   TEST_START(ITER) 
+   TEST_START(1, ITER) 
    {
       randoms_upto(100, ANY, state, &m, NULL);
       
@@ -974,11 +1144,15 @@ int test_neg(void)
       
       result = nn_equal_m(r1, r2, m + 1);
 
-      if (!result) printf("m = %ld\n", m);
+      if (!result) 
+      {
+         print_debug(a, m);  
+         print_debug_diff(r1, r2, m + 1);
+      }
    } TEST_END;
 
    /* test chaining of neg */
-   TEST_START(ITER) 
+   TEST_START(chaining, ITER) 
    {
       randoms_upto(100, ANY, state, &m, &n, NULL);
       
@@ -992,7 +1166,12 @@ int test_neg(void)
       
       result = nn_equal_m(r1, r2, m + n + 1);
 
-      if (!result) printf("m = %ld, n = %ld\n", m, n);
+      if (!result) 
+      {
+         printf("m = %ld, n = %ld\n", m, n);
+         print_debug(a, m + n);  
+         print_debug_diff(r1, r2, m + n + 1);
+      }
    } TEST_END;
 
    return result;
@@ -1007,7 +1186,7 @@ int test_cmp_m(void)
    printf("nn_cmp_m...");
 
    /* test that equal things compare equal */
-   TEST_START(ITER) 
+   TEST_START(1, ITER) 
    {
       randoms_upto(100, ANY, state, &m1, NULL);
       
@@ -1017,11 +1196,15 @@ int test_cmp_m(void)
 
       result = (nn_cmp_m(r1, r2, m1) == 0);
 
-      if (!result) printf("m1 = %ld\n", m1);
+      if (!result) 
+      {
+         print_debug(r1, m1);  
+         print_debug_diff(r1, r2, m1);
+      }
    } TEST_END;
 
    /* test that not equal values compare in the correct way */
-   TEST_START(ITER) 
+   TEST_START(2, ITER) 
    {
       randoms_upto(100, NONZERO, state, &m1, NULL);
       
@@ -1034,7 +1217,11 @@ int test_cmp_m(void)
       
       result = (nn_cmp_m(r1, a, m1) > 0 && nn_cmp_m(a, r1, m1) < 0);
 
-      if (!result) printf("m1 = %ld\n", m1);
+      if (!result) 
+      {
+         print_debug(a, m1); print_debug(b, m1); print_debug(r1, m1);  
+         print_debug_diff(r1, a, m1);
+      }
    } TEST_END;
 
    return result;
@@ -1049,7 +1236,7 @@ int test_cmp(void)
    printf("nn_cmp...");
 
    /* test that equal things compare equal */
-   TEST_START(ITER) 
+   TEST_START(1, ITER) 
    {
       randoms_upto(100, ANY, state, &m1, NULL);
       
@@ -1059,11 +1246,15 @@ int test_cmp(void)
 
       result = (nn_cmp(r1, m1, r2, m1) == 0);
 
-      if (!result) printf("m1 = %ld\n", m1);
+      if (!result) 
+      {
+         print_debug(r1, m1);  
+         print_debug_diff(r1, r2, m1);
+      }
    } TEST_END;
 
    /* test that not equal lengths compare in the correct way */
-   TEST_START(ITER) 
+   TEST_START(2, ITER) 
    {
       randoms_upto(100, NONZERO, state, &m1, NULL);
       randoms_upto(m1, ANY, state, &m2, NULL);
@@ -1073,11 +1264,14 @@ int test_cmp(void)
       
       result = (nn_cmp(r1, m1, r2, m2) > 0 && nn_cmp(r2, m2, r1, m1) < 0);
 
-      if (!result) printf("m1 = %ld, m2 = %ld\n", m1, m2);
+      if (!result) 
+      {
+         print_debug(r1, m1); print_debug(r2, m1);  
+      }
    } TEST_END;
 
    /* test that not equal values compare in the correct way */
-   TEST_START(ITER) 
+   TEST_START(3, ITER) 
    {
       randoms_upto(100, NONZERO, state, &m1, NULL);
       
@@ -1090,7 +1284,11 @@ int test_cmp(void)
       
       result = (nn_cmp(r1, m1, a, m1) > 0 && nn_cmp(a, m1, r1, m1) < 0);
 
-      if (!result) printf("m1 = %ld, m2 = %ld\n", m1, m2);
+      if (!result) 
+      {
+         print_debug(a, m1); print_debug(b, m1); print_debug(r1, m1);  
+         print_debug_diff(r1, a, m1);
+      }
    } TEST_END;
 
    return result;
@@ -1106,11 +1304,11 @@ int test_divrem1_simple(void)
    printf("nn_divrem1_simple...");
 
    /* test that a = q * d + r */
-   TEST_START(ITER) 
+   TEST_START(1, ITER) 
    {
       randoms_upto(100, ANY, state, &m, NULL);
       
-      randoms_of_len(m + 1, ANY, state, &r1, &a, &q, NULL);
+      randoms_of_len(m, ANY, state, &r1, &a, &q, NULL);
       
       randoms(NONZERO, state, &d, NULL);
       
@@ -1120,11 +1318,16 @@ int test_divrem1_simple(void)
 
       result = (nn_equal_m(r1, a, m) && ci == 0);
 
-      if (!result) printf("m = %ld, ci = %lu, r = %lu\n", m, ci, r);
+      if (!result) 
+      {
+         printf("ci = %lx, d = %lx\n", ci, d);
+         print_debug(a, m); print_debug(q, m); print_debug(r1, m);  
+         print_debug_diff(r1, a, m);
+      }
    } TEST_END;
 
    /* test chaining of divrem1_simple */
-   TEST_START(ITER) 
+   TEST_START(chaining, ITER) 
    {
       randoms_upto(100, ANY, state, &m, &n, NULL);
       
@@ -1140,7 +1343,12 @@ int test_divrem1_simple(void)
 
       result = nn_equal_m(r1, r2, m + n);
 
-      if (!result) printf("m = %ld, n = %ld, d = %lu\n", m, n, d);
+      if (!result) 
+      {
+         printf("ci = %lx, d = %lx, m = %ld, n = %ld\n", ci, d, m, n);
+         print_debug(a, m + n);  
+         print_debug_diff(r1, r2, m + n);
+      }
    } TEST_END;
 
    return result;
@@ -1157,7 +1365,7 @@ int test_divrem1_preinv(void)
    printf("nn_divrem1_preinv...");
 
    /* test that a = q * d + r */
-   TEST_START(ITER) 
+   TEST_START(1, ITER) 
    {
       randoms_upto(100, ANY, state, &m, NULL);
       
@@ -1173,11 +1381,16 @@ int test_divrem1_preinv(void)
 
       result = (nn_equal_m(r1, a, m) && ci == 0);
 
-      if (!result) printf("m = %ld, ci = %lu, r = %lu\n", m, ci, r);
+      if (!result) 
+      {
+         printf("ci = %lx, r = %lx\n", ci, r);
+         print_debug(a, m); print_debug(q, m);  
+         print_debug_diff(r1, a, m);
+      }
    } TEST_END;
 
    /* test chaining of divrem1_preinv */
-   TEST_START(ITER) 
+   TEST_START(chaining, ITER) 
    {
       randoms_upto(100, ANY, state, &m, &n, NULL);
       
@@ -1203,8 +1416,13 @@ int test_divrem1_preinv(void)
 
       result = (nn_equal_m(r1, r2, m + n) && rem1 == rem2);
 
-      if (!result) printf("m = %ld, n = %ld, d = %lu, rem1 = %lu, rem2 = %lu\n", 
-            m, n, d, rem1, rem2);
+      if (!result) 
+      {
+         printf("ci = %lx, rem1 = %lx, rem2 = %lx, m = %ld, n = %ld\n", 
+            ci, rem1, rem2, m, n);
+         print_debug(a, m + n);  
+         print_debug_diff(r1, r2, m + n);
+      }
    } TEST_END;
 
    return result;
@@ -1221,7 +1439,7 @@ int test_divrem_hensel1_preinv(void)
    printf("nn_divrem_hensel1_preinv...");
 
    /* test that a + B^m * r = q * d */
-   TEST_START(ITER) 
+   TEST_START(1, ITER) 
    {
       randoms_upto(100, ANY, state, &m, NULL);
       
@@ -1237,11 +1455,16 @@ int test_divrem_hensel1_preinv(void)
 
       result = (nn_equal_m(r1, a, m) && ci == r);
 
-      if (!result) printf("m = %ld, ci = %lu, r = %lu\n", m, ci, r);
+      if (!result) 
+      {
+         printf("ci = %lx, r = %lx\n, inv = %lx", ci, r, inv);
+         print_debug(a, m); print_debug(q, m);  
+         print_debug_diff(r1, a, m);
+      }
    } TEST_END;
 
    /* test chaining of divrem_hensel1_preinv */
-   TEST_START(ITER) 
+   TEST_START(chaining, ITER) 
    {
       randoms_upto(100, ANY, state, &m, &n, NULL);
       
@@ -1257,8 +1480,13 @@ int test_divrem_hensel1_preinv(void)
 
       result = (nn_equal_m(r1, r2, m + n) && (rem1 == rem2));
 
-      if (!result) printf("m = %ld, n = %ld, d = %lu, rem1 = %lu, rem2 = %lu\n", 
-            m, n, d, rem1, rem2);
+      if (!result) 
+      {
+         printf("ci = %lx, rem1 = %lx, rem2 = %lx, m = %ld, n = %ld, d = %lx, inv = %lx\n", 
+            ci, rem1, rem2, m, n, d, inv);
+         print_debug(a, m + n);  
+         print_debug_diff(r1, r2, m + n);
+      }
    } TEST_END;
 
    return result;
@@ -1276,7 +1504,7 @@ int test_mod1_preinv(void)
    printf("nn_mod1_preinv...");
 
    /* test that divrem1 and mod1 return same remainder */
-   TEST_START(ITER) 
+   TEST_START(1, ITER) 
    {
       randoms_upto(100, ANY, state, &m, NULL);
       
@@ -1292,11 +1520,17 @@ int test_mod1_preinv(void)
       
       result = (rem1 == rem2);
 
-      if (!result) printf("m = %ld, rem1 = %lu, rem2 = %lu\n", m, rem1, rem2);
+      if (!result) 
+      {
+         printf("rem1 = %lx, rem2 = %lx, m = %ld, d = %lx, "
+            "minv.b1 = %lx, minv.b2 = %lx, minv.b3 = %lx\n", 
+            rem1, rem2, m, d, minv.b1, minv.b2, minv.b3);
+         print_debug(a, m); print_debug(q, m);  
+      }
    } TEST_END;
 
    /* test chaining of mod1_preinv */
-   TEST_START(ITER) 
+   TEST_START(chaining, ITER) 
    {
       randoms_upto(100, ANY, state, &m, &n, NULL);
       
@@ -1312,8 +1546,13 @@ int test_mod1_preinv(void)
 
       result = (rem1 == rem2);
 
-      if (!result) printf("m = %ld, n = %ld, d = %ld, rem1 = %lu, rem2 = %lu\n", 
-            m, n, d, rem1, rem2);
+      if (!result) 
+      {
+         printf("ci = %lx, rem1 = %lx, rem2 = %lx, m = %ld, n = %ld, d = %lx, "
+            "minv.b1 = %lx, minv.b2 = %lx, minv.b3 = %lx\n", 
+            ci, rem1, rem2, m, n, d, minv.b1, minv.b2, minv.b3);
+         print_debug(a, m + n);  
+      }
    } TEST_END;
 
    return result;
