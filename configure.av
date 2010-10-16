@@ -201,6 +201,8 @@ then
     fi
 fi
 
+# somewhere around here we need a list of expected symbols.
+
 # Nicked and modified from Bill...
 
 # Set Architecture

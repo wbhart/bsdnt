@@ -1,5 +1,7 @@
 #!/bin/bash
 
+
+
 process_build_item()
 {
     i=0
@@ -8,7 +10,8 @@ process_build_item()
     echo $target
 
     firstchar=${target:0:2}
-    echo "File extn? `expr match "$target" '.\([A-Za-z0-9]+\)'`"
+    fext=`expr match "$target" '^.*\.'`
+    echo "FEXT=$fext"
   
     for object in "$@"
     do
@@ -23,6 +26,7 @@ process_build_item()
     echo " "
 }
 
+# 
 UNIXBUILDMAP=unixbuild.map
 
 exec 3<&0
