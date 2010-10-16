@@ -56,12 +56,12 @@
 #   define WORD(x) (x##UL)
 # endif
 
-#endif
-
 #if WANT_ASSERT
 #define ASSERT assert
 #else
 #define ASSERT(xxx) 
+#endif
+
 #endif
 
 typedef word_t * nn_t;

@@ -44,7 +44,7 @@ __inline uint32_t high_zero_bits(word_t x)
 {
 	uint32_t pos;
 	_ASSERT(x != 0);
-	_BitScanReverse(&pos, x);
+	_BitScanReverse((unsigned long*)&pos, x);
 	return WORD_BITS - 1 - pos;
 }
 
@@ -53,7 +53,7 @@ __inline uint32_t low_zero_bits(word_t x)
 {
 	uint32_t pos;
 	_ASSERT(x != 0);
-	_BitScanForward(&pos, x);
+	_BitScanForward((unsigned long*)&pos, x);
 	return pos;
 }
 
