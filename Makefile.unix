@@ -73,10 +73,11 @@ strip:
 build/arch/%.o: __ASFILES__
 	$(QUIET_AS)$(AS)  $(AFLAGS) $< -o $@
 
-build/%.o: __SOURCES__ __TSOURCES__
+build/%.o: __SOURCES__ 
 	$(QUIET_CC)$(CC) $(CFLAGS) $(INCS) -c $< -o $@
 
-
+build/test/%.o: __TSOURCES__
+	$(QUIET_CC)$(CC) $(CFLAGS) $(INCS) -c $< -o $@
 
 # ---------------------------------------------------------
 # BUILD OBJECTS from unixbuild.map (./configure to gen)

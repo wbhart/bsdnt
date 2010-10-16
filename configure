@@ -405,7 +405,16 @@ process_build_item()
                 done
 
             else
-                object=`echo "build/$object"`
+                firstchar_obj=${object:0:2}
+                echo $firstchar_obj
+                if [ $firstchar_obj = "t-" ] 
+                then
+                    
+                    object=`echo "build/test/$object"`
+                    echo $object
+                else
+                    object=`echo "build/$object"`
+                fi
             fi
 
             mldeps=`echo "$mldeps $object"`
