@@ -456,7 +456,7 @@ int test_shr(void)
       randoms_upto(WORD_BITS, ANY, state, &sh1, NULL);
       
       randoms_of_len(m + n, ANY, state, &a, &r1, &r2, NULL);
-      
+
       ci = nn_shr(r1 + n, a + n, m, sh1);
       nn_shr_c(r1, a, n, sh1, ci);
       
@@ -1470,6 +1470,7 @@ int test_divrem_hensel1_preinv(void)
       precompute_hensel_inverse1(&inv, d);
 
       r = nn_divrem_hensel1_preinv(q, a, m, d, inv);
+
       ci = nn_mul1(r1, q, m, d);
 
       result = (nn_equal_m(r1, a, m) && ci == r);

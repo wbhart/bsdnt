@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include "nn.h"
-#include "nn_linear_arch.h"
 
 /**********************************************************************
  
@@ -53,7 +52,7 @@ void nn_printx_short(nn_src_t a, len_t m)
 
 void nn_printx_diff(nn_src_t a, nn_src_t b, len_t m)
 {
-   long i, end = m, start = m;
+   len_t i, end = m, start = m;
 
    for (start = 0; start < m; start++)
       if (a[start] != b[start])

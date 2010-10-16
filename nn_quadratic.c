@@ -26,7 +26,6 @@
 */
 
 #include "nn.h"
-#include "nn_quadratic_arch.h"
 
 #ifndef HAVE_ARCH_nn_mul_classical
 

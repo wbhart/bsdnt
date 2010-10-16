@@ -26,8 +26,35 @@
   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#define HAVE_ARCH_nn_mullow_classical
-#define HAVE_ARCH_nn_mulhigh_classical
-#define HAVE_ARCH_nn_divrem_classical_preinv_c
-#define HAVE_ARCH_nn_divapprox_classical_preinv_c
-#define HAVE_ARCH_nn_div_hensel_preinv
+#ifndef HELPER_ARCH_H
+#define HELPER_ARCH_H
+
+#include <stdint.h>
+#include <limits.h>
+#include <assert.h>
+#include "config.h"
+
+#define HAVE_ARCH_INTRINSICS
+
+#include <crtdbg.h>
+#include <intrin.h>
+
+#pragma intrinsic(_BitScanReverse)
+__inline uint32_t high_zero_bits(word_t x)
+{
+	uint32_t pos;
+	_ASSERT(x != 0);
+	_BitScanReverse((unsigned long*)&pos, x);
+	return WORD_BITS - 1 - pos;
+}
+
+#pragma intrinsic(_BitScanForward)
+__inline uint32_t low_zero_bits(word_t x)
+{
+	uint32_t pos;
+	_ASSERT(x != 0);
+	_BitScanForward((unsigned long*)&pos, x);
+	return pos;
+}
+
+#endif
