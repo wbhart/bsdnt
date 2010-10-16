@@ -69,6 +69,6 @@
 	v0.21 - Added KISS, SKISS, MT PRNGs.
 
 15-Oct-2010:
-	v0.22 - Added Windows support.
+	v0.22 - Added Windows support and new configure system.
 
 
