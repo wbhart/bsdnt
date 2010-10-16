@@ -1,7 +1,6 @@
 #!/bin/bash
 
 
-
 process_build_item()
 {
     i=0
@@ -10,9 +9,9 @@ process_build_item()
     echo $target
 
     firstchar=${target:0:2}
-    fext=`expr match "$target" '^.*\.'`
-    echo "FEXT=$fext"
-  
+    fext_loc=`expr match "$target" '^.*\.'`
+    fext=${target:$fext_loc:${#target}}
+    echo "FEXT=${fext}"
     for object in "$@"
     do
         if [ $i != "0" ] 
