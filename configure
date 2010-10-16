@@ -497,6 +497,11 @@ make_directory_structure()
     mkdir -p dist/lib
 }
 
+create_types_arch_h()
+{
+    echo "" >> types_arch.h
+}
+
 create_config_h $@
 detect_compilers
 offer_compiler_choice
@@ -505,7 +510,7 @@ fill_makefile_wireframe
 parse_build_maps $UNIXBUILDMAP
 sed_makefile
 make_directory_structure
-
+create_types_arch_h
 
 echo "Done. "
 echo " "
