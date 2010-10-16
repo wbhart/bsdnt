@@ -1,2 +1,1 @@
 libbsdnt.a: nn_linear.o nn_quadratic.o -asm-
-t-nn_all: helper.o t-nn_all.o nn_quadratic.o nn_linear.o -asm-

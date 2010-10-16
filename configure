@@ -351,9 +351,9 @@ fill_makefile_wireframe()
 {
     echo "Examining source"
 
-    CFILESARR=`ls -1 *.c`
+    CFILESARR=`ls -1 *.c rand/*.c`
     HFILESARR=`ls -1 *.h`
-    TFILESARR=`ls -1 test/*.c`
+    TFILESARR=`ls -1 test/t-*_all.c`
 
     for C in `echo ${CFILESARR[*]}`;
     do

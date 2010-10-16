@@ -51,7 +51,7 @@ OBJS = $(patsubst %.c, build/%.o, $(SOURCES))
 TSOURCES = __TSOURCES__
 TOBJS = $(patsubst %.c, build/%.o, $(TSOURCES))
 
-TESTS = __TESTS__
+TESTS = $(patsubst %.c, build/%, $(TSOURCES)) 
 
 BINARIES = __BINARIES__ $(TESTS)
 
@@ -71,14 +71,17 @@ check: $(OBJS) $(BINARIES)
 strip:
 	strip $(BINARIES)
 
-build/arch/%.o: __ASFILES__
+build/arch/%.o: %.asm
 	$(QUIET_AS)$(AS)  $(AFLAGS) $< -o $@
 
-build/%.o: __SOURCES__ 
+build/%.o: %.c 
 	$(QUIET_CC)$(CC) $(CFLAGS) $(INCS) -c $< -o $@
 
-build/test/%.o: __TSOURCES__
+build/test/%.o: %.c
 	$(QUIET_CC)$(CC) $(CFLAGS) $(INCS) -c $< -o $@
+
+build/test/%_all: $(OBJS) $(TOBJS)
+	$(QUIET_LINK)$(CC) $(CFLAGS) $(INCS) $(OBJS) $(TOBJS) -o $@
 
 # ---------------------------------------------------------
 # BUILD OBJECTS from unixbuild.map (./configure to gen)
