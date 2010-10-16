@@ -33,7 +33,7 @@
 #include <limits.h>
 #include <assert.h>
 #include "config.h"
-#include "types_arch.h"
+#include "bsdnt.h"
 
 #ifndef HAVE_ARCH_TYPES
 
