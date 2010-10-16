@@ -1470,6 +1470,7 @@ int test_divrem_hensel1_preinv(void)
       precompute_hensel_inverse1(&inv, d);
 
       r = nn_divrem_hensel1_preinv(q, a, m, d, inv);
+
       ci = nn_mul1(r1, q, m, d);
 
       result = (nn_equal_m(r1, a, m) && ci == r);
