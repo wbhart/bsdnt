@@ -132,7 +132,7 @@ offer_compiler_choice()
 
     echo "CCC is $CCC"
 
-    if [ $CCC = "g" ] 
+    if [ "$CCC" = "g" ] 
     then
         CC=gcc
         CFLAGS=
@@ -156,21 +156,21 @@ offer_compiler_choice()
         read -n 1 AAA
         echo ""
             
-        if [ !$AAA -o $AAA = "g" ]
+        if [ !$AAA -o "$AAA" = "g" ]
         then
             AS="gcc"
-        elif [ $AAA = "y" ] 
+        elif [ "$AAA" = "y" ] 
         then
             AS="yasm"
             ASFLAGS=""
-        elif [ $AAA = "n" ]
+        elif [ "$AAA" = "n" ]
         then
             AS="nasm"
             ASFLAGS=""
      
         fi
 
-    elif [ $CCC = "i" ] 
+    elif [ "$CCC" = "i" ] 
     then
         CC=icc
         CFLAGS=
@@ -192,15 +192,15 @@ offer_compiler_choice()
         read -n 1 AAA
         echo ""
 
-        if [ $AAA = "y" ] 
+        if [ "$AAA" = "y" ] 
         then
             AS="yasm"
-        elif [ $AAA = "n" ]
+        elif [ "$AAA" = "n" ]
         then
             AS="nasm"
         fi
 
-    elif [ $CCC = "c" ] 
+    elif [ "$CCC" = "c" ] 
     then
         CC=clang
         CFLAGS=
@@ -221,10 +221,10 @@ offer_compiler_choice()
         read -n 1 AAA
         echo ""
 
-        if [ $AAA = "y" ] 
+        if [ "$AAA" = "y" ] 
         then
             AS="yasm"
-        elif [ $AAA = "n" ]
+        elif [ "$AAA" = "n" ]
         then
             AS="nasm"
         fi
@@ -262,6 +262,8 @@ arch_handler()
     esac
 
     # Create ARCH headers. 
+
+    echo "" > helper_arch.h
 
     if [ $MACHINE = "_x86" -o $MACHINE = "_x86_64" ]
     then
