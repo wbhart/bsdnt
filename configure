@@ -101,20 +101,20 @@ offer_compiler_choice()
 
     I=0
 
-    if [ $COMPILER_GCC = 1 ] 
+    if [ $COMPILER_GCC > 0 ] 
     then
         echo " g) gcc [+ gas/nasm/yasm]";
         I=1;
     fi
 
-    if [ $COMPILER_CLANG = 1 ] 
+    if [ $COMPILER_CLANG > 0 ] 
     then
         echo " c) clang [+ nasm/yasm]";
         I=1;
 
     fi
 
-    if [ $COMPILER_ICC = 1 ] 
+    if [ $COMPILER_ICC > 0 ] 
     then
         echo " i) icc [+ nasm/yasm]"
         I=1;
@@ -232,7 +232,7 @@ offer_compiler_choice()
     fi
 
 
-    if [ $BUILDEXT_CUDA = 1 ]
+    if [ $BUILDEXT_CUDA > 0 ]
     then
         echo -n "Do you wish to enable CUDA extensions (y/n)? "
         read -n 1 qcuda
