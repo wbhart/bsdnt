@@ -137,14 +137,13 @@ typedef struct mod_preinv1_t
 
 #endif
 
+#ifndef HAVE_ARCH_precompute_inverse1
+
 /*
    Precomputes an inverse of d as per the definition of \nu at the
    start of section 3 of Moller-Granlund (see below). Does not 
    require d to be normalised, but d must not be 0. 
 */
-
-#ifndef HAVE_ARCH_precompute_inverse1
-
 static inline
 void precompute_inverse1(preinv1_t * inv, word_t d)
 {
@@ -162,6 +161,8 @@ void precompute_inverse1(preinv1_t * inv, word_t d)
 
 #endif
 
+#ifndef HAVE_ARCH_precompute_inverse1_2
+
 /*
    Precomputes an inverse of the leading WORD_BITS of d with leading words 
    d1, d2 (or d1, 0 if d has only one word) as per the definition of \nu at 
@@ -169,8 +170,6 @@ void precompute_inverse1(preinv1_t * inv, word_t d)
    d1, d2 to be normalised. A normalised version of d1, d2 is returned.
    Requires that d1 be nonzero.
 */
-
-#ifndef HAVE_ARCH_precompute_inverse1_2
 
 static inline
 void precompute_inverse1_2(preinv1_2_t * inv, word_t d1, word_t d2)
@@ -215,6 +214,7 @@ void precompute_mod_inverse1(mod_preinv1_t * inv, word_t d)
 #endif
 
 #ifndef HAVE_ARCH_precompute_hensel_inverse1
+
 /*
    Precomputes a Hensel inverse of d, i.e. a value dinv such that
    d * dinv = 1 mod B. The algorithm is via Hensel lifting.

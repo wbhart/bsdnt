@@ -48,7 +48,7 @@ word_t div_128_by_64(dword_t *n,  word_t d, word_t *r);
 __inline uint32_t high_zero_bits(word_t x)
 {
 	uint32_t pos;
-	_ASSERTE(x != 0);
+	_ASSERT(x != 0);
 	_BitScanReverse64(&pos, x);
 	return WORD_BITS - 1 - pos;
 }
@@ -57,7 +57,7 @@ __inline uint32_t high_zero_bits(word_t x)
 __inline uint32_t low_zero_bits(word_t x)
 {
 	uint32_t pos;
-	_ASSERTE(x != 0);
+	_ASSERT(x != 0);
 	_BitScanForward64(&pos, x);
 	return pos;
 }
@@ -105,7 +105,7 @@ void precompute_inverse1(preinv1_t * inv, word_t d)
    word_t norm = high_zero_bits(d);
    d <<= norm;
 
-   ASSERT(d != 0);
+   _ASSERT(d != 0);
 
    t.hi = ((word_t)-1) - d;
    t.lo = ((word_t)-1);
@@ -127,7 +127,7 @@ void precompute_inverse1_2(preinv1_2_t * inv, word_t d1, word_t d2)
    dword_t t;
    word_t norm = high_zero_bits(d1);
 
-   ASSERT(d1 != 0);
+   _ASSERT(d1 != 0);
 
    d1 <<= norm;
    if (norm) d1 += (d2 >> (WORD_BITS - norm));
@@ -147,7 +147,7 @@ void precompute_mod_inverse1(mod_preinv1_t * inv, word_t d)
 {
 	dword_t u;
 
-   ASSERT(d != 0);
+   _ASSERT(d != 0);
    
 	u.hi = 1;
 	u.lo = 0;
