@@ -66,7 +66,7 @@ detect_compilers()
         echo "   AS   nasm detected."
     fi
     
-    if which nvcc &> /dev/null; then
+        if which nvcc &> /dev/null; then
         BUILDEXT_CUDA=1;
         echo "   CU   nvcc detected."
     fi  
@@ -143,11 +143,11 @@ offer_compiler_choice()
 
 
         echo " g) GNU AS (Default)"
-        if [ $ASSEMBLER_YASM = 1 ]
+        if [ $ASSEMBLER_YASM > 0 ]
         then
             echo " y) YASM"
         fi
-        if [ $ASSEMBLER_NASM = 1 ]
+        if [ $ASSEMBLER_NASM > 0 ]
         then
             echo " n) NASM"
         fi
@@ -179,11 +179,11 @@ offer_compiler_choice()
         
         echo "Please choose an assembler:"
 
-        if [ $ASSEMBLER_YASM = 1 ]
+        if [ $ASSEMBLER_YASM > 0 ]
         then
             echo " y) YASM"
         fi
-        if [ $ASSEMBLER_NASM = 1 ]
+        if [ $ASSEMBLER_NASM > 0 ]
         then
             echo " n) NASM"
         fi
@@ -208,11 +208,11 @@ offer_compiler_choice()
 
         echo "Please choose an assembler:"
 
-        if [ $ASSEMBLER_YASM = 1 ]
+        if [ $ASSEMBLER_YASM > 0 ]
         then
             echo " y) YASM"
         fi
-        if [ $ASSEMBLER_NASM = 1 ]
+        if [ $ASSEMBLER_NASM > 0 ]
         then
             echo " n) NASM"
         fi
