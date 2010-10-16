@@ -29,6 +29,7 @@
 #ifndef TYPES_ARCH_H
 #define TYPES_ARCH_H
 
+#include <stdint.h>
 #define HAVE_ARCH_TYPES
 
 #define inline __inline
