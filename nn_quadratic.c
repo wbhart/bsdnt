@@ -67,7 +67,7 @@ word_t nn_mulhigh_classical(nn_t r, nn_src_t a, len_t m1,
       r[1] = (word_t) t;
       ci += (word_t) (t >> WORD_BITS);
    } else
-      ci += (dword_t) ov[1]; /* ov[1] cannot be more than 1 in this case */
+      ci += ov[1]; /* ov[1] cannot be more than 1 in this case */
 
    for (i = 3; i < m2; i++)
    {
