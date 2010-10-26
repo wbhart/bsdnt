@@ -423,12 +423,11 @@ int test_shr(void)
 
       if (!result) 
       {
-         printf("m = %ld, sh1 = %ld, sh2 = %ld\n", m, sh1, sh2);
          print_debug(a, m); 
          print_debug_diff(r1, r2, m);
       }
    } TEST_END;
-
+   
    /* test chaining of shr */
    TEST_START(chaining, ITER) 
    {
@@ -451,7 +450,7 @@ int test_shr(void)
          print_debug_diff(r1, r2, m + n + 1);
       }
    }  TEST_END;
-
+   
    /* test (a << sh1) >> sh1 = a */
    TEST_START(2, ITER) 
    {

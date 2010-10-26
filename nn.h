@@ -64,8 +64,8 @@ void nn_printx_short(nn_src_t a, len_t m);
 /*
    Print information about which words of a and b differ and actually
    print the first and last words which differ, for both bignums. 
-   This function is used for diagnostic purposes in test code. If there
-   is no difference, "don't differ" is printed.
+   This function is used for diagnostic purposes in test code. If 
+   there is no difference, "don't differ" is printed.
 */
 void nn_printx_diff(nn_src_t a, nn_src_t b, len_t m);
 
@@ -76,7 +76,9 @@ void nn_printx_diff(nn_src_t a, nn_src_t b, len_t m);
 **********************************************************************/
 
 /*
-   Copy the m limbs at b to a.
+   Copy the m limbs at b to a. Aliasing is allowed, but is 
+   not currently dealt with specially, i.e. the data is 
+   actually copied.
 */
 static inline
 void nn_copy(nn_t a, nn_src_t b, len_t m)
@@ -124,7 +126,8 @@ len_t nn_normalise(nn_t a, len_t m)
 /*
    Set a to the twos complement negation of b, where b is m words 
    in length. Return any borrow. The word ci is a carry-in. It is
-   effectively subtracted from the result.
+   effectively subtracted from the result. The carry-in can be at
+   most 1.
 */
 word_t nn_neg_c(nn_t a, nn_src_t b, len_t m, word_t ci);
 
@@ -139,6 +142,7 @@ word_t nn_neg_c(nn_t a, nn_src_t b, len_t m, word_t ci);
    Set a to the twos complement negation of b, where b is m words
    in length. The word ci is a carry-in. It is effectively subtracted
    from the result. The borrow is written out to a[m] and returned. 
+   The carry-in can be at most 1.
 */
 static inline
 word_t nn_s_neg_c(nn_t a, nn_src_t b, len_t m, word_t ci)
@@ -194,7 +198,8 @@ word_t nn_sub1(nn_t a, nn_src_t b, len_t m, word_t c);
 
 /*
    Set a = b + c + ci where b and c are both m words in length,
-   ci is a "carry in". Return any carry out. 
+   ci is a "carry in". Return any carry out. The carry-in may be
+   at most 1.
 */
 word_t nn_add_mc(nn_t a, nn_src_t b, nn_src_t c, len_t m, word_t ci);
 
@@ -208,7 +213,8 @@ word_t nn_add_mc(nn_t a, nn_src_t b, nn_src_t c, len_t m, word_t ci);
 /*
    Set a = b + c + ci where b and c are both m words in length, 
    writing the carry to a. If a and b are aliased, the carry is 
-   added to a[m], otherwise a[m] is set to the carry.
+   added to a[m], otherwise a[m] is set to the carry. The carry-in 
+   may be at most 1.
 */
 #define nn_s_add_mc(a, b, c, m, ci) \
    do { \
@@ -228,7 +234,8 @@ word_t nn_add_mc(nn_t a, nn_src_t b, nn_src_t c, len_t m, word_t ci);
 
 /*
    Set a = b - c - bi where b and c are both m words in length,
-   bi is a "borrow". Return any borrow. 
+   bi is a "borrow". Return any borrow. The borrow-in may be at
+   most 1.
 */
 word_t nn_sub_mc(nn_t a, nn_src_t b, nn_src_t c, len_t m, word_t bi);
 
@@ -242,7 +249,8 @@ word_t nn_sub_mc(nn_t a, nn_src_t b, nn_src_t c, len_t m, word_t bi);
 /*
    Set a = b - c - bi where b and c are both m words in length, 
    writing the borrow to a. If a and b are aliased, the boorow is 
-   subtracted from a[m], otherwise a[m] is set to the borrow.
+   subtracted from a[m], otherwise a[m] is set to the borrow. The 
+   borrow-in may be at most 1.
 */
 #define nn_s_sub_mc(a, b, c, m, bi) \
    do { \
@@ -262,7 +270,8 @@ word_t nn_sub_mc(nn_t a, nn_src_t b, nn_src_t c, len_t m, word_t bi);
 
 /*
    Set a = b + c + ci where b is bm words, c is cm words in length,
-   bm >= cm and ci is a "carry in". We return the carry out. 
+   bm >= cm and ci is a "carry in". We return the carry out. The carry-in 
+   may be at most 1.
 */
 static inline
 word_t nn_add_c(nn_t a, nn_src_t b, len_t bm, 
@@ -283,7 +292,7 @@ word_t nn_add_c(nn_t a, nn_src_t b, len_t bm,
    Set a = b + c + ci where b is bm words, c is cm words in length,
    bm >= cm and ci is a "carry in". We write the carry out to a[bm].
    If a and b are aliased the carry out is added to a[bm], otherwise
-   it is written there.
+   it is written there. The carry-in may be at most 1.
 */
 #define nn_s_add_c(a, b, bm, c, cm, ci) \
    do { \
@@ -304,7 +313,8 @@ word_t nn_add_c(nn_t a, nn_src_t b, len_t bm,
 
 /*
    Set a = b - c - ci where b is bm words, c is cm words in length,
-   bm >= cm and ci is a "borrow in". We return any borrow out. 
+   bm >= cm and ci is a "borrow in". We return any borrow out. The
+   borrow-in may be at most 1.
 */
 static inline
 word_t nn_sub_c(nn_t a, nn_src_t b, len_t bm, 
@@ -325,7 +335,7 @@ word_t nn_sub_c(nn_t a, nn_src_t b, len_t bm,
    Set a = b - c - ci where b is bm words, c is cm words in length,
    bm >= cm and ci is a "borrow in". We write the borrow out to a[bm].
    If a and b are aliased the borrow out is subtracted from a[bm], 
-   otherwise it is written there.
+   otherwise it is written there. The borrow-in may be at most 1.
 */
 #define nn_s_sub_c(a, b, bm, c, cm, ci) \
    do { \
@@ -347,7 +357,8 @@ word_t nn_sub_c(nn_t a, nn_src_t b, len_t bm,
 /*
    Set a = (b << bits) + ci where b is m words in length,
    ci is a "carry in". Return any carry out. Assumes 0 <= bits
-   < WORD_BITS.
+   < WORD_BITS. Assumes ci is not more than the given number of 
+   bits.
 */
 word_t nn_shl_c(nn_t a, nn_src_t b, len_t m, bits_t bits, word_t ci);
 
@@ -361,7 +372,8 @@ word_t nn_shl_c(nn_t a, nn_src_t b, len_t m, bits_t bits, word_t ci);
 /*
    Set a = (b << bits) + ci where b is m words in length, ci is
    a "carry in", and write the carry out to a[m] and return it. 
-   Assumes 0 <= bits < WORD_BITS.
+   Assumes 0 <= bits < WORD_BITS. Assumes ci is not more than the 
+   given number of bits.
 */
 static inline
 word_t nn_s_shl_c(nn_t a, nn_src_t b, len_t m, bits_t bits, word_t ci)
@@ -379,7 +391,8 @@ word_t nn_s_shl_c(nn_t a, nn_src_t b, len_t m, bits_t bits, word_t ci)
 /*
    Set a = (b >> bits) + ci*B^(m - 1) where b is m words 
    in length, ci is a "carry in". Return any carry out from the low
-   end. Assumes 0 <= bits < WORD_BITS.
+   end. Assumes 0 <= bits < WORD_BITS. Assumes the at most the top 
+   "bits" bits of ci are nonzero.
 */
 word_t nn_shr_c(nn_t a, nn_src_t b, len_t m, bits_t bits, word_t ci);
 
@@ -393,7 +406,7 @@ word_t nn_shr_c(nn_t a, nn_src_t b, len_t m, bits_t bits, word_t ci);
 /*
    Set a = (b >> bits) + ci*B^(m - 1) where b is m words 
    in length, and ci is a[m]*2^(WORD_BITS - bits). Assumes 0 <= bits < 
-   WORD_BITS.
+   WORD_BITS. Assumes at most the top "bits" bits of ci are nonzero.
 */
 static inline
 word_t nn_r_shr(nn_t a, nn_src_t b, len_t m, bits_t bits)
@@ -725,7 +738,7 @@ void nn_mullow_classical(nn_t ov, nn_t r, nn_src_t a, len_t m1,
    {b, m2}. The output requires m2 - 1 words and any carry will be 
    returned in a carry-out. We require m1 >= m2 > 0. If ov from mullow
    is passed to mulhigh then a mullow followed by a mulhigh is the same
-   as a full mul.
+   as a full mul. The output r may not alias either a or b.
 */
    word_t nn_mulhigh_classical(nn_t r, nn_src_t a, len_t m1, 
                                        nn_src_t b, len_t m2, nn_t ov);
@@ -746,7 +759,7 @@ void nn_mullow_classical(nn_t ov, nn_t r, nn_src_t a, len_t m1,
    be computed from the leading two limbs of d (or the leading limb and 0 
    if n is 1) using precompute_inverse_lead. If a_n is the leading n limbs 
    of a, then ci*B^m + a_n must be less than B * d. The quotient
-   must have space for m - n + 1 limbs. 
+   must have space for m - n + 1 limbs. The quotient may not alias d.
 */
 void nn_divrem_classical_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d, 
                                      len_t n, preinv1_2_t inv, word_t ci);
@@ -763,11 +776,12 @@ void nn_divrem_classical_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d,
 /*
    As per nn_divrem_classical_preinv_c, however no remainder is computed
    and the quotient is either correct or one too large, i.e. |a - q*d| < d.
+   The dividend a is destroyed and may not alias q.
 */
 void nn_divapprox_classical_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d, 
                                   len_t n, preinv1_2_t inv, word_t ci);
 
-                                  /*
+/*
    As per nn_divapprox_classical_preinv_c except that the carry-in is read 
    from a[m]. The approx. quotient will therefore be {a, m + 1} by {d, n}.
 */
@@ -780,8 +794,9 @@ void nn_divapprox_classical_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d,
    Perform Hensel division of {a, m} by {d, n} with the quotient mod B^m
    being returned in q and any overflow from mullow(q, d) being returned
    in ov. We require m >= n > 0. The quotient q requires m words of space
-   and ov requires 2 words. The dividend, a, is destroyed. The divisor d
-   must be odd and inv must be a precomputed inverse of d[0] computed with
+   and ov requires 2 words. The dividend, a, is destroyed and may not alias
+   q. We also require that q does not alias d. The divisor d must be odd 
+   and inv must be a precomputed inverse of d[0] computed with
    precompute_hensel_inverse1.
 */
 void nn_div_hensel_preinv(nn_t ov, nn_t q, nn_t a, len_t m, 
