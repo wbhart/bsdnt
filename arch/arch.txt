@@ -1,29 +1,31 @@
 This directory holds files that contain assembler and other code that is 
-specific to particular architectures.  In general the type of the file
-is set by its extension and its specific function is set by its name in 
-a way that is described below.
+specific to particular platforms and processor architectures.  In general 
+the type of the file is set by its extension and its specific function 
+is set by its name in a way that is described here.
 
 1. Usage
 ========
 
 The aim is to have generic C code enhanced as necessary with architecture
 specific alternatives including assembler code.  To achieve this each
-distinct function in the C source code files in the BSDNT root directory
-uses of defines of the form:
+distinct function in the primary C source code files in the BSDNT root 
+directory is guarded by defines of the form:
 
   HAVE_ARCH_<bsdnt_function>
 
-that exclude the function from compilation if this symbol is defined. 
-(angle brackets <> are used here to indicate where specific function
-names are substituted - without the <>).  When such a symbol is defined,
-it mmeans that the function in question has an architecture specific 
-version in the arch directory that should be used instead of the version
-in the root directory.  Hence, for example, the existence of the define:
+that exclude the function from compilation when the symbol in question is 
+defined is (angle brackets are used to indicate where specific function
+names are substituted).  When such a symbol is defined (in a header file 
+to be described later), it mmeans that the function in question has an 
+architecture and/or processor specific version in the arch directory that
+should be used instead of the generic version in the root directory. Hence, 
+for example, the existence of the define:
 
   HAVE_ARCH_nn_add_mc
 
 means that the C function calleld nn_add_mc in the root directory source
-code should be excluded when the file that contains it is compiled. 
+code should be excluded when the file that contains this function is 
+compiled. 
  
 To achieve this exclusion, the generic C file <bsd_function_category>.c 
 expects to find a file <bsd_function_category>_arch.h in the BSDNT root
@@ -37,10 +39,10 @@ will expect to find the file:
 
   nn_linear_arch.h
 
-in the root directory specifying which functions should not be compiled.
-It is the responsibility of the build system for the architecture in
-question to create or copy such a file into this location before the
-build is started.
+in the root directory specifying which of the functions it contains should
+not be compiled.  It is the responsibility of the build system for the 
+architecture in question to create or copy such a file into this location 
+before the build is started.
 
 2. Architeture Specific Files
 =============================
@@ -49,7 +51,7 @@ Files specific to each architecture are all placed in the arch directory
 or in one of its sub-directories.  These files are distinguished using
 the following file naming conventions. 
 
-The naming convention template for files in arch is:
+The naming convention for files in arch is:
 
   <bsdnt_function_category>_<operating system>.(c|h)
   
@@ -71,9 +73,9 @@ So, for example, these files:
   nn_linear_x64.c
 
 are the header and source code files for alternative linear functions
-for Windows x64 systems.  The header function simply deines symbols to
+on Windows x64 systems.  The header file simply deines symbols to
 prevent the root source code for a function being compiled while the 
-C file contains the architecture specific versions of these excluded
+C file implements the architecture specific versions of these excluded
 functions. For example the content of the header file will have the 
 form:
 
@@ -101,9 +103,10 @@ arch directory.  THe file naming convention used in arch/asm is:
 
   <bsdnt_function_category>_<operating system>_<cpu>.(asm|h)
 
-Where the <operating system> is as described earlier and the 'asm' 
-file name extension might be different for some systems. The <cpu>
-designates the processor for which the assembler has been provided.
+Where <operating system> is as described earlier and the 'asm' file
+name extension might be different for some systems. The <cpu> item
+designates the processor for which the assembler in question is
+intended.
 
 For example, x64 assembler code for core2 processors would use:
 
@@ -119,7 +122,8 @@ on core2 systems as an example), the file:
 
    arch/asm/nn_linear_x64_core2.h
 
-is first copied into:
+holding exclusion defines for any assembler code functions is first 
+copied into:
 
    arch/nn_linear_x64_asm.h
 
@@ -127,11 +131,11 @@ where it will be picked up by the file nn_linear_x64.c using an include:
 
 #include "nn_linear_x64_asm.h"
 
-which will exclude the compilation of any architecture specific versions
-for which assembler code is available.
+The defines in this file will prevent the compilation of any architecture 
+specific versions for which assembler code is available.
 
-Any assembler code must also cause exclusions in nn_linear.c in root and
-this is achieved by appending the file 'nn_linear_x64_asm.h' (now in arch
+Any assembler code must also cause exclusions in nn_linear.c in root. This
+is achieved by appending the file 'nn_linear_x64_asm.h' (now in arch
 as a result of the earlier copying operation) to 'nn_linear_x64.h' and
 copying the result to 'nn_linear_arch.h' in root.
 
