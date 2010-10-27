@@ -34,7 +34,6 @@
 #include <assert.h>
 #include "config.h"
 #include "types_arch.h"
-#include "helper_arch.h"
 
 #ifndef HAVE_ARCH_TYPES
 
