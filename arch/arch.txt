@@ -18,9 +18,7 @@ that exclude the function from compilation if this symbol is defined.
 names are substituted - without the <>).  When such a symbol is defined,
 it mmeans that the function in question has an architecture specific 
 version in the arch directory that should be used instead of the version
-in the root directory.  This alternative can implemented in C or assembler
-that should be used instead of the C code version.  Hence, for example, 
-the existence of the define:
+in the root directory.  Hence, for example, the existence of the define:
 
   HAVE_ARCH_nn_add_mc
 
@@ -39,7 +37,7 @@ will expect to find the file:
 
   nn_linear_arch.h
 
-in the root directory speciifying which functions should not be compiled.
+in the root directory specifying which functions should not be compiled.
 It is the responsibility of the build system for the architecture in
 question to create or copy such a file into this location before the
 build is started.
@@ -48,8 +46,10 @@ build is started.
 =============================
 
 Files specific to each architecture are all placed in the arch directory
-and are distinguished by the following file naming conventions. The 
-template for the adopted naming convention is:
+or in one of its sub-directories.  These files are distinguished using
+the following file naming conventions. 
+
+The naming convention template for files in arch is:
 
   <bsdnt_function_category>_<operating system>.(c|h)
   
@@ -88,7 +88,7 @@ and nn_linear.c has the include:
 #include "nn_linear_arch..h"
 
 which picks up the compiler exclusions. So, prior to starting the
-compilation, the build system for, say, WIndows x64 will copy the 
+compilation, the build system for, say, Windows x64, will copy the 
 file arch/nn_linear_x64.h to nn_linear_arch.h in root to force the
 exclusions that are needed on this architecture.
 
@@ -97,22 +97,25 @@ exclusions that are needed on this architecture.
 
 If standalone assembler code versions of routines are available for
 any architecture, they reside within the asm sub-directory in the 
-arch directory.  THe file naming convention used is:
+arch directory.  THe file naming convention used in arch/asm is:
 
   <bsdnt_function_category>_<operating system>_<cpu>.(asm|h)
 
 Where the <operating system> is as described earlier and the 'asm' 
-file name extension might be different for some systems.  
+file name extension might be different for some systems. The <cpu>
+designates the processor for which the assembler has been provided.
 
 For example, x64 assembler code for core2 processors would use:
 
-  nn_linear_x64_core2.asm
-  nn_linear_x64_core2.h
+  nn_linear_x64_core2.asm  -- x64 assembler code for core2 cpus
+  nn_linear_x64_core2.h    -- defines to exclude functions provided 
 
 If an assembler version is available it has to overide any version in
-the BSDNT root directory and any architecture specific version in arch.
-To achieve this, using the x64 assembler code for the linear functions
-on ccore2 systems as an example, the file:
+the BSDNT root directory AND any architecture specific version that is
+provided in arch.
+
+To achieve this (using the x64 assembler code for the linear functions
+on core2 systems as an example), the file:
 
    arch/asm/nn_linear_x64_core2.h
 
@@ -138,7 +141,7 @@ copying steps are:
   copy  arch/asm/nn_linear_x64_core2.h  arch/nn_linear_x64_asm.h
   copy  arch/nn_linear_x64.h + arch/nn_linear_x64_asm.h  nn_linear_arch.h
 
-and arrange to build:
+The build system then has to arrange to build:
   
   nn_linear.c
   arch/nn_linear_x64.c
