@@ -75,10 +75,10 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <MASM Include="arch\x64\nn_linear_x64_core2.asm">
+    <MASM Include="arch\asm\nn_linear_x64_core2.asm">
       <Filter>Source Files</Filter>
     </MASM>
-    <MASM Include="arch\x64\nn_linear_x64_div128_by_64.asm">
+    <MASM Include="arch\asm\nn_linear_x64_div128_by_64.asm">
       <Filter>Source Files</Filter>
     </MASM>
   </ItemGroup>

@@ -28,6 +28,7 @@
 
 09-Sep-2010:
 	v0.9 - nn_divrem_hensel1_preinv.
+    t-nn_linear.o: t-nn_linear.c
 
 09-Sep-2010:
 	v0.10 - nn_mod1_preinv

@@ -456,7 +456,7 @@ int test_shr(void)
       randoms_upto(WORD_BITS, ANY, state, &sh1, NULL);
       
       randoms_of_len(m + n, ANY, state, &a, &r1, &r2, NULL);
-      
+
       ci = nn_shr(r1 + n, a + n, m, sh1);
       nn_shr_c(r1, a, n, sh1, ci);
       

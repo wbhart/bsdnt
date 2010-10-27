@@ -95,37 +95,26 @@ exclusions that are needed on this architecture.
 3. Architeture Specific Assembler Code
 ======================================
 
-If assembler code version of routines are available for any architecture
-are available, they reside within a directory in the arch directory with
-the directory name set by the operating system for which the assembler
-is available.  So for the operating systems identfied earlier, the code
-for any assembler will reside in:
+If standalone assembler code versions of routines are available for
+any architecture, they reside within the asm sub-directory in the 
+arch directory.  THe file naming convention used is:
 
-  arch/x86      32-bit *nix systems assembler
-  arch/x86_64   64-bit *nix systems assembler
-  arch/win32    32-bit Windows systems assembler
-  arch/x64      64-bit Windows systems assembler
+  <bsdnt_function_category>_<operating system>_<cpu>.(asm|h)
 
-How the assembler code is organised within these directories is not fixed
-and will depend on the most appropriate organisation for the operating
-system in particular.  For example, in the x64 directory, the files:
+Where the <operating system> is as described earlier and the 'asm' 
+file name extension might be different for some systems.  
 
-  nn_linear_x64_core2.h
-  nn_linear_x64_k8.h
-
-are the header files for core2 and k8 assembler code respectively, with
+For example, x64 assembler code for core2 processors would use:
 
   nn_linear_x64_core2.asm
-  nn_linear_x64_k8.asm
-
-holding the assembler implementations.
+  nn_linear_x64_core2.h
 
 If an assembler version is available it has to overide any version in
 the BSDNT root directory and any architecture specific version in arch.
 To achieve this, using the x64 assembler code for the linear functions
 on ccore2 systems as an example, the file:
 
-   arch/x64/nn_linear_x64_core2.h
+   arch/asm/nn_linear_x64_core2.h
 
 is first copied into:
 
@@ -146,7 +135,7 @@ copying the result to 'nn_linear_arch.h' in root.
 So to build for x64 using the core2 assembler code, the two pre-build
 copying steps are:
 
-  copy  arch/x64/nn_linear_x64_core2.h  arch/nn_linear_x64_asm.h
+  copy  arch/asm/nn_linear_x64_core2.h  arch/nn_linear_x64_asm.h
   copy  arch/nn_linear_x64.h + arch/nn_linear_x64_asm.h  nn_linear_arch.h
 
 and arrange to build:
