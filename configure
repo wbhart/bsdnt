@@ -41,6 +41,19 @@ echo "BSDNT is a BSD-Licensed BigNum Library."
 echo "BSDNT is Copyright (C) its contributors. See LICENSE."
 echo "====================================================="
 
+INTERACTIVE=0
+
+interactive()
+{
+    while test "$1" != "" ; do
+        if test "$1" = "-i"
+        then
+           INTERACTIVE=1
+        fi
+        shift
+    done
+}
+
 detect_compilers()
 {
     # Detect which compiler combinations exist.
@@ -254,9 +267,9 @@ arch_handler()
 
     case $ARCH in
     x86_64 | amd64)
-       MACHINE="_x86_64";;
+       MACHINE="x86_64";;
     x86 | i*86 | pc)
-       MACHINE="_x86";;
+       MACHINE="x86";;
     *)
        MACHINE="unknown";;
     esac
@@ -265,9 +278,14 @@ arch_handler()
 
     echo "" > helper_arch.h
 
-    if [ $MACHINE = "_x86" -o $MACHINE = "_x86_64" ]
+    if [ $MACHINE = "x86" -o $MACHINE = "x86_64" ]
     then
-        $CC arch/cpuid.c -o cpuid 
+	if [ $AS = "gcc" ]
+        then
+	   CFLAGS=$CFLAGS" -masm=intel"
+	fi
+
+	$CC arch/cpuid.c -o cpuid 
         ARCH=`./cpuid`
         case $ARCH in
         k10)
@@ -286,10 +304,10 @@ arch_handler()
             EXTS="";;
         esac
 
-        if [ $MACHINE = "_x86_64" ]
+        if [ $MACHINE = "x86_64" ]
         then
             ASFLAGS="-felf64"
-        elif [ $MACHINE = "_x86" ]
+        elif [ $MACHINE = "x86" ]
         then
             ASFLAGS="-felf32"
         fi
@@ -318,12 +336,12 @@ arch_handler()
                         ASFILES=`echo "$ASFILES $asname"`
                     fi
                 else
-                    hname=arch/$name$MACHINE$ext.h
+                    hname=arch/$MACHINE/$name$ext.h
                     if [ -f $hname ]
                     then
                         echo "#include \"${hname}\"" >> ${name}_arch.h
                     fi
-                    hname=arch/$name$MACHINE.h
+                    hname=arch/$MACHINE/$name.h
                     if [ -f $hname ]
                     then
                         echo "#include \"${hname}\"" >> ${name}_arch.h
@@ -502,9 +520,13 @@ create_types_arch_h()
     echo "" >> types_arch.h
 }
 
+interactive $@
 create_config_h $@
-detect_compilers
-offer_compiler_choice
+if [ $INTERACTIVE = 1 ]
+then
+    detect_compilers
+    offer_compiler_choice
+fi
 arch_handler
 fill_makefile_wireframe
 parse_build_maps $UNIXBUILDMAP
