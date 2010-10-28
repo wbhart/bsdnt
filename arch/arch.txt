@@ -105,7 +105,7 @@ are defined.
 
 If standalone assembler code versions of routines are available for
 any architecture, they reside within the asm sub-directory in the 
-arch directory.  THe file naming convention used in arch/asm is:
+arch directory.  The file naming convention used in arch/asm is:
 
   <bsdnt_function_category>_<platform>_<cpu>.(asm|h)
 
@@ -166,10 +166,11 @@ available.
 
 On *nix, the arch/inline directory holds files of the form:
 
+   <bsdnt_function_category>_<platform>.h
    <bsdnt_function_category>_<platform>_<cpu>.h
 
 These contain the necessary guards and inline assembly for the specified 
-platform an cpu.
+platform, or platform and cpu, respectively.
 
 Both the platform and cpu are automatically detected by configure and
 the arch/inline directory is searched for files that match that data. 
@@ -181,10 +182,11 @@ Configure then automatically generates the files:
 at the top level directory, filling it with defines of the form:
 
 #include "arch/inline/<bsdnt_function_category>_<platform>_<cpu>.h"
+#include "arch/inline/<bsdnt_function_category>_<platform>.h"
 
 As this is all automatic, all the developer need do to add inline
 assembly is to put the relevant .h file, correctly named for the
-intended platform and cpu, in the arch/inline directory, and make
+intended platform and/or cpu, in the arch/inline directory, and make
 sure it contains the necessary override defines for the functions
 provided, as discussed at the beginning of this document. No build
 system modifications are necessary.
@@ -200,7 +202,7 @@ When configure is run again, this file will be automatically included
 in the build, overriding the generic C version of the function nn_add_mc
 as defined in nn_linear.c.
 
-At this point the platorms that are recognised are:
+At this point the platforms that are recognised are:
 
    x86     x86 architecture with 32 bit OS kernel
    x86_64  x86 architecture with 64 bit OS kernel
@@ -217,8 +219,8 @@ The cpu's recognised to date are:
 It is possible to use inline assembly code written for more than one 
 processor in a single build. For example, it is possible to use k8 and k10
 code with the latter overriding the former where there are separate 
-versions of the same function. This is done by changing changing the list
-of EXTS as recorded in the configure file. 
+versions of the same function. This is done by changing the list of EXTS as 
+recorded in the configure file. 
 
 For example, configure contains the lines:
 
@@ -233,17 +235,14 @@ Finally any code in the generic file:
    arch/inline/<bsdnt_function_category>_x86_64.h
 
 may provide routines that are generic to all x86_64 machines. Anything that
-remains to be defined is picked up from the generic <bsdnt_function_category>.c
-file at the top level.
+remains to be defined is picked up from the primary/generic C file, 
+<bsdnt_function_category>.c in the top level directory.
 
 Again, configure manages the build of the relevant files automatically. All
 that is required is to provide the correctly named files and ensure they 
 contain the relevant override defines for functions they provide.
 
-The developer is not required to provide a given file. If configure doesn't 
-find an architecture specific file for a given plaform or cpu it does not
-raise an error. Thus only files which actually contain code need exist for
+The developer is not required to provide any specific file. If configure 
+doesn't find an architecture specific file for a given plaform or cpu it does 
+not raise an error. Thus only files which actually contain code need exist for
 a given architecture.
-
-
-
