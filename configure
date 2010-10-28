@@ -324,8 +324,6 @@ arch_handler()
                 # want to add to the ASFILES 
                 # variable and not include these 
                 # inline assembly files.
-                # I know you like them Bill.
-                # I am truly sorry.
 
 
                 if [ $AS = "yasm" -o $AS = "nasm" ]
@@ -336,12 +334,12 @@ arch_handler()
                         ASFILES=`echo "$ASFILES $asname"`
                     fi
                 else
-                    hname=arch/$MACHINE/$name$ext.h
+                    hname=arch/inline/$name"_"$MACHINE$ext.h
                     if [ -f $hname ]
                     then
                         echo "#include \"${hname}\"" >> ${name}_arch.h
                     fi
-                    hname=arch/$MACHINE/$name.h
+                    hname=arch/inline/$name"_"$MACHINE.h
                     if [ -f $hname ]
                     then
                         echo "#include \"${hname}\"" >> ${name}_arch.h
