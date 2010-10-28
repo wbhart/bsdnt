@@ -98,7 +98,7 @@ __inline uint32_t low_zero_bits(word_t x)
    start of section 3 of Moller-Granlund (see below). Does not 
    require d to be normalised, but d must not be 0. 
 */
-inline
+__inline
 void precompute_inverse1(preinv1_t * inv, word_t d)
 {
    dword_t t;
@@ -121,7 +121,7 @@ void precompute_inverse1(preinv1_t * inv, word_t d)
    d1, d2 to be normalised. A normalised version of d1, d2 is returned.
    Requires that d1 be nonzero.
 */
-static inline
+static __inline
 void precompute_inverse1_2(preinv1_2_t * inv, word_t d1, word_t d2)
 {
    dword_t t;
@@ -142,7 +142,7 @@ void precompute_inverse1_2(preinv1_2_t * inv, word_t d1, word_t d2)
 
 #define HAVE_ARCH_precompute_mod_inverse1
 
-static inline
+static __inline
 void precompute_mod_inverse1(mod_preinv1_t * inv, word_t d)
 {
 	dword_t u;
