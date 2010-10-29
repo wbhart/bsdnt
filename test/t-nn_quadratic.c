@@ -116,7 +116,8 @@ int test_divrem_classical_preinv(void)
    TEST_START(1, ITER) /* test (a * d) / d = a remainder 0 */
    {
       randoms_upto(30, NONZERO, state, &m, &n, NULL);
-      
+      n++; /* require n >= 2 */
+
       randoms_of_len(m, ANY, state, &a, &q, NULL);
       randoms_of_len(n, ANY, state, &d, NULL);
       randoms_of_len(m + n, ANY, state, &r1, NULL);
@@ -124,7 +125,7 @@ int test_divrem_classical_preinv(void)
       if (m >= n) nn_s_mul_classical(r1, a, m, d, n);
       else nn_s_mul_classical(r1, d, n, a, m);
 
-      precompute_inverse1_2(&inv, d[n - 1], (n == 1) ? (word_t) 0 : d[n - 2]);
+      precompute_inverse1_2(&inv, d[n - 1], d[n - 2]);
       nn_r_divrem_classical_preinv(q, r1, m + n - 1, d, n, inv);
 
       result = (nn_equal_m(q, a, m) && nn_normalise(r1, n) == 0);
@@ -139,6 +140,7 @@ int test_divrem_classical_preinv(void)
    TEST_START(2, ITER) /* test (a * d + s) / d = a remainder s */
    {
       randoms_upto(30, NONZERO, state, &n, NULL);
+      n++; /* require n >= 2 */
       randoms_upto(n + 1, NONZERO, state, &m, NULL);
       
       randoms_of_len(m, ANY, state, &a, &q, NULL);
@@ -146,12 +148,13 @@ int test_divrem_classical_preinv(void)
       
       /* ensure s is reduced mod d */
       do {
-         randoms_of_len(n, ANY, state, &d, &s, NULL);
+         randoms_of_len(n, FULL, state, &d, NULL);
+         randoms_of_len(n, ANY, state, &s, NULL);
       } while (nn_cmp_m(d, s, n) <= 0);
       
       nn_s_muladd_classical(r1, s, d, n, a, m);
       
-      precompute_inverse1_2(&inv, d[n - 1], (n == 1) ? (word_t) 0 : d[n - 2]);
+      precompute_inverse1_2(&inv, d[n - 1], d[n - 2]);
       nn_r_divrem_classical_preinv(q, r1, m + n - 1, d, n, inv);
 
       result = (nn_equal_m(q, a, m) && nn_equal_m(s, r1, n));
@@ -181,6 +184,7 @@ int test_divapprox_classical_preinv(void)
    TEST_START(1, ITER) /* test divapprox is at most one more than divrem */
    {
       randoms_upto(30, NONZERO, state, &n, NULL);
+      n++; /* require n >= 2 */
       randoms_upto(n + 1, NONZERO, state, &m, NULL);
       
       randoms_of_len(m, ANY, state, &a, &q1, &q2, NULL);
@@ -188,7 +192,8 @@ int test_divapprox_classical_preinv(void)
       
       /* ensure s is reduced mod d */
       do {
-         randoms_of_len(n, ANY, state, &d, &s, NULL);
+         randoms_of_len(n, FULL, state, &d, NULL);
+         randoms_of_len(n, ANY, state, &s, NULL);
       } while (nn_cmp_m(d, s, n) <= 0);
       
       nn_s_muladd_classical(r1, s, d, n, a, m);
