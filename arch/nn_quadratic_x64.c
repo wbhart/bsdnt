@@ -119,7 +119,7 @@ void nn_divrem_classical_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d,
    for (i = m - 1; i >= n - 1; i--, j--)
    {
      t.hi = (ci << norm) | (norm ? a[i] >> (WORD_BITS - norm) : 0);
-     t.lo = (a[i] << norm) |  (norm ? a[i - 1] >> (WORD_BITS - norm) : 0); 
+     t.lo = (a[i] << norm) | (norm ? a[i - 1] >> (WORD_BITS - norm) : 0); 
 
      if(t.hi == d1)
           q1 = ~(word_t) 0;
