@@ -50,6 +50,8 @@ void nn_test_random1(nn_t a, rand_t state, len_t m)
 	const bits_t bits = m*WORD_BITS;
     long i;
 
+	nn_zero(a, m);
+
 	for (i = 0; i < bits_set; i++)
 		nn_bit_set(a, randint(bits, state));
 }
