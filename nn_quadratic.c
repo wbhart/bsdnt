@@ -58,13 +58,19 @@ void nn_divrem_classical_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d,
    for (i = m - 1; i >= n - 1; i--, j--)
    {
       /* top "two words" of remaining dividend, shifted */
-      t = (((((dword_t) ci) << WORD_BITS) + (dword_t) a[i]) << norm);
+      if (norm)
+		  t = (((((dword_t) ci) << WORD_BITS) + (dword_t) a[i]) << norm) 
+		        + (dword_t) (a[i-1] >> (WORD_BITS - norm));
+	  else
+	      t = (((dword_t) ci) << WORD_BITS) + (dword_t) a[i];
       
       /* check for special case, a1 == d1 which would cause overflow */
-      if ((t >> WORD_BITS) == d1) q1 = ~(word_t) 0;
-      else divrem21_preinv1(q1, rem, t, d1, dinv);
+      if ((t >> WORD_BITS) == d1) 
+		  q1 = ~(word_t) 0;
+      else 
+		  divrem21_preinv1(q1, rem, t, d1, dinv);
 
-      /* a -= d*q1 */
+	  /* a -= d*q1 */
       ci -= nn_submul1(a + j, d, n, q1);
       
       /* correct if remainder has become negative */
@@ -78,6 +84,7 @@ void nn_divrem_classical_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d,
       ci = a[i];
    }
 }
+
 
 #endif
 
