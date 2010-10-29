@@ -72,4 +72,7 @@
 15-Oct-2010:
 	v0.22 - Added Windows support and new configure system.
 
+29-Oct-2010:
+	v0.23 - nn_bit_test/clear/set, nn_test_random/1/2.
+
 
