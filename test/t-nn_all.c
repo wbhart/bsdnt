@@ -27,9 +27,6 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#if MSC_VER
-#include <crtdbg.h>
-#endif
 #include "../nn.h"
 #include "../test.h"
 
@@ -38,15 +35,24 @@ rand_t state;
 #include "t-nn_linear.c"
 #include "t-nn_quadratic.c"
 
+static void checkpoint_rand(char *s)
+{
+   printf(s);
+   printx_word(randword(state));
+   printf("\r\n");
+}
+
 int main(void)
 {
    int ret = 0;
    
    randinit(&state);
+   checkpoint_rand("First Random Word: ");
 
    ret |= test_linear();
 	ret |= test_quadratic();
 
+   checkpoint_rand("Last Random Word: ");
    randclear(state);
 
    return ret;
