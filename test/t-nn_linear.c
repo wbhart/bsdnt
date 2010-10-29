@@ -48,6 +48,110 @@ int test_gc(void)
    return result;
 }
 
+int test_bit_set(void)
+{
+   int result = 1;
+   nn_t a;
+   len_t m;
+   bits_t bit, sh1;
+   
+   printf("nn_bit_set...");
+
+   /* test that setting a bit works */
+   TEST_START(1, ITER) 
+   {
+      randoms_upto(100, NONZERO, state, &m, NULL);
+      randoms_upto(m*WORD_BITS, ANY, state, &bit, NULL);
+
+      randoms_of_len(m, ANY, state, &a, NULL);
+      
+      nn_bit_set(a, bit);
+
+      result = nn_bit_test(a, bit);
+
+      if (!result) 
+      {
+         printf("bit = %ld\n", bit);
+		 print_debug(a, m);  
+      }
+   } TEST_END;
+
+   /* test that setting a bit then shifting works */
+   TEST_START(2, ITER) 
+   {
+      randoms_upto(100, NONZERO, state, &m, NULL);
+      randoms_upto(m*WORD_BITS - WORD_BITS/2, ANY, state, &bit, NULL);
+      randoms_upto(WORD_BITS/2, ANY, state, &sh1, NULL);
+
+      randoms_of_len(m, ANY, state, &a, NULL);
+      
+      nn_bit_set(a, bit);
+      nn_shl(a, a, m, sh1);
+
+      result = nn_bit_test(a, bit + sh1);
+
+      if (!result) 
+      {
+         printf("bit = %ld, sh1 = %ld\n", bit, sh1);
+		 print_debug(a, m);  
+      }
+   } TEST_END;
+
+   return result;
+}
+
+int test_bit_clear(void)
+{
+   int result = 1;
+   nn_t a;
+   len_t m;
+   bits_t bit, sh1;
+   
+   printf("nn_bit_clear...");
+
+   /* test that setting a bit works */
+   TEST_START(1, ITER) 
+   {
+      randoms_upto(100, NONZERO, state, &m, NULL);
+      randoms_upto(m*WORD_BITS, ANY, state, &bit, NULL);
+
+      randoms_of_len(m, ANY, state, &a, NULL);
+      
+      nn_bit_clear(a, bit);
+
+      result = !nn_bit_test(a, bit);
+
+      if (!result) 
+      {
+         printf("bit = %ld\n", bit);
+		 print_debug(a, m);  
+      }
+   } TEST_END;
+
+   /* test that setting a bit then shifting works */
+   TEST_START(2, ITER) 
+   {
+      randoms_upto(100, NONZERO, state, &m, NULL);
+      randoms_upto(m*WORD_BITS - WORD_BITS/2, ANY, state, &bit, NULL);
+      randoms_upto(WORD_BITS/2, ANY, state, &sh1, NULL);
+
+      randoms_of_len(m, ANY, state, &a, NULL);
+      
+      nn_bit_clear(a, bit);
+      nn_shl(a, a, m, sh1);
+
+      result = !nn_bit_test(a, bit + sh1);
+
+      if (!result) 
+      {
+         printf("bit = %ld, sh1 = %ld\n", bit, sh1);
+		 print_debug(a, m);  
+      }
+   } TEST_END;
+
+   return result;
+}
+
 int test_add_m(void)
 {
    int result = 1;
@@ -1584,6 +1688,8 @@ int test_linear(void)
    long fail = 0;
    
    RUN(test_gc);
+   RUN(test_bit_set);
+   RUN(test_bit_clear);
    RUN(test_not);
    RUN(test_neg);
    RUN(test_add1);

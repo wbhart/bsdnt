@@ -108,6 +108,63 @@ void nn_printx_diff(nn_src_t a, nn_src_t b, len_t m)
 
 /**********************************************************************
  
+    Logical bit manipulation functions
+
+**********************************************************************/
+
+#ifndef HAVE_ARCH_nn_bit_set
+
+void nn_bit_set(nn_t a, bits_t b)
+{
+#if WORD_BITS == 64
+	const bits_t bit = b & 63;
+	const len_t word = b >> 6;
+#else /* WORD_BITS == 32 */
+	const bits_t bit = b & 31;
+	const len_t word = b >> 5;
+#endif
+
+	a[word] |= (WORD(1) << bit);
+}
+
+#endif
+
+#ifndef HAVE_ARCH_nn_bit_clear
+
+void nn_bit_clear(nn_t a, bits_t b)
+{
+#if WORD_BITS == 64
+	const bits_t bit = b & 63;
+	const len_t word = b >> 6;
+#else /* WORD_BITS == 32 */
+	const bits_t bit = b & 31;
+	const len_t word = b >> 5;
+#endif
+
+	a[word] &= ~(WORD(1) << bit);
+}
+
+#endif
+
+#ifndef HAVE_ARCH_nn_bit_test
+
+int nn_bit_test(nn_src_t a, bits_t b)
+{
+#if WORD_BITS == 64
+	const bits_t bit = b & 63;
+	const len_t word = b >> 6;
+#else /* WORD_BITS == 32 */
+	const bits_t bit = b & 31;
+	const len_t word = b >> 5;
+#endif
+
+	return ((a[word] & (WORD(1) << bit)) != WORD(0));
+}
+
+#endif
+
+/**********************************************************************
+ 
     Linear arithmetic functions
 
 **********************************************************************/

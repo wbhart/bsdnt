@@ -152,6 +152,33 @@ len_t nn_normalise(nn_t a, len_t m)
 
 /**********************************************************************
  
+    Logical bit manipulation functions
+
+**********************************************************************/
+
+/* 
+   Set bit b of the bignum a to 1, where bits are counted from the
+   least significant bit, starting with bit 0. The given bit must
+   lie within the allocated range for a.
+*/
+void nn_bit_set(nn_t a, bits_t b);
+
+/* 
+   Clear bit b of the bignum a to 0, where bits are counted from the
+   least significant bit, starting with bit 0. The given bit must
+   lie within the allocated range for a.
+*/
+void nn_bit_clear(nn_t a, bits_t b);
+
+/* 
+   Return 1 if the bit b of the bignum a is 1, otherwise return 0.
+   Bits are counted from the least significant bit, starting with bit 
+   0. The specified bit must lie within the allocated range for a.
+*/
+int nn_bit_test(nn_src_t a, bits_t b);
+
+/**********************************************************************
+ 
     Linear arithmetic functions
 
 **********************************************************************/
