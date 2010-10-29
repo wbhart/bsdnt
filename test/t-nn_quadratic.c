@@ -183,6 +183,7 @@ int test_divapprox_classical_preinv(void)
    TEST_START(1, ITER) /* test divapprox is at most one more than divrem */
    {
       randoms_upto(30, NONZERO, state, &n, NULL);
+      n++; /* require n >= 2 */
       randoms_upto(n + 1, NONZERO, state, &m, NULL);
       
       randoms_of_len(m, ANY, state, &a, &q1, &q2, NULL);
