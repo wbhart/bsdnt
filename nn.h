@@ -47,6 +47,23 @@
 */
 void nn_random(nn_t a, rand_t state, len_t m);
 
+/*
+   Randomly set bits of a to 1 in a random, sparse manner. 
+*/
+void nn_test_random1(nn_t a, rand_t state, len_t m);
+
+/*
+   Set a to a number with long strings of 1's and 0's in its
+   binary representation.
+*/
+void nn_test_random2(nn_t a, rand_t state, len_t m);
+
+/*
+   Randomly select one of nn_random, nn_test_random1 and
+   nn_test_random2 and set a to the result.
+*/
+void nn_test_random(nn_t a, rand_t state, len_t m);
+
 /**********************************************************************
  
     Memory management

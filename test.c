@@ -174,13 +174,13 @@ void randoms_of_len(len_t n, flag_t flag, rand_t state, ...)
    while ((obj = va_arg(ap, nn_t *)) != NULL) 
    {
       (*obj) = alloc_redzoned_nn(n);
-      nn_random(*obj, state, n);
+      nn_test_random(*obj, state, n);
 
       switch (flag)
       {
       case ANY: break;
       case FULL: while (nn_normalise(*obj, n) != n)
-                    nn_random(*obj, state, n);
+                    nn_test_random(*obj, state, n);
                  break;
       case ODD: (*obj)[0] |= (word_t) 1; break;
       default: talker("Unknown flag in randoms_of_len");

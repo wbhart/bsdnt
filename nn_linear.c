@@ -44,6 +44,47 @@ void nn_random(nn_t a, rand_t state, len_t m)
       a[i] = (word_t) state.word(state.ctx);
 }
 
+void nn_test_random1(nn_t a, rand_t state, len_t m)
+{
+	int bits_set = (int) randint(m + 1, state);
+	const bits_t bits = m*WORD_BITS;
+    long i;
+
+	for (i = 0; i < bits_set; i++)
+		nn_bit_set(a, randint(bits, state));
+}
+
+void nn_test_random2(nn_t a, rand_t state, len_t m)
+{
+	nn_t b = malloc(m*sizeof(word_t)); /* TODO: replace with temporary allocation */
+	
+	nn_test_random1(a, state, m);
+	nn_test_random1(b, state, m);
+
+	nn_sub_m(a, a, b, m);
+
+	free(b);
+}
+
+void nn_test_random(nn_t a, rand_t state, len_t m)
+{
+	switch (randint(3, state))
+	{
+	case 0:
+		nn_test_random1(a, state, m);
+		break;
+	case 1:
+		nn_test_random2(a, state, m);
+		break;
+	case 2:
+		nn_random(a, state, m);
+		break;
+	default:
+		printf("Bug in randint\n");
+		abort();
+	}
+}
+
 /**********************************************************************
  
     Printing functions
