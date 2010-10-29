@@ -162,7 +162,7 @@ void nn_divrem_classical_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d,
 
    ASSERT(q != d);
    ASSERT(m >= n);
-   ASSERT(n > 0);
+   ASSERT(n > 1);
    ASSERT((ci < d[n - 1]) 
       || ((ci == d[n - 1]) && (nn_cmp_m(a + m - n + 1, d, n - 1) < 0)));
 
@@ -217,7 +217,7 @@ void nn_divapprox_classical_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d,
    ASSERT(q != d);
    ASSERT(q != a);
    ASSERT(m >= n);
-   ASSERT(n > 0);
+   ASSERT(n > 1);
    ASSERT((ci < d[n - 1]) 
       || ((ci == d[n - 1]) && (nn_cmp_m(a + m - n + 1, d, n - 1) < 0)));
 
