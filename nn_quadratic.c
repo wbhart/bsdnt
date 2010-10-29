@@ -222,8 +222,7 @@ void nn_divapprox_classical_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d,
 
    for ( ; s >= n; i--, j--, s--)
    {
-      if (i == 0) abort();
-	  /* top "two words" of remaining dividend, shifted */
+      /* top "two words" of remaining dividend, shifted */
       if (norm)
 		  t = (((((dword_t) ci) << WORD_BITS) + (dword_t) a[i]) << norm) 
 		        + (dword_t) (a[i - 1] >> (WORD_BITS - norm));
