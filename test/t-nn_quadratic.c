@@ -139,8 +139,8 @@ int test_divrem_classical_preinv(void)
 
    TEST_START(2, ITER) /* test (a * d + s) / d = a remainder s */
    {
-      randoms_upto(30, NONZERO, state, &m, NULL);
-      randoms_upto(m + 1, NONZERO, state, &n, NULL);
+      randoms_upto(30, NONZERO, state, &n, NULL);
+      randoms_upto(n + 1, NONZERO, state, &m, NULL);
       n++; /* require n >= 2 */
 
       randoms_of_len(m, ANY, state, &a, &q, NULL);
