@@ -270,7 +270,7 @@ void nn_divapprox_classical_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d,
       ci -= nn_submul1(a, d, s, q1);
       
 	  if (ci == 1)
-		  ci -= nn_sub1(a + 1, a + 1, s - 1, ~0UL);
+		  ci -= nn_sub1(a + 1, a + 1, s - 1, ~WORD(0));
 
       /* correct if remainder has become negative */
       while (ci)
