@@ -273,10 +273,10 @@ int test_div_hensel_preinv(void)
       if (m >= n) nn_s_mul_classical(r1, a, m, d, n);
       else nn_s_mul_classical(r1, d, n, a, m);
 
-      precompute_hensel_inverse1(&inv, d[0]);
+	  precompute_hensel_inverse1(&inv, d[0]);
       nn_div_hensel_preinv(ov, q, r1, m + n, d, n, inv);
 
-      result = (nn_equal_m(q, a, m) && nn_normalise(q, m + n) == m);
+      result = (nn_equal_m(q, a, m) && nn_normalise(q, m + n) == nn_normalise(a, m));
 
       if (!result)
 	  {
@@ -350,9 +350,9 @@ int test_quadratic(void)
    long pass = 0;
    long fail = 0;
    
-   /*RUN(test_mul_classical);
+   RUN(test_mul_classical);
    RUN(test_muladd_classical);
-   RUN(test_mullow_classical);*/
+   RUN(test_mullow_classical);
    RUN(test_divrem_classical_preinv);
    RUN(test_divapprox_classical_preinv);
    RUN(test_div_hensel_preinv);
