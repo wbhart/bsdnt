@@ -26,10 +26,10 @@ static unsigned char digest[3][SHA1_DIGEST_SIZE] =
 };
 
 int test_rand(void)
-{   unsigned int i, j, r = (unsigned int)RAND_START, pass = 0, fail = 0;
+{   unsigned int i, j, k, r = (unsigned int)RAND_START, pass = 0, fail = 0;
     sha1_ctx ctx[1];
     rand_t state[1];
-    word_t buf[BUF_SIZE];
+    unsigned char buf[BUF_SIZE * sizeof(word_t)];
     unsigned char hash[SHA1_DIGEST_SIZE];
 
     while(++r != (unsigned int)RAND_END)
@@ -42,7 +42,14 @@ int test_rand(void)
         for( i = 0 ; i < N_ITER ; ++i )
         {
             for( j = 0; j < BUF_SIZE ; ++j )
-                buf[j] = state->word(state->ctx);
+            {   word_t v = state->word(state->ctx);
+
+                for( k = 0 ; k < sizeof(word_t); ++k )
+                {
+                    buf[j * sizeof(word_t) + k] = (unsigned char)v;
+                    v >>= 8;
+                }
+            }
             sha1_hash((unsigned char*)buf, BUF_SIZE * sizeof(word_t), ctx);
         }
 
