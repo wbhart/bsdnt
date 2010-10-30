@@ -46,6 +46,7 @@
     <ClCompile Include="rand\skiss32.c" />
     <ClCompile Include="rand\skiss64.c" />
     <ClCompile Include="test.c" />
+    <ClCompile Include="test\sha1.c" />
     <ClCompile Include="test\t-nn_all.c" />
   </ItemGroup>
   <ItemGroup>

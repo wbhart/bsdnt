@@ -73,6 +73,9 @@
     <ClCompile Include="rand\skiss32.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="test\sha1.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <MASM Include="arch\asm\nn_linear_x64_core2.asm">
