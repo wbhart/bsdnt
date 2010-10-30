@@ -32,6 +32,7 @@
 
 rand_t state;
 
+#include "t-rand.c"
 #include "t-nn_linear.c"
 #include "t-nn_quadratic.c"
 
@@ -49,6 +50,7 @@ int main(void)
    randinit(&state);
    checkpoint_rand("First Random Word: ");
 
+    ret |= test_rand();
     ret |= test_linear();
 	ret |= test_quadratic();
 

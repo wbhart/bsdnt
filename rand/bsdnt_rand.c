@@ -25,8 +25,11 @@
   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include <string.h>
 #include "../helper.h"
 #include "internal_rand.h"
+
+static char *name[3] = { "Kiss", "Mersenne_Twister", "Super_Kiss" };
 
 rand_t set_rand_algorithm(random_algorithm a)
 {   
@@ -38,21 +41,25 @@ rand_t set_rand_algorithm(random_algorithm a)
       r.init = (rand_init_f) kiss_init;
       r.clear = (rand_clear_f) kiss_clear;
       r.word = (rand_word_f) kiss_word;
-      break;
-   case SUPER_KISS:
-      r.init = (rand_init_f) skiss_init;
-      r.clear = (rand_clear_f) skiss_clear;
-      r.word = (rand_word_f) skiss_word;
+      strcpy(r.name, name[0]);
       break;
    case MERSENNE_TWISTER:
       r.init = (rand_init_f) mt_init;
       r.clear = (rand_clear_f) mt_clear;
       r.word = (rand_word_f) mt_word;
+      strcpy(r.name, name[1]);
+      break;
+   case SUPER_KISS:
+      r.init = (rand_init_f) skiss_init;
+      r.clear = (rand_clear_f) skiss_clear;
+      r.word = (rand_word_f) skiss_word;
+      strcpy(r.name, name[2]);
       break;
    default:
       r.init = (rand_init_f) kiss_init;
       r.clear = (rand_clear_f) kiss_clear;
       r.word = (rand_word_f) kiss_word;
+      strcpy(r.name, name[0]);
       break;
    }
    
