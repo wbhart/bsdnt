@@ -10,17 +10,60 @@ void talker(const char * str)
    fprintf(stderr, "Error: %s\n", str);
 }
 
-node_t * new_node(type_t type, void * ptr, node_t * next)
+node_t * new_node(type_t type, void * ptr, len_t length, node_t * next)
 {
    node_t * node = malloc(sizeof(node_t));
    node->type = type;
    
    if (type == NN)
       node->ptr = ptr;
+
+   node->length = length;
    
    node->next = next;
 
    return node;
+}
+
+nn_t alloc_redzoned_nn(len_t n)
+{
+   nn_t a = nn_init(n + 2*REDZONE_WORDS);
+   char * redzone1 = (char *) a;
+   char * redzone2 = (char *) (a + REDZONE_WORDS + n);
+   long i;
+
+   for (i = 0; i < REDZONE_WORDS*sizeof(word_t); i++)
+   {
+      redzone1[i] = REDZONE_BYTE;
+      redzone2[i] = REDZONE_BYTE;
+   }
+  
+   return a + REDZONE_WORDS;
+}
+
+void free_redzoned_nn(nn_t a, len_t n)
+{
+   char * redzone1 = (char *) (a - REDZONE_WORDS);
+   char * redzone2 = (char *) (a + n);
+   long i;
+
+   for (i = 0; i < REDZONE_WORDS*sizeof(word_t); i++)
+   {
+      if (redzone1[i] != REDZONE_BYTE)
+      {
+         fprintf(stderr, "Underrun detected in nn_t at %p of "
+         "length %ld at byte %ld\n", (void *) a, n, i);
+         abort();
+      }
+      if (redzone2[i] != REDZONE_BYTE)
+      {
+         fprintf(stderr, "Overrun detected in nn_t at %p of "
+         "length %ld at byte %ld\n", (void *) a, n, i);
+         abort();
+      }
+   }
+
+   free(a - REDZONE_WORDS);
 }
 
 void randoms(flag_t flag, rand_t state, ...)
@@ -103,7 +146,7 @@ void randoms_of_len(len_t n, flag_t flag, rand_t state, ...)
    
    while ((obj = va_arg(ap, nn_t *)) != NULL) 
    {
-      (*obj) = nn_init(n);
+      (*obj) = alloc_redzoned_nn(n);
       nn_random(*obj, state, n);
 
       switch (flag)
@@ -117,7 +160,7 @@ void randoms_of_len(len_t n, flag_t flag, rand_t state, ...)
          abort();
       }
 
-      garbage = new_node(NN, (void *) (*obj), garbage);
+      garbage = new_node(NN, (void *) (*obj), n, garbage);
    } 
 
    va_end(ap);
@@ -126,7 +169,7 @@ void randoms_of_len(len_t n, flag_t flag, rand_t state, ...)
 void free_obj(node_t * obj)
 {
    if (obj->type == NN)
-      free(obj->ptr);
+      free_redzoned_nn(obj->ptr, obj->length);
 }
 
 void gc_cleanup(void)
