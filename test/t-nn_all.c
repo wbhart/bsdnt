@@ -49,7 +49,7 @@ int main(void)
    randinit(&state);
    checkpoint_rand("First Random Word: ");
 
-   ret |= test_linear();
+    ret |= test_linear();
 	ret |= test_quadratic();
 
    checkpoint_rand("Last Random Word: ");
