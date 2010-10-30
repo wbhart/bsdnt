@@ -49,7 +49,7 @@ word_t nn_mulhigh_classical(nn_t r, nn_src_t a, len_t m1,
    len_t i;
    word_t ci = 0;
    dword_t t;
-
+   
    if (m2 == 1)
       return ov[0]; /* overflow is one limb in this case */
 
@@ -65,9 +65,10 @@ word_t nn_mulhigh_classical(nn_t r, nn_src_t a, len_t m1,
       ci = nn_addmul1(r, a + m1 - 2, 2, b[2]);
       t = (dword_t) ov[1] + (dword_t) r[1];
       r[1] = (word_t) t;
-      ci += (word_t) (t >> WORD_BITS);
+      t = (t >> WORD_BITS) + (dword_t) ci;
+	  ci = (word_t) t; /* possible overflow */
    } else
-      ci += ov[1]; /* ov[1] cannot be more than 1 in this case */
+      return ci + ov[1]; /* ov[1] cannot be more than 1 in this case */
 
    for (i = 3; i < m2; i++)
    {
@@ -75,7 +76,10 @@ word_t nn_mulhigh_classical(nn_t r, nn_src_t a, len_t m1,
       ci = nn_addmul1(r, a + m1 - i, i, b[i]);
    }
 
-   return ci;
+   /* deal with overflow */
+   if (m2 > 3) ci += nn_add1(r + 3, r + 3, m2 - 4, (word_t) (t >> WORD_BITS));
+
+   return ci; 
 }
 
 #endif
