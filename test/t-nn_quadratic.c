@@ -280,7 +280,7 @@ int test_div_hensel_preinv(void)
       precompute_hensel_inverse1(&inv, d[0]);
       nn_div_hensel_preinv(ov, q, r1, m + n, d, n, inv);
 
-      result = (nn_equal_m(q, a, m) && nn_normalise(q, m + n) == m);
+      result = (nn_equal_m(q, a, m) && nn_normalise(q, m + n) == nn_normalise(a, m));
 
       if (!result) printf("m = %ld, n = %ld\n", m, n);
    } TEST_END;
