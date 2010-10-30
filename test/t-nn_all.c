@@ -1,5 +1,5 @@
 /* 
-  Copyright (C) 2010, Brian Gladman
+  Copyright (C) 2010, William Hart
 
   All rights reserved.
 
