@@ -117,7 +117,7 @@ void randoms(flag_t flag, rand_t state, ...)
             (*w) = randword(state); 
          break;
 
-      default: talker("Unknown flag in randoms_upto.");
+      default: talker("Unknown flag in randoms.");
       }
    }
 
