@@ -93,6 +93,39 @@ void free_redzoned_nn(nn_t a, len_t n)
    free(a - REDZONE_WORDS);
 }
 
+word_t test_randword1(rand_t state)
+{
+	word_t res = 0;
+    int bits = (int) randint(7, state);
+	int i;
+
+	for (i = 0; i < bits; i++)
+		res |= (WORD(1) << randint(WORD_BITS, state));
+
+	return res;
+}
+
+word_t test_randword2(rand_t state)
+{
+	return test_randword1(state) - test_randword1(state);
+}
+
+word_t test_randword(rand_t state)
+{
+	switch (randint(3, state))
+	{
+	case 0:
+		return randword(state);
+    case 1:
+		return test_randword1(state);
+	case 2:
+		return test_randword2(state);
+	default:
+		printf("Random generator broken!\n");
+		abort();
+	}
+}
+
 void randoms(flag_t flag, rand_t state, ...)
 {
    va_list ap;
@@ -102,7 +135,7 @@ void randoms(flag_t flag, rand_t state, ...)
    
    while ((w = va_arg(ap, word_t *)) != NULL) 
    {
-      (*w) = randword(state);
+      (*w) = test_randword(state);
 
       switch (flag)
       {
@@ -114,10 +147,10 @@ void randoms(flag_t flag, rand_t state, ...)
 
       case NONZERO: 
          while ((*w) == 0)
-            (*w) = randword(state); 
+            (*w) = test_randword(state); 
          break;
 
-      default: talker("Unknown flag in randoms_upto.");
+      default: talker("Unknown flag in randoms.");
       }
    }
 
