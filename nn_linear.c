@@ -355,14 +355,14 @@ word_t nn_divrem1_preinv_c(nn_t q, nn_src_t a, len_t m,
    ASSERT(d != 0);
    ASSERT(ci < d);
 
-   d <<= norm;
-   ci <<= norm;
+	d <<= norm;
+	ci <<= norm;
 
-   for (i = m - 1; i >= 0; i--)
-   {
-      t = (((dword_t) ci) << WORD_BITS) + (((dword_t) a[i]) << norm);
-      divrem21_preinv1(q[i], ci, t, d, dinv);
-   }
+	for( i = m - 1 ; i >= 0 ; --i )
+	{
+		t = (((dword_t) ci) << WORD_BITS) + (((dword_t) a[i]) << norm);
+		divrem21_preinv1(q[i], ci, t, d, dinv);	
+	}
 
    return (ci >> norm);
 }

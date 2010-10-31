@@ -249,7 +249,7 @@ void nn_divapprox_classical_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d,
 	  if (ci == 1) /* an overflow requires adjustment */
 	  {
 		  ci -= nn_sub1(a + 1, a + 1, s - 1, a[1] + 1);
-		  a[0] = ~0UL;
+		  a[0] = ~WORD(0);
 	  }
 
       /* correct if remainder has become negative */

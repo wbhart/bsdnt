@@ -2,16 +2,20 @@
 #define BSDNT_NN_H
 
 #include <stdlib.h>
+#include <limits.h>
+#include <malloc.h>
+
 #include "helper.h"
+#include "rand/bsdnt_rand.h"
 
 /**********************************************************************
  
-    Random generation
+    Memory management
 
 **********************************************************************/
 
 /*
-   Set the first m limbs of a to random words. 
+   Set the first m limbs of a to random words.
 */
 void nn_random(nn_t a, rand_t state, len_t m);
 
