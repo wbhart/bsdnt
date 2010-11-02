@@ -28,7 +28,7 @@
 #include <string.h>     /* for memcpy() etc.        */
 
 #include "sha1.h"
-#include "brg_endian.h"
+#include "..\config.h"
 
 #if defined(__cplusplus)
 extern "C"
