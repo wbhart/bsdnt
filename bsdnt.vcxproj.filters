@@ -40,15 +40,6 @@
     <ClCompile Include="rand\bsdnt_rand.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="rand\kiss64.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="rand\skiss64.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="rand\mt64.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="nn_linear.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -64,16 +55,16 @@
     <ClCompile Include="test\t-nn_all.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="rand\kiss32.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="rand\mt32.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="rand\skiss32.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="test\sha1.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="rand\kiss.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="rand\mt.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="rand\skiss.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

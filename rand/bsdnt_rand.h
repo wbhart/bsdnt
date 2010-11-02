@@ -55,7 +55,7 @@ rand_t set_rand_algorithm(random_algorithm a);
 static inline
 void randinit(rand_t * state)
 {   
-    *state = set_rand_algorithm(SUPER_KISS);
+    *state = set_rand_algorithm(KISS);
     state->ctx = state->init();
 }
 
