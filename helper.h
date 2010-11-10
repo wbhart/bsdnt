@@ -37,7 +37,7 @@
 
 #ifndef HAVE_ARCH_TYPES
 
-#if ULONG_MAX == 4294967295U /* 64 bit unsigned long */
+#if ULONG_MAX == 4294967295U /* 32 bit unsigned long */
 
 typedef uint32_t word_t;
 typedef unsigned int dword_t __attribute__((mode(DI)));
@@ -45,8 +45,11 @@ typedef int32_t len_t;
 typedef int32_t bits_t;
 #define WORD_BITS 32
 #define WORD(x) (x##UL)
+#define WORD_FMT "%lu"
+#define LEN_FMT "%ld"
+#define BITS_FMT "%ld"
 
-#else /* 32 bit unsigned long */
+#else /* 64 bit unsigned long */
 
 typedef uint64_t word_t;
 typedef unsigned int dword_t __attribute__((mode(TI)));
@@ -54,6 +57,9 @@ typedef int64_t len_t;
 typedef int64_t bits_t;
 #define WORD_BITS 64
 #define WORD(x) (x##UL)
+#define WORD_FMT "%lu"
+#define LEN_FMT "%ld"
+#define BITS_FMT "%ld"
 
 #endif
 
@@ -244,5 +250,14 @@ void precompute_hensel_inverse1(hensel_preinv1_t * inv, word_t d)
    Print a word in hexacdecimal.
 */
 void printx_word(word_t a);
+
+/*
+   Print a string containing format specifiers. This is identical to
+   printf with the exception of the additional format specifiers
+   %w : print a word_t
+   %m : print a len_t
+   %b : print a bits_t
+*/
+void bsdnt_printf(const char * str, ...);
 
 #endif

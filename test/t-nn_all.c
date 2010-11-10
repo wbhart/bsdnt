@@ -44,8 +44,8 @@ int main(void)
    
    randinit(&state);
 
-    ret |= test_linear();
-	ret |= test_quadratic();
+   ret |= test_linear();
+   ret |= test_quadratic();
 
    randclear(state);
 
