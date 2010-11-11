@@ -29,7 +29,7 @@ typedef void * rand_t;
 
 typedef struct preinv1_t
 {
-   word_t norm; /* the number of leading zero bits in d */
+   bits_t norm; /* the number of leading zero bits in d */
    word_t dinv; /* the precomputed inverse of d (see below) */
 } preinv1_t;
 
