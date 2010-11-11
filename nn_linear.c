@@ -98,29 +98,19 @@ void nn_printx(nn_src_t a, len_t m)
    long i;
 
    for (i = 0; i < m - 1; i++)
-   {
-      printx_word(a[i]);
-      printf(" ");
-   }
+      bsdnt_printf("%wx ", a[i]);
 
-   if (m) printx_word(a[m - 1]);
+   if (m) bsdnt_printf("%wx", a[m - 1]);
    else printx_word(0);
 }
 
 void nn_printx_short(nn_src_t a, len_t m)
 {
-   if (m < 5) nn_printx(a, m);
+   if (m < 5) 
+	  nn_printx(a, m);
    else
-   {
-      printx_word(a[0]);
-      printf(" ");
-      printx_word(a[1]);
-      printf("...");
-      printx_word(a[m - 2]);
-      printf(" ");
-      printx_word(a[m - 1]);
-   }
-}
+      bsdnt_printf("%wx %wx...%wx %wx", a[0], a[1], a[m - 2], a[m - 1]);
+ }
 
 void nn_printx_diff(nn_src_t a, nn_src_t b, len_t m)
 {
@@ -136,15 +126,8 @@ void nn_printx_diff(nn_src_t a, nn_src_t b, len_t m)
 
    if (start != m)
    {
-      printf("diff at word %ld (", start);
-      printx_word(a[start]);
-      printf(" vs ");
-      printx_word(b[start]);
-      printf(") through word %ld (", end);
-      printx_word(a[end]);
-      printf(" vs ");
-      printx_word(b[end]);
-      printf(")");
+      bsdnt_printf("diff at word %m (%wx  vs %wx)", start, a[start], b[start]);
+      bsdnt_printf(" through word %m (%wx vs %wx)", end, a[end], b[end]);
    } else
       printf("don't differ");
 }
