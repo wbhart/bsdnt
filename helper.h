@@ -37,7 +37,7 @@
 
 #ifndef HAVE_ARCH_TYPES
 
-#if ULONG_MAX == 4294967295U /* 64 bit unsigned long */
+#if ULONG_MAX == 4294967295U /* 32 bit unsigned long */
 
 typedef uint32_t word_t;
 typedef unsigned int dword_t __attribute__((mode(DI)));
@@ -46,7 +46,7 @@ typedef int32_t bits_t;
 #define WORD_BITS 32
 #define WORD(x) (x##UL)
 
-#else /* 32 bit unsigned long */
+#else /* 64 bit unsigned long */
 
 typedef uint64_t word_t;
 typedef unsigned int dword_t __attribute__((mode(TI)));
@@ -70,13 +70,13 @@ typedef const word_t * nn_src_t;
 
 typedef struct preinv1_t
 {
-   word_t norm; /* the number of leading zero bits in d */
+   bits_t norm; /* the number of leading zero bits in d */
    word_t dinv; /* the precomputed inverse of d (see below) */
 } preinv1_t;
 
 typedef struct preinv1_2_t
 {
-   word_t norm; /* the number of leading zero bits in d */
+   bits_t norm; /* the number of leading zero bits in d */
    word_t dinv; /* the precomputed inverse of d1 (see below) */
    word_t d1; /* the normalised leading WORD_BITS of d */
 } preinv1_2_t;
