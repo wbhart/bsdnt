@@ -39,12 +39,9 @@
     <ClCompile Include="nn_linear.c" />
     <ClCompile Include="nn_quadratic.c" />
     <ClCompile Include="rand\bsdnt_rand.c" />
-    <ClCompile Include="rand\kiss32.c" />
-    <ClCompile Include="rand\kiss64.c" />
-    <ClCompile Include="rand\mt32.c" />
-    <ClCompile Include="rand\mt64.c" />
-    <ClCompile Include="rand\skiss32.c" />
-    <ClCompile Include="rand\skiss64.c" />
+    <ClCompile Include="rand\kiss.c" />
+    <ClCompile Include="rand\mt.c" />
+    <ClCompile Include="rand\skiss.c" />
     <ClCompile Include="test.c" />
     <ClCompile Include="test\t-nn_all.c" />
   </ItemGroup>
