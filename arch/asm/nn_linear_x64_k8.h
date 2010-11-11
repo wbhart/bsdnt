@@ -26,55 +26,6 @@
   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef BSDNT_RAND_H
-#define BSDNT_RAND_H
+#define HAVE_ARCH_nn_add_mc
+#define HAVE_ARCH_nn_sub_mc
 
-#include "../helper.h"
-
-/* BSDNT Interface */
-
-typedef void * rand_ctx;
-
-typedef rand_ctx (* rand_init_f)(void);
-typedef void     (* rand_clear_f)(rand_ctx);
-typedef word_t (* rand_word_f)(rand_ctx);
-
-typedef struct rand_t
-{
-    rand_init_f init;
-    rand_clear_f clear;
-    rand_word_f word;
-    rand_ctx ctx;
-    char name[24];
-} rand_t;
-
-typedef enum { RAND_START = 0, KISS, MERSENNE_TWISTER, SUPER_KISS, RAND_END } random_algorithm;
-
-rand_t set_rand_algorithm(random_algorithm a);
-
-static inline
-void randinit(rand_t * state)
-{   
-    *state = set_rand_algorithm(KISS);
-    state->ctx = state->init();
-}
-
-static inline
-void randclear(rand_t state)
-{
-    state.clear(state.ctx);
-}
-
-static inline
-word_t randword(rand_t state) 
-{
-	return state.word(state.ctx);
-}
-
-static inline
-word_t randint(word_t m, rand_t state)
-{
-   return ((word_t) state.word(state.ctx) % m);
-}
-
-#endif

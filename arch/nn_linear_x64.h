@@ -1,6 +1,5 @@
 /* 
-  George Marsaglia's KISS 64-bit Pseudo Random Number Generator
-
+  Copyright (C) 2010, William Hart
   Copyright (C) 2010, Brian Gladman
 
   All rights reserved.
@@ -27,53 +26,18 @@
   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "../helper.h"
-
-#if WORD_BITS == 64
-
-#include <stdlib.h>
-#include "internal_rand.h"
-
-typedef struct kiss_ctx
-{   word_t x, c, y, z;
-} kiss_ctx;
-
-#define CTX(x) ((kiss_ctx*)(x))
-
-rand_t kiss_init(void)
-{
-	rand_t c = malloc(sizeof(kiss_ctx));
-
-   CTX(c)->x = WORD(1234567890987654321);
-	CTX(c)->c = WORD(123456123456123456); 
-   CTX(c)->y = WORD(362436362436362436);
-	CTX(c)->z = WORD(1066149217761810);
-    
-   return c;
-}
-
-void kiss_clear(rand_t c)
-{
-	free(c);
-}
-
-word_t kiss_word(rand_t c)
-{   
-   word_t t;
-
-	t = (CTX(c)->x << 58) + CTX(c)->c;
-
-	CTX(c)->c = CTX(c)->x >> 6;
-	CTX(c)->x += t;
-	CTX(c)->c += (CTX(c)->x < t);
-
-	CTX(c)->y ^= (CTX(c)->y << 13);
-	CTX(c)->y ^= (CTX(c)->y >> 17);
-	CTX(c)->y ^= (CTX(c)->y << 43);
-
-   CTX(c)->z = WORD(6906969069) * CTX(c)->z + WORD(1234567);
-
-	return CTX(c)->x + CTX(c)->y + CTX(c)->z;
-}
-
-#endif
+#define HAVE_ARCH_nn_add_mc
+#define HAVE_ARCH_nn_sub_mc
+#define HAVE_ARCH_nn_shl_c
+#define HAVE_ARCH_nn_shr_c
+#define HAVE_ARCH_nn_add1
+#define HAVE_ARCH_nn_sub1
+#define HAVE_ARCH_nn_neg_c
+#define HAVE_ARCH_nn_mul1_c
+#define HAVE_ARCH_nn_addmul1_c
+#define HAVE_ARCH_nn_muladd1_c
+#define HAVE_ARCH_nn_submul1_c
+#define HAVE_ARCH_nn_divrem1_simple_c
+#define HAVE_ARCH_nn_divrem1_preinv_c
+#define HAVE_ARCH_nn_divrem_hensel1_preinv_c
+#define HAVE_ARCH_nn_mod1_preinv_c

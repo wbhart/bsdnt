@@ -1,0 +1,1 @@
+libbsdnt.a: nn_linear.o nn_quadratic.o -asm-

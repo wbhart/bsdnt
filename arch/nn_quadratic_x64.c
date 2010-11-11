@@ -1,5 +1,6 @@
 /* 
   Copyright (C) 2010, William Hart
+  Copyright (C) 2010, Brian Gladman
 
   All rights reserved.
 
@@ -26,33 +27,6 @@
 */
 
 #include "nn.h"
-#include "nn_quadratic_arch.h"
-
-#ifndef HAVE_ARCH_nn_mul_classical
-
-word_t nn_mul_classical(nn_t r, nn_src_t a, len_t m1, 
-                                              nn_src_t b, len_t m2)
-{
-   len_t i;
-   word_t ci = 0;
-  
-   ASSERT(r != a);
-   ASSERT(r != b);
-   ASSERT(m1 >= m2);
-   ASSERT(m2 > 0);
-
-   ci = nn_mul1(r, a, m1, b[0]); 
-   
-   for (i = 1; i < m2; i++)
-   {
-      r[m1 + i - 1] = ci;
-      ci = nn_addmul1(r + i, a, m1, b[i]);
-   }
-
-   return ci;
-}
-
-#endif
 
 #ifndef HAVE_ARCH_nn_mullow_classical
 
@@ -60,20 +34,23 @@ void nn_mullow_classical(nn_t ov, nn_t r, nn_src_t a, len_t m1,
                                               nn_src_t b, len_t m2)
 {
    len_t i;
-   dword_t t = 0;
+   dword_t t;
   
    ASSERT(r != a);
    ASSERT(r != b);
    ASSERT(m1 >= m2);
    ASSERT(m2 > 0);
 
-   t = (dword_t) nn_mul1(r, a, m1, b[0]); 
+   t.lo = nn_mul1(r, a, m1, b[0]); 
+   t.hi = 0;
    
    for (i = 1; i < m2; i++)
-      t += (dword_t) nn_addmul1(r + i, a, m1 - i, b[i]);
-
-   ov[0] = (word_t) t;
-   ov[1] = (word_t) (t >> WORD_BITS);
+   {
+       word_t v = nn_addmul1(r + i, a, m1 - i, b[i]);
+       t.hi += ((t.lo += v) < v ? 1 : 0);
+   }
+   ov[0] = t.lo;
+   ov[1] = t.hi;
 }
 
 #endif
@@ -84,8 +61,7 @@ word_t nn_mulhigh_classical(nn_t r, nn_src_t a, len_t m1,
                                        nn_src_t b, len_t m2, nn_t ov)
 {
    len_t i;
-   word_t ci = 0;
-   dword_t t;
+   word_t t, ci, ch = 0;
 
    ASSERT(r != a);
    ASSERT(r != b);
@@ -96,20 +72,20 @@ word_t nn_mulhigh_classical(nn_t r, nn_src_t a, len_t m1,
       return ov[0]; /* overflow is one limb in this case */
 
    /* a[m1 - 1] * b[1] + ov[0]*/
-   t = (dword_t) a[m1 - 1] * (dword_t) b[1] + (dword_t) ov[0];
-   r[0] = (word_t) t;
-   ci = (t >> WORD_BITS);
-   
+   t = mul_64_by_64(a[m1 - 1], b[1], &ci);
+   ci += ((r[0] = t + ov[0]) < t ? 1 : 0);
+
    if (m2 > 2)
    {
       /* {a[m1 - 2], a[m1 - 1]} * b[2] + ov[1] */
       r[1] = ci;
       ci = nn_addmul1(r, a + m1 - 2, 2, b[2]);
-      t = (dword_t) ov[1] + (dword_t) r[1];
-      r[1] = (word_t) t;
-      t = (t >> WORD_BITS) + (dword_t) ci;
-	  ci = (word_t) t; /* possible overflow */
-   } else
+
+      ch = ((t = r[1] + ov[1]) < r[1] ? 1 : 0);
+	  r[1] = t;
+	  ch = ((ci += ch) < ch ? 1 : 0);
+   } 
+   else
       return ci + ov[1]; /* ov[1] cannot be more than 1 in this case */
 
    for (i = 3; i < m2; i++)
@@ -119,33 +95,8 @@ word_t nn_mulhigh_classical(nn_t r, nn_src_t a, len_t m1,
    }
 
    /* deal with overflow */
-   if (m2 > 3) ci += nn_add1(r + 3, r + 3, m2 - 4, (word_t) (t >> WORD_BITS));
-
-   return ci; 
-}
-
-#endif
-
-#ifndef HAVE_ARCH_nn_muladd_classical
-
-word_t nn_muladd_classical(nn_t r, nn_src_t a, nn_src_t b, 
-                                     len_t m1, nn_src_t c, len_t m2)
-{
-   len_t i;
-   word_t ci = 0;
-  
-   ASSERT(r != b);
-   ASSERT(r != c);
-   ASSERT(m1 >= m2);
-   ASSERT(m2 > 0);
-
-   ci = nn_muladd1(r, a, b, m1, c[0]); 
-
-   for (i = 1; i < m2; i++)
-   {
-      r[m1 + i - 1] = ci;
-      ci = nn_addmul1(r + i, b, m1, c[i]);
-   }
+   if (m2 > 3) 
+      ci += nn_add1(r + 3, r + 3, m2 - 4, ch);
 
    return ci;
 }
@@ -158,7 +109,7 @@ void nn_divrem_classical_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d,
                                   len_t n, preinv1_2_t inv, word_t ci)
 {
    dword_t t;
-   long i, j = m - n;
+   len_t i, j = m - n;
    word_t q1, rem;
    word_t norm = inv.norm;
    word_t dinv = inv.dinv;
@@ -172,20 +123,15 @@ void nn_divrem_classical_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d,
 
    for (i = m - 1; i >= n - 1; i--, j--)
    {
-      /* top "two words" of remaining dividend, shifted */
-      if (norm)
-		  t = (((((dword_t) ci) << WORD_BITS) + (dword_t) a[i]) << norm) 
-		        + (dword_t) (a[i-1] >> (WORD_BITS - norm));
-	  else
-	      t = (((dword_t) ci) << WORD_BITS) + (dword_t) a[i];
-      
-      /* check for special case, a1 == d1 which would cause overflow */
-      if ((t >> WORD_BITS) == d1) 
-		  q1 = ~(word_t) 0;
-      else 
-		  divrem21_preinv1(q1, rem, t, d1, dinv);
+     t.hi = (ci << norm) | (norm ? a[i] >> (WORD_BITS - norm) : 0);
+     t.lo = (a[i] << norm) | (norm ? a[i - 1] >> (WORD_BITS - norm) : 0); 
 
-	  /* a -= d*q1 */
+     if(t.hi == d1)
+          q1 = ~(word_t) 0;
+      else 
+          divrem21_preinv1(q1, rem, t, d1, dinv);
+
+      /* a -= d*q1 */
       ci -= nn_submul1(a + j, d, n, q1);
       
       /* correct if remainder has become negative */
@@ -200,7 +146,6 @@ void nn_divrem_classical_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d,
    }
 }
 
-
 #endif
 
 #ifndef HAVE_ARCH_nn_divapprox_classical_preinv_c
@@ -209,7 +154,7 @@ void nn_divapprox_classical_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d,
                                   len_t n, preinv1_2_t inv, word_t ci)
 {
    dword_t t;
-   long i = m - 1, j = m - n;
+   len_t i = m - 1, j = m - n;
    word_t q1, rem;
    word_t norm = inv.norm;
    word_t dinv = inv.dinv;
@@ -228,16 +173,14 @@ void nn_divapprox_classical_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d,
    for ( ; s >= n; i--, j--, s--)
    {
       /* top "two words" of remaining dividend, shifted */
-      if (norm)
-		  t = (((((dword_t) ci) << WORD_BITS) + (dword_t) a[i]) << norm) 
-		        + (dword_t) (a[i - 1] >> (WORD_BITS - norm));
-	  else
-		  t = (((dword_t) ci) << WORD_BITS) + (dword_t) a[i];
+      t.hi = (ci << norm) | (norm ? a[i] >> (WORD_BITS - norm) : 0);
+      t.lo = (a[i] << norm) | (norm ? a[i - 1] >> (WORD_BITS - norm) : 0);
       
       /* check for special case, a1 == d1 which would cause overflow */
-      if ((t >> WORD_BITS) == d1) q1 = ~(word_t) 0;
-      else divrem21_preinv1(q1, rem, t, d1, dinv);
-
+     if(t.hi == d1)
+          q1 = ~(word_t) 0;
+      else 
+          divrem21_preinv1(q1, rem, t, d1, dinv);
       /* a -= d*q1 */
       ci -= nn_submul1(a + j, d, n, q1);
       
@@ -247,7 +190,7 @@ void nn_divapprox_classical_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d,
          q1--;
          ci += nn_add_m(a + j, a + j, d, n);
       }
-	  
+
       q[j] = q1;
       ci = a[i];
    }
@@ -258,19 +201,15 @@ void nn_divapprox_classical_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d,
    for ( ; i >= n - 1; i--, j--, s--)
    {
       /* top "two words" of remaining dividend, shifted */
-      if (norm)
-		  t = (((((dword_t) ci) << WORD_BITS) + (dword_t) a[s - 1]) << norm) 
-		        + (dword_t) (a[s - 2] >> (WORD_BITS - norm));
-	  else
-		  t = (((dword_t) ci) << WORD_BITS) + (dword_t) a[s - 1];
-      
+      t.hi = (ci << norm) | (norm ? a[s - 1] >> (WORD_BITS - norm) : 0);
+      t.lo = (a[s - 1] << norm) | (norm ? a[s - 2] >> (WORD_BITS - norm) : 0); 
+
       /* check for special case, a1 == d1 which would cause overflow */
-      if ((t >> WORD_BITS) == d1) 
+     if(t.hi == d1)
           q1 = ~(word_t) 0;
       else 
           divrem21_preinv1(q1, rem, t, d1, dinv);
-
-	  /* a -= d*q1 */
+      /* a -= d*q1 */
       ci -= nn_submul1(a, d, s, q1);
       
 	  if (ci == 1) /* an overflow requires adjustment */
@@ -285,7 +224,7 @@ void nn_divapprox_classical_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d,
          q1--;
          ci += nn_add_m(a, a, d, s);
       }
-	  
+
       q[j] = q1;
       ci = a[s - 1];
       d++;
@@ -316,16 +255,18 @@ void nn_div_hensel_preinv(nn_t ov, nn_t q, nn_t a, len_t m,
       ct += nn_sub1(a + i + n, a + i + n, m - i - n, ci);
    }
 
-   t = (dword_t) ct;
+   t.lo = ct;
+   t.hi = 0;
 
    for ( ; i < m; i++)
    {
       q[i] = a[i] * inv;
-      t += (dword_t) nn_submul1(a + i, d, m - i, q[i]);
+      ct = nn_submul1(a + i, d, m - i, q[i]);
+      t.hi += ((t.lo += ct) < ct ? 1 : 0);
    }
    
-   ov[0] = (word_t) t;
-   ov[1] = (t >> WORD_BITS);
+   ov[0] = t.lo;
+   ov[1] = t.hi;
 }
 
 #endif

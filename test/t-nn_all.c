@@ -1,6 +1,5 @@
 /* 
   Copyright (C) 2010, William Hart
-  Copyright (C) 2010, Brian Gladman
 
   All rights reserved.
 
@@ -26,55 +25,37 @@
   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef BSDNT_RAND_H
-#define BSDNT_RAND_H
+#include <stdio.h>
+#include <stdlib.h>
+#include "../nn.h"
+#include "../test.h"
 
-#include "../helper.h"
+rand_t state;
 
-/* BSDNT Interface */
+#include "t-rand.c"
+#include "t-nn_linear.c"
+#include "t-nn_quadratic.c"
 
-typedef void * rand_ctx;
-
-typedef rand_ctx (* rand_init_f)(void);
-typedef void     (* rand_clear_f)(rand_ctx);
-typedef word_t (* rand_word_f)(rand_ctx);
-
-typedef struct rand_t
+static void checkpoint_rand(char *s)
 {
-    rand_init_f init;
-    rand_clear_f clear;
-    rand_word_f word;
-    rand_ctx ctx;
-    char name[24];
-} rand_t;
-
-typedef enum { RAND_START = 0, KISS, MERSENNE_TWISTER, SUPER_KISS, RAND_END } random_algorithm;
-
-rand_t set_rand_algorithm(random_algorithm a);
-
-static inline
-void randinit(rand_t * state)
-{   
-    *state = set_rand_algorithm(KISS);
-    state->ctx = state->init();
+   printf(s);
+   printx_word(randword(state));
+   printf("\r\n");
 }
 
-static inline
-void randclear(rand_t state)
+int main(void)
 {
-    state.clear(state.ctx);
-}
+   int ret = 0;
+   
+   randinit(&state);
+   checkpoint_rand("First Random Word: ");
 
-static inline
-word_t randword(rand_t state) 
-{
-	return state.word(state.ctx);
-}
+    ret |= test_rand();
+    ret |= test_linear();
+	ret |= test_quadratic();
 
-static inline
-word_t randint(word_t m, rand_t state)
-{
-   return ((word_t) state.word(state.ctx) % m);
-}
+   checkpoint_rand("Last Random Word: ");
+   randclear(state);
 
-#endif
+   return ret;
+}

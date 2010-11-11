@@ -27,7 +27,8 @@
 	v0.8 - nn_divrem1_preinv.
 
 09-Sep-2010:
-	v0.9 - nn_divrem_hensel1_preinv
+	v0.9 - nn_divrem_hensel1_preinv.
+    t-nn_linear.o: t-nn_linear.c
 
 09-Sep-2010:
 	v0.10 - nn_mod1_preinv
@@ -67,5 +68,8 @@
 
 14-Oct-2010:
 	v0.21 - Added KISS, SKISS, MT PRNGs.
+
+15-Oct-2010:
+	v0.22 - Added Windows support and new configure system.
 
 

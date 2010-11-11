@@ -5,8 +5,6 @@
 
 word_t nn_add_mc(nn_t a, nn_src_t b, nn_src_t c, len_t m, word_t ci)
 {
-   ASSERT(ci <= 1);
-   
    __asm__ (
 
    ".intel_syntax noprefix; \
@@ -40,10 +38,8 @@ word_t nn_add_mc(nn_t a, nn_src_t b, nn_src_t c, len_t m, word_t ci)
 #ifndef HAVE_ARCH_nn_sub_mc
 #define HAVE_ARCH_nn_sub_mc
 
-word_t nn_sub_mc(nn_t a, nn_src_t b, nn_src_t c, len_t m, word_t bi)
+word_t nn_sub_mc(nn_t a, nn_src_t b, nn_src_t c, len_t m, word_t ci)
 {
-   ASSERT(bi <= 1);
-   
    __asm__ (
 
    ".intel_syntax noprefix; \
@@ -65,11 +61,11 @@ word_t nn_sub_mc(nn_t a, nn_src_t b, nn_src_t c, len_t m, word_t bi)
     setc al; \
 3:;"
 
-   : "=a" ((word_t)(bi))
+   : "=a" ((word_t)(ci))
    : "c" ((len_t)(m)), "d" ((nn_src_t)(c)), "S" ((nn_src_t)(b)), "D" ((nn_src_t *)(a))
    );
 
-   return bi;
+   return ci;
 }
 
 #endif
