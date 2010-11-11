@@ -101,7 +101,7 @@ int test_muladd_classical(void)
 int test_divrem_classical_preinv(void)
 {
    int result = 1;
-   len_t m, n, p;
+   len_t m, n;
    nn_t a, r1, s, q, d;
    preinv1_2_t inv;
 
