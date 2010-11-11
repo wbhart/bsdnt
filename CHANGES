@@ -72,4 +72,7 @@
 15-Oct-2010:
 	v0.22 - Added Windows support and new configure system.
 
+28-Oct-2010:
+        v0.23 - sha1 and mt, kiss and skiss tests.
+
 
