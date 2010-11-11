@@ -508,9 +508,8 @@ int test_copy(void)
 int test_equal_m(void)
 {
    int result = 1;
-   long s;
    nn_t a, r1;
-   len_t m;
+   len_t m, s;
 
    printf("nn_equal_m...");
 
@@ -635,9 +634,8 @@ int test_zero(void)
 int test_normalise(void)
 {
    int result = 1;
-   long s1, s2;
    nn_t a, r1;
-   len_t m;
+   len_t m, s1, s2;
 
    printf("nn_normalise...");
 
