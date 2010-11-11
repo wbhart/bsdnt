@@ -28,12 +28,8 @@
 #include <string.h>     /* for memcpy() etc.        */
 
 #include "sha1.h"
-#include "..\config.h"
+#include "config.h"
 
-#if defined(__cplusplus)
-extern "C"
-{
-#endif
 
 #if defined( _MSC_VER ) && ( _MSC_VER > 800 )
 #pragma intrinsic(memcpy)
@@ -283,8 +279,4 @@ void sha1(unsigned char hval[], const unsigned char data[], unsigned long len)
     sha1_begin(cx); sha1_hash(data, len, cx); sha1_end(hval, cx);
 }
 
-#endif
-
-#if defined(__cplusplus)
-}
 #endif

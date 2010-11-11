@@ -26,7 +26,7 @@
 */
 
 #include <string.h>
-#include "..\rand\bsdnt_rand.h"
+#include "../rand/bsdnt_rand.h"
 #include "sha1.h"
 
 #define N_ITER   10000
@@ -52,7 +52,8 @@ static unsigned char digest[3][SHA1_DIGEST_SIZE] =
 };
 
 int test_rand(void)
-{   unsigned int i, j, k, r = (unsigned int)RAND_START, pass = 0, fail = 0;
+{   unsigned int k, r = (unsigned int)RAND_START;
+    long pass = 0, fail = 0;
     sha1_ctx ctx[1];
     rand_t state[1];
     unsigned char buf[BUF_SIZE * sizeof(word_t)];
