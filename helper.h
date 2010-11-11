@@ -6,21 +6,25 @@
 #include <assert.h>
 #include "config.h"
 
-# if ULONG_MAX == 4294967295U
-    typedef uint32_t word_t;
-    typedef unsigned int dword_t __attribute__((mode(DI)));
-    typedef int32_t len_t;
-    typedef int32_t bits_t;
-#   define WORD_BITS 32
-#   define WORD(x) (x##UL)
-# else
-    typedef uint64_t word_t;
-    typedef unsigned int dword_t __attribute__((mode(TI)));
-    typedef int64_t len_t;
-    typedef int64_t bits_t;
-#   define WORD_BITS 64
-#   define WORD(x) (x##UL)
-# endif
+#if ULONG_MAX == 4294967295U
+
+typedef uint32_t word_t;
+typedef unsigned int dword_t __attribute__((mode(DI)));
+typedef int32_t len_t;
+typedef int32_t bits_t;
+#define WORD_BITS 32
+#define WORD(x) (x##UL)
+
+#else
+
+typedef uint64_t word_t;
+typedef unsigned int dword_t __attribute__((mode(TI)));
+typedef int64_t len_t;
+typedef int64_t bits_t;
+#define WORD_BITS 64
+#define WORD(x) (x##UL)
+
+#endif
 
 #if WANT_ASSERT
 #define ASSERT assert
