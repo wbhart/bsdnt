@@ -25,6 +25,7 @@
     <ClInclude Include="rand\bsdnt_rand.h" />
     <ClInclude Include="rand\internal_rand.h" />
     <ClInclude Include="test.h" />
+    <ClInclude Include="test\sha1.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="arch\nn_linear_x64.c">
@@ -132,7 +133,8 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <PreBuildEvent>
-      <Command>copy arch\asm\nn_linear_win32_core2.h arch\nn_linear_win32_asm.h
+      <Command>copy config_win32.h config.h
+copy arch\asm\nn_linear_win32_core2.h arch\nn_linear_win32_asm.h
 copy arch\nn_linear_win32.h +  arch\nn_linear_win32_asm.h nn_linear_arch.h
 copy arch\nn_quadratic_win32.h nn_quadratic_arch.h
 copy arch\helper_win32.h helper_arch.h
@@ -152,7 +154,8 @@ copy arch\types_win32.h types_arch.h
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <PreBuildEvent>
-      <Command>copy arch\asm\nn_linear_x64_core2.h arch\nn_linear_x64_asm.h
+      <Command>copy config_x64.h config.h
+copy arch\asm\nn_linear_x64_core2.h arch\nn_linear_x64_asm.h
 copy arch\nn_linear_x64.h +  arch\nn_linear_x64_asm.h nn_linear_arch.h
 copy arch\nn_quadratic_x64.h nn_quadratic_arch.h
 copy arch\helper_x64.h helper_arch.h
@@ -176,7 +179,8 @@ copy arch\types_x64.h types_arch.h
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <PreBuildEvent>
-      <Command>copy arch\asm\nn_linear_win32_core2.h arch\nn_linear_win32_asm.h
+      <Command>copy config_win32.h config.h
+copy arch\asm\nn_linear_win32_core2.h arch\nn_linear_win32_asm.h
 copy arch\nn_linear_win32.h +  arch\nn_linear_win32_asm.h nn_linear_arch.h
 copy arch\nn_quadratic_win32.h nn_quadratic_arch.h
 copy arch\helper_win32.h helper_arch.h
@@ -200,7 +204,8 @@ copy arch\types_win32.h types_arch.h
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <PreBuildEvent>
-      <Command>copy arch\asm\nn_linear_x64_core2.h arch\nn_linear_x64_asm.h
+      <Command>copy config_x64.h config.h
+copy arch\asm\nn_linear_x64_core2.h arch\nn_linear_x64_asm.h
 copy arch\nn_linear_x64.h +  arch\nn_linear_x64_asm.h nn_linear_arch.h
 copy arch\nn_quadratic_x64.h nn_quadratic_arch.h
 copy arch\helper_x64.h helper_arch.h
