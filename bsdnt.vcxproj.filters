@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Filter Include="Source Files">
@@ -29,6 +29,9 @@
     <ClInclude Include="config.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="test\sha1.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="test.c">
@@ -38,15 +41,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="rand\bsdnt_rand.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="rand\kiss64.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="rand\skiss64.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="rand\mt64.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="nn_linear.c">
@@ -64,13 +58,16 @@
     <ClCompile Include="test\t-nn_all.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="rand\kiss32.c">
+    <ClCompile Include="test\sha1.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="rand\mt32.c">
+    <ClCompile Include="rand\kiss.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="rand\skiss32.c">
+    <ClCompile Include="rand\mt.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="rand\skiss.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

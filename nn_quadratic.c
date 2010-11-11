@@ -200,6 +200,7 @@ void nn_divrem_classical_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d,
    }
 }
 
+
 #endif
 
 #ifndef HAVE_ARCH_nn_divapprox_classical_preinv_c
