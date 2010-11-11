@@ -36,11 +36,17 @@
 
 **********************************************************************/
 
+#ifndef HAVE_ARCH_word_format_string
+
+#define word_format_string "%lx"
+
+#endif
+
 #ifndef HAVE_ARCH_printx_word
 
 void printx_word(word_t a)
 {
-   printf("%lx", a);
+   printf(word_format_string, a);
 }
 
 #endif

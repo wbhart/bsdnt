@@ -1,5 +1,5 @@
 /* 
-  George Marsaglia's KISS 32-bit Pseudo Random Number Generator
+  George Marsaglia's KISS 32/64 bit Pseudo Random Number Generator
 
   Copyright (C) 2010, Brian Gladman
   Copyright (C) 2010, William Hart
@@ -29,11 +29,10 @@
 */
 
 #include "../helper.h"
-
-#if WORD_BITS == 32
-
 #include <stdlib.h>
 #include "internal_rand.h"
+
+#if WORD_BITS == 32
 
 typedef struct kiss_ctx
 {   word_t s, c, w, z;
@@ -74,6 +73,51 @@ word_t kiss_word(rand_ctx c)
 	CTX(c)->s ^= (CTX(c)->s << 5);
 
 	return (t ^ CTX(c)->c) + CTX(c)->s;
+}
+
+#elif WORD_BITS == 64
+
+typedef struct kiss_ctx
+{   
+   word_t x, c, y, z;
+} kiss_ctx;
+
+#define CTX(x) ((kiss_ctx*)(x))
+
+rand_ctx kiss_init(void)
+{
+	rand_ctx c = malloc(sizeof(kiss_ctx));
+
+   CTX(c)->x = WORD(1234567890987654321);
+	CTX(c)->c = WORD(123456123456123456); 
+   CTX(c)->y = WORD(362436362436362436);
+	CTX(c)->z = WORD(1066149217761810);
+    
+   return c;
+}
+
+void kiss_clear(rand_ctx c)
+{
+	free(c);
+}
+
+word_t kiss_word(rand_ctx c)
+{   
+   word_t t;
+
+	t = (CTX(c)->x << 58) + CTX(c)->c;
+
+	CTX(c)->c = CTX(c)->x >> 6;
+	CTX(c)->x += t;
+	CTX(c)->c += (CTX(c)->x < t);
+
+	CTX(c)->y ^= (CTX(c)->y << 13);
+	CTX(c)->y ^= (CTX(c)->y >> 17);
+	CTX(c)->y ^= (CTX(c)->y << 43);
+
+   CTX(c)->z = WORD(6906969069) * CTX(c)->z + WORD(1234567);
+
+	return CTX(c)->x + CTX(c)->y + CTX(c)->z;
 }
 
 #endif

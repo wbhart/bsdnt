@@ -45,16 +45,17 @@ typedef struct rand_t
     rand_clear_f clear;
     rand_word_f word;
     rand_ctx ctx;
+    char name[24];
 } rand_t;
 
-typedef enum { KISS, MERSENNE_TWISTER, SUPER_KISS } random_algorithm;
+typedef enum { RAND_START = 0, KISS, MERSENNE_TWISTER, SUPER_KISS, RAND_END } random_algorithm;
 
 rand_t set_rand_algorithm(random_algorithm a);
 
 static inline
 void randinit(rand_t * state)
 {   
-    *state = set_rand_algorithm(SUPER_KISS);
+    *state = set_rand_algorithm(KISS);
     state->ctx = state->init();
 }
 
