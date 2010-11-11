@@ -71,7 +71,7 @@ int test_bit_set(void)
 
       if (!result) 
       {
-         printf("bit = %ld\n", bit);
+         bsdnt_printf("bit = %b\n", bit);
 		 print_debug(a, m);  
       }
    } TEST_END;
@@ -92,7 +92,7 @@ int test_bit_set(void)
 
       if (!result) 
       {
-         printf("bit = %ld, sh1 = %ld\n", bit, sh1);
+         bsdnt_printf("bit = %b, sh1 = %b\n", bit, sh1);
 		 print_debug(a, m);  
       }
    } TEST_END;
@@ -123,7 +123,7 @@ int test_bit_clear(void)
 
       if (!result) 
       {
-         printf("bit = %ld\n", bit);
+         bsdnt_printf("bit = %b\n", bit);
 		 print_debug(a, m);  
       }
    } TEST_END;
@@ -144,7 +144,7 @@ int test_bit_clear(void)
 
       if (!result) 
       {
-         printf("bit = %ld, sh1 = %ld\n", bit, sh1);
+         bsdnt_printf("bit = %b, sh1 = %b\n", bit, sh1);
 		 print_debug(a, m);  
       }
    } TEST_END;
@@ -201,7 +201,7 @@ int test_add_m(void)
 
       if (!result) 
       {
-         printf("m = %ld, n = %ld\n", m, n);
+         bsdnt_printf("m = %m n = %m\n", m, n);
          print_debug(a, m + n); print_debug(b, m + n);
          print_debug_diff(r1, r2, m + n + 1);
       }
@@ -263,7 +263,7 @@ int test_add(void)
 
       if (!result) 
       {
-         printf("m1 = %ld, m2 = %ld, m3 = %ld\n", m1, m2, m3);
+         bsdnt_printf("m1 = %m, m2 = %m, m3 = %m\n", m1, m2, m3);
          print_debug(a, m1 + m2 + m3); print_debug(b, m2 + m3); 
          print_debug_diff(r1, r2, m1 + m2 + m3 + 1);
       }
@@ -321,7 +321,7 @@ int test_sub_m(void)
 
       if (!result) 
       {
-         printf("m = %ld, n = %ld\n", m, n);
+         bsdnt_printf("m = %m, n = %m\n", m, n);
          print_debug(a, m + n); print_debug(b, m + n);
          print_debug_diff(r1, r2, m + n + 1);
       }
@@ -344,7 +344,7 @@ int test_sub_m(void)
       {
          print_debug(a, m); print_debug(b, m); 
          print_debug_diff(r1, a, m);
-         printf("r1[m] = "); printx_word(r1[m]); printf("\n");
+         bsdnt_printf("r1[%m] = %wx\n", m, r1[m]); 
       }
    } TEST_END;
 
@@ -426,7 +426,7 @@ int test_sub(void)
 
       if (!result) 
       {
-         printf("m1 = %ld, m2 = %ld, m3 = %ld\n", m1, m2, m3);
+         bsdnt_printf("m1 = %m, m2 = %m, m3 = %m\n", m1, m2, m3);
          print_debug(a, m1 + m2 + m3); print_debug(b, m2 + m3); 
          print_debug_diff(r1, r2, m1 + m2 + m3 + 1);
       }
@@ -465,7 +465,7 @@ int test_shl(void)
 
       if (!result) 
       {
-         printf("m = %ld, sh1 = %ld, sh2 = %ld\n", m, sh1, sh2);
+         bsdnt_printf("m = %m, sh1 = %b, sh2 = %b\n", m, sh1, sh2);
          print_debug(a, m); 
          print_debug_diff(r1, r2, m + 1);
       }
@@ -489,7 +489,7 @@ int test_shl(void)
 
       if (!result) 
       {
-         printf("m = %ld, n = %ld, sh1 = %ld\n", m, n, sh1);
+         bsdnt_printf("m = %m, n = %m, sh1 = %b\n", m, n, sh1);
          print_debug(a, m + n); 
          print_debug_diff(r1, r2, m + n + 1);
       }
@@ -570,7 +570,7 @@ int test_shr(void)
 
       if (!result) 
       {
-         printf("m = %ld, n = %ld, sh1 = %ld\n", m, n, sh1);
+         bsdnt_printf("m = %m, n = %m, sh1 = %b\n", m, n, sh1);
          print_debug(a, m + n); 
          print_debug_diff(r1, r2, m + n + 1);
       }
@@ -593,7 +593,7 @@ int test_shr(void)
 
       if (!result) 
       {
-         printf("m = %ld, sh1 = %ld\n", m, sh1);
+         bsdnt_printf("m = %m, sh1 = %b\n", m, sh1);
          print_debug(a, m); print_debug(r1, m + 1); 
          print_debug_diff(a, r2, m);
       }
@@ -760,7 +760,7 @@ int test_zero(void)
 int test_normalise(void)
 {
    int result = 1;
-   long s1, s2;
+   len_t s1, s2;
    nn_t a, r1;
    len_t m;
 
@@ -785,7 +785,7 @@ int test_normalise(void)
 
       if (!result) 
       {
-         printf("m = %ld, s1 = %ld, s2 = %ld\n", m, s1, s2);
+         bsdnt_printf("m = %m, s1 = %m, s2 = %m\n", m, s1, s2);
          print_debug(r1, m); print_debug(a, m);
          print_debug_diff(r1, a, m);
       }
@@ -824,7 +824,7 @@ int test_mul1(void)
 
       if (!result) 
       {
-         printf("m = %ld, c1 = %lx, c2 = %lx\n", m, c1, c2);
+         bsdnt_printf("m = %m, c1 = %wx, c2 = %wx\n", m, c1, c2);
          print_debug(a, m);  print_debug(t1, m + 1);
          print_debug_diff(r1, r2, m + 1);
       }
@@ -849,7 +849,7 @@ int test_mul1(void)
 
       if (!result) 
       {
-         printf("m = %ld, n = %ld, c1 = %lx\n", m, n, c1);
+         bsdnt_printf("m = %m, n = %m, c1 = %wx\n", m, n, c1);
          print_debug(a, m + n);  
          print_debug_diff(r1, r2, m + n + 1);
       }
@@ -890,7 +890,7 @@ int test_addmul1(void)
 
       if (!result) 
       {
-         printf("m = %ld, c1 = %lx, c2 = %lx\n", m, c1, c2);
+         bsdnt_printf("m = %m, c1 = %wx, c2 = %wx\n", m, c1, c2);
          print_debug(a, m); print_debug(b, m);  
          print_debug_diff(r1, r2, m + 1);
       }
@@ -917,7 +917,7 @@ int test_addmul1(void)
 
       if (!result) 
       {
-         printf("m = %ld, n = %ld, c1 = %lx\n", m, n, c1);
+         bsdnt_printf("m = %m, n = %m, c1 = %wx\n", m, n, c1);
          print_debug(a, m + n);  
          print_debug_diff(r1, r2, m + n + 1);
       }
@@ -959,7 +959,7 @@ int test_muladd1(void)
 
      if (!result) 
       {
-         printf("m = %ld, c1 = %lx, c2 = %lx\n", m, c1, c2);
+         bsdnt_printf("m = %m, c1 = %wx, c2 = %wx\n", m, c1, c2);
          print_debug(a, m); print_debug(b, m);  
          print_debug_diff(r1, r2, m + 1);
       }
@@ -987,7 +987,7 @@ int test_muladd1(void)
 
       if (!result) 
       {
-         printf("m = %ld, n = %ld, c1 = %lx\n", m, n, c1);
+         bsdnt_printf("m = %m, n = %m, c1 = %wx\n", m, n, c1);
          print_debug(a, m + n); print_debug(t1, m + n); print_debug(t2, m + n);  
          print_debug_diff(r1, r2, m + n + 1);
       }
@@ -1028,7 +1028,7 @@ int test_submul1(void)
 
       if (!result) 
       {
-         printf("m = %ld, c1 = %lx, c2 = %lx\n", m, c1, c2);
+         bsdnt_printf("m = %m, c1 = %wx, c2 = %wx\n", m, c1, c2);
          print_debug(a, m); print_debug(b, m);  
          print_debug_diff(r1, r2, m + 1);
       }
@@ -1055,7 +1055,7 @@ int test_submul1(void)
 
       if (!result) 
       {
-         printf("m = %ld, n = %ld, c1 = %lx\n", m, n, c1);
+         bsdnt_printf("m = %m, n = %m, c1 = %wx\n", m, n, c1);
          print_debug(a, m + n);  
          print_debug_diff(r1, r2, m + n + 1);
       }
@@ -1093,7 +1093,7 @@ int test_add1(void)
 
       if (!result) 
       {
-         printf("m = %ld, c1 = %lx, c2 = %lx\n", m, c1, c2);
+         bsdnt_printf("m = %m, c1 = %wx, c2 = %wx\n", m, c1, c2);
          print_debug(a, m);  
          print_debug_diff(r1, r2, m + 1);
       }
@@ -1118,7 +1118,7 @@ int test_add1(void)
 
       if (!result) 
       {
-         printf("m = %ld, n = %ld, c1 = %lx\n", m, n, c1);
+         bsdnt_printf("m = %m, n = %m, c1 = %wx\n", m, n, c1);
          print_debug(a, m + n);  
          print_debug_diff(r1, r2, m + n + 1);
       }
@@ -1156,7 +1156,7 @@ int test_sub1(void)
 
       if (!result) 
       {
-         printf("m = %ld, c1 = %lx, c2 = %lx\n", m, c1, c2);
+         bsdnt_printf("m = %m, c1 = %wx, c2 = %wx\n", m, c1, c2);
          print_debug(a, m);  
          print_debug_diff(r1, r2, m + 1);
       }
@@ -1181,7 +1181,7 @@ int test_sub1(void)
 
       if (!result) 
       {
-         printf("m = %ld, n = %ld, c1 = %lx\n", m, n, c1);
+         bsdnt_printf("m = %m, n = %m, c1 = %wx\n", m, n, c1);
          print_debug(a, m + n);  
          print_debug_diff(r1, r2, m + n + 1);
       }
@@ -1204,7 +1204,7 @@ int test_sub1(void)
 
       if (!result) 
       {
-         printf("m = %ld, c1 = %lx\n", m, c1);
+         bsdnt_printf("m = %m, c1 = %wx\n", m, c1);
          print_debug(a, m + 1);  
          print_debug_diff(r1, a, m + 1);
       }
@@ -1292,7 +1292,7 @@ int test_neg(void)
 
       if (!result) 
       {
-         printf("m = %ld, n = %ld\n", m, n);
+         bsdnt_printf("m = %m, n = %m\n", m, n);
          print_debug(a, m + n);  
          print_debug_diff(r1, r2, m + n + 1);
       }
@@ -1444,7 +1444,7 @@ int test_divrem1_simple(void)
 
       if (!result) 
       {
-         printf("ci = %lx, d = %lx\n", ci, d);
+         bsdnt_printf("ci = %wx, d = %wx\n", ci, d);
          print_debug(a, m); print_debug(q, m); print_debug(r1, m);  
          print_debug_diff(r1, a, m);
       }
@@ -1469,7 +1469,7 @@ int test_divrem1_simple(void)
 
       if (!result) 
       {
-         printf("ci = %lx, d = %lx, m = %ld, n = %ld\n", ci, d, m, n);
+         bsdnt_printf("ci = %wx, d = %wx, m = %m, n = %m\n", ci, d, m, n);
          print_debug(a, m + n);  
          print_debug_diff(r1, r2, m + n);
       }
@@ -1507,7 +1507,7 @@ int test_divrem1_preinv(void)
 
       if (!result) 
       {
-         printf("ci = %lx, r = %lx\n", ci, r);
+         bsdnt_printf("ci = %wx, r = %wx\n", ci, r);
          print_debug(a, m); print_debug(q, m);  
          print_debug_diff(r1, a, m);
       }
@@ -1542,7 +1542,7 @@ int test_divrem1_preinv(void)
 
       if (!result) 
       {
-         printf("ci = %lx, rem1 = %lx, rem2 = %lx, m = %ld, n = %ld\n", 
+         bsdnt_printf("ci = %wx, rem1 = %wx, rem2 = %wx, m = %m, n = %m\n", 
             ci, rem1, rem2, m, n);
          print_debug(a, m + n);  
          print_debug_diff(r1, r2, m + n);
@@ -1581,7 +1581,7 @@ int test_divrem_hensel1_preinv(void)
 
       if (!result) 
       {
-         printf("ci = %lx, r = %lx\n, inv = %lx", ci, r, inv);
+         bsdnt_printf("ci = %wx, r = %wx\n, inv = %wx", ci, r, inv);
          print_debug(a, m); print_debug(q, m);  
          print_debug_diff(r1, a, m);
       }
@@ -1606,7 +1606,7 @@ int test_divrem_hensel1_preinv(void)
 
       if (!result) 
       {
-         printf("ci = %lx, rem1 = %lx, rem2 = %lx, m = %ld, n = %ld, d = %lx, inv = %lx\n", 
+         bsdnt_printf("ci = %wx, rem1 = %wx, rem2 = %wx, m = %m, n = %m, d = %wx, inv = %wx\n", 
             ci, rem1, rem2, m, n, d, inv);
          print_debug(a, m + n);  
          print_debug_diff(r1, r2, m + n);
@@ -1646,8 +1646,8 @@ int test_mod1_preinv(void)
 
       if (!result) 
       {
-         printf("rem1 = %lx, rem2 = %lx, m = %ld, d = %lx, "
-            "minv.b1 = %lx, minv.b2 = %lx, minv.b3 = %lx\n", 
+         bsdnt_printf("rem1 = %wx, rem2 = %wx, m = %m, d = %wx, "
+            "minv.b1 = %wx, minv.b2 = %wx, minv.b3 = %wx\n", 
             rem1, rem2, m, d, minv.b1, minv.b2, minv.b3);
          print_debug(a, m); print_debug(q, m);  
       }
@@ -1672,8 +1672,8 @@ int test_mod1_preinv(void)
 
       if (!result) 
       {
-         printf("ci = %lx, rem1 = %lx, rem2 = %lx, m = %ld, n = %ld, d = %lx, "
-            "minv.b1 = %lx, minv.b2 = %lx, minv.b3 = %lx\n", 
+         bsdnt_printf("ci = %wx, rem1 = %wx, rem2 = %wx, m = %m, n = %m, d = %wx, "
+            "minv.b1 = %wx, minv.b2 = %wx, minv.b3 = %wx\n", 
             ci, rem1, rem2, m, n, d, minv.b1, minv.b2, minv.b3);
          print_debug(a, m + n);  
       }

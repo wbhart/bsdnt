@@ -126,8 +126,15 @@ void bsdnt_printf(const char * str, ...)
 	  {
 	  case 'w':
 		  w = (word_t) va_arg(ap, word_t);
-		  printf(WORD_FMT, w);
-          printf(str2 + 2);
+		  if (str[2] == 'x')
+		  {
+			 printf(WORD_FMT "x", w);
+			 printf(str2 + 3);
+		  } else
+		  {
+			 printf(WORD_FMT "d", w);
+			 printf(str2 + 2);
+		  }
 		  break;
 	  case 'b':
 		  b = (bits_t) va_arg(ap, bits_t);

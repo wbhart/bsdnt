@@ -157,7 +157,7 @@ int test_divrem_classical_preinv(void)
 
       if (!result) 
       {
-         printf("inv.norm = %ld, inv.dinv = %lx, inv.d1 = %lx\n", 
+         bsdnt_printf("inv.norm = %b, inv.dinv = %wx, inv.d1 = %wx\n", 
             inv.norm, inv.dinv, inv.d1);
          print_debug(a, m); print_debug(q, m); print_debug(d, n);  print_debug(s, n);
          print_debug_diff(q, a, m);
@@ -206,7 +206,7 @@ int test_divapprox_classical_preinv(void)
 
       if (!result) 
       {
-         printf("inv.norm = %ld, inv.dinv = %lx, inv.d1 = %lx\n", 
+         bsdnt_printf("inv.norm = %b, inv.dinv = %wx, inv.d1 = %wx\n", 
             inv.norm, inv.dinv, inv.d1);
          print_debug(a, m); print_debug(q1, m); print_debug(d, n);  print_debug(s, n);
          print_debug_diff(q1, q2, m);
@@ -243,7 +243,7 @@ int test_mullow_classical(void)
 
       if (!result) 
       {
-         printf("ov[0] = %lx, ov[1] = %lx\n", ov[0], ov[1]);
+         bsdnt_printf("ov[0] = %wx, ov[1] = %wx\n", ov[0], ov[1]);
          print_debug(a, m); print_debug(b, n); 
          print_debug_diff(r1, r2, m + n);
       }
@@ -280,7 +280,7 @@ int test_div_hensel_preinv(void)
 
       if (!result)
 	  {
-		  printf("m = %ld, n = %ld\n", m, n);
+		  bsdnt_printf("m = %m, n = %m\n", m, n);
 		  print_debug(a, m); print_debug(q, m); print_debug(d, n); 
 		  print_debug_diff(q, a, m);
 	  }
@@ -305,7 +305,7 @@ int test_div_hensel_preinv(void)
 
       if (!result) 
       {
-         printf("inv = %lx\n", inv);
+         bsdnt_printf("inv = %wx\n", inv);
          print_debug(a, m); print_debug(q, m); print_debug(d, n); 
          print_debug_diff(ov, ov2, 2L);
       }
@@ -335,7 +335,7 @@ int test_div_hensel_preinv(void)
 
       if (!result) 
       {
-         printf("inv = %lx, ov[0] = %lx, ov[1] = %lx\n", inv, ov[0], ov[1]);
+         bsdnt_printf("inv = %wx, ov[0] = %wx, ov[1] = %wx\n", inv, ov[0], ov[1]);
          print_debug(a1, 2*m); print_debug(a2, 2*m); print_debug(q, 2*m); 
          print_debug(q1, 2*m); print_debug(q2, 2*m); print_debug(d, n); print_debug(t, n); 
          print_debug_diff(q1, q2, 2*m);

@@ -45,7 +45,7 @@ typedef int32_t len_t;
 typedef int32_t bits_t;
 #define WORD_BITS 32
 #define WORD(x) (x##UL)
-#define WORD_FMT "%lu"
+#define WORD_FMT "%l"
 #define LEN_FMT "%ld"
 #define BITS_FMT "%ld"
 
@@ -57,7 +57,7 @@ typedef int64_t len_t;
 typedef int64_t bits_t;
 #define WORD_BITS 64
 #define WORD(x) (x##UL)
-#define WORD_FMT "%lu"
+#define WORD_FMT "%l"
 #define LEN_FMT "%ld"
 #define BITS_FMT "%ld"
 
@@ -76,13 +76,13 @@ typedef const word_t * nn_src_t;
 
 typedef struct preinv1_t
 {
-   word_t norm; /* the number of leading zero bits in d */
+   bits_t norm; /* the number of leading zero bits in d */
    word_t dinv; /* the precomputed inverse of d (see below) */
 } preinv1_t;
 
 typedef struct preinv1_2_t
 {
-   word_t norm; /* the number of leading zero bits in d */
+   bits_t norm; /* the number of leading zero bits in d */
    word_t dinv; /* the precomputed inverse of d1 (see below) */
    word_t d1; /* the normalised leading WORD_BITS of d */
 } preinv1_2_t;
