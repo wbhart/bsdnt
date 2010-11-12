@@ -36,9 +36,14 @@ void nn_mullow_classical(nn_t ov, nn_t r, nn_src_t a, len_t m1,
    len_t i;
    dword_t t;
   
+   ASSERT(r != a);
+   ASSERT(r != b);
+   ASSERT(m1 >= m2);
+   ASSERT(m2 > 0);
+
    t.lo = nn_mul1(r, a, m1, b[0]); 
    t.hi = 0;
-
+   
    for (i = 1; i < m2; i++)
    {
        word_t v = nn_addmul1(r + i, a, m1 - i, b[i]);
@@ -56,7 +61,12 @@ word_t nn_mulhigh_classical(nn_t r, nn_src_t a, len_t m1,
                                        nn_src_t b, len_t m2, nn_t ov)
 {
    len_t i;
-   word_t t, ci;
+   word_t t, ci, ch = 0;
+
+   ASSERT(r != a);
+   ASSERT(r != b);
+   ASSERT(m1 >= m2);
+   ASSERT(m2 > 0);
 
    if (m2 == 1)
       return ov[0]; /* overflow is one limb in this case */
@@ -64,24 +74,29 @@ word_t nn_mulhigh_classical(nn_t r, nn_src_t a, len_t m1,
    /* a[m1 - 1] * b[1] + ov[0]*/
    t = mul_64_by_64(a[m1 - 1], b[1], &ci);
    ci += ((r[0] = t + ov[0]) < t ? 1 : 0);
-   
+
    if (m2 > 2)
    {
       /* {a[m1 - 2], a[m1 - 1]} * b[2] + ov[1] */
       r[1] = ci;
       ci = nn_addmul1(r, a + m1 - 2, 2, b[2]);
 
-      ci += ((t = r[1] + ov[1]) < r[1] ? 1 : 0);
-      r[1] = t;
+      ch = ((t = r[1] + ov[1]) < r[1] ? 1 : 0);
+	  r[1] = t;
+	  ch = ((ci += ch) < ch ? 1 : 0);
    } 
    else
-      ci += ov[1]; /* ov[1] cannot be more than 1 in this case */
+      return ci + ov[1]; /* ov[1] cannot be more than 1 in this case */
 
    for (i = 3; i < m2; i++)
    {
       r[i - 1] = ci;
       ci = nn_addmul1(r, a + m1 - i, i, b[i]);
    }
+
+   /* deal with overflow */
+   if (m2 > 3) 
+      ci += nn_add1(r + 3, r + 3, m2 - 4, ch);
 
    return ci;
 }
@@ -100,10 +115,16 @@ void nn_divrem_classical_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d,
    word_t dinv = inv.dinv;
    word_t d1 = inv.d1;
 
+   ASSERT(q != d);
+   ASSERT(m >= n);
+   ASSERT(n > 1);
+   ASSERT((ci < d[n - 1]) 
+      || ((ci == d[n - 1]) && (nn_cmp_m(a + m - n + 1, d, n - 1) < 0)));
+
    for (i = m - 1; i >= n - 1; i--, j--)
    {
      t.hi = (ci << norm) | (norm ? a[i] >> (WORD_BITS - norm) : 0);
-     t.lo = a[i] << norm; 
+     t.lo = (a[i] << norm) | (norm ? a[i - 1] >> (WORD_BITS - norm) : 0); 
 
      if(t.hi == d1)
           q1 = ~(word_t) 0;
@@ -142,11 +163,18 @@ void nn_divapprox_classical_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d,
    s = 2 + s + (d[n-1] <= 2*s); /* need two normalised words at that point */
    if (s > i + 1) s = i + 1; /* ensure we don't do too many iterations */
    
+   ASSERT(q != d);
+   ASSERT(q != a);
+   ASSERT(m >= n);
+   ASSERT(n > 1);
+   ASSERT((ci < d[n - 1]) 
+      || ((ci == d[n - 1]) && (nn_cmp_m(a + m - n + 1, d, n - 1) < 0)));
+
    for ( ; s >= n; i--, j--, s--)
    {
       /* top "two words" of remaining dividend, shifted */
       t.hi = (ci << norm) | (norm ? a[i] >> (WORD_BITS - norm) : 0);
-      t.lo = a[i] << norm; 
+      t.lo = (a[i] << norm) | (norm ? a[i - 1] >> (WORD_BITS - norm) : 0);
       
       /* check for special case, a1 == d1 which would cause overflow */
      if(t.hi == d1)
@@ -174,7 +202,7 @@ void nn_divapprox_classical_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d,
    {
       /* top "two words" of remaining dividend, shifted */
       t.hi = (ci << norm) | (norm ? a[s - 1] >> (WORD_BITS - norm) : 0);
-      t.lo = a[s - 1] << norm; 
+      t.lo = (a[s - 1] << norm) | (norm ? a[s - 2] >> (WORD_BITS - norm) : 0); 
 
       /* check for special case, a1 == d1 which would cause overflow */
      if(t.hi == d1)
@@ -183,7 +211,13 @@ void nn_divapprox_classical_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d,
           divrem21_preinv1(q1, rem, t, d1, dinv);
       /* a -= d*q1 */
       ci -= nn_submul1(a, d, s, q1);
- 
+      
+	  if (ci == 1) /* an overflow requires adjustment */
+	  {
+		  ci -= nn_sub1(a + 1, a + 1, s - 1, a[1] + 1);
+		  a[0] = ~WORD(0);
+	  }
+
       /* correct if remainder has become negative */
       while (ci)
       {

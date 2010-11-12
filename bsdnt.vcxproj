@@ -43,6 +43,7 @@
     <ClCompile Include="rand\kiss.c" />
     <ClCompile Include="rand\mt.c" />
     <ClCompile Include="rand\skiss.c" />
+    <ClCompile Include="sha1.c" />
     <ClCompile Include="test.c" />
     <ClCompile Include="test\t-nn_all.c" />
   </ItemGroup>
