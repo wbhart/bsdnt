@@ -64,6 +64,7 @@ all: $(ASOBJS) $(OBJS) $(BINARIES)
 clean:
 	rm -f $(ASOBJS) $(OBJS) $(BINARIES)
 	rm -f cpuid
+	rm -f endian
 
 distclean: clean
 	rm -f *arch.h
