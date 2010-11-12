@@ -46,7 +46,8 @@
 /* type to hold the SHA256 context  */
 
 typedef struct
-{   uint32_t count[2];
+{   
+	uint32_t count[2];
     uint32_t hash[SHA1_DIGEST_SIZE >> 2];
     uint32_t wbuf[SHA1_BLOCK_SIZE >> 2];
 } sha1_ctx;
