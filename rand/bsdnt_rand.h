@@ -36,7 +36,7 @@
 typedef void * rand_ctx;
 
 typedef rand_ctx (* rand_init_f)(void);
-typedef void     (* rand_clear_f)(rand_ctx);
+typedef void (* rand_clear_f)(rand_ctx);
 typedef word_t (* rand_word_f)(rand_ctx);
 
 typedef struct rand_t
@@ -45,9 +45,10 @@ typedef struct rand_t
     rand_clear_f clear;
     rand_word_f word;
     rand_ctx ctx;
+    char name[24];
 } rand_t;
 
-typedef enum { KISS, MERSENNE_TWISTER, SUPER_KISS } random_algorithm;
+typedef enum { RAND_START = 0, KISS, MERSENNE_TWISTER, SUPER_KISS, RAND_END } random_algorithm;
 
 rand_t set_rand_algorithm(random_algorithm a);
 
