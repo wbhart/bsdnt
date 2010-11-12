@@ -104,6 +104,20 @@ create_config_h()
     
     echo "#define WANT_ASSERT ${WANT_ASSERT}" > config.h
     echo "#define WANT_REDZONES ${WANT_REDZONES}" >> config.h
+    
+    echo "#define IS_LITTLE_ENDIAN 0x10" >> config.h
+    echo "#define IS_BIG_ENDIAN 0x20" >> config.h
+
+    $CC arch/endian.c -o endian
+        ENDIAN=`./endian`
+        case $ENDIAN in
+        little)
+            echo "#define PLATFORM_BYTE_ORDER IS_LITTLE_ENDIAN" >> config.h;;
+        big)
+            echo "#define PLATFORM_BYTE_ORDER IS_BIG_ENDIAN" >> config.h;;
+        *)
+	    echo "#error Machine must be either big or little endian!" >> config.h;;
+	esac
 }
 
 

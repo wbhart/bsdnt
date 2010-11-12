@@ -73,9 +73,9 @@
 	v0.22 - Added Windows support and new configure system.
 
 28-Oct-2010:
-        v0.23 - sha1 and mt, kiss and skiss tests.
+	v0.23 - sha1 and mt, kiss and skiss tests.
 
-229-Oct-2010:
+29-Oct-2010:
 	v0.24 - nn_bit_test/clear/set, nn_test_random/1/2.
 
 31-Oct-2010:

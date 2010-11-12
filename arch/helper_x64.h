@@ -161,4 +161,7 @@ void precompute_mod_inverse1(mod_preinv1_t * inv, word_t d)
 	inv->b3 = u.hi;
 }
 
+#define HAVE_ARCH_word_format_string
+#define word_format_string "%llx"
+
 #endif

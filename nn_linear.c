@@ -101,7 +101,7 @@ void nn_printx(nn_src_t a, len_t m)
       bsdnt_printf("%wx ", a[i]);
 
    if (m) bsdnt_printf("%wx", a[m - 1]);
-   else printx_word(0);
+   else bsdnt_printf("%wx", 0);
 }
 
 void nn_printx_short(nn_src_t a, len_t m)

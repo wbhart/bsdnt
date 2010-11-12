@@ -40,15 +40,6 @@
 
 **********************************************************************/
 
-#ifndef HAVE_ARCH_printx_word
-
-void printx_word(word_t a)
-{
-   printf("%lx", a);
-}
-
-#endif
-
 /* return number of arguments called for by a specific format specifier */
 int parse_fmt(int * floating, const char * fmt)
 {
