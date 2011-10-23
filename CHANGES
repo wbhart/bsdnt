@@ -84,4 +84,6 @@
 10-Nov-2010:
 	v0.26 - bsdnt_printf.
 
+24-Oct-2011:
+	v0.27 - stopped quadratic division functions rereading inputs
 
