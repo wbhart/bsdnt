@@ -73,8 +73,6 @@
 #define q(v,n)  v##n
 #endif
 
-#ifdef SHA_1
-
 #define one_cycle(v,a,b,c,d,e,f,k,h)            \
     q(v,e) += rotr32(q(v,a),27) +               \
               f(q(v,b),q(v,c),q(v,d)) + k + h;  \
@@ -265,5 +263,3 @@ void sha1(unsigned char hval[], const unsigned char data[], unsigned long len)
 
     sha1_begin(cx); sha1_hash(data, len, cx); sha1_end(hval, cx);
 }
-
-#endif

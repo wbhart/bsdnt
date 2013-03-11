@@ -76,7 +76,7 @@ int test_rand(void)
         {
             for (j = 0; j < BUF_SIZE; ++j) /* fill a buffer with words */
             {   
-				word_t v = state->word(state->ctx);
+				    word_t v = state->word(state->ctx);
 
                 for (k = 0; k < sizeof(word_t); ++k) /* for each byte in a word */
                 {
