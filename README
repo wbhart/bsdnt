@@ -1,4 +1,4 @@
-bsdnt is a BSD licensed bignum library, suitable for use by languages which
+BSDNT is a BSD licensed bignum library, suitable for use by languages which
 need to provide bignum support and for other projects requiring relatively
 fast bignums.
 

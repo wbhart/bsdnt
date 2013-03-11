@@ -1,5 +1,12 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include "../nn.h"
+#include "../test.h"
+
 #undef ITER
 #define ITER 30000
+
+rand_t state;
 
 int test_mul_classical(void)
 {
@@ -360,4 +367,19 @@ int test_quadratic(void)
    return (fail != 0);
 }
 
+int main(void)
+{
+   int ret = 0;
+   
+   printf("\nTesting nn_quadratic functions:\n");
+   
+   randinit(&state);
+   checkpoint_rand("First Random Word: ");
+
+   ret = test_quadratic();
+
+   randclear(state);
+
+   return ret;
+}
 

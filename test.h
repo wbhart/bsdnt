@@ -36,7 +36,14 @@
 #else
 #define REDZONE_WORDS 0
 #endif
+
 #define REDZONE_BYTE 0xA /* byte of data to use in a redzone */
+
+#define checkpoint_rand(s) \
+   do { \
+      printf(s); \
+      bsdnt_printf("%wx\n", randword(state)); \
+   } while (0)
 
 #define TEST_START(XXX, YYY) \
    do { \

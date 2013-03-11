@@ -152,6 +152,9 @@ word_t nn_muladd_classical(nn_t r, nn_src_t a, nn_src_t b,
 
 #endif
 
+/* Turn compiler warning off */
+#pragma GCC diagnostic ignored "-Wunused-but-set-variable"
+
 #ifndef HAVE_ARCH_nn_divrem_classical_preinv_c
 
 void nn_divrem_classical_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d, 
@@ -299,6 +302,9 @@ void nn_divapprox_classical_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d,
 }
 
 #endif
+
+/* Turn warning back on */
+#pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 
 #ifndef HAVE_ARCH_nn_div_hensel_preinv
 

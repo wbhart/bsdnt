@@ -111,31 +111,31 @@ void bsdnt_printf(const char * str, ...)
    {
 	  n = strcspn(str + 2, "%") + 2; /* be sure to skip a %% */
 	  strncpy(str2, str, n);
-      str2[n] = '\0';
+     str2[n] = '\0';
 	
-      switch (str[1])
+     switch (str[1])
 	  {
 	  case 'w':
 		  w = (word_t) va_arg(ap, word_t);
 		  if (str[2] == 'x')
 		  {
 			 printf(WORD_FMT "x", w);
-			 printf(str2 + 3);
+			 printf("%s", str2 + 3);
 		  } else
 		  {
 			 printf(WORD_FMT "d", w);
-			 printf(str2 + 2);
+			 printf("%s", str2 + 2);
 		  }
 		  break;
 	  case 'b':
 		  b = (bits_t) va_arg(ap, bits_t);
 		  printf(BITS_FMT, b);
-          printf(str2 + 2);
+        printf("%s", str2 + 2);
 		  break;
 	  case 'm':
 		  m = (len_t) va_arg(ap, len_t);
 		  printf(LEN_FMT, m);
-          printf(str2 + 2);
+        printf("%s", str2 + 2);
 		  break;
 	  default: /* pass to printf */
 		  args = parse_fmt(&floating, str2);
@@ -157,14 +157,14 @@ void bsdnt_printf(const char * str, ...)
 			 } else
 			 {
 				 w3 = va_arg(ap, void *);
-			     if (args == 2)
+			    if (args == 2)
 			        printf(str2, w2, w3);
 				 else if (args == 3)
 			        printf(str2, w1, w2, w3);
 				 else
 					printf(str2, w3);
 			 }
-	      } else printf(str2); /* zero args */
+	      } else printf("%s", str2); /* zero args */
 	  }
 
 	  len -= n;

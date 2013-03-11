@@ -24,10 +24,15 @@
   OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-
+#include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include "../rand/bsdnt_rand.h"
+#include "../nn.h"
+#include "../test.h"
 #include "sha1.h"
+
+rand_t state;
 
 #define N_ITER   10000
 #define BUF_SIZE  1000
@@ -99,4 +104,20 @@ int test_rand(void)
 
     printf("%ld of %ld tests pass.\n", pass, pass + fail);
     return (fail != 0);
+}
+
+int main(void)
+{
+   int ret = 0;
+   
+   printf("\nTesting rand functions:\n");
+   
+   randinit(&state);
+   checkpoint_rand("First Random Word: ");
+
+   ret = test_rand();
+   
+   randclear(state);
+
+   return ret;
 }

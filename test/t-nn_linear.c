@@ -25,6 +25,13 @@
   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include <stdio.h>
+#include <stdlib.h>
+#include "../nn.h"
+#include "../test.h"
+
+rand_t state;
+
 #undef ITER
 #define ITER 50000
 
@@ -1719,3 +1726,18 @@ int test_linear(void)
    return (fail != 0);
 }
 
+int main(void)
+{
+   int ret = 0;
+   
+   printf("\nTesting nn_linear functions:\n");
+   
+   randinit(&state);
+   checkpoint_rand("First Random Word: ");
+
+   ret = test_linear();
+	
+   randclear(state);
+
+   return ret;
+}
