@@ -30,26 +30,20 @@
 
 #ifndef HAVE_ARCH_nn_mul_classical
 
-word_t nn_mul_classical(nn_t r, nn_src_t a, len_t m1, 
+void nn_mul_classical(nn_t r, nn_src_t a, len_t m1, 
                                               nn_src_t b, len_t m2)
 {
    len_t i;
-   word_t ci = 0;
-  
+   
    ASSERT(r != a);
    ASSERT(r != b);
    ASSERT(m1 >= m2);
    ASSERT(m2 > 0);
 
-   ci = nn_mul1(r, a, m1, b[0]); 
+   r[m1] = nn_mul1(r, a, m1, b[0]); 
    
    for (i = 1; i < m2; i++)
-   {
-      r[m1 + i - 1] = ci;
-      ci = nn_addmul1(r + i, a, m1, b[i]);
-   }
-
-   return ci;
+      r[m1 + i] = nn_addmul1(r + i, a, m1, b[i]);
 }
 
 #endif
@@ -80,11 +74,10 @@ void nn_mullow_classical(nn_t ov, nn_t r, nn_src_t a, len_t m1,
 
 #ifndef HAVE_ARCH_nn_mulhigh_classical
 
-word_t nn_mulhigh_classical(nn_t r, nn_src_t a, len_t m1, 
+void nn_mulhigh_classical(nn_t r, nn_src_t a, len_t m1, 
                                        nn_src_t b, len_t m2, nn_t ov)
 {
    len_t i;
-   word_t ci = 0;
    dword_t t;
    
    ASSERT(r != a);
@@ -92,43 +85,41 @@ word_t nn_mulhigh_classical(nn_t r, nn_src_t a, len_t m1,
    ASSERT(m1 >= m2);
    ASSERT(m2 > 0);
 
-   if (m2 == 1)
-      return ov[0]; /* overflow is one limb in this case */
+   if (m2 == 1) /* overflow is one limb in this case */
+   {
+      r[0] = ov[0];
+      return;
+   }
 
-   /* a[m1 - 1] * b[1] + ov[0]*/
+   /* a[m1 - 1] * b[1] + ov[0] */
    t = (dword_t) a[m1 - 1] * (dword_t) b[1] + (dword_t) ov[0];
    r[0] = (word_t) t;
-   ci = (t >> WORD_BITS);
    
    if (m2 > 2)
    {
       /* {a[m1 - 2], a[m1 - 1]} * b[2] + ov[1] */
-      r[1] = ci;
-      ci = nn_addmul1(r, a + m1 - 2, 2, b[2]);
+      r[1] = (t >> WORD_BITS);
+      r[2] = nn_addmul1(r, a + m1 - 2, 2, b[2]);
       t = (dword_t) ov[1] + (dword_t) r[1];
       r[1] = (word_t) t;
-      t = (t >> WORD_BITS) + (dword_t) ci;
-	  ci = (word_t) t; /* possible overflow */
+      t = (t >> WORD_BITS) + (dword_t) r[2];
+	   r[2] = (word_t) t; /* possible overflow */
    } else
-      return ci + ov[1]; /* ov[1] cannot be more than 1 in this case */
+      r[1] = (t >> WORD_BITS) + ov[1]; /* ov[1] cannot be more than 1 in this case */
 
    for (i = 3; i < m2; i++)
-   {
-      r[i - 1] = ci;
-      ci = nn_addmul1(r, a + m1 - i, i, b[i]);
-   }
+      r[i] = nn_addmul1(r, a + m1 - i, i, b[i]);
 
    /* deal with overflow */
-   if (m2 > 3) ci += nn_add1(r + 3, r + 3, m2 - 4, (word_t) (t >> WORD_BITS));
-
-   return ci; 
+   if (m2 > 3) 
+      r[m2 - 1] += nn_add1(r + 3, r + 3, m2 - 4, (word_t) (t >> WORD_BITS));
 }
 
 #endif
 
 #ifndef HAVE_ARCH_nn_muladd_classical
 
-word_t nn_muladd_classical(nn_t r, nn_src_t a, nn_src_t b, 
+void nn_muladd_classical(nn_t r, nn_src_t a, nn_src_t b, 
                                      len_t m1, nn_src_t c, len_t m2)
 {
    len_t i;
@@ -139,15 +130,10 @@ word_t nn_muladd_classical(nn_t r, nn_src_t a, nn_src_t b,
    ASSERT(m1 >= m2);
    ASSERT(m2 > 0);
 
-   ci = nn_muladd1(r, a, b, m1, c[0]); 
+   r[m1] = nn_muladd1(r, a, b, m1, c[0]); 
 
    for (i = 1; i < m2; i++)
-   {
-      r[m1 + i - 1] = ci;
-      ci = nn_addmul1(r + i, b, m1, c[i]);
-   }
-
-   return ci;
+      r[m1 + i] = nn_addmul1(r + i, b, m1, c[i]);
 }
 
 #endif

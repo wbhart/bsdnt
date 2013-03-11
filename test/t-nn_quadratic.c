@@ -27,14 +27,14 @@ int test_mul_classical(void)
       
       do {
          randoms_of_len(n, ANY, state, &b, &c, NULL);
-         nn_s_add_m(s, b, c, n);
+         s[n] = nn_add_m(s, b, c, n);
       } while (s[n]);
       
-      nn_s_mul_classical(r1, a, m, b, n);
-      nn_s_mul_classical(r2, a, m, c, n);
+      nn_mul_classical(r1, a, m, b, n);
+      nn_mul_classical(r2, a, m, c, n);
       nn_add_m(r2, r2, r1, m + n);
 
-      nn_s_mul_classical(r1, a, m, s, n);
+      nn_mul_classical(r1, a, m, s, n);
       
       result = nn_equal_m(r1, r2, m + n);
 
@@ -65,10 +65,10 @@ int test_muladd_classical(void)
       randoms_of_len(n, ANY, state, &c, NULL);
       randoms_of_len(m + n, ANY, state, &r1, &r2, NULL);
       
-      nn_s_mul_classical(r1, b, m, c, n);
+      nn_mul_classical(r1, b, m, c, n);
       nn_add(r1, r1, m + n, a, m);
       
-      nn_s_muladd_classical(r2, a, b, m, c, n);
+      nn_muladd_classical(r2, a, b, m, c, n);
       
       result = nn_equal_m(r1, r2, m + n);
 
@@ -89,9 +89,9 @@ int test_muladd_classical(void)
       randoms_of_len(m + n, ANY, state, &r1, &r2, NULL);
       
       nn_copy(r1, a, m);
-      nn_s_muladd_classical(r1, r1, b, m, c, n);
+      nn_muladd_classical(r1, r1, b, m, c, n);
       
-      nn_s_muladd_classical(r2, a, b, m, c, n);
+      nn_muladd_classical(r2, a, b, m, c, n);
       
       result = nn_equal_m(r1, r2, m + n);
 
@@ -123,11 +123,11 @@ int test_divrem_classical_preinv(void)
       randoms_of_len(n, FULL, state, &d, NULL);
       randoms_of_len(m + n, ANY, state, &r1, NULL);
       
-      if (m >= n) nn_s_mul_classical(r1, a, m, d, n);
-      else nn_s_mul_classical(r1, d, n, a, m);
+      if (m >= n) nn_mul_classical(r1, a, m, d, n);
+      else nn_mul_classical(r1, d, n, a, m);
 
-	  precompute_inverse1_2(&inv, d[n - 1], d[n - 2]);
-      nn_r_divrem_classical_preinv(q, r1, m + n - 1, d, n, inv);
+	   precompute_inverse1_2(&inv, d[n - 1], d[n - 2]);
+      nn_divrem_classical_preinv_c(q, r1, m + n - 1, d, n, inv, r1[m + n - 1]);
 	  
       result = (nn_equal_m(q, a, m) && nn_normalise(r1, n) == 0);
 
@@ -153,10 +153,10 @@ int test_divrem_classical_preinv(void)
          randoms_of_len(n, ANY, state, &s, NULL);
       } while (nn_cmp_m(d, s, n) <= 0);
       
-      nn_s_muladd_classical(r1, s, d, n, a, m);
+      nn_muladd_classical(r1, s, d, n, a, m);
       
       precompute_inverse1_2(&inv, d[n - 1], d[n - 2]);
-      nn_r_divrem_classical_preinv(q, r1, m + n - 1, d, n, inv);
+      nn_divrem_classical_preinv_c(q, r1, m + n - 1, d, n, inv, r1[m + n - 1]);
 
       result = (nn_equal_m(q, a, m) && nn_equal_m(s, r1, n));
 
@@ -197,13 +197,13 @@ int test_divapprox_classical_preinv(void)
          randoms_of_len(n, ANY, state, &s, NULL);
       } while (nn_cmp_m(d, s, n) <= 0);
       
-      nn_s_muladd_classical(r1, s, d, n, a, m);
+      nn_muladd_classical(r1, s, d, n, a, m);
       nn_copy(r2, r1, m + n);
 
       precompute_inverse1_2(&inv, d[n - 1], d[n - 2]);
-      nn_r_divrem_classical_preinv(q1, r1, m + n - 1, d, n, inv);
+      nn_divrem_classical_preinv_c(q1, r1, m + n - 1, d, n, inv, r1[m + n - 1]);
 
-      nn_r_divapprox_classical_preinv(q2, r2, m + n - 1, d, n, inv);
+      nn_divapprox_classical_preinv_c(q2, r2, m + n - 1, d, n, inv, r2[m + n - 1]);
 
       result = nn_equal_m(q1, q2, m);
       nn_add1(q1, q1, m, 1);
@@ -239,10 +239,10 @@ int test_mullow_classical(void)
       randoms_of_len(2, ANY, state, &ov, NULL);
       randoms_of_len(m + n, ANY, state, &r1, &r2, NULL);
       
-      nn_s_mul_classical(r1, a, m, b, n);
+      nn_mul_classical(r1, a, m, b, n);
       
       nn_mullow_classical(ov, r2, a, m, b, n);
-      nn_s_mulhigh_classical(r2 + m, a, m, b, n, ov);
+      nn_mulhigh_classical(r2 + m, a, m, b, n, ov);
       
       result = nn_equal_m(r1, r2, m + n);
 
@@ -275,8 +275,8 @@ int test_div_hensel_preinv(void)
       randoms_of_len(m + n, ANY, state, &r1, &q, NULL);
       randoms_of_len(2, ANY, state, &ov, NULL);
       
-      if (m >= n) nn_s_mul_classical(r1, a, m, d, n);
-      else nn_s_mul_classical(r1, d, n, a, m);
+      if (m >= n) nn_mul_classical(r1, a, m, d, n);
+      else nn_mul_classical(r1, d, n, a, m);
 
 	  precompute_hensel_inverse1(&inv, d[0]);
       nn_div_hensel_preinv(ov, q, r1, m + n, d, n, inv);
@@ -330,7 +330,7 @@ int test_div_hensel_preinv(void)
 
       precompute_hensel_inverse1(&inv, d[0]);
       nn_div_hensel_preinv(ov, q1, a1, m, d, n, inv);
-      nn_s_mulhigh_classical(t, q1, m, d, n, ov);
+      nn_mulhigh_classical(t, q1, m, d, n, ov);
       nn_sub(a1 + m, a1 + m, m, t, n);
       nn_div_hensel_preinv(ov, q1 + m, a1 + m, m, d, n, inv);
 
