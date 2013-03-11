@@ -87,3 +87,6 @@
 24-Oct-2011:
 	v0.27 - stopped quadratic division functions rereading inputs
 
+11-Mar-2013:
+	v0.28 - removed MSVC build, cleaned up configure and removed _r/s_ 
+                functions
