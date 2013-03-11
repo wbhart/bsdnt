@@ -1,5 +1,5 @@
 /* 
-  Copyright (C) 2010, William Hart
+  Copyright (C) 2010, 2013 William Hart
 
   All rights reserved.
 
@@ -113,27 +113,6 @@ void nn_mulhigh_classical(nn_t r, nn_src_t a, len_t m1,
    /* deal with overflow */
    if (m2 > 3) 
       r[m2 - 1] += nn_add1(r + 3, r + 3, m2 - 4, (word_t) (t >> WORD_BITS));
-}
-
-#endif
-
-#ifndef HAVE_ARCH_nn_muladd_classical
-
-void nn_muladd_classical(nn_t r, nn_src_t a, nn_src_t b, 
-                                     len_t m1, nn_src_t c, len_t m2)
-{
-   len_t i;
-   word_t ci = 0;
-  
-   ASSERT(r != b);
-   ASSERT(r != c);
-   ASSERT(m1 >= m2);
-   ASSERT(m2 > 0);
-
-   r[m1] = nn_muladd1(r, a, b, m1, c[0]); 
-
-   for (i = 1; i < m2; i++)
-      r[m1 + i] = nn_addmul1(r + i, b, m1, c[i]);
 }
 
 #endif

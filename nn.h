@@ -1,5 +1,5 @@
 /* 
-  Copyright (C) 2010, William Hart
+  Copyright (C) 2010, 2013 William Hart
 
   All rights reserved.
 
@@ -352,19 +352,6 @@ word_t nn_addmul1_c(nn_t a, nn_src_t b, len_t m, word_t c, word_t ci);
    nn_addmul1_c(a, b, m, c, (word_t) 0)
 
 /*
-   Set r = a + b * c + ci where a and b are m words in length, c 
-   is a word and ci is a "carry in". The carry out is returned. 
-*/
-word_t nn_muladd1_c(nn_t r, nn_src_t a, nn_src_t b, len_t m, word_t c, word_t ci);
-
-/*
-   Set r = a + b * c where a and b are m words in length, and c 
-   is a word. The carry out is returned. 
-*/
-#define nn_muladd1(r, a, b, m, c) \
-   nn_muladd1_c(r, a, b, m, c, (word_t) 0)
-
-/*
    Set a = a - b * c - ci where a and b are m words in length, c 
    is a word and ci is a "borrow in". The borrow out is returned. 
 */
@@ -526,15 +513,6 @@ void nn_not(nn_t a, nn_src_t b, len_t m)
    m1 >= m2 > 0.
 */
 void nn_mul_classical(nn_t r, nn_src_t a, len_t m1, nn_src_t b, len_t m2);
-
-/*
-   Set {r, m1 + m2} = {a, m1} + {b, m1} * {c, m2}. 
-   The output r may not alias either of the inputs b or c, 
-   but a may alias with r as long as the requisite space is available. 
-   We require m1 >= m2 > 0.
-*/
-void nn_muladd_classical(nn_t r, nn_src_t a, nn_src_t b, 
-                                     len_t m1, nn_src_t c, len_t m2);
 
 /*
    Set ov*B^m1 + {r, m1} to sum_{i + j < m1} a[i]*b[j]*B^{i + j}. In 

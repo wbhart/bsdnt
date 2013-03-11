@@ -1,5 +1,5 @@
 /* 
-  Copyright (C) 2010, William Hart
+  Copyright (C) 2010, 2013 William Hart
   Copyright (C) 2010, Brian Gladman
 
   All rights reserved.
@@ -385,25 +385,6 @@ word_t nn_addmul1_c(nn_t a, nn_src_t b, len_t m, word_t c, word_t ci)
    {
       t = (dword_t) a[i] + (dword_t) b[i] * (dword_t) c + (dword_t) ci;
       a[i] = (word_t) t;
-      ci = (t >> WORD_BITS);
-   }
-
-   return ci;
-}
-
-#endif
-
-#ifndef HAVE_ARCH_nn_muladd1_c
-
-word_t nn_muladd1_c(nn_t r, nn_src_t a, nn_src_t b, len_t m, word_t c, word_t ci)
-{
-   dword_t t;
-   long i;
-
-   for (i = 0; i < m; i++)
-   {
-      t = (dword_t) a[i] + (dword_t) b[i] * (dword_t) c + (dword_t) ci;
-      r[i] = (word_t) t;
       ci = (t >> WORD_BITS);
    }
 

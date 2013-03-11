@@ -1,3 +1,30 @@
+/* 
+  Copyright (C) 2010, 2013 William Hart
+
+  All rights reserved.
+
+  Redistribution and use in source and binary forms, with or without
+  modification, are permitted provided that the following conditions are met:
+
+  1. Redistributions of source code must retain the above copyright notice, 
+     this list of conditions and the following disclaimer.
+
+  2. Redistributions in binary form must reproduce the above copyright
+     notice, this list of conditions and the following disclaimer in the
+	 documentation and/or other materials provided with the distribution.
+
+  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS''
+  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+  DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDERS OR CONTRIBUTORS BE LIABLE
+  FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+  DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+  SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+  CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+  OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include "../nn.h"
@@ -41,63 +68,6 @@ int test_mul_classical(void)
       if (!result) 
       {
          print_debug(a, m); print_debug(b, n); print_debug(c, n);  print_debug(s, n + 1);
-         print_debug_diff(r1, r2, m + n);
-      }
-   } TEST_END;
-
-   return result;
-}
-
-int test_muladd_classical(void)
-{
-   int result = 1;
-   len_t m, n;
-   nn_t a, b, c, r1, r2;
-
-   printf("muladd_classical...");
-
-   TEST_START(1, ITER) /* test a + b * c = muladd(a, b, c) */
-   {
-      randoms_upto(30, NONZERO, state, &m, NULL);
-      randoms_upto(m + 1, NONZERO, state, &n, NULL);
-      
-      randoms_of_len(m, ANY, state, &a, &b, NULL);
-      randoms_of_len(n, ANY, state, &c, NULL);
-      randoms_of_len(m + n, ANY, state, &r1, &r2, NULL);
-      
-      nn_mul_classical(r1, b, m, c, n);
-      nn_add(r1, r1, m + n, a, m);
-      
-      nn_muladd_classical(r2, a, b, m, c, n);
-      
-      result = nn_equal_m(r1, r2, m + n);
-
-      if (!result) 
-      {
-         print_debug(a, m); print_debug(b, m); print_debug(c, n);
-         print_debug_diff(r1, r2, m + n);
-      }
-   } TEST_END;
-
-   TEST_START(aliasing, ITER) /* test aliasing of r and a in muladd */
-   {
-      randoms_upto(30, NONZERO, state, &m, NULL);
-      randoms_upto(m + 1, NONZERO, state, &n, NULL);
-      
-      randoms_of_len(m, ANY, state, &a, &b, NULL);
-      randoms_of_len(n, ANY, state, &c, NULL);
-      randoms_of_len(m + n, ANY, state, &r1, &r2, NULL);
-      
-      nn_copy(r1, a, m);
-      nn_muladd_classical(r1, r1, b, m, c, n);
-      
-      nn_muladd_classical(r2, a, b, m, c, n);
-      
-      result = nn_equal_m(r1, r2, m + n);
-
-      if (!result) 
-      {
-         print_debug(a, m); print_debug(b, m); print_debug(c, n);
          print_debug_diff(r1, r2, m + n);
       }
    } TEST_END;
@@ -153,7 +123,8 @@ int test_divrem_classical_preinv(void)
          randoms_of_len(n, ANY, state, &s, NULL);
       } while (nn_cmp_m(d, s, n) <= 0);
       
-      nn_muladd_classical(r1, s, d, n, a, m);
+      nn_mul_classical(r1, d, n, a, m);
+      nn_add(r1, r1, n + m, s, n);
       
       precompute_inverse1_2(&inv, d[n - 1], d[n - 2]);
       nn_divrem_classical_preinv_c(q, r1, m + n - 1, d, n, inv, r1[m + n - 1]);
@@ -197,7 +168,8 @@ int test_divapprox_classical_preinv(void)
          randoms_of_len(n, ANY, state, &s, NULL);
       } while (nn_cmp_m(d, s, n) <= 0);
       
-      nn_muladd_classical(r1, s, d, n, a, m);
+      nn_mul_classical(r1, d, n, a, m);
+      nn_add(r1, r1, m + n, s, n);
       nn_copy(r2, r1, m + n);
 
       precompute_inverse1_2(&inv, d[n - 1], d[n - 2]);
@@ -356,7 +328,6 @@ int test_quadratic(void)
    long fail = 0;
    
    RUN(test_mul_classical);
-   RUN(test_muladd_classical);
    RUN(test_mullow_classical);
    RUN(test_divrem_classical_preinv);
    RUN(test_divapprox_classical_preinv);
