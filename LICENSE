@@ -1,4 +1,11 @@
-Copyright (C) 2010, 2013 William Hart
+All files in this distribution are copyright their respective copyright 
+holders. Most files are subject to the following "2-clause BSD license".
+A few files (specified in their headers) are subject to the "3-clause 
+modified BSD license".
+
+-----------------------------------------------------------------------------
+
+LICENSE
 
 All rights reserved.
 
@@ -23,3 +30,4 @@ CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+-------------------------------------------------------------------------------
