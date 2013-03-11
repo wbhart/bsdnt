@@ -34,7 +34,7 @@
 #include <malloc.h>
 
 #include "helper.h"
-#include "rand/bsdnt_rand.h"
+#include "rand.h"
 
 /**********************************************************************
  

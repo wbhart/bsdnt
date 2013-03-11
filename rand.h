@@ -29,7 +29,7 @@
 #ifndef BSDNT_RAND_H
 #define BSDNT_RAND_H
 
-#include "../helper.h"
+#include "helper.h"
 
 /* BSDNT Interface */
 

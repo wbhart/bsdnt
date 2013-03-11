@@ -26,7 +26,7 @@
 */
 
 #include <string.h>
-#include "../helper.h"
+#include "helper.h"
 #include "internal_rand.h"
 
 static char *name[3] = { "Kiss", "Mersenne_Twister", "Super_Kiss" };

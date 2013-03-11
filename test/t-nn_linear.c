@@ -27,8 +27,8 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "../nn.h"
-#include "../test.h"
+#include "nn.h"
+#include "test.h"
 
 rand_t state;
 

@@ -97,7 +97,7 @@ typedef struct mod_preinv1_t
 } mod_preinv1_t;
 
 #include "helper_arch.h"
-#include "rand/bsdnt_rand.h"
+#include "rand.h"
 
 /**********************************************************************
  

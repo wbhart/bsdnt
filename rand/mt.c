@@ -89,7 +89,7 @@
 -------------------------------------------------------------------------
 */
 
-#include "../helper.h"
+#include "helper.h"
 #include <stdlib.h>
 #include "internal_rand.h"
 

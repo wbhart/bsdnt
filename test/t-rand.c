@@ -27,9 +27,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../rand/bsdnt_rand.h"
-#include "../nn.h"
-#include "../test.h"
+#include "rand.h"
+#include "nn.h"
+#include "test.h"
 #include "sha1.h"
 
 rand_t state;
