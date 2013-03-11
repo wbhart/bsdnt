@@ -91,7 +91,7 @@ int test_rand(void)
         sha1_end(hash, ctx);
         state->clear(state->ctx);
         
-		if (memcmp(hash, digest[r - 1], SHA1_DIGEST_SIZE)) /* check against a precomputed hash */
+		  if (memcmp(hash, digest[r - 1], SHA1_DIGEST_SIZE)) /* check against a precomputed hash */
         {
             printf("Error in the %s %2d-bit Pseudo Random Number Generator\n", state->name, WORD_BITS);
             fail++;
