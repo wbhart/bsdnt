@@ -89,4 +89,5 @@
 
 11-Mar-2013:
 	v0.28 - removed MSVC build, cleaned up configure removed _r/s_ 
-                functions, removed muladd fucntions
+                functions, removed muladd functions, switched to simpler
+                division code.
