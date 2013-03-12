@@ -1430,9 +1430,9 @@ int test_divrem1_preinv(void)
       
       randoms_of_len(m, ANY, state, &r1, &a, &q, NULL);
       
-      randoms(NONZERO, state, &d, NULL);
+      randoms(NORMALISED, state, &d, NULL);
 
-      precompute_inverse1(&inv, d);
+      inv = precompute_inverse1(d);
 
       r = nn_divrem1_preinv(q, a, m, d, inv);
       
@@ -1447,7 +1447,7 @@ int test_divrem1_preinv(void)
          print_debug_diff(r1, a, m);
       }
    } TEST_END;
-
+   
    /* test chaining of divrem1_preinv */
    TEST_START(chaining, ITER) 
    {
@@ -1455,16 +1455,12 @@ int test_divrem1_preinv(void)
       
       randoms_of_len(m + n, ANY, state, &r1, &r2, &a, NULL);
       
-      randoms(NONZERO, state, &d, NULL);
+      randoms(NORMALISED, state, &d, NULL);
 
       r1 = nn_init(m + n);
       r2 = nn_init(m + n);
 
-      do {
-         d = randword(state);
-      } while (d == 0);
-
-      precompute_inverse1(&inv, d);
+      inv = precompute_inverse1(d);
 
       nn_random(a, state, m + n);
          
@@ -1554,11 +1550,12 @@ int test_divrem_hensel1_preinv(void)
 int test_mod1_preinv(void)
 {
    int result = 1;
-   nn_t a, q;
+   nn_t a, a2, q;
    len_t m, n;
    word_t d, ci, rem1, rem2;
    preinv1_t inv;
    mod_preinv1_t minv;
+   bits_t norm;
 
    printf("nn_mod1_preinv...");
 
@@ -1567,12 +1564,15 @@ int test_mod1_preinv(void)
    {
       randoms_upto(100, ANY, state, &m, NULL);
       
-      randoms_of_len(m, ANY, state, &a, &q, NULL);
+      randoms_of_len(m, ANY, state, &a, &a2, &q, NULL);
 
       randoms(NONZERO, state, &d, NULL);
 
-      precompute_inverse1(&inv, d);
-      rem1 = nn_divrem1_preinv(q, a, m, d, inv);
+      norm = high_zero_bits(d);
+      ci = nn_shl(a2, a, m, norm);
+
+      inv = precompute_inverse1(d << norm);
+      rem1 = nn_divrem1_preinv_c(q, a2, m, d << norm, inv, ci) >> norm;
       
       precompute_mod_inverse1(&minv, d);
       rem2 = nn_mod1_preinv(a, m, d, minv);  

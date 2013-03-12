@@ -117,58 +117,37 @@ void nn_mulhigh_classical(nn_t r, nn_src_t a, len_t m1,
 
 #endif
 
-/* Turn compiler warning off */
-#pragma GCC diagnostic ignored "-Wunused-but-set-variable"
-
 #ifndef HAVE_ARCH_nn_divrem_classical_preinv_c
 
 void nn_divrem_classical_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d, 
-                                  len_t n, preinv1_2_t inv, word_t ci)
+                                  len_t n, preinv1_t dinv, word_t ci)
 {
-   dword_t t, u;
    long i = m - 1, j = m - n;
-   word_t q1, rem;
-   word_t norm = inv.norm;
-   word_t dinv = inv.dinv;
-   word_t d1 = inv.d1;
+   word_t d1 = d[n - 1];
 
    ASSERT(q != d);
    ASSERT(m >= n);
    ASSERT(n > 1);
-   ASSERT((ci < d[n - 1]) 
-      || ((ci == d[n - 1]) && (nn_cmp_m(a + m - n + 1, d, n - 1) < 0)));
-
-   u = (((dword_t) ci) << WORD_BITS) + a[i]; /* fetch top two words */
+   ASSERT((ci < d1) 
+      || ((ci == d1) && (nn_cmp_m(a + m - n + 1, d, n - 1) < 0)));
+   ASSERT((long) d1 < 0);
 
    for ( ; i >= n - 1; i--, j--)
    {
-      /* top "two words" of remaining dividend, shifted */
-      t = (u << norm);
-      if (norm) t += (a[i - 1] >> (WORD_BITS - norm));
-     
-      /* check for special case, a1 == d1 which would cause overflow */
-      if ((t >> WORD_BITS) == d1) q1 = ~(word_t) 0;
-      else divrem21_preinv1(q1, rem, t, d1, dinv);
-
-	  /* a -= d*q1 */
-      u -= nn_submul1(a + j, d, n - 1, q1);
-      u -= (dword_t) d[n - 1] * (dword_t) q1;
+      divapprox21_preinv1(q[j], ci, a[i], d1, dinv);
       
-      /* correct if remainder has become negative */
-      while (u >> WORD_BITS)
+	  /* a -= d*q1 */
+      ci -= nn_submul1(a + j, d, n, q[j]);
+      
+      /* correct if remainder is too large */
+      while (ci || nn_cmp_m(a + j, d, n) >= 0)
       {
-         q1--;
-         u += nn_add_m(a + j, a + j, d, n - 1);
-         u += d[n - 1];
+         q[j]++;
+         ci -= nn_sub_m(a + j, a + j, d, n);
       }
       
-      /* need to write remainder out */
-      a[i] = (word_t) u;
-
       /* fetch next word now that it has been updated */
-      u = (u << WORD_BITS) + (dword_t) a[i - 1];
-      
-      q[j] = q1;
+      ci = a[i];
    }
 }
 
@@ -178,53 +157,37 @@ void nn_divrem_classical_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d,
 #ifndef HAVE_ARCH_nn_divapprox_classical_preinv_c
 
 void nn_divapprox_classical_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d, 
-                                  len_t n, preinv1_2_t inv, word_t ci)
+                                  len_t n, preinv1_t dinv, word_t ci)
 {
-   dword_t t, u;
    long i = m - 1, j = m - n;
-   word_t q1, rem;
-   word_t norm = inv.norm;
-   word_t dinv = inv.dinv;
-   word_t d1 = inv.d1;
+   word_t d1 = d[n - 1];
    len_t s = m - n; /* this many iterations to get to last quotient */
-   s = 2 + s + (d[n-1] <= 2*s); /* need two normalised words at that point */
-   if (s > i + 1) s = i + 1; /* ensure we don't do too many iterations */
+   s += 2; /* need two normalised words at that point */
    
    ASSERT(q != d);
    ASSERT(q != a);
    ASSERT(m >= n);
    ASSERT(n > 1);
-   ASSERT((ci < d[n - 1]) 
-      || ((ci == d[n - 1]) && (nn_cmp_m(a + m - n + 1, d, n - 1) < 0)));
-
-   u = (((dword_t) ci) << WORD_BITS) + a[i]; /* fetch top two words */
+   ASSERT((ci < d1) 
+      || ((ci == d1) && (nn_cmp_m(a + m - n + 1, d, n - 1) < 0)));
+   ASSERT((long) d1 < 0);
 
    for ( ; s >= n; i--, j--, s--)
    {
-      /* top "two words" of remaining dividend, shifted */
-      t = (u << norm);
-      if (norm) t += (a[i - 1] >> (WORD_BITS - norm));
-	  
-      /* check for special case, a1 == d1 which would cause overflow */
-      if ((t >> WORD_BITS) == d1) q1 = ~(word_t) 0;
-      else divrem21_preinv1(q1, rem, t, d1, dinv);
+      divapprox21_preinv1(q[j], ci, a[i], d1, dinv);
 
       /* a -= d*q1 */
-      u -= nn_submul1(a + j, d, n - 1, q1);
-      u -= (dword_t) d[n - 1] * (dword_t) q1;
+      ci -= nn_submul1(a + j, d, n, q[j]);
       
-      /* correct if remainder has become negative */
-      while (u >> WORD_BITS)
+      /* correct if remainder is too large */
+      while (ci || nn_cmp_m(a + j, d, n) >= 0)
       {
-         q1--;
-         u += nn_add_m(a + j, a + j, d, n - 1);
-         u += d[n - 1];
+         q[j]++;
+         ci -= nn_sub_m(a + j, a + j, d, n);
       }
 	  
       /* fetch next word now that it has been updated */
-      u = (u << WORD_BITS) + (dword_t) a[i - 1];
-
-      q[j] = q1;
+      ci = a[i];
    }
    
    d = d + n - s; /* make d length s */
@@ -232,44 +195,26 @@ void nn_divapprox_classical_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d,
    
    for ( ; i >= n - 1; i--, j--, s--)
    {
-      /* top "two words" of remaining dividend, shifted */
-      t = (u << norm);
-	  if (norm) t += (a[s - 2] >> (WORD_BITS - norm));
-	  
-      /* check for special case, a1 == d1 which would cause overflow */
-      if ((t >> WORD_BITS) == d1) q1 = ~(word_t) 0;
-      else divrem21_preinv1(q1, rem, t, d1, dinv);
+      divapprox21_preinv1(q[j], ci, a[s - 1], d1, dinv);
 	  
       /* a -= d*q1 */
-      u -= nn_submul1(a, d, s - 1, q1);
-      u -= (dword_t) d[s - 1] * (dword_t) q1;
+      ci -= nn_submul1(a, d, s, q[j]);
       
-	  if ((u >> WORD_BITS) == 1) /* an overflow requires adjustment */
-	  {
-		  u -= nn_sub1(a + 1, a + 1, s - 2, a[1] + 1);
-		  a[0] = ~WORD(0);
-	  }
-
-      /* correct if remainder has become negative */
-      while (u >> WORD_BITS)
+	   /* correct if remainder is too large */
+      while (ci || nn_cmp_m(a, d, s) >= 0)
       {
-         q1--;
-         u += nn_add_m(a, a, d, s - 1);
-         u += d[s - 1];
+         q[j]++;
+         ci -= nn_sub_m(a, a, d, s);
       }
 	  
       /* fetch next word now that it has been updated */
-      u = (u << WORD_BITS) + a[s - 2];
+      ci = a[s - 1];
       
-      q[j] = q1;
       d++;
    }   
 }
 
 #endif
-
-/* Turn warning back on */
-#pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 
 #ifndef HAVE_ARCH_nn_div_hensel_preinv
 

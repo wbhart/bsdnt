@@ -437,26 +437,16 @@ word_t nn_divrem1_simple_c(nn_t q, nn_src_t a, len_t m, word_t d, word_t ci)
 #ifndef HAVE_ARCH_nn_divrem1_preinv_c
 
 word_t nn_divrem1_preinv_c(nn_t q, nn_src_t a, len_t m, 
-                            word_t d, preinv1_t inv, word_t ci)
+                            word_t d, preinv1_t dinv, word_t ci)
 {
-   dword_t t;
    long i;
-   word_t norm = inv.norm;
-   word_t dinv = inv.dinv;
    
-   ASSERT(d != 0);
    ASSERT(ci < d);
 
-	d <<= norm;
-	ci <<= norm;
+   for (i = m - 1; i >= 0; --i)
+      divrem21_preinv1(q[i], ci, ci, a[i], d, dinv);
 
-	for( i = m - 1 ; i >= 0 ; --i )
-	{
-		t = (((dword_t) ci) << WORD_BITS) + (((dword_t) a[i]) << norm);
-		divrem21_preinv1(q[i], ci, t, d, dinv);	
-	}
-
-   return (ci >> norm);
+   return ci;
 }
 
 #endif

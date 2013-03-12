@@ -382,10 +382,11 @@ word_t nn_divrem1_simple_c(nn_t q, nn_src_t a, len_t m, word_t d, word_t ci);
 
 /*
    Set q = (ci*B^m + a) / d and return the remainder, where a is m 
-   words in length, d is a word and ci is a "carry-in" which must be
-   reduced mod d. The quotient q requires m limbs of space.  An 
-   exception will result if d is 0. Requires that inv is a precomputed 
-   inverse of d computed by the function precompute_inverse1. 
+   words in length, d is a word and ci is a "carry-in" which must 
+   be reduced mod d. The quotient q requires m limbs of space.  
+   Requires that inv is a precomputed inverse of d computed by the 
+   function precompute_inverse1. Also requires that d is normalised, 
+   i.e with most significant bit set.
 */
 word_t nn_divrem1_preinv_c(nn_t q, nn_src_t a, len_t m, 
                             word_t d, preinv1_t inv, word_t ci);
@@ -542,11 +543,11 @@ void nn_mulhigh_classical(nn_t r, nn_src_t a, len_t m1,
    n limbs of a. Requires m >= n > 0. The precomputed inverse inv should 
    be computed from the leading two limbs of d (or the leading limb and 0 
    if n is 1) using precompute_inverse_lead. If a_n is the leading n limbs 
-   of a, then ci*B^m + a_n must be less than B * d. The quotient
+   of a, then ci*B^n + a_n must be less than B * d. The quotient
    must have space for m - n + 1 limbs. The quotient may not alias d.
 */
 void nn_divrem_classical_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d, 
-                                     len_t n, preinv1_2_t inv, word_t ci);
+                                     len_t n, preinv1_t inv, word_t ci);
 
 /*
    As per nn_divrem_classical_preinv_c, however no remainder is computed
@@ -554,7 +555,7 @@ void nn_divrem_classical_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d,
    The dividend a is destroyed and may not alias q.
 */
 void nn_divapprox_classical_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d, 
-                                  len_t n, preinv1_2_t inv, word_t ci);
+                                  len_t n, preinv1_t inv, word_t ci);
 
 /*
    Perform Hensel division of {a, m} by {d, n} with the quotient mod B^m

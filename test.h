@@ -86,7 +86,7 @@ typedef enum
 
 typedef enum
 {
-   ANY, NONZERO, ODD, FULL
+   ANY, NONZERO, ODD, FULL, NORMALISED
 } flag_t;
 
 typedef struct node_t

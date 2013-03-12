@@ -80,7 +80,7 @@ int test_divrem_classical_preinv(void)
    int result = 1;
    len_t m, n;
    nn_t a, r1, s, q, d;
-   preinv1_2_t inv;
+   preinv1_t inv;
 
    printf("divrem_classical_preinv...");
 
@@ -90,15 +90,15 @@ int test_divrem_classical_preinv(void)
       n++; /* require n >= 2 */
 
       randoms_of_len(m, ANY, state, &a, &q, NULL);
-      randoms_of_len(n, FULL, state, &d, NULL);
+      randoms_of_len(n, NORMALISED, state, &d, NULL);
       randoms_of_len(m + n, ANY, state, &r1, NULL);
       
       if (m >= n) nn_mul_classical(r1, a, m, d, n);
       else nn_mul_classical(r1, d, n, a, m);
 
-	   precompute_inverse1_2(&inv, d[n - 1], d[n - 2]);
+	   inv = precompute_inverse1(d[n - 1]);
       nn_divrem_classical_preinv_c(q, r1, m + n - 1, d, n, inv, r1[m + n - 1]);
-	  
+	   
       result = (nn_equal_m(q, a, m) && nn_normalise(r1, n) == 0);
 
       if (!result) 
@@ -119,22 +119,21 @@ int test_divrem_classical_preinv(void)
       
       /* ensure s is reduced mod d */
       do {
-         randoms_of_len(n, FULL, state, &d, NULL);
+         randoms_of_len(n, NORMALISED, state, &d, NULL);
          randoms_of_len(n, ANY, state, &s, NULL);
       } while (nn_cmp_m(d, s, n) <= 0);
       
       nn_mul_classical(r1, d, n, a, m);
       nn_add(r1, r1, n + m, s, n);
       
-      precompute_inverse1_2(&inv, d[n - 1], d[n - 2]);
+      inv = precompute_inverse1(d[n - 1]);
       nn_divrem_classical_preinv_c(q, r1, m + n - 1, d, n, inv, r1[m + n - 1]);
 
       result = (nn_equal_m(q, a, m) && nn_equal_m(s, r1, n));
 
       if (!result) 
       {
-         bsdnt_printf("inv.norm = %b, inv.dinv = %wx, inv.d1 = %wx\n", 
-            inv.norm, inv.dinv, inv.d1);
+         bsdnt_printf("inv = %wx\n", inv);
          print_debug(a, m); print_debug(q, m); print_debug(d, n);  print_debug(s, n);
          print_debug_diff(q, a, m);
          print_debug_diff(s, r1, m);
@@ -149,7 +148,7 @@ int test_divapprox_classical_preinv(void)
    int result = 1;
    len_t m, n;
    nn_t a, r1, r2, s, q1, q2, d;
-   preinv1_2_t inv;
+   preinv1_t inv;
    
    printf("divapprox_classical_preinv...");
 
@@ -164,7 +163,7 @@ int test_divapprox_classical_preinv(void)
       
       /* ensure s is reduced mod d */
       do {
-         randoms_of_len(n, FULL, state, &d, NULL);
+         randoms_of_len(n, NORMALISED, state, &d, NULL);
          randoms_of_len(n, ANY, state, &s, NULL);
       } while (nn_cmp_m(d, s, n) <= 0);
       
@@ -172,7 +171,7 @@ int test_divapprox_classical_preinv(void)
       nn_add(r1, r1, m + n, s, n);
       nn_copy(r2, r1, m + n);
 
-      precompute_inverse1_2(&inv, d[n - 1], d[n - 2]);
+      inv = precompute_inverse1(d[n - 1]);
       nn_divrem_classical_preinv_c(q1, r1, m + n - 1, d, n, inv, r1[m + n - 1]);
 
       nn_divapprox_classical_preinv_c(q2, r2, m + n - 1, d, n, inv, r2[m + n - 1]);
@@ -183,8 +182,7 @@ int test_divapprox_classical_preinv(void)
 
       if (!result) 
       {
-         bsdnt_printf("inv.norm = %b, inv.dinv = %wx, inv.d1 = %wx\n", 
-            inv.norm, inv.dinv, inv.d1);
+         bsdnt_printf("inv = %wx\n", inv);
          print_debug(a, m); print_debug(q1, m); print_debug(d, n);  print_debug(s, n);
          print_debug_diff(q1, q2, m);
       }

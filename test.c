@@ -145,6 +145,10 @@ void randoms(flag_t flag, rand_t state, ...)
          (*w) |= 1;
          break;
 
+      case NORMALISED:
+         (*w) |= (((word_t) 1) << (WORD_BITS - 1));
+         break;
+
       case NONZERO: 
          while ((*w) == 0)
             (*w) = test_randword(state); 
@@ -212,9 +216,13 @@ void randoms_of_len(len_t n, flag_t flag, rand_t state, ...)
       switch (flag)
       {
       case ANY: break;
-      case FULL: while (nn_normalise(*obj, n) != n)
-                    nn_test_random(*obj, state, n);
-                 break;
+      case FULL: 
+         while (nn_normalise(*obj, n) != n)
+            nn_test_random(*obj, state, n);
+         break;
+      case NORMALISED:
+         (*obj)[n-1] |= (((word_t) 1) << (WORD_BITS - 1));
+         break;
       case ODD: (*obj)[0] |= (word_t) 1; break;
       default: talker("Unknown flag in randoms_of_len");
          abort();

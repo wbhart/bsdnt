@@ -74,18 +74,7 @@ typedef int64_t bits_t;
 typedef word_t * nn_t;
 typedef const word_t * nn_src_t;
 
-typedef struct preinv1_t
-{
-   bits_t norm; /* the number of leading zero bits in d */
-   word_t dinv; /* the precomputed inverse of d (see below) */
-} preinv1_t;
-
-typedef struct preinv1_2_t
-{
-   bits_t norm; /* the number of leading zero bits in d */
-   word_t dinv; /* the precomputed inverse of d1 (see below) */
-   word_t d1; /* the normalised leading WORD_BITS of d */
-} preinv1_2_t;
+typedef word_t preinv1_t;
 
 typedef word_t hensel_preinv1_t;
 
@@ -111,32 +100,45 @@ typedef struct mod_preinv1_t
 
 #endif
 
-#ifndef HAVE_ARCH_divrem21_preinv1
+#ifndef HAVE_ARCH_divapprox21_preinv1
+
+/*
+   Given a double word u, a normalised divisor d and a precomputed
+   inverse dinv of d, computes an approximate quotient of u by d.
+   The quotient will be either correct, or up to 3 less than the
+   actual value.
+*/
+#define divapprox21_preinv1(q, u_hi, u_lo, d, dinv) \
+   do { \
+      dword_t __q1 = (dword_t) u_hi * (dword_t) (dinv) \
+                  + (((dword_t) u_hi) << WORD_BITS) + (dword_t) u_lo; \
+      const dword_t __q0 = (dword_t) u_lo * (dword_t) (dinv); \
+      __q1 += (dword_t) ((__q0) >> WORD_BITS); \
+      (q) = (__q1 >> WORD_BITS); \
+   } while (0)
+
+#endif
+
+#ifndef HAVE_ARCH_divapprox21_preinv1
 
 /*
    Given a double word u, a normalised divisor d and a precomputed
    inverse dinv of d, computes the quotient and remainder of u by d.
 */
-#define divrem21_preinv1(q, r, u, d, dinv) \
+#define divrem21_preinv1(q, r, u_hi, u_lo, d, dinv) \
    do { \
-      dword_t __q = ((u)>>WORD_BITS) * (dword_t) (dinv) + u; \
-      word_t __q1 = (word_t)(__q >> WORD_BITS) + 1; \
-      word_t __q0 = (word_t) __q; \
-      word_t __r1 = (word_t)(u) - __q1*(d); \
-      if (__r1 >= __q0) \
+      const dword_t __u = (((dword_t) u_hi) << WORD_BITS) + (dword_t) u_lo; \
+      dword_t __r, __q1 = (dword_t) u_hi * (dword_t) (dinv) + __u; \
+      const dword_t __q0 = (dword_t) u_lo * (dword_t) (dinv); \
+      __q1 += (dword_t) ((__q0) >> WORD_BITS); \
+      (q) = (__q1 >> WORD_BITS); \
+      __r = __u - (dword_t) (d) * (dword_t) (q); \
+      while ((word_t) (__r >> WORD_BITS) || ((word_t) __r >= (d))) \
       { \
-         __q1--; \
-         __r1 += (d); \
+         __r -= (dword_t) (d); \
+         (q)++; \
       } \
-      if (__r1 >= (d)) \
-      { \
-         (q) = __q1 + 1; \
-         (r) = __r1 - (d); \
-      } else \
-      { \
-         (q) = __q1; \
-         (r) = __r1; \
-      } \
+      (r) = (word_t) __r; \
    } while (0)
 
 #endif
@@ -144,53 +146,21 @@ typedef struct mod_preinv1_t
 #ifndef HAVE_ARCH_precompute_inverse1
 
 /*
-   Precomputes an inverse of d as per the definition of \nu at the
-   start of section 3 of Moller-Granlund (see below). Does not 
-   require d to be normalised, but d must not be 0. 
+   Precomputes an inverse of d. The value of the inverse is
+   2^WORD_BITS / (d + 1) - 2^(WORD_BITS). We assume d is
+   normalised, i.e. the most significant bit of d is set.
 */
 static inline
-void precompute_inverse1(preinv1_t * inv, word_t d)
+preinv1_t precompute_inverse1(word_t d)
 {
-   dword_t t;
-   word_t norm = high_zero_bits(d);
-   d <<= norm;
+   ASSERT(d != 0); 
+   
+   d++;
 
-   ASSERT(d != 0);
+   if (d == 0)
+      return 0;
 
-   t = (~(dword_t) 0) - (((dword_t) d) << WORD_BITS);
-   inv->dinv = t / d;
-
-   inv->norm = norm;
-}
-
-#endif
-
-#ifndef HAVE_ARCH_precompute_inverse1_2
-
-/*
-   Precomputes an inverse of the leading WORD_BITS of d with leading words 
-   d1, d2 (or d1, 0 if d has only one word) as per the definition of \nu at 
-   the start of section 3 of Moller-Granlund (see below). Does not require 
-   d1, d2 to be normalised. A normalised version of d1, d2 is returned.
-   Requires that d1 be nonzero.
-*/
-
-static inline
-void precompute_inverse1_2(preinv1_2_t * inv, word_t d1, word_t d2)
-{
-   dword_t t;
-   word_t norm = high_zero_bits(d1);
-
-   ASSERT(d1 != 0);
-
-   d1 <<= norm;
-   if (norm) d1 += (d2 >> (WORD_BITS - norm));
-
-   t = (~(dword_t) 0) - (((dword_t) d1) << WORD_BITS);
-   inv->dinv = t / d1;
-
-   inv->norm = norm;
-   inv->d1 = d1;
+   return (word_t) ((((dword_t) -d) << WORD_BITS) / (dword_t) d);
 }
 
 #endif
