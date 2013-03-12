@@ -91,3 +91,7 @@
 	v0.28 - removed MSVC build, cleaned up configure removed _r/s_ 
                 functions, removed muladd functions, switched to simpler
                 division code.
+
+12-Mar-2013:
+	v0.29 - switched to gas assembly format.
+
