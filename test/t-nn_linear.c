@@ -55,6 +55,35 @@ int test_gc(void)
    return result;
 }
 
+int test_tmp(void)
+{
+   int result = 1;
+   len_t m1, m2, m3;
+   nn_t a, b, c;
+   TMP_INIT;
+
+   printf("tmp...");
+
+   TEST_START(1, 64) 
+   {
+      TMP_START;
+      
+      randoms_upto(2048, NONZERO, state, &m1, &m2, &m3, NULL);
+      
+      a = TMP_ALLOC(m1);
+      b = TMP_ALLOC(m2);
+      c = TMP_ALLOC(m3);
+
+      randoms_of_len(m1, ANY, state, &a, NULL);
+      randoms_of_len(m2, ANY, state, &b, NULL);
+      randoms_of_len(m3, ANY, state, &c, NULL);
+
+      TMP_END;
+   } TEST_END;
+
+   return result;
+}
+
 int test_bit_set(void)
 {
    int result = 1;
@@ -1623,6 +1652,7 @@ int test_linear(void)
    long fail = 0;
    
    RUN(test_gc);
+   RUN(test_tmp);
    RUN(test_bit_set);
    RUN(test_bit_clear);
    RUN(test_not);

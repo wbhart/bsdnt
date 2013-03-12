@@ -1,6 +1,6 @@
 /* 
-  Copyright (C) 2010, William Hart
-  Copyright (C) 2010, Brian Gladman
+  Copyright (C) 2010, 2013 William Hart
+  Copyright (C) 2010 Brian Gladman
 
   All rights reserved.
 
@@ -30,12 +30,12 @@
 #define HELPER_H
 
 #include <stdint.h>
+#include <stdlib.h>
+#include <alloca.h>
 #include <limits.h>
 #include <assert.h>
 #include "config.h"
 #include "types_arch.h"
-
-#ifndef HAVE_ARCH_TYPES
 
 #if ULONG_MAX == 4294967295U /* 32 bit unsigned long */
 
@@ -69,8 +69,6 @@ typedef int64_t bits_t;
 #define ASSERT(xxx) 
 #endif
 
-#endif
-
 typedef word_t * nn_t;
 typedef const word_t * nn_src_t;
 
@@ -84,6 +82,34 @@ typedef struct mod_preinv1_t
    word_t b2; /* B^2 mod d */
    word_t b3; /* B^3 mod d */
 } mod_preinv1_t;
+
+#define TMP_INIT \
+   typedef struct __tmp_struct { \
+      void * block; \
+      struct __tmp_struct * next; \
+   } __tmp_t; \
+   __tmp_t * __tmp_root; \
+   __tmp_t * __t
+
+#define TMP_START \
+   __tmp_root = NULL
+
+#define TMP_ALLOC_BYTES(size) \
+   ((size) > 8192 ? \
+      (__t = alloca(sizeof(__tmp_t)), \
+       __t->next = __tmp_root, \
+       __tmp_root = __t, \
+       __t->block = malloc(size)) : \
+      alloca(size))
+
+#define TMP_ALLOC(size) \
+   TMP_ALLOC_BYTES(sizeof(word_t)*size)
+
+#define TMP_END \
+   while (__tmp_root) { \
+      free(__tmp_root->block); \
+      __tmp_root = __tmp_root->next; \
+   }
 
 #include "helper_arch.h"
 #include "rand.h"
