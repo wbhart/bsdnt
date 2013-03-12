@@ -91,11 +91,6 @@ arch_handler()
 
     if [ $MACHINE = "x86" -o $MACHINE = "x86_64" ]
     then
-	if [ $AS = "gcc" ]
-        then
-	   CFLAGS=$CFLAGS" -masm=intel"
-	fi
-
 	$CC arch/cpuid.c -o cpuid 
         ARCH=`./cpuid`
         case $ARCH in

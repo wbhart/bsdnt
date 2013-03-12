@@ -7,21 +7,20 @@ word_t nn_add_mc(nn_t a, nn_src_t b, nn_src_t c, len_t m, word_t ci)
 {
    __asm__ (
 
-   ".intel_syntax noprefix; \
-    mov rax, r8; \
+   "movq %%r8, %%rax; \
     jrcxz 2f; \
-    lea rdi, [rdi+rcx*8]; \
-    lea rsi, [rsi+rcx*8]; \
-    lea rdx, [rdx+rcx*8]; \
-    neg rcx; \
-    sar eax, 1; \
+    leaq (%%rdi,%%rcx,8), %%rdi; \
+    leaq (%%rsi,%%rcx,8), %%rsi; \
+    leaq (%%rdx,%%rcx,8), %%rdx; \
+    neg %%rcx; \
+    sar $1, %%eax; \
 1:; \
-    mov r10, [rsi+rcx*8]; \
-    adc r10, [rdx+rcx*8]; \
-    mov [rdi+rcx*8], r10; \
-    inc rcx; \
+    movq (%%rsi,%%rcx,8), %%r10; \
+    adc (%%rdx,%%rcx,8), %%r10; \
+    mov %%r10, (%%rdi,%%rcx,8); \
+    inc %%rcx; \
     jnz 1b; \
-    setc al; \
+    setc %%al; \
 2:; "
 
    : "=a" ((word_t)(ci))
@@ -40,21 +39,20 @@ word_t nn_sub_mc(nn_t a, nn_src_t b, nn_src_t c, len_t m, word_t ci)
 {
    __asm__ (
 
-   ".intel_syntax noprefix; \
-    mov rax, r8; \
+   "mov %%r8, %%rax; \
     jrcxz 2f; \
-    lea rdi, [rdi+rcx*8]; \
-    lea rsi, [rsi+rcx*8]; \
-    lea rdx, [rdx+rcx*8]; \
-    neg rcx; \
-    sar eax, 1; \
+    leaq (%%rdi,%%rcx,8), %%rdi; \
+    leaq (%%rsi,%%rcx,8), %%rsi; \
+    leaq (%%rdx,%%rcx,8), %%rdx; \
+    neg %%rcx; \
+    sar $1, %%eax; \
 1:; \
-    mov r10, [rsi+rcx*8]; \
-    sbb r10, [rdx+rcx*8]; \
-    mov [rdi+rcx*8], r10; \
-    inc rcx; \
+    movq (%%rsi,%%rcx,8), %%r10; \
+    sbb (%%rdx,%%rcx,8), %%r10; \
+    movq %%r10,(%%rdi,%%rcx,8); \
+    incq %%rcx; \
     jnz 1b; \
-    setc al; \
+    setc %%al; \
 2:; "
 
    : "=a" ((word_t)(ci))
