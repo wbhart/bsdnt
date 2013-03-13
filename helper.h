@@ -65,8 +65,10 @@ typedef int64_t bits_t;
 
 #if WANT_ASSERT
 #define ASSERT assert
+#define ASSERT_ALWAYS assert
 #else
-#define ASSERT(xxx) 
+#define ASSERT(xxx)
+#define ASSERT_ALWAYS(xxx) xxx
 #endif
 
 typedef word_t * nn_t;
@@ -103,7 +105,7 @@ typedef struct mod_preinv1_t
       alloca(size))
 
 #define TMP_ALLOC(size) \
-   TMP_ALLOC_BYTES(sizeof(word_t)*size)
+   TMP_ALLOC_BYTES(sizeof(word_t)*(size))
 
 #define TMP_END \
    while (__tmp_root) { \

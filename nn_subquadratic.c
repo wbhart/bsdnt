@@ -32,37 +32,154 @@
 
 void nn_mul_kara(nn_t p, nn_src_t a, len_t m, nn_src_t b, len_t n)
 {
-   len_t m2 = m/2;
-   len_t l = m - m2;
-   len_t h = n - l;
+   len_t m2 = (m + 1)/2;
+   len_t h1 = m - m2;
+   len_t h2 = n - m2;
    word_t ci;
 
    nn_t t;
    TMP_INIT;
 
    ASSERT(m >= n);
-   ASSERT(n >= 3*m/4);
+   ASSERT(n > m2);
    ASSERT(p != a);
    ASSERT(p != b);
    ASSERT(n > 1);
 
-   p[l]       = nn_add(p, a, l, a + l, m2);
-   p[2*l + 1] = nn_add(p + l + 1, b, l, b + l, h);
+   p[m2]       = nn_add(p, a, m2, a + m2, h1);
+   p[2*m2 + 1] = nn_add(p + m2 + 1, b, m2, b + m2, h2);
    
    TMP_START;
-   t = TMP_ALLOC(2*l + 2);
+   t = TMP_ALLOC(2*m2 + 2);
    
-   nn_mul_classical(t, p + l + 1, l + 1, p, l + 1); 
+   nn_mul_classical(t, p + m2 + 1, m2 + 1, p, m2 + 1); 
    
-   nn_mul_classical(p, a, l, b, l);
-   nn_mul_classical(p + 2*l, a + l, m2, b + l, h);
+   nn_mul_classical(p, a, m2, b, m2);
+   nn_mul_classical(p + 2*m2, a + m2, h1, b + m2, h2);
    
-   ci = -nn_sub(t, t, 2*l + 1, p, 2*l);
-   t[2*l + 1] = ci - nn_sub(t, t, 2*l + 1, p + 2*l, m2 + h);
+   ci = -nn_sub(t, t, 2*m2 + 1, p, 2*m2);
+   t[2*m2 + 1] = ci - nn_sub(t, t, 2*m2 + 1, p + 2*m2, h1 + h2);
    
-   nn_add(p + l, p + l, m + h, t, 2*l + 1);
+   nn_add(p + m2, p + m2, m + h2, t, 2*m2 + 1);
   
    TMP_END;
+}
+
+#endif
+
+#ifndef HAVE_ARCH_nn_mul_toom33
+
+void nn_mul_toom33(nn_t p, nn_src_t a, len_t m, nn_src_t b, len_t n)
+{
+   len_t m3 = (m + 2)/3;
+   len_t h1 = m - 2*m3;
+   len_t h2 = n - 2*m3;
+   len_t nn;
+   word_t ninv, ci;
+   bits_t norm;
+   nn_t t;
+   TMP_INIT;
+
+   ASSERT(n > 2);
+   ASSERT(m >= n);
+   ASSERT(n > 2*m3);
+   
+   TMP_START;
+   t = TMP_ALLOC(6*m3 + 6);
+
+#define r1 p
+#define r2 t
+#define r3 (t + 2*m3 + 2)
+#define r4 (t + 4*m3 + 4)  
+#define r5 (p + 4*m3) 
+#define s1 (p + m3 + 1)
+
+   r1[m3]  = nn_add_m(r1, a, a + m3, m3); /* Evaluate at 1 */
+   r1[m3] += nn_add(r1, r1, m3, a + 2*m3, h1);
+   s1[m3]  = nn_add_m(s1, b, b + m3, m3);
+   s1[m3] += nn_add(s1, s1, m3, b + 2*m3, h2);
+   nn_mul_classical(r2, r1, m3 + 1, s1, m3 + 1);
+
+   ASSERT(r1[m3] < 3);
+   ASSERT(s1[m3] < 3);
+
+   ci = nn_shl(r1, a + 2*m3, h1, 1); /* Evaluate at 2 */
+   r1[m3]  = nn_add(r1, a + m3, m3, r1, h1);
+   r1[m3] += nn_add1(r1 + h1, r1 + h1, m3 - h1, ci);
+   nn_shl(r1, r1, m3 + 1, 1);
+   r1[m3] += nn_add_m(r1, r1, a, m3);
+   ci = nn_shl(s1, b + 2*m3, h2, 1);
+   s1[m3]  = nn_add(s1, b + m3, m3, s1, h2);
+   s1[m3] += nn_add1(s1 + h2, s1 + h2, m3 - h2, ci);
+   nn_shl(s1, s1, m3 + 1, 1);
+   s1[m3] += nn_add_m(s1, s1, b, m3);
+   nn_mul_classical(r3, r1, m3 + 1, s1, m3 + 1);
+
+   ASSERT(r1[m3] < 7);
+   ASSERT(s1[m3] < 7);
+
+   ci = nn_shl(r1, a + 2*m3, h1, 2); /* Evaluate at 4 */
+   r1[m3]  = nn_add(r1, a + m3, m3, r1, h1);
+   r1[m3] += nn_add1(r1 + h1, r1 + h1, m3 - h1, ci);
+   nn_shl(r1, r1, m3 + 1, 2);
+   r1[m3] += nn_add_m(r1, r1, a, m3);
+   ci = nn_shl(s1, b + 2*m3, h2, 2);
+   s1[m3]  = nn_add(s1, b + m3, m3, s1, h2);
+   s1[m3] += nn_add1(s1 + h2, s1 + h2, m3 - h2, ci);
+   nn_shl(s1, s1, m3 + 1, 2);
+   s1[m3] += nn_add_m(s1, s1, b, m3);
+   nn_mul_classical(r4, r1, m3 + 1, s1, m3 + 1);
+
+   ASSERT(r1[m3] < 21);
+   ASSERT(s1[m3] < 21);
+
+   nn_mul_classical(r1, a, m3, b, m3); /* Evaluate at 0 */
+   nn_mul_classical(r5, a + 2*m3, h1, b + 2*m3, h2); /* Evaluate at oo */
+
+   nn_zero(p + 2*m3, 2*m3);
+
+   r3[2*m3 + 1] = -nn_sub(r3, r3, 2*m3 + 1, r1, 2*m3); /* Interpolate */
+   r4[2*m3 + 1] = -nn_sub(r4, r4, 2*m3 + 1, r1, 2*m3);
+   r2[2*m3 + 1] = -nn_sub(r2, r2, 2*m3 + 1, r1, 2*m3);
+   nn_submul1(r3, r2, 2*m3 + 1, 2);
+   nn_submul1(r4, r2, 2*m3 + 1, 4);
+   ci = nn_submul1(r4, r5, h1 + h2, 112);
+   nn_sub1(r4 + h1 + h2, r4 + h1 + h2, 2*m3 - h1 - h2 + 1, ci); 
+   nn_submul1(r4, r3, 2*m3 + 1, 10);
+   nn_neg(r4, r4, 2*m3 + 1);
+   nn_shr(r4, r4, 2*m3 + 1, 3);
+   nn_submul1(r3, r4, 2*m3 + 1, 2);
+   ci = nn_submul1(r3, r5, h1 + h2, 14);
+   nn_sub1(r3 + h1 + h2, r3 + h1 + h2, 2*m3 - h1 - h2 + 1, ci);
+
+   norm = high_zero_bits(WORD(3));
+   ninv = precompute_inverse1(WORD(3) << norm);
+   r3[2*m3 + 1] = nn_shl(r3, r3, 2*m3 + 1, norm);
+
+#pragma GCC diagnostic ignored "-Wunused-value"
+   ASSERT_ALWAYS(nn_divrem1_preinv(r3, r3, 2*m3 + 2, WORD(3) << norm, ninv) == 0);
+#pragma GCC diagnostic warning "-Wunused-value"
+
+
+   nn_shr(r3, r3, 2*m3 + 1, 1);
+   nn_sub_m(r2, r2, r3, 2*m3 + 1);
+   nn_sub_m(r2, r2, r4, 2*m3 + 1);
+   nn_sub(r2, r2, 2*m3 + 1, r5, h1 + h2);
+
+   nn = nn_normalise(r3, 2*m3 + 1); /* Normalise */
+   
+   nn_add(p + m3, p + m3, 3*m3 + h1 + h2, r2, 2*m3 + 1); /* Recombine */
+   nn_add(p + 2*m3, p + 2*m3, 2*m3 + h1 + h2, r4, 2*m3 + 1); 
+   nn_add(p + 3*m3, p + 3*m3, m3 + h1 + h2, r3, nn); 
+
+   TMP_END;
+
+#undef r1
+#undef r2
+#undef r3
+#undef r4
+#undef r5
+#undef s1
 }
 
 #endif

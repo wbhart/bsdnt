@@ -586,5 +586,21 @@ void nn_div_hensel_preinv(nn_t ov, nn_t q, nn_t a, len_t m,
 */
 void nn_mul_kara(nn_t p, nn_src_t a, len_t m, nn_src_t b, len_t n);
 
+/*
+   Perform Toom-3 multiplication of {a, m}, {b, n}.
+   
+   Assumes n > 2 and m >= n > 2*((m + 2)/3)
+   No overlap between src and dst
+ 
+   Algorithm: 
+      + Split a and b into 3 parts of lengths m3, m3, h1 and m3, m3, h2
+        respectively, where m3 = m/3
+      + Evaluate split a and b at 1, 2, 4, 0, oo
+      + Pointwise multiplication
+      + Interpolate 5 part result
+      + Recombine 5 parts into one result by evaluation at B^m3
+*/
+void nn_mul_toom33(nn_t p, nn_src_t a, len_t m, nn_src_t b, len_t n);
+
 #endif
 

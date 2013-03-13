@@ -31,7 +31,7 @@
 #include "test.h"
 
 #undef ITER
-#define ITER 30000
+#define ITER 20000
 
 rand_t state;
 
@@ -45,23 +45,60 @@ int test_mul_kara(void)
 
    TEST_START(1, ITER) /* test mul_kara gives same as mul_classical */
    {
-      randoms_upto(60, NONZERO, state, &n, NULL);
-      randoms_upto((n + 1)/3 + 1, ANY, state, &m, NULL);
+      do {
+         randoms_upto(120, NONZERO, state, &m, NULL);
+         randoms_upto(120, NONZERO, state, &n, NULL);
+      } while (m < n || n < 2 || n <= (m + 1)/2);
+
+      randoms_of_len(m, ANY, state, &a, NULL);
+      randoms_of_len(n, ANY, state, &b, NULL);
       
-      randoms_of_len(m + n + 1, ANY, state, &a, NULL);
-      randoms_of_len(n + 1,     ANY, state, &b, NULL);
+      randoms_of_len(m + n, ANY, state, &r1, &r2, NULL);
       
-      randoms_of_len(m + 2*n + 2, ANY, state, &r1, &r2, NULL);
+      nn_mul_classical(r1, a, m, b, n);
+      nn_mul_kara(r2, a, m, b, n);
       
-      nn_mul_classical(r1, a, m + n + 1, b, n + 1);
-      nn_mul_kara(r2, a, m + n + 1, b, n + 1);
-      
-      result = nn_equal_m(r1, r2, m + 2*n + 2);
+      result = nn_equal_m(r1, r2, m + n);
 
       if (!result) 
       {
-         print_debug(a, m + n + 1); print_debug(b, n + 1);
-         print_debug_diff(r1, r2, m + 2*n + 2);
+         print_debug(a, m); print_debug(b, n);
+         print_debug_diff(r1, r2, m + n);
+      }
+   } TEST_END;
+
+   return result;
+}
+
+int test_mul_toom33(void)
+{
+   int result = 1;
+   len_t m, n;
+   nn_t a, b, r1, r2;
+
+   printf("mul_toom33...");
+
+   TEST_START(1, ITER) /* test mul_toom33 gives same as mul_classical */
+   {
+      do {
+         randoms_upto(200, NONZERO, state, &n, NULL);
+         randoms_upto(200, NONZERO, state, &m, NULL);
+      } while (m < n || n < 3 || n <= 2*((m + 2)/3));
+
+      randoms_of_len(m, ANY, state, &a, NULL);
+      randoms_of_len(n, ANY, state, &b, NULL);
+      
+      randoms_of_len(m + 2*n + 4, ANY, state, &r1, &r2, NULL);
+      
+      nn_mul_classical(r1, a, m, b, n);
+      nn_mul_toom33(r2, a, m, b, n);
+      
+      result = nn_equal_m(r1, r2, m + n);
+
+      if (!result) 
+      {
+         print_debug(a, m); print_debug(b, n);
+         print_debug_diff(r1, r2, m + n);
       }
    } TEST_END;
 
@@ -74,6 +111,7 @@ int test_subquadratic(void)
    long fail = 0;
    
    RUN(test_mul_kara);
+   RUN(test_mul_toom33);
    
    printf("%ld of %ld tests pass.\n", pass, pass + fail);
 
