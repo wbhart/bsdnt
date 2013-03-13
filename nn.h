@@ -569,5 +569,22 @@ void nn_divapprox_classical_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d,
 void nn_div_hensel_preinv(nn_t ov, nn_t q, nn_t a, len_t m, 
                             nn_src_t d, len_t n, hensel_preinv1_t inv);
 
+/**********************************************************************
+ 
+    Subquadratic arithmetic functions
+
+**********************************************************************/
+
+/*
+   Perform Karatsuba multiplication of {a, m}, {b, n}.
+   
+   Assumes n > 1 and m >= n >= 3*m/4
+   No overlap between src and dst
+ 
+   Algorithm: 
+      z = ah*bh*B^2l + ((ah + al)*(bh + bl) - ah*bh - al*bl)*B^l + al*bl
+*/
+void nn_mul_kara(nn_t p, nn_src_t a, len_t m, nn_src_t b, len_t n);
+
 #endif
 
