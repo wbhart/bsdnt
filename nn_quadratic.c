@@ -37,7 +37,7 @@ void nn_mul_classical(nn_t r, nn_src_t a, len_t m1,
    
    ASSERT(r != a);
    ASSERT(r != b);
-   ASSERT(m1 >= m2);
+   ASSERT(m1 > 0);
    ASSERT(m2 > 0);
 
    r[m1] = nn_mul1(r, a, m1, b[0]); 

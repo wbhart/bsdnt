@@ -511,7 +511,7 @@ void nn_not(nn_t a, nn_src_t b, len_t m)
 /*
    Set {r, m1 + m2} = {a, m1} * {b, m2}. 
    The output r may not alias either of the inputs a or b. We require 
-   m1 >= m2 > 0.
+   m1, m2 > 0.
 */
 void nn_mul_classical(nn_t r, nn_src_t a, len_t m1, nn_src_t b, len_t m2);
 
@@ -594,13 +594,29 @@ void nn_mul_kara(nn_t p, nn_src_t a, len_t m, nn_src_t b, len_t n);
  
    Algorithm: 
       + Split a and b into 3 parts of lengths m3, m3, h1 and m3, m3, h2
-        respectively, where m3 = m/3
+        respectively, where m3 = (m + 2)/3
       + Evaluate split a and b at 1, 2, 4, 0, oo
       + Pointwise multiplication
       + Interpolate 5 part result
       + Recombine 5 parts into one result by evaluation at B^m3
 */
 void nn_mul_toom33(nn_t p, nn_src_t a, len_t m, nn_src_t b, len_t n);
+
+/*
+   Perform Toom-3,2 multiplication of {a, m}, {b, n}.
+   
+   Assumes n > 4 and 2*((m + 2)/3) >= n > (m + 2)/3
+   No overlap between src and dst
+ 
+   Algorithm: 
+      + Split a into 3 parts and b into two parts of lengths m3, m3, h1 and 
+        m3, h2 respectively, where m3 = (m + 2)/3
+      + Evaluate split a and b at 1, 2, 0, oo
+      + Pointwise multiplication
+      + Interpolate 4 part result
+      + Recombine 4 parts into one result by evaluation at B^m3
+*/
+void nn_mul_toom32(nn_t p, nn_src_t a, len_t m, nn_src_t b, len_t n);
 
 #endif
 

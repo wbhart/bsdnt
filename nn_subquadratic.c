@@ -183,3 +183,82 @@ void nn_mul_toom33(nn_t p, nn_src_t a, len_t m, nn_src_t b, len_t n)
 }
 
 #endif
+
+#ifndef HAVE_ARCH_nn_mul_toom32
+
+void nn_mul_toom32(nn_t p, nn_src_t a, len_t m, nn_src_t b, len_t n)
+{
+   len_t m3 = (m + 2)/3;
+   len_t h1 = m - 2*m3;
+   len_t h2 = n - m3;
+   len_t nn;
+   nn_t t;
+   word_t ci;
+   TMP_INIT;
+
+   ASSERT(n > 4);
+   ASSERT(n <= 2*m3);
+   ASSERT(n > m3);
+
+   TMP_START;
+   t = TMP_ALLOC(4*m3 + 4);
+
+#define r1 p
+#define r2 t
+#define r3 (t + 2*m3 + 2)
+#define r4 (p + 3*m3)   
+#define s1 (p + m3 + 1)
+
+   r1[m3]  = nn_add(r1, a, m3, a + 2*m3, h1); /* Evaluate at 1 */
+   r1[m3] += nn_add_m(r1, r1, a + m3, m3);
+   s1[m3]  = nn_add(s1, b, m3, b + m3, h2);
+   nn_mul_classical(r2, r1, m3 + 1, s1, m3 + 1);
+
+   ASSERT(r1[m3] < 3);
+   ASSERT(s1[m3] < 2);
+
+   ci = nn_shl(r1, a + 2*m3, h1, 1); /* Evaluate at 2 */
+   r1[m3]  = nn_add(r1, a + m3, m3, r1, h1);
+   r1[m3] += nn_add1(r1 + h1, r1 + h1, m3 - h1, ci);
+   nn_shl(r1, r1, m3 + 1, 1);
+   r1[m3] += nn_add_m(r1, r1, a, m3);
+   ci = nn_shl(s1, b + m3, h2, 1);
+   s1[m3]  = nn_add(s1, b, m3, s1, h2);
+   s1[m3] += nn_add1(s1 + h2, s1 + h2, m3 - h2, ci);
+   nn_mul_classical(r3, r1, m3 + 1, s1, m3 + 1);
+
+   ASSERT(r1[m3] < 7);
+   ASSERT(s1[m3] < 3);
+
+   nn_mul_classical(r1, a, m3, b, m3); /* Evaluate at 0 */
+   nn_mul_classical(r4, a + 2*m3, h1, b + m3, h2); /* Evaluate at oo */
+   nn_zero(p + 2*m3, m3);
+
+   nn_sub_m(r2, r2, r1, 2*m3 + 1); /* Interpolate */
+   nn_sub_m(r3, r3, r1, 2*m3 + 1);
+   nn_submul1(r3, r2, 2*m3 + 1, 2); 
+   ci = nn_submul1(r3, r4, h1 + h2, 6);
+   nn_sub1(r3 + h1 + h2, r3 + h1 + h2, 2*m3 - h1 - h2 + 1, ci);
+
+#pragma GCC diagnostic ignored "-Wunused-value"
+   ASSERT_ALWAYS(nn_shr(r3, r3, 2*m3 + 1, 1) == 0);
+#pragma GCC diagnostic warning "-Wunused-value"
+
+   nn_sub(r2, r2, 2*m3 + 1, r4, h1 + h2);
+   nn_sub_m(r2, r2, r3, 2*m3 + 1);
+   
+   nn = nn_normalise(r3, 2*m3 + 1); /* Normalise */
+   
+   nn_add(p + m3, p + m3, 2*m3 + h1 + h2, r2, 2*m3 + 1); /* Recombine */
+   nn_add(p + 2*m3, p + 2*m3, m3 + h1 + h2, r3, nn); 
+
+   TMP_END;
+
+#undef r1
+#undef r2
+#undef r3
+#undef r4
+#undef s1
+}
+
+#endif
