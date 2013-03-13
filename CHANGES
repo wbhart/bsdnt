@@ -98,3 +98,6 @@
 12-Mar-2013:
 	v0.30 - Added TMP_INIT/START/ALLOC/ALLOC_BYTES/END.
 
+13-Mar-2013:
+	v0.31 - Added mul_kara.
+
