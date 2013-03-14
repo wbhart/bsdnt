@@ -99,5 +99,5 @@
 	v0.30 - Added TMP_INIT/START/ALLOC/ALLOC_BYTES/END.
 
 13-Mar-2013:
-	v0.31 - Added mul_kara, toom33, toom32.
+	v0.31 - Added nn_mul_kara, nn_mul_toom33, nn_mul_toom32, nn_mul.
 
