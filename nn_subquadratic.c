@@ -61,7 +61,7 @@ void nn_mul_kara(nn_t p, nn_src_t a, len_t m, nn_src_t b, len_t n)
    t[2*m2 + 1] = ci - nn_sub(t, t, 2*m2 + 1, p + 2*m2, h1 + h2);
    
    nn_add(p + m2, p + m2, m + h2, t, 2*m2 + 1);
-  
+   
    TMP_END;
 }
 

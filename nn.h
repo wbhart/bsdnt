@@ -618,5 +618,18 @@ void nn_mul_toom33(nn_t p, nn_src_t a, len_t m, nn_src_t b, len_t n);
 */
 void nn_mul_toom32(nn_t p, nn_src_t a, len_t m, nn_src_t b, len_t n);
 
+/**********************************************************************
+ 
+    Tuned (best-of-breed) arithmetic functions
+
+**********************************************************************/
+
+/*
+   Set {p, m + n} = {a, m} * {b, n}. 
+   The output p may not alias either of the inputs a or b. We require 
+   m, n > 0.
+*/
+void nn_mul(nn_t p, nn_src_t a, len_t m, nn_src_t b, len_t n);
+
 #endif
 
