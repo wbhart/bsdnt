@@ -58,14 +58,19 @@ void nn_test_random1(nn_t a, rand_t state, len_t m)
 
 void nn_test_random2(nn_t a, rand_t state, len_t m)
 {
-	nn_t b = malloc(m*sizeof(word_t)); /* TODO: replace with temporary allocation */
+	nn_t b;
+   TMP_INIT;
+   
+   TMP_START;
+
+   b = TMP_ALLOC(m); 
 	
 	nn_test_random1(a, state, m);
 	nn_test_random1(b, state, m);
 
 	nn_sub_m(a, a, b, m);
 
-	free(b);
+	TMP_END;
 }
 
 void nn_test_random(nn_t a, rand_t state, len_t m)
