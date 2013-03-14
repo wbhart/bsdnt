@@ -625,6 +625,13 @@ void nn_mul_toom32(nn_t p, nn_src_t a, len_t m, nn_src_t b, len_t n);
 **********************************************************************/
 
 /*
+   Set {p, 2*m} = {a, m} * {b, m}. 
+   The output p may not alias either of the inputs a or b. We require 
+   m > 0.
+*/
+void nn_mul_m(nn_t p, nn_src_t a, nn_src_t b, len_t m);
+
+/*
    Set {p, m + n} = {a, m} * {b, n}. 
    The output p may not alias either of the inputs a or b. We require 
    m, n > 0.

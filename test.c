@@ -32,11 +32,6 @@
 
 node_t * garbage = NULL;
 
-void talker(const char * str)
-{
-   fprintf(stderr, "Error: %s\n", str);
-}
-
 node_t * new_node(type_t type, void * ptr, len_t length, node_t * next)
 {
    node_t * node = malloc(sizeof(node_t));

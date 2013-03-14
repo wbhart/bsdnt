@@ -98,11 +98,6 @@ typedef struct node_t
 } node_t;
 
 /*
-   Send the given error message to stderr.
-*/
-void talker(const char * str);
-
-/*
    Given a NULL terminated list of *pointers* to words, generate 
    random words which have the property specified by the flag.
 

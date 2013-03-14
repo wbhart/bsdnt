@@ -29,6 +29,19 @@
 #include "nn_arch.h"
 #include "tuning.h"
 
+void nn_mul_m(nn_t p, nn_src_t a, nn_src_t b, len_t m)
+{
+   if (m <= MUL_CLASSICAL_CUTOFF)
+      nn_mul_classical(p, a, m, b, m);
+   else if (m <= MUL_KARA_CUTOFF)
+      nn_mul_kara(p, a, m, b, m);
+   else if (m <= MUL_TOOM33_CUTOFF)
+      nn_mul_toom33(p, a, m, b, m);
+   else
+      talker("Out of options in nn_mul_m\n");
+}
+
+
 void nn_mul(nn_t p, nn_src_t a, len_t m, nn_src_t b, len_t n)
 {
    len_t r;
@@ -60,14 +73,16 @@ void nn_mul(nn_t p, nn_src_t a, len_t m, nn_src_t b, len_t n)
             {
                nn_mul_toom32(p, a, m, b, n);
                return;
-            }
+            } else
+               talker("Out of options in nn_mul\n");
          } else /* n > 2*m3 */
          {
             if (n <= MUL_TOOM33_CUTOFF)
             {
                nn_mul_toom33(p, a, m, b, n);
                return;
-            }
+            } else
+               talker("Out of options in nn_mul\n");
          }
       }
    }
@@ -76,20 +91,17 @@ void nn_mul(nn_t p, nn_src_t a, len_t m, nn_src_t b, len_t n)
 
    while (r > n) r -= n;
 
-   nn_mul_classical(p, b, n, a, r);
+   nn_mul(p, b, n, a, r);
   
-   if (m > r)
+   TMP_START;
+   t = TMP_ALLOC(n + 1);
+   while (m > r)
    {
-      TMP_START;
-      t = TMP_ALLOC(n + 1);
-      while (m > r)
-      {
-         nn_copy(t, p + r, n); /* temporarily save top n + 1 limbs */
-         nn_mul_classical(p + r, a + r, n, b, n);
-         nn_add(p + r, p + r, 2*n, t, n);
-         r += n;
-      }
-      TMP_END;
+      nn_copy(t, p + r, n); /* temporarily save top n + 1 limbs */
+      nn_mul_m(p + r, a + r, b, n);
+      nn_add(p + r, p + r, 2*n, t, n);
+      r += n;
    }
+   TMP_END;
 }
 

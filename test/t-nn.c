@@ -35,6 +35,37 @@
 
 rand_t state;
 
+int test_mul_m(void)
+{
+   int result = 1;
+   len_t m;
+   nn_t a, b, r1, r2;
+
+   printf("mul_m...");
+
+   TEST_START(1, ITER) /* test mul_m gives same as mul_classical */
+   {
+      randoms_upto(300, NONZERO, state, &m, NULL);
+      
+      randoms_of_len(m, ANY, state, &a, &b, NULL);
+      
+      randoms_of_len(2*m, ANY, state, &r1, &r2, NULL);
+      
+      nn_mul_classical(r1, a, m, b, m);
+      nn_mul_m(r2, a, b, m);
+      
+      result = nn_equal_m(r1, r2, 2*m);
+
+      if (!result) 
+      {
+         print_debug(a, m); print_debug(b, m);
+         print_debug_diff(r1, r2, 2*m);
+      }
+   } TEST_END;
+
+   return result;
+}
+
 int test_mul(void)
 {
    int result = 1;
@@ -73,6 +104,7 @@ int test(void)
    long pass = 0;
    long fail = 0;
    
+   RUN(test_mul_m);
    RUN(test_mul);
    
    printf("%ld of %ld tests pass.\n", pass, pass + fail);

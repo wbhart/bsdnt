@@ -113,6 +113,11 @@ typedef struct mod_preinv1_t
       __tmp_root = __tmp_root->next; \
    }
 
+/*
+   Send the given error message to stderr.
+*/
+void talker(const char * str);
+
 #include "helper_arch.h"
 #include "rand.h"
 

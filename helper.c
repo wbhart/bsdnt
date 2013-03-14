@@ -40,6 +40,11 @@
 
 **********************************************************************/
 
+void talker(const char * str)
+{
+   fprintf(stderr, "Error: %s\n", str);
+}
+
 /* return number of arguments called for by a specific format specifier */
 int parse_fmt(int * floating, const char * fmt)
 {

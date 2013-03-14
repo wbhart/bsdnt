@@ -52,10 +52,10 @@ void nn_mul_kara(nn_t p, nn_src_t a, len_t m, nn_src_t b, len_t n)
    TMP_START;
    t = TMP_ALLOC(2*m2 + 2);
    
-   nn_mul_classical(t, p + m2 + 1, m2 + 1, p, m2 + 1); 
+   nn_mul_m(t, p + m2 + 1, p, m2 + 1); 
    
-   nn_mul_classical(p, a, m2, b, m2);
-   nn_mul_classical(p + 2*m2, a + m2, h1, b + m2, h2);
+   nn_mul_m(p, a, b, m2);
+   nn_mul(p + 2*m2, a + m2, h1, b + m2, h2);
    
    ci = -nn_sub(t, t, 2*m2 + 1, p, 2*m2);
    t[2*m2 + 1] = ci - nn_sub(t, t, 2*m2 + 1, p + 2*m2, h1 + h2);
@@ -98,7 +98,7 @@ void nn_mul_toom33(nn_t p, nn_src_t a, len_t m, nn_src_t b, len_t n)
    r1[m3] += nn_add(r1, r1, m3, a + 2*m3, h1);
    s1[m3]  = nn_add_m(s1, b, b + m3, m3);
    s1[m3] += nn_add(s1, s1, m3, b + 2*m3, h2);
-   nn_mul_classical(r2, r1, m3 + 1, s1, m3 + 1);
+   nn_mul_m(r2, r1, s1, m3 + 1);
 
    ASSERT(r1[m3] < 3);
    ASSERT(s1[m3] < 3);
@@ -113,7 +113,7 @@ void nn_mul_toom33(nn_t p, nn_src_t a, len_t m, nn_src_t b, len_t n)
    s1[m3] += nn_add1(s1 + h2, s1 + h2, m3 - h2, ci);
    nn_shl(s1, s1, m3 + 1, 1);
    s1[m3] += nn_add_m(s1, s1, b, m3);
-   nn_mul_classical(r3, r1, m3 + 1, s1, m3 + 1);
+   nn_mul_m(r3, r1, s1, m3 + 1);
 
    ASSERT(r1[m3] < 7);
    ASSERT(s1[m3] < 7);
@@ -128,13 +128,13 @@ void nn_mul_toom33(nn_t p, nn_src_t a, len_t m, nn_src_t b, len_t n)
    s1[m3] += nn_add1(s1 + h2, s1 + h2, m3 - h2, ci);
    nn_shl(s1, s1, m3 + 1, 2);
    s1[m3] += nn_add_m(s1, s1, b, m3);
-   nn_mul_classical(r4, r1, m3 + 1, s1, m3 + 1);
+   nn_mul_m(r4, r1, s1, m3 + 1);
 
    ASSERT(r1[m3] < 21);
    ASSERT(s1[m3] < 21);
 
-   nn_mul_classical(r1, a, m3, b, m3); /* Evaluate at 0 */
-   nn_mul_classical(r5, a + 2*m3, h1, b + 2*m3, h2); /* Evaluate at oo */
+   nn_mul_m(r1, a, b, m3); /* Evaluate at 0 */
+   nn_mul(r5, a + 2*m3, h1, b + 2*m3, h2); /* Evaluate at oo */
 
    nn_zero(p + 2*m3, 2*m3);
 
@@ -212,7 +212,7 @@ void nn_mul_toom32(nn_t p, nn_src_t a, len_t m, nn_src_t b, len_t n)
    r1[m3]  = nn_add(r1, a, m3, a + 2*m3, h1); /* Evaluate at 1 */
    r1[m3] += nn_add_m(r1, r1, a + m3, m3);
    s1[m3]  = nn_add(s1, b, m3, b + m3, h2);
-   nn_mul_classical(r2, r1, m3 + 1, s1, m3 + 1);
+   nn_mul_m(r2, r1, s1, m3 + 1);
 
    ASSERT(r1[m3] < 3);
    ASSERT(s1[m3] < 2);
@@ -225,13 +225,14 @@ void nn_mul_toom32(nn_t p, nn_src_t a, len_t m, nn_src_t b, len_t n)
    ci = nn_shl(s1, b + m3, h2, 1);
    s1[m3]  = nn_add(s1, b, m3, s1, h2);
    s1[m3] += nn_add1(s1 + h2, s1 + h2, m3 - h2, ci);
-   nn_mul_classical(r3, r1, m3 + 1, s1, m3 + 1);
+   nn_mul_m(r3, r1, s1, m3 + 1);
 
    ASSERT(r1[m3] < 7);
    ASSERT(s1[m3] < 3);
 
-   nn_mul_classical(r1, a, m3, b, m3); /* Evaluate at 0 */
-   nn_mul_classical(r4, a + 2*m3, h1, b + m3, h2); /* Evaluate at oo */
+   nn_mul_m(r1, a, b, m3); /* Evaluate at 0 */
+   if (h1 >= h2) nn_mul(r4, a + 2*m3, h1, b + m3, h2); /* Evaluate at oo */
+   else nn_mul(r4, b + m3, h2, a + 2*m3, h1);
    nn_zero(p + 2*m3, m3);
 
    nn_sub_m(r2, r2, r1, 2*m3 + 1); /* Interpolate */

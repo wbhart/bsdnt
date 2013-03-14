@@ -32,9 +32,9 @@
 
 #define MUL_KARA_CUTOFF 120
 
-#define MUL_TOOM32_CUTOFF -1L /* no fft yet */
+#define MUL_TOOM32_CUTOFF ULONG_MAX /* no fft yet */
 
-#define MUL_TOOM33_CUTOFF -1L /* no fft yet */
+#define MUL_TOOM33_CUTOFF ULONG_MAX /* no fft yet */
 
 #endif
 
