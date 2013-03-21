@@ -281,7 +281,7 @@ word_t nn_divapprox_divconquer_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d,
       return nn_divapprox_classical_preinv_c(q, a, m, d, n, dinv, ci);
 
    /* Rare case where truncation ruins normalisation */
-   if (ci == d[n - 1] && nn_equal_m(a + m - s + 1, d + n - s, s - 1))
+   if (ci > d[n - 1] || (ci == d[n - 1] && nn_cmp_m(a + m - s + 1, d + n - s, s - 1) >= 0))
       return nn_divapprox_classical_preinv_c(q, a, m, d, n, dinv, ci); /* Todo: do this efficiently */
 
    TMP_START;
