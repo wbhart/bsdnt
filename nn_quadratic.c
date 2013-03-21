@@ -123,7 +123,7 @@ void nn_mulmid_classical(nn_t ov, nn_t p,
                             nn_src_t a, len_t m, nn_src_t b, len_t n)
 {
   dword_t t; /* overflow */
-
+ 
   ASSERT(m >= n);
   ASSERT(n >= 2);
 

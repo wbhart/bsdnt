@@ -182,15 +182,12 @@ int test_divapprox_divconquer_preinv(void)
       nn_sub1(q1, q1, m, 1);
       if (result)
       {
-         result = (nn_cmp_m(q1, q2, m) < 0);
+         result = (nn_cmp_m(q1, q2, m) <= 0);
          nn_add1(q1, q1, m, 1);
          nn_add1(q2, q2, m, 2);
-         result |= (nn_cmp_m(q1, q2, m) < 0);
-         nn_add1(q1, q1, m, 1);
-         nn_add1(q2, q2, m, 2);
-         result |= (nn_cmp_m(q1, q2, m) < 0);
-         nn_sub1(q1, q1, m, 2);
-         nn_sub1(q2, q2, m, 4);
+         result |= (nn_cmp_m(q1, q2, m) <= 0);
+         nn_sub1(q1, q1, m, 1);
+         nn_sub1(q2, q2, m, 2);
       }  
       
       if (!result) 
