@@ -537,6 +537,11 @@ void nn_mullow_classical(nn_t ov, nn_t r, nn_src_t a, len_t m1,
 void nn_mulhigh_classical(nn_t r, nn_src_t a, len_t m1, 
                                        nn_src_t b, len_t m2, nn_t ov);
 
+void
+nn_mulmid_classical(nn_t ov, nn_t rp,
+                     nn_src_t up, len_t un,
+                     nn_src_t vp, len_t vn);
+
 /*
    Given a of length m and d of length n with a carry-in ci, compute
    the quotient of ci*B^m + a by d, and leave the remainder in the bottom 
@@ -553,9 +558,12 @@ void nn_divrem_classical_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d,
    As per nn_divrem_classical_preinv_c, however no remainder is computed
    and the quotient is either correct or one too large, i.e. |a - q*d| < d.
    The dividend a is destroyed and may not alias q.
+   If the normalisation is destroyed by successive truncation, it is 
+   possible that the remainder may require an additional bit, in which
+   case the bit is returned by this function.
 */
-void nn_divapprox_classical_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d, 
-                                  len_t n, preinv1_t inv, word_t ci);
+word_t nn_divapprox_classical_preinv_c(nn_t q, nn_t a, len_t m, 
+                         nn_src_t d,len_t n, preinv1_t inv, word_t ci);
 
 /*
    Perform Hensel division of {a, m} by {d, n} with the quotient mod B^m
@@ -637,6 +645,10 @@ void nn_mul_m(nn_t p, nn_src_t a, nn_src_t b, len_t m);
    m, n > 0.
 */
 void nn_mul(nn_t p, nn_src_t a, len_t m, nn_src_t b, len_t n);
+
+word_t nn_divapprox_divconquer_preinv_c(nn_t q, nn_t a, len_t m, 
+                     nn_src_t d, len_t n, preinv1_t dinv, word_t ci);
+
 
 #endif
 

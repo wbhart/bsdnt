@@ -54,7 +54,7 @@ void nn_mullow_classical(nn_t ov, nn_t r, nn_src_t a, len_t m1,
                                               nn_src_t b, len_t m2)
 {
    len_t i;
-   dword_t t = 0;
+   dword_t t;
   
    ASSERT(r != a);
    ASSERT(r != b);
@@ -117,6 +117,37 @@ void nn_mulhigh_classical(nn_t r, nn_src_t a, len_t m1,
 
 #endif
 
+#ifndef HAVE_ARCH_nn_mulmid_classical
+
+void
+nn_mulmid_classical(nn_t ov, nn_t rp,
+                     nn_src_t up, len_t un,
+                     nn_src_t vp, len_t vn)
+{
+  dword_t t; /* overflow */
+
+  ASSERT (un >= vn);
+  ASSERT (vn >= 2);
+  ASSERT (rp != up);
+  ASSERT (rp != vp);
+
+  up += vn - 2;
+  un -= vn;
+
+  t = nn_mul1(rp, up, un, vp[0]);
+
+  for (vn--; vn; vn--)
+  {
+      up--, vp++;
+      t += nn_addmul1(rp, up, un, vp[0]);
+  }
+
+  ov[0] = (word_t) t;
+  ov[1] = (t >> WORD_BITS);
+}
+
+#endif
+
 /* GCC thinks d1 is unused, so turn warning off */
 #pragma GCC diagnostic ignored "-Wunused-variable"
 
@@ -159,20 +190,21 @@ void nn_divrem_classical_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d,
 
 #ifndef HAVE_ARCH_nn_divapprox_classical_preinv_c
 
-void nn_divapprox_classical_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d, 
+word_t nn_divapprox_classical_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d, 
                                   len_t n, preinv1_t dinv, word_t ci)
 {
    long i = m - 1, j = m - n;
-   word_t d1 = d[n - 1];
+   word_t cy, d1 = d[n - 1];
    len_t s = m - n; /* this many iterations to get to last quotient */
+   int flag = 0;
    s += 2; /* need two normalised words at that point */
    
    ASSERT(q != d);
    ASSERT(q != a);
    ASSERT(m >= n);
    ASSERT(n > 1);
-   ASSERT((ci < d1) 
-      || ((ci == d1) && (nn_cmp_m(a + m - n + 1, d, n - 1) < 0)));
+   /*ASSERT((ci < d1) 
+      || ((ci == d1) && (nn_cmp_m(a + m - n + 1, d, n - 1) < 0)));*/
    ASSERT((long) d1 < 0);
 
    for ( ; s >= n; i--, j--, s--)
@@ -194,27 +226,45 @@ void nn_divapprox_classical_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d,
    }
    
    d = d + n - s; /* make d length s */
-   a = a + i + 1 - s; /* make a length s + carry */
+   a = a + i + 1 - s; /* make a length s (+ carry) */
    
-   for ( ; i >= n - 1; i--, j--, s--)
+   for ( ; s >= 2; j--, s--)
    {
+      /* rare case where truncation ruins normalisation */
+      if (ci > d[s - 1] || (ci == d[s - 1] && nn_cmp_m(a + 1, d, s - 1) >= 0))
+      {
+         for ( ; s >= 2; j--, s--)
+         {
+            q[j] = ~WORD(0);
+            ci -= nn_submul1(a, d, s, q[j]);
+            cy = ci;
+            ci = a[s - 1];
+            d++;
+         }
+
+         return cy;
+      }
+
       divapprox21_preinv1(q[j], ci, a[s - 1], d1, dinv);
-	  
+         
       /* a -= d*q1 */
       ci -= nn_submul1(a, d, s, q[j]);
-      
+
 	   /* correct if remainder is too large */
       while (ci || nn_cmp_m(a, d, s) >= 0)
       {
          q[j]++;
          ci -= nn_sub_m(a, a, d, s);
       }
-	  
+
       /* fetch next word now that it has been updated */
+      cy = ci;
       ci = a[s - 1];
       
       d++;
-   }   
+   }  
+
+   return cy;
 }
 
 #endif

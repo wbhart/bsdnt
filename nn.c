@@ -27,7 +27,6 @@
 
 #include "nn.h"
 #include "nn_arch.h"
-#include "tuning.h"
 
 void nn_mul_m(nn_t p, nn_src_t a, nn_src_t b, len_t m)
 {

@@ -262,4 +262,59 @@ void nn_mul_toom32(nn_t p, nn_src_t a, len_t m, nn_src_t b, len_t n)
 #undef s1
 }
 
+word_t nn_divapprox_divconquer_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d, 
+                                  len_t n, preinv1_t dinv, word_t ci)
+{
+   len_t s = m - n + 1;
+   len_t sh = s/2;
+   len_t sl = s - sh;
+   nn_t t;
+   len_t i;
+   
+   TMP_INIT;
+
+   ASSERT(n >= s); /* temporary condition */
+   ASSERT(DIVAPPROX_CLASSICAL_CUTOFF >= 3);
+
+   /* Base case */
+   if (s <= DIVAPPROX_CLASSICAL_CUTOFF)
+      return nn_divapprox_classical_preinv_c(q, a, m, d, n, dinv, ci);
+
+   /* Rare case where truncation ruins normalisation */
+   if (ci == d[n - 1] && nn_equal_m(a + m - s + 1, d + n - s, s - 1))
+      return nn_divapprox_classical_preinv_c(q, a, m, d, n, dinv, ci); /* Todo: do this efficiently */
+
+   TMP_START;
+   t = TMP_ALLOC(sl + 2);
+
+   ci = nn_divapprox_divconquer_preinv_c(q + sl, a + sl, 
+                                             n + sh - 1, d, n, dinv, ci);
+   
+   nn_mulmid_classical(t + sl, t, d + n - s, s, q + sl, sh); /* Todo : switch to fast mulmid */
+   ci -= nn_sub_m(a + m - s - 1, a + m - s - 1, t, sl + 2);
+   
+   while ((long) ci < 0)
+   {
+      nn_sub1(q + sl, q + sl, sh, 1); /* ensure quotient is not too big */
+
+      /*
+         correct remainder, noting that "digits" of quotient are not base B
+         but in a base that varies with truncation, thus the correction
+         needs a fixup
+      */
+      ci += nn_add_m(a + m - s - 1, a + m - s - 1, d + n - sl - 2, sl + 2); 
+
+      for (i = 0; q[sl + i] == ~WORD(0) && i < sh - 1; i++)
+         ci += nn_add1(a + m - s - 1, a + m - s - 1, sl + 2, d[n - sl - 3 - i]);
+   }
+   
+   ASSERT(ci == 0); /* Todo: write out all binary 1's for quotient here */
+
+   ci = nn_divapprox_divconquer_preinv_c(q, a, n + sl - 1, d, n, dinv, a[m - sh]);
+
+   TMP_END;
+
+   return ci;
+}
+
 #endif

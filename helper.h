@@ -36,6 +36,7 @@
 #include <assert.h>
 #include "config.h"
 #include "types_arch.h"
+#include "tuning.h"
 
 #if ULONG_MAX == 4294967295U /* 32 bit unsigned long */
 
