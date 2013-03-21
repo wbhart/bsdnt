@@ -5,7 +5,7 @@
 
 word_t nn_add_mc(nn_t a, nn_src_t b, nn_src_t c, len_t m, word_t ci)
 {
-   __asm__ (
+   __asm__ __volatile__ (
 
    "movq %%r8, %%rax; \
     jrcxz 2f; \
@@ -24,7 +24,7 @@ word_t nn_add_mc(nn_t a, nn_src_t b, nn_src_t c, len_t m, word_t ci)
 2:; "
 
    : "=a" (ci)
-   : "c" ((len_t)(m)), "d" ((nn_src_t)(c)), "S" ((nn_src_t)(b)), "D" ((nn_src_t *)(a))
+   : "c" (m), "d" (c), "S" (b), "D" (a)
    );
 
    return ci;
@@ -37,7 +37,7 @@ word_t nn_add_mc(nn_t a, nn_src_t b, nn_src_t c, len_t m, word_t ci)
 
 word_t nn_sub_mc(nn_t a, nn_src_t b, nn_src_t c, len_t m, word_t ci)
 {
-   __asm__ (
+   __asm__ __volatile__ (
 
    "mov %%r8, %%rax; \
     jrcxz 2f; \
@@ -49,14 +49,14 @@ word_t nn_sub_mc(nn_t a, nn_src_t b, nn_src_t c, len_t m, word_t ci)
 1:; \
     movq (%%rsi,%%rcx,8), %%r10; \
     sbb (%%rdx,%%rcx,8), %%r10; \
-    movq %%r10,(%%rdi,%%rcx,8); \
+    movq %%r10, (%%rdi,%%rcx,8); \
     incq %%rcx; \
     jnz 1b; \
     setc %%al; \
 2:; "
 
    : "=a" (ci)
-   : "c" ((len_t)(m)), "d" ((nn_src_t)(c)), "S" ((nn_src_t)(b)), "D" ((nn_src_t *)(a))
+   : "c" (m), "d" (c), "S" (b), "D" (a)
    );
 
    return ci;
