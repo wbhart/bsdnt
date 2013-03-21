@@ -23,7 +23,7 @@ word_t nn_add_mc(nn_t a, nn_src_t b, nn_src_t c, len_t m, word_t ci)
     setc %%al; \
 2:; "
 
-   : "=a" ((word_t)(ci))
+   : "=a" (ci)
    : "c" ((len_t)(m)), "d" ((nn_src_t)(c)), "S" ((nn_src_t)(b)), "D" ((nn_src_t *)(a))
    );
 
@@ -55,7 +55,7 @@ word_t nn_sub_mc(nn_t a, nn_src_t b, nn_src_t c, len_t m, word_t ci)
     setc %%al; \
 2:; "
 
-   : "=a" ((word_t)(ci))
+   : "=a" (ci)
    : "c" ((len_t)(m)), "d" ((nn_src_t)(c)), "S" ((nn_src_t)(b)), "D" ((nn_src_t *)(a))
    );
 
