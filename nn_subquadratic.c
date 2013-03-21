@@ -293,7 +293,7 @@ word_t nn_divapprox_divconquer_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d,
    nn_mulmid_classical(t + sl, t, d + n - s - 2, s, q + sl, sh); /* Todo : switch to fast mulmid */
    ci -= nn_sub_m(a + m - s - 1, a + m - s - 1, t, sl + 2);
    
-   while ((long) ci < 0)
+   while ((sword_t) ci < 0)
    {
       nn_sub1(q + sl, q + sl, sh, 1); /* ensure quotient is not too big */
 
@@ -304,7 +304,7 @@ word_t nn_divapprox_divconquer_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d,
       */
       ci += nn_add_m(a + m - s - 1, a + m - s - 1, d + n - sl - 2, sl + 2); 
 
-      for (i = 0; q[sl + i] == ~WORD(0) && i < sh - 1; i++)
+      for (i = 0; i < sh - 1 && q[sl + i] == ~WORD(0); i++)
          ci += nn_add1(a + m - s - 1, a + m - s - 1, sl + 2, d[n - sl - 3 - i]);
    }
    

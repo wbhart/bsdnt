@@ -41,6 +41,7 @@
 #if ULONG_MAX == 4294967295U /* 32 bit unsigned long */
 
 typedef uint32_t word_t;
+typedef int32_t sword_t;
 typedef unsigned int dword_t __attribute__((mode(DI)));
 typedef int32_t len_t;
 typedef int32_t bits_t;
@@ -53,6 +54,7 @@ typedef int32_t bits_t;
 #else /* 64 bit unsigned long */
 
 typedef uint64_t word_t;
+typedef int64_t sword_t;
 typedef unsigned int dword_t __attribute__((mode(TI)));
 typedef int64_t len_t;
 typedef int64_t bits_t;
