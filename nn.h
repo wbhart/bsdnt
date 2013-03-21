@@ -537,10 +537,14 @@ void nn_mullow_classical(nn_t ov, nn_t r, nn_src_t a, len_t m1,
 void nn_mulhigh_classical(nn_t r, nn_src_t a, len_t m1, 
                                        nn_src_t b, len_t m2, nn_t ov);
 
-void
-nn_mulmid_classical(nn_t ov, nn_t rp,
-                     nn_src_t up, len_t un,
-                     nn_src_t vp, len_t vn);
+/*
+   Set ov, {p, m - n} to the middle product of {a, m} and {b, n}, i.e.
+   sum_{m - 2 > i + j >= n - 2} a[i]*b[j]*B^{i + j - m + 2}, with 
+   overflows accumulating in the two limb ov.
+*/
+void nn_mulmid_classical(nn_t ov, nn_t p,
+                            nn_src_t a, len_t m, nn_src_t b, len_t n);
+
 
 /*
    Given a of length m and d of length n with a carry-in ci, compute

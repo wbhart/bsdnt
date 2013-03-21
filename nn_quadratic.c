@@ -119,27 +119,23 @@ void nn_mulhigh_classical(nn_t r, nn_src_t a, len_t m1,
 
 #ifndef HAVE_ARCH_nn_mulmid_classical
 
-void
-nn_mulmid_classical(nn_t ov, nn_t rp,
-                     nn_src_t up, len_t un,
-                     nn_src_t vp, len_t vn)
+void nn_mulmid_classical(nn_t ov, nn_t p,
+                            nn_src_t a, len_t m, nn_src_t b, len_t n)
 {
   dword_t t; /* overflow */
 
-  ASSERT (un >= vn);
-  ASSERT (vn >= 2);
-  ASSERT (rp != up);
-  ASSERT (rp != vp);
+  ASSERT(m >= n);
+  ASSERT(n >= 2);
 
-  up += vn - 2;
-  un -= vn;
+  a += n - 2;
+  m -= n;
 
-  t = nn_mul1(rp, up, un, vp[0]);
+  t = nn_mul1(p, a, m, b[0]);
 
-  for (vn--; vn; vn--)
+  for (n--; n > 0; n--)
   {
-      up--, vp++;
-      t += nn_addmul1(rp, up, un, vp[0]);
+      a--; b++;
+      t += nn_addmul1(p, a, m, b[0]);
   }
 
   ov[0] = (word_t) t;
