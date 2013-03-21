@@ -127,7 +127,7 @@ void nn_mulmid_classical(nn_t ov, nn_t p,
   ASSERT(m >= n);
   ASSERT(n >= 2);
 
-  a += n - 2;
+  a += n;
   m -= n;
 
   t = nn_mul1(p, a, m, b[0]);

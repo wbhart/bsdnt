@@ -539,7 +539,7 @@ void nn_mulhigh_classical(nn_t r, nn_src_t a, len_t m1,
 
 /*
    Set ov, {p, m - n} to the middle product of {a, m} and {b, n}, i.e.
-   sum_{m - 2 > i + j >= n - 2} a[i]*b[j]*B^{i + j - m + 2}, with 
+   set p to sum_{m > i + j >= n} a[i]*b[j]*B^{i + j - m}, with 
    overflows accumulating in the two limb ov.
 */
 void nn_mulmid_classical(nn_t ov, nn_t p,

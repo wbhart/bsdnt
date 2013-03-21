@@ -290,7 +290,7 @@ word_t nn_divapprox_divconquer_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d,
    ci = nn_divapprox_divconquer_preinv_c(q + sl, a + sl, 
                                              n + sh - 1, d, n, dinv, ci);
    
-   nn_mulmid_classical(t + sl, t, d + n - s, s, q + sl, sh); /* Todo : switch to fast mulmid */
+   nn_mulmid_classical(t + sl, t, d + n - s - 2, s, q + sl, sh); /* Todo : switch to fast mulmid */
    ci -= nn_sub_m(a + m - s - 1, a + m - s - 1, t, sl + 2);
    
    while ((long) ci < 0)
