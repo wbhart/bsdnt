@@ -502,6 +502,20 @@ void nn_not(nn_t a, nn_src_t b, len_t m)
       a[i] = ~b[i];
 }
 
+
+/**********************************************************************
+ 
+    Internal helper functions
+
+**********************************************************************/
+
+/*
+   Set sl words of q to ~WORD(0) and subtract 
+   sum_{i = 0)^{s - 1} q[i]*{d + s - i - 1, i + 2} from a.
+   Return a[2].
+*/
+word_t _nn_divapprox_helper(nn_t q, nn_t a, nn_src_t d, len_t s);
+
 /**********************************************************************
  
     Quadratic arithmetic functions

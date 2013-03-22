@@ -187,6 +187,27 @@ void nn_divrem_classical_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d,
 /* Turn warning back on */
 #pragma GCC diagnostic warning "-Wunused-variable"
 
+#ifndef HAVE_ARCH__nn_divapprox_helper
+
+word_t _nn_divapprox_helper(nn_t q, nn_t a, nn_src_t d, len_t s)
+{
+   word_t ci;
+   len_t i;
+   
+   nn_sub_m(a + 1, a + 1, d, s + 1);
+   ci = a[2] + nn_add1(a + 1, a + 1, 1, d[s]);
+
+   for (i = s - 1; i >= 0; i--)
+   {
+      q[i] = ~WORD(0);
+      ci += nn_add1(a, a, 2, d[i]);
+   }
+
+   return ci;
+}
+
+#endif
+
 #ifndef HAVE_ARCH_nn_divapprox_classical_preinv_c
 
 word_t nn_divapprox_classical_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d, 
@@ -228,18 +249,7 @@ word_t nn_divapprox_classical_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d,
    {
       /* rare case where truncation ruins normalisation */
       if (ci > d[s - 1] || (ci == d[s - 1] && nn_cmp_m(a + 1, d, s - 1) >= 0))
-      {
-         for ( ; s >= 2; j--, s--)
-         {
-            q[j] = ~WORD(0);
-            ci -= nn_submul1(a, d, s, q[j]);
-            cy = ci;
-            ci = a[s - 1];
-            d++;
-         }
-
-         return cy;
-      }
+         return _nn_divapprox_helper(q, a, d, s - 1);
 
       divapprox21_preinv1(q[j], ci, a[s - 1], d1, dinv);
          
