@@ -266,19 +266,29 @@ word_t nn_divapprox_divconquer_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d,
                                   len_t n, preinv1_t dinv, word_t ci)
 {
    len_t s = m - n + 1;
-   len_t sh = s/2;
-   len_t sl = s - sh;
+   len_t sh, sl;
    nn_t t;
    len_t i;
    
    TMP_INIT;
 
-   ASSERT(n >= s); /* temporary condition */
    ASSERT(DIVAPPROX_CLASSICAL_CUTOFF >= 3);
 
    /* Base case */
    if (s <= DIVAPPROX_CLASSICAL_CUTOFF)
       return nn_divapprox_classical_preinv_c(q, a, m, d, n, dinv, ci);
+
+   /* Reduce until n >= s */
+   while (n < s)
+   {
+      nn_divrem_classical_preinv_c(q + s - n, a + m - 2*n + 1, 2*n - 1, d, n, dinv, ci); /* Todo: switch to fast divrem */
+
+      s -= n; m -= n; 
+      ci = a[m];
+   }
+
+   /* split into two parts */
+   sh = s/2; sl = s - sh;
 
    /* Rare case where truncation ruins normalisation */
    if (ci > d[n - 1] || (ci == d[n - 1] 

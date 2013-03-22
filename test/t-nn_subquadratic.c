@@ -151,11 +151,9 @@ int test_divapprox_divconquer_preinv(void)
 
    TEST_START(1, ITER) /* test divapprox is at most one more than divrem */
    {
-      do {
-         randoms_upto(150, NONZERO, state, &n, NULL);
-         n++; /* require n at least 2 */
-         randoms_upto(n + 1, NONZERO, state, &m, NULL);
-      } while (m + 1 >= n);
+      randoms_upto(150, NONZERO, state, &n, NULL);
+      n++; /* require n at least 2 */
+      randoms_upto(n + 1, NONZERO, state, &m, NULL);
       
       randoms_of_len(m, ANY, state, &a, &q1, &q2, NULL);
       randoms_of_len(m + n, ANY, state, &r1, &r2, NULL);
