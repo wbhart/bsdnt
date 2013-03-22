@@ -184,6 +184,9 @@ void nn_divrem_classical_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d,
 
 #endif
 
+/* Turn warning back on */
+#pragma GCC diagnostic warning "-Wunused-variable"
+
 #ifndef HAVE_ARCH_nn_divapprox_classical_preinv_c
 
 word_t nn_divapprox_classical_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d, 
@@ -192,7 +195,6 @@ word_t nn_divapprox_classical_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d,
    long i = m - 1, j = m - n;
    word_t cy, d1 = d[n - 1];
    len_t s = m - n; /* this many iterations to get to last quotient */
-   int flag = 0;
    s += 2; /* need two normalised words at that point */
    
    ASSERT(q != d);
@@ -262,9 +264,6 @@ word_t nn_divapprox_classical_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d,
 }
 
 #endif
-
-/* Turn warning back on */
-#pragma GCC diagnostic warning "-Wunused-variable"
 
 #ifndef HAVE_ARCH_nn_div_hensel_preinv
 
