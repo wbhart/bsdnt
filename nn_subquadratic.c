@@ -262,6 +262,28 @@ void nn_mul_toom32(nn_t p, nn_src_t a, len_t m, nn_src_t b, len_t n)
 #undef s1
 }
 
+/*
+   Set sl words of q to ~WORD(0) and subtract 
+   sum_{i = 0)^{s - 1} q[i]*{d + s - i - 1, i + 2} from a.
+   Return a[2].
+*/
+word_t nn_divapprox_helper(nn_t q, nn_t a, nn_src_t d, len_t s)
+{
+   word_t ci;
+   len_t i;
+   
+   nn_sub_m(a + 1, a + 1, d, s + 1);
+   ci = a[2] + nn_add1(a + 1, a + 1, 1, d[s]);
+
+   for (i = s - 1; i >= 0; i--)
+   {
+      q[i] = ~WORD(0);
+      ci += nn_add1(a, a, 2, d[i]);
+   }
+
+   return ci;
+}
+
 word_t nn_divapprox_divconquer_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d, 
                                   len_t n, preinv1_t dinv, word_t ci)
 {
@@ -281,8 +303,9 @@ word_t nn_divapprox_divconquer_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d,
       return nn_divapprox_classical_preinv_c(q, a, m, d, n, dinv, ci);
 
    /* Rare case where truncation ruins normalisation */
-   if (ci > d[n - 1] || (ci == d[n - 1] && nn_cmp_m(a + m - s + 1, d + n - s, s - 1) >= 0))
-      return nn_divapprox_classical_preinv_c(q, a, m, d, n, dinv, ci); /* Todo: do this efficiently */
+   if (ci > d[n - 1] || (ci == d[n - 1] 
+     && nn_cmp_m(a + m - s + 1, d + n - s, s - 1) >= 0))
+      return nn_divapprox_helper(q, a + m - s - 1, d + n - s - 1, s);
 
    TMP_START;
    t = TMP_ALLOC(sl + 2);
@@ -308,7 +331,8 @@ word_t nn_divapprox_divconquer_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d,
          ci += nn_add1(a + m - s - 1, a + m - s - 1, sl + 2, d[n - sl - 3 - i]);
    }
    
-   ASSERT(ci == 0); /* Todo: write out all binary 1's for quotient here */
+   if (ci != 0) /* special case: unable to canonicalise */
+      return nn_divapprox_helper(q, a + m - s - 1, d + n - sl - 1, sl);
 
    ci = nn_divapprox_divconquer_preinv_c(q, a, n + sl - 1, d, n, dinv, a[m - sh]);
 

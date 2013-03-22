@@ -149,10 +149,10 @@ int test_divapprox_divconquer_preinv(void)
    
    printf("divapprox_divconquer_preinv...");
 
-   TEST_START(1, 100*ITER) /* test divapprox is at most one more than divrem */
+   TEST_START(1, ITER) /* test divapprox is at most one more than divrem */
    {
       do {
-         randoms_upto(30, NONZERO, state, &n, NULL);
+         randoms_upto(150, NONZERO, state, &n, NULL);
          n++; /* require n at least 2 */
          randoms_upto(n + 1, NONZERO, state, &m, NULL);
       } while (m + 1 >= n);

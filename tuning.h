@@ -36,7 +36,7 @@
 
 #define MUL_TOOM33_CUTOFF ULONG_MAX /* no fft yet */
 
-#define DIVAPPROX_CLASSICAL_CUTOFF 3
+#define DIVAPPROX_CLASSICAL_CUTOFF 30
 
 #endif
 
