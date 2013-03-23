@@ -213,9 +213,8 @@ word_t _nn_divapprox_helper(nn_t q, nn_t a, nn_src_t d, len_t s)
 word_t nn_divapprox_classical_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d, 
                                   len_t n, preinv1_t dinv, word_t ci)
 {
-   long i = m - 1, j = m - n;
    word_t cy, d1 = d[n - 1];
-   len_t s = m - n + 1; 
+   len_t sh, s = m - n + 1; 
    
    ASSERT(q != d);
    ASSERT(q != a);
@@ -223,42 +222,34 @@ word_t nn_divapprox_classical_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d,
    ASSERT(n > 1);
    ASSERT((long) d1 < 0);
 
-   for ( ; s >= n - 1; i--, j--, s--)
+   /* Reduce until n - 2 >= s */
+   while (n - 2 < s)
    {
-      divapprox21_preinv1(q[j], ci, a[i], d1, dinv);
-
-      /* a -= d*q1 */
-      ci -= nn_submul1(a + j, d, n, q[j]);
-      
-      /* correct if remainder is too large */
-      while (ci || nn_cmp_m(a + j, d, n) >= 0)
-      {
-         q[j]++;
-         ci -= nn_sub_m(a + j, a + j, d, n);
-      }
-	  
-      /* fetch next word now that it has been updated */
-      ci = a[i];
+      sh = BSDNT_MIN(n, s - n + 2);
+      nn_divrem_classical_preinv_c(q + s - sh, a + m - n - sh + 1, 
+                                                   n + sh - 1, d, n, dinv, ci);
+      s -= sh; m -= sh; 
+      ci = a[m];
    }
    
    d = d + n - s - 1; /* make d length s - 1 */
-   a = a + i - s; /* make a length s - 1 (+ carry) */
+   a = a + n - 2; /* make a length s - 1 (+ carry) */
    
-   for ( ; s > 0; j--, s--)
+   for ( ; s > 0; s--)
    {
       /* rare case where truncation ruins normalisation */
       if (ci > d[s] || (ci == d[s] && nn_cmp_m(a + 1, d, s) >= 0))
          return _nn_divapprox_helper(q, a, d, s);
 
-      divapprox21_preinv1(q[j], ci, a[s], d1, dinv);
+      divapprox21_preinv1(q[s - 1], ci, a[s], d1, dinv);
          
       /* a -= d*q1 */
-      ci -= nn_submul1(a, d, s + 1, q[j]);
+      ci -= nn_submul1(a, d, s + 1, q[s - 1]);
 
 	   /* correct if remainder is too large */
       while (ci || nn_cmp_m(a, d, s + 1) >= 0)
       {
-         q[j]++;
+         q[s - 1]++;
          ci -= nn_sub_m(a, a, d, s + 1);
       }
 
