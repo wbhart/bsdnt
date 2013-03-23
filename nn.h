@@ -681,6 +681,12 @@ void nn_mul(nn_t p, nn_src_t a, len_t m, nn_src_t b, len_t n);
 word_t nn_divapprox_divconquer_preinv_c(nn_t q, nn_t a, len_t m, 
                      nn_src_t d, len_t n, preinv1_t dinv, word_t ci);
 
+/*
+   As per nn_divrem_classical_preinv_c.
+*/
+void nn_divrem_divconquer_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d, 
+                                  len_t n, preinv1_t dinv, word_t ci);
+
 
 #endif
 

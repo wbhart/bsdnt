@@ -74,6 +74,12 @@ typedef int64_t bits_t;
 #define ASSERT_ALWAYS(xxx) xxx
 #endif
 
+#define BSDNT_MIN(x, y) \
+   ((x) <= (y) ? (x) : (y))
+
+#define BSDNT_MAX(x, y) \
+   ((x) >= (y) ? (x) : (y))
+
 typedef word_t * nn_t;
 typedef const word_t * nn_src_t;
 

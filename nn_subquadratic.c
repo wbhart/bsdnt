@@ -262,8 +262,12 @@ void nn_mul_toom32(nn_t p, nn_src_t a, len_t m, nn_src_t b, len_t n)
 #undef s1
 }
 
+#endif
+
+#ifndef HAVE_ARCH_nn_divapprox_divconquer_preinv_c
+
 word_t nn_divapprox_divconquer_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d, 
-                                  len_t n, preinv1_t dinv, word_t ci)
+                                            len_t n, preinv1_t dinv, word_t ci)
 {
    len_t s = m - n + 1;
    len_t sh, sl;
@@ -278,12 +282,13 @@ word_t nn_divapprox_divconquer_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d,
    if (s <= DIVAPPROX_CLASSICAL_CUTOFF)
       return nn_divapprox_classical_preinv_c(q, a, m, d, n, dinv, ci);
 
-   /* Reduce until n >= s */
-   while (n < s)
+   /* Reduce until n - 2 >= s */
+   while (n - 2 < s)
    {
-      nn_divrem_classical_preinv_c(q + s - n, a + m - 2*n + 1, 2*n - 1, d, n, dinv, ci); /* Todo: switch to fast divrem */
-
-      s -= n; m -= n; 
+      sh = BSDNT_MIN(n, s - n + 2);
+      nn_divrem_divconquer_preinv_c(q + s - sh, a + m - n - sh + 1, 
+                                                   n + sh - 1, d, n, dinv, ci);
+      s -= sh; m -= sh; 
       ci = a[m];
    }
 
@@ -296,7 +301,7 @@ word_t nn_divapprox_divconquer_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d,
       return _nn_divapprox_helper(q, a + m - s - 1, d + n - s - 1, s);
 
    ci = nn_divapprox_divconquer_preinv_c(q + sl, a + sl, 
-                                             n + sh - 1, d, n, dinv, ci);
+                                                   n + sh - 1, d, n, dinv, ci);
    TMP_START;
    t = TMP_ALLOC(sl + 2);
 
@@ -307,6 +312,7 @@ word_t nn_divapprox_divconquer_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d,
 
    while ((sword_t) ci < 0)
    {
+      
       nn_sub1(q + sl, q + sl, sh, 1); /* ensure quotient is not too big */
 
       /*
@@ -325,6 +331,65 @@ word_t nn_divapprox_divconquer_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d,
    ci = nn_divapprox_divconquer_preinv_c(q, a, n + sl - 1, d, n, dinv, a[m - sh]);
 
    return ci;
+}
+
+#endif
+
+#ifndef HAVE_ARCH_nn_divrem_divconquer_preinv_c
+
+void nn_divrem_divconquer_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d, 
+                                            len_t n, preinv1_t dinv, word_t ci)
+{
+   len_t sh, s = m - n + 1;
+   nn_t t;
+
+   TMP_INIT;
+
+   ASSERT(q != d);
+   ASSERT(m >= n);
+   ASSERT(n > 1);
+   ASSERT((ci < d[n - 1]) 
+      || ((ci == d[n - 1]) && (nn_cmp_m(a + m - n + 1, d, n - 1) < 0)));
+   ASSERT((long) d[n - 1] < 0);
+
+   /* Base case */
+   if (s <= DIVREM_CLASSICAL_CUTOFF)
+   {
+      nn_divrem_classical_preinv_c(q, a, m, d, n, dinv, ci);
+      return;
+   }
+
+   /* Reduce until n - 2 >= s */
+   while (n - 2 < s)
+   {
+      sh = BSDNT_MIN(n, s - n + 2);
+      nn_divrem_divconquer_preinv_c(q + s - sh, a + m - n - sh + 1, 
+                                                   n + sh - 1, d, n, dinv, ci);
+      s -= sh; m -= sh; 
+      ci = a[m];
+   }
+
+   ci = nn_divapprox_divconquer_preinv_c(q, a, m, d, n, dinv, ci);
+
+   TMP_START;
+   t = TMP_ALLOC(n);
+
+   if (s > 0)
+   {
+      nn_mullow_classical(t + n - 2, t, d, n - 2, q, s); /* Todo : switch to fast mullow */
+      ci -= nn_sub_m(a, a, t, n);
+   } 
+   
+   TMP_END;
+
+   while ((sword_t) ci < 0)
+   {
+      nn_sub1(q, q, s, 1); /* ensure quotient is not too big */
+
+      ci += nn_add_m(a, a, d, n); 
+   } 
+
+   ASSERT(ci == 0);
 }
 
 #endif
