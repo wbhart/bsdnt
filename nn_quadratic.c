@@ -127,23 +127,17 @@ void _nn_mulmid_add_rfix(nn_t ov, nn_t p,
    dword_t t = 0;
 
    m -= n;
-   
+   a += n - 1;
+
    if (m)
    {
-      a += n - 1;
-
       nn_zero(p, m);
 
-      for (i = 0; i < n - 1; i++)
+      for (i = 0; i < n - 1; i++, a--)
       {
          s = b1[i] + b2[i];
-         ci = (s < b1[i] || s + ci < s);
-         if (ci)
-         {
-            t += (dword_t) a[m];
-            t -= (dword_t) nn_sub1(p, p, m, a[0]);
-         }
-         a--;
+         if ((ci = (s < b1[i] || s + ci < s)))
+            t += (dword_t) a[m] - (dword_t) nn_sub1(p, p, m, a[0]);
       }
 
       s = b1[i] + b2[i];
