@@ -117,6 +117,46 @@ void nn_mulhigh_classical(nn_t r, nn_src_t a, len_t m1,
 
 #endif
 
+#ifndef HAVE_ARCH__nn_mulmid_add_rfix
+
+void _nn_mulmid_add_rfix(nn_t ov, nn_t p,
+              nn_src_t a, len_t m, nn_src_t b1, nn_src_t b2, len_t n)
+{
+   len_t i;
+   word_t ci = 0, s;
+   dword_t t = 0;
+
+   m -= n;
+   
+   if (m)
+   {
+      a += n - 1;
+
+      nn_zero(p, m);
+
+      for (i = 0; i < n - 1; i++)
+      {
+         s = b1[i] + b2[i];
+         ci = (s < b1[i] || s + ci < s);
+         if (ci)
+         {
+            t += (dword_t) a[m];
+            t -= (dword_t) nn_sub1(p, p, m, a[0]);
+         }
+         a--;
+      }
+
+      s = b1[i] + b2[i];
+      if (s < b1[i] || s + ci < s)
+         t += (dword_t) a[m] + (dword_t) nn_add_m(p + 1, p + 1, a + 1, m - 1);
+   }
+
+   ov[0] = (word_t) t;
+   ov[1] = (t >> WORD_BITS);
+}
+
+#endif
+
 #ifndef HAVE_ARCH_nn_mulmid_classical
 
 void nn_mulmid_classical(nn_t ov, nn_t p,

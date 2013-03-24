@@ -510,6 +510,13 @@ void nn_not(nn_t a, nn_src_t b, len_t m)
 **********************************************************************/
 
 /*
+   Let S = mulmid(a, b1 + b2) and T = mulmid(a, b1) + mulmid(a, b2), 
+   this function returns T - S.
+*/
+void _nn_mulmid_add_rfix(nn_t ov, nn_t p,
+               nn_src_t a, len_t m, nn_src_t b1, nn_src_t b2, len_t n);
+
+/*
    Set sl words of q to ~WORD(0) and subtract 
    sum_{i = 0)^{s - 1} q[i]*{d + s - i - 1, i + 2} from a.
    Return a[2].

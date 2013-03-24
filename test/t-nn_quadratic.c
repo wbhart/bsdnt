@@ -75,6 +75,47 @@ int test_mul_classical(void)
    return result;
 }
 
+int test_mulmid_classical(void)
+{
+   int result = 1;
+   len_t m, n;
+   nn_t a, b1, b2, b, r1, r2, r3, r4;
+
+   printf("mulmid_classical...");
+
+   TEST_START(1, ITER) /* test mulmid_add_rfix */
+   {
+      randoms_upto(30, NONZERO, state, &m, NULL);
+      m++;
+      randoms_upto(m, NONZERO, state, &n, NULL);
+      n++;
+
+      randoms_of_len(m, ANY, state, &a, NULL);
+      randoms_of_len(n, ANY, state, &b1, &b2, &b, NULL);
+      randoms_of_len(m - n + 2, ANY, state, &r1, &r2, &r3, &r4, NULL);
+      
+      nn_add_m(b, b1, b2, n);
+      
+      nn_mulmid_classical(r1 + m - n, r1, a, m, b1, n);
+      nn_mulmid_classical(r2 + m - n, r2, a, m, b2, n);
+      nn_mulmid_classical(r3 + m - n, r3, a, m, b, n);
+      _nn_mulmid_add_rfix(r4 + m - n, r4, a, m, b1, b2, n);
+
+      nn_add_m(r2, r2, r1, m - n + 2);
+      nn_add_m(r3, r3, r4, m - n + 2);
+
+      result = nn_equal_m(r2, r3, m - n + 2);
+
+      if (!result) 
+      {
+         print_debug(a, m); print_debug(b1, n); print_debug(b2, n); 
+         print_debug(r4, m); print_debug_diff(r2, r3, m - n + 2);
+      }
+   } TEST_END;
+
+   return result;
+}
+
 int test_divrem_classical_preinv(void)
 {
    int result = 1;
@@ -371,6 +412,7 @@ int test_quadratic(void)
    
    RUN(test_mul_classical);
    RUN(test_mullow_classical);
+   RUN(test_mulmid_classical);
    RUN(test_divrem_classical_preinv);
    RUN(test_divapprox_classical_preinv);
    RUN(test_div_hensel_preinv);
