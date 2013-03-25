@@ -151,6 +151,59 @@ void _nn_mulmid_add_rfix(nn_t ov, nn_t p,
 
 #endif
 
+#ifndef HAVE_ARCH__nn_mulmid_add_lfix
+
+void _nn_mulmid_add_lfix(nn_t ov, nn_t p,
+              nn_src_t a1, nn_src_t a2, len_t m, nn_src_t b, len_t n)
+{
+   len_t i;
+   word_t ci = 0;
+   dword_t s, t = 0;
+
+   m -= n;
+   b += n - 1;
+
+   if (m)
+   {
+      nn_zero(p, m);
+
+      for (i = 0; i < m && i < n; i++, b--)
+      {
+         s = (dword_t) a1[i] + (dword_t) a2[i] + (dword_t) ci;
+         ci = (s >> WORD_BITS);
+         if (ci)
+            t -= (dword_t) nn_sub1(p, p, m, b[0]);
+      }
+
+      for ( ; i < n; i++, b--)
+      {
+         s = (dword_t) a1[i] + (dword_t) a2[i] + (dword_t) ci;
+         ci = (s >> WORD_BITS);
+         if (ci)
+            t += (dword_t) b[m] - (dword_t) nn_sub1(p, p, m, b[0]);
+      }
+
+      for ( ; i < m; i++, b--)
+      {
+         s = (dword_t) a1[i] + (dword_t) a2[i] + (dword_t) ci;
+         ci = (s >> WORD_BITS);
+      }
+
+      for ( ; i < m + n; i++, b--)
+      {
+         s = (dword_t) a1[i] + (dword_t) a2[i] + (dword_t) ci;
+         ci = (s >> WORD_BITS);
+         if (ci)
+            t += (dword_t) b[m];
+      }
+   }
+
+   ov[0] = (word_t) t;
+   ov[1] = (t >> WORD_BITS);
+}
+
+#endif
+
 #ifndef HAVE_ARCH_nn_mulmid_classical
 
 void nn_mulmid_classical(nn_t ov, nn_t p,

@@ -517,6 +517,13 @@ void _nn_mulmid_add_rfix(nn_t ov, nn_t p,
                nn_src_t a, len_t m, nn_src_t b1, nn_src_t b2, len_t n);
 
 /*
+   Let S = mulmid(a1 + a2, b) and T = mulmid(a1, b) + mulmid(a2, b), 
+   this function returns T - S.
+*/
+void _nn_mulmid_add_lfix(nn_t ov, nn_t p,
+               nn_src_t a1, nn_src_t a2, len_t m, nn_src_t b, len_t n);
+
+/*
    Set sl words of q to ~WORD(0) and subtract 
    sum_{i = 0)^{s - 1} q[i]*{d + s - i - 1, i + 2} from a.
    Return a[2].
