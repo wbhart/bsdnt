@@ -511,17 +511,23 @@ void nn_not(nn_t a, nn_src_t b, len_t m)
 
 /*
    Let S = mulmid(a, b1 + b2) and T = mulmid(a, b1) + mulmid(a, b2), 
-   this function returns T - S.
+   this function returns T - S. The function accepts a carry in, so 
+   that any carries in to the sum a1 + a2 can be dealt with. The sum
+   of b1 and b2 plus the carry in is returned in {r, n}. Any carry
+   out is returned by the function.
 */
-void _nn_mulmid_add_rfix(nn_t ov, nn_t p,
-               nn_src_t a, len_t m, nn_src_t b1, nn_src_t b2, len_t n);
+word_t _nn_mulmid_add_rfix(nn_t r, nn_t ov, nn_t p,
+    nn_src_t a, len_t m, nn_src_t b1, nn_src_t b2, len_t n, word_t ci);
 
 /*
    Let S = mulmid(a1 + a2, b) and T = mulmid(a1, b) + mulmid(a2, b), 
-   this function returns T - S.
+   this function returns T - S. The function accepts a carry in, so 
+   that any carries in to the sum a1 + a2 can be dealt with. The sum
+   of a1 and a2 plus the carry in is returned in {r, m}. Any carry
+   out is returned by the function.
 */
-void _nn_mulmid_add_lfix(nn_t ov, nn_t p,
-               nn_src_t a1, nn_src_t a2, len_t m, nn_src_t b, len_t n);
+word_t _nn_mulmid_add_lfix(nn_t r, nn_t ov, nn_t p,
+    nn_src_t a1, nn_src_t a2, len_t m, nn_src_t b, len_t n, word_t ci);
 
 /*
    Set sl words of q to ~WORD(0) and subtract 
@@ -566,8 +572,8 @@ void nn_mulhigh_classical(nn_t r, nn_src_t a, len_t m1,
                                        nn_src_t b, len_t m2, nn_t ov);
 
 /*
-   Set ov, {p, m - n} to the middle product of {a, m} and {b, n}, i.e.
-   set p to sum_{m > i + j >= n} a[i]*b[j]*B^{i + j - m}, with 
+   Set ov, {p, m - n + 1} to the middle product of {a, m} and {b, n}, i.e.
+   set p to sum_{m - 1 >= i + j >= n - 1} a[i]*b[j]*B^{i + j - n + 1}, with 
    overflows accumulating in the two limb ov.
 */
 void nn_mulmid_classical(nn_t ov, nn_t p,
