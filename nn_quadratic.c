@@ -125,6 +125,9 @@ word_t _nn_mulmid_add_rfix(nn_t r, nn_t ov, nn_t p,
    len_t i;
    dword_t s, t = 0;
 
+   ASSERT(m + 1 >= n);
+   ASSERT(n >= 2);
+
    m -= n - 1;
    a += n - 2;
 
@@ -143,13 +146,10 @@ word_t _nn_mulmid_add_rfix(nn_t r, nn_t ov, nn_t p,
             t += (dword_t) a[m] - (dword_t) nn_sub1(p, p, m, a[0]);
       }
       
-      if (n)
-      {
          s = (dword_t) b1[i] + (dword_t) b2[i] + (dword_t) ci;
          r[i] = (word_t) s;
          if ((ci = (s >> WORD_BITS)))
             t += (dword_t) a[m] + (dword_t) nn_add_m(p + 1, p + 1, a + 1, m - 1);
-      }
    }
 
    ov[0] = (word_t) t;
@@ -167,6 +167,9 @@ word_t _nn_mulmid_add_lfix(nn_t r, nn_t ov, nn_t p,
 {
    len_t i;
    dword_t s, t = 0;
+
+   ASSERT(m + 1 >= n);
+   ASSERT(n >= 2);
 
    m -= n - 1;
    b += n - 1;
