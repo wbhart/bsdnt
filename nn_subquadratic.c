@@ -264,16 +264,24 @@ void nn_mul_toom32(nn_t p, nn_src_t a, len_t m, nn_src_t b, len_t n)
 
 #endif
 
-#ifndef HAVE_ARCH_nn_mulmid_kara_m
+#ifndef HAVE_ARCH_nn_mulmid_kara
 
-void nn_mulmid_kara_m(nn_t p, nn_src_t a, nn_src_t b, len_t n)
+void nn_mulmid_kara(nn_t ov, nn_t p, nn_src_t a, len_t m, nn_src_t b, len_t n)
 {
-  len_t n2 = n/2;
-  nn_t s, p0, p1, p2, f;
+  len_t i, n2 = n/2, odd = (n & 1), extra = m - 4*n2 + 1 - odd;
+  nn_t s, p0, p1, p2, f, ex;
   int neg = 0;
-  word_t ov[2];
+  nn_t ptr;
+  dword_t t;
+  word_t ci, tmp[2], tmp2[2];
 
   TMP_INIT;
+
+  if (n <= MULMID_CLASSICAL_CUTOFF)
+  {
+     nn_mulmid_classical(ov, p, a, m, b, n);
+     return;
+  }
 
   ASSERT(n2 >= 2);
 
@@ -288,35 +296,66 @@ void nn_mulmid_kara_m(nn_t p, nn_src_t a, nn_src_t b, len_t n)
   p2 = TMP_ALLOC(n2 + 2);
   f = TMP_ALLOC(n2 + 2);
 
+  if (extra) ptr = tmp2, ex = TMP_ALLOC(extra);
+  else ptr = ov;
+
+  if (odd) a++;
+
   /* p0 = (a0 + a1)*b1 */
-  _nn_mulmid_add_lfix_m(s, f + n2, f, a, a + n2, b + n2, n2, 0);
-  nn_mulmid_classical(p0 + n2, p0, s, 2*n2 - 1, b + n2, n2);
+  _nn_mulmid_add_lfix_m(s, f + n2, f, a, a + n2, b + n2, n2);
+  nn_mulmid_kara(p0 + n2, p0, s, 2*n2 - 1, b + n2, n2);
   nn_add_m(p0, p0, f, n2 + 2);
 
   /* p1 = a1*(b0 - b1) */
-  if (neg) _nn_mulmid_sub_rfix_m(s, f + n2, f, a + n2, b + n2, b, n2, 0);
-  else _nn_mulmid_sub_rfix_m(s, f + n2, f, a + n2, b, b + n2, n2, 0);
-  nn_mulmid_classical(p1 + n2, p1, a + n2, 2*n2 - 1, s, n2);
+  if (neg) _nn_mulmid_sub_rfix_m(s, f + n2, f, a + n2, b + n2, b, n2);
+  else _nn_mulmid_sub_rfix_m(s, f + n2, f, a + n2, b, b + n2, n2);
+  nn_mulmid_kara(p1 + n2, p1, a + n2, 2*n2 - 1, s, n2);
   nn_sub_m(p1, p1, f, n2 + 2);
 
   /* p2 = (a1 + a2)*b0 */
-  _nn_mulmid_add_lfix_m(s, f + n2, f, a + n2, a + 2*n2, b, n2, 0);
-  nn_mulmid_classical(p2 + n2, p2, s, 2*n2 - 1, b, n2);
+  _nn_mulmid_add_lfix_m(s, f + n2, f, a + n2, a + 2*n2, b, n2);
+  nn_mulmid_kara(p2 + n2, p2, s, 2*n2 - 1, b, n2);
   nn_add_m(p2, p2, f, n2 + 2);
 
   /* r0 = p0 + p1, r1 = p2 - p1 */
   if (neg) 
   {
      nn_sub_m(p, p0, p1, n2 + 2);
-     ov[0] = p[n2], ov[1] = p[n2 + 1];
-     nn_add_m(p + n2, p2, p1, n2 + 2);
-     nn_add(p + n2, p + n2, n2 + 2, ov, 2);  
+     tmp[0] = p[n2], tmp[1] = p[n2 + 1];
+     ci = nn_add_m(p + n2, p2, p1, n2);
+     nn_add_mc(ptr, p2 + n2, p1 + n2, 2, ci);
   } else 
   {
      nn_add_m(p, p0, p1, n2 + 2);
-     ov[0] = p[n2], ov[1] = p[n2 + 1];
-     nn_sub_m(p + n2, p2, p1, n2 + 2);
-     nn_add(p + n2, p + n2, n2 + 2, ov, 2);  
+     tmp[0] = p[n2], tmp[1] = p[n2 + 1];
+     ci = nn_sub_m(p + n2, p2, p1, n2);
+     nn_sub_mc(ptr, p2 + n2, p1 + n2, 2, ci);
+  }
+  
+  ci = nn_add(p + n2, p + n2, n2, tmp, 2);  
+  nn_add1(ptr, ptr, 2, ci);
+
+  if (extra)
+  {
+     a += 4*n2 - 1;
+
+     t = (dword_t) nn_mul1(ex, a, extra, b[0]);
+     for (i = 1, a--; i < 2*n2; i++, a--)
+        t += (dword_t) nn_addmul1(ex, a, extra, b[i]);
+
+     if (extra == 1)
+        t += (dword_t) nn_add1(p + 2*n2, ex, 1, ptr[0]) + (dword_t) ptr[1];
+     else
+        t += (dword_t) nn_add(p + 2*n2, ex, extra, ptr, 2);
+     
+     if (odd)
+     {
+        a -= 2*n2;
+        t += nn_addmul1(p, a, 2*n2 + extra, b[i]);
+     }
+
+     ov[0] = (word_t) t;
+     ov[1] = (word_t) (t >> WORD_BITS);
   }
 
   TMP_END;
@@ -365,7 +404,7 @@ word_t nn_divapprox_divconquer_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d,
    TMP_START;
    t = TMP_ALLOC(sl + 2);
 
-   nn_mulmid_classical(t + sl, t, d + n - s - 1, s - 1, q + sl, sh); /* Todo : switch to fast mulmid */
+   nn_mulmid_kara(t + sl, t, d + n - s - 1, s - 1, q + sl, sh);
    ci -= nn_sub_m(a + m - s - 1, a + m - s - 1, t, sl + 2);
 
    TMP_END;

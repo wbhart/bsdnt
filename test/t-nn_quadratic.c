@@ -90,13 +90,13 @@ int test_mulmid_classical(void)
       m = 2*n - 1;
 
       randoms_of_len(m, ANY, state, &a, NULL);
-      randoms_of_len(n + 1, ANY, state, &b1, &b2, &b, NULL);
+      randoms_of_len(n, ANY, state, &b1, &b2, &b, NULL);
       randoms_of_len(n + 2, ANY, state, &r1, &r2, &r3, &r4, NULL);
       
-      nn_mulmid_classical(r1 + n, r1, a, m, b1 + 1, n);
-      nn_mulmid_classical(r2 + n, r2, a, m, b2 + 1, n);
-      _nn_mulmid_add_rfix_m(b + 1, r4 + n, r4, a, b1 + 1, b2 + 1, n, b1[0] + b2[0] < b1[0]);
-      nn_mulmid_classical(r3 + n, r3, a, m, b + 1, n);
+      nn_mulmid_classical(r1 + n, r1, a, m, b1, n);
+      nn_mulmid_classical(r2 + n, r2, a, m, b2, n);
+      _nn_mulmid_add_rfix_m(b, r4 + n, r4, a, b1, b2, n);
+      nn_mulmid_classical(r3 + n, r3, a, m, b, n);
       
       nn_add_m(r2, r2, r1, n + 2);
       nn_add_m(r3, r3, r4, n + 2);
@@ -105,25 +105,52 @@ int test_mulmid_classical(void)
 
       if (!result) 
       {
-         print_debug(a, m); print_debug(b1, n + 1); print_debug(b2, n + 1); 
+         print_debug(a, m); print_debug(b1, n); print_debug(b2, n); 
          print_debug(r4, m); print_debug_diff(r2, r3, n + 2);
       }
    } TEST_END;
 
-   TEST_START(2, ITER) /* test mulmid_add_lfix */
+   TEST_START(2, ITER) /* test mulmid_sub_rfix */
    {
       randoms_upto(30, NONZERO, state, &n, NULL);
       n++; /* n is at least 2 */
       m = 2*n - 1;
 
-      randoms_of_len(m + 1, ANY, state, &a1, &a2, &a, NULL);
+      randoms_of_len(m, ANY, state, &a, NULL);
+      randoms_of_len(n, ANY, state, &b1, &b2, &b, NULL);
+      randoms_of_len(n + 2, ANY, state, &r1, &r2, &r3, &r4, NULL);
+      
+      nn_mulmid_classical(r1 + n, r1, a, m, b1, n);
+      nn_mulmid_classical(r2 + n, r2, a, m, b2, n);
+      _nn_mulmid_sub_rfix_m(b, r4 + n, r4, a, b1, b2, n);
+      nn_mulmid_classical(r3 + n, r3, a, m, b, n);
+      
+      nn_sub_m(r1, r1, r2, n + 2);
+      nn_sub_m(r3, r3, r4, n + 2);
+
+      result = nn_equal_m(r1, r3, n + 2);
+
+      if (!result) 
+      {
+         print_debug(a, m); print_debug(b1, n); print_debug(b2, n); 
+         print_debug(r4, m); print_debug_diff(r2, r3, n + 2);
+      }
+   } TEST_END;
+
+   TEST_START(3, ITER) /* test mulmid_add_lfix */
+   {
+      randoms_upto(30, NONZERO, state, &n, NULL);
+      n++; /* n is at least 2 */
+      m = 2*n - 1;
+
+      randoms_of_len(m, ANY, state, &a1, &a2, &a, NULL);
       randoms_of_len(n, ANY, state, &b, NULL);
       randoms_of_len(n + 2, ANY, state, &r1, &r2, &r3, &r4, NULL);
       
-      nn_mulmid_classical(r1 + n, r1, a1 + 1, m, b, n);
-      nn_mulmid_classical(r2 + n, r2, a2 + 1, m, b, n);
-      _nn_mulmid_add_lfix_m(a + 1, r4 + n, r4, a1 + 1, a2 + 1, b, n, a1[0] + a2[0] < a1[0]);
-      nn_mulmid_classical(r3 + n, r3, a + 1, m, b, n);
+      nn_mulmid_classical(r1 + n, r1, a1, m, b, n);
+      nn_mulmid_classical(r2 + n, r2, a2, m, b, n);
+      _nn_mulmid_add_lfix_m(a, r4 + n, r4, a1, a2, b, n);
+      nn_mulmid_classical(r3 + n, r3, a, m, b, n);
       
       nn_add_m(r2, r2, r1, n + 2);
       nn_add_m(r3, r3, r4, n + 2);
@@ -132,8 +159,8 @@ int test_mulmid_classical(void)
 
       if (!result) 
       {
-         print_debug(a1, m + 1); print_debug(a2, m + 1); print_debug(b, n); 
-         print_debug(r4, m + 1); print_debug_diff(r2, r3, n + 2);
+         print_debug(a1, m); print_debug(a2, m); print_debug(b, n); 
+         print_debug(r4, m); print_debug_diff(r2, r3, n + 2);
       }
    } TEST_END;
 

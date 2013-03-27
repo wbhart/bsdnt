@@ -150,24 +150,24 @@ int test_mulmid_kara_m(void)
 
    TEST_START(1, ITER) /* test mulmid_kara and mulmid_classical agree */
    {
-      randoms_upto(30, NONZERO, state, &n, NULL);
+      randoms_upto(200, NONZERO, state, &n, NULL);
       n+=3; /* n is at least 4 */
-      if (n & 1) n++;
-      m = 2*n - 1;
+      randoms_upto(30, ANY, state, &m, NULL);
+      m += 2*n - 1;
 
       randoms_of_len(m, ANY, state, &a, NULL);
       randoms_of_len(n, ANY, state, &b, NULL);
-      randoms_of_len(n + 2, ANY, state, &r1, &r2, NULL);
+      randoms_of_len(m - n + 3, ANY, state, &r1, &r2, NULL);
       
-      nn_mulmid_classical(r1 + n, r1, a, m, b, n);
-      nn_mulmid_kara_m(r2, a, b, n);
+      nn_mulmid_classical(r1 + m - n + 1, r1, a, m, b, n);
+      nn_mulmid_kara(r2 + m - n + 1, r2, a, m, b, n);
       
-      result = nn_equal_m(r1, r2, n + 2);
+      result = nn_equal_m(r1, r2, m - n + 3);
 
       if (!result) 
       {
          print_debug(a, m); print_debug(b, n); 
-         print_debug_diff(r1, r2, n + 2);
+         print_debug_diff(r1, r2, m - n + 3);
       }
    } TEST_END;
 

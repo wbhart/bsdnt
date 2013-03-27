@@ -512,28 +512,34 @@ void nn_not(nn_t a, nn_src_t b, len_t m)
 /*
    Let S = mulmid(a, b1 + b2) and T = mulmid(a, b1) + mulmid(a, b2), 
    where a is of length 2*n - 1 and b1 and b2 are of length n. This 
-   function returns T - S. The function accepts a carry in, so 
-   that any carries in to the sum a1 + a2 can be dealt with. The sum
-   of b1 and b2 plus the carry in is returned in {r, n}. Any carry
-   out is returned by the function. We require n >= 2.
+   function returns T - S. The sum of b1 and b2 is returned in 
+   {r, n}. Any carry out is returned by the function. We require 
+   n >= 2.
 
 */
 word_t _nn_mulmid_add_rfix_m(nn_t r, nn_t ov, nn_t p,
-             nn_src_t a, nn_src_t b1, nn_src_t b2, len_t n, word_t ci);
+                      nn_src_t a, nn_src_t b1, nn_src_t b2, len_t n);
 
+/*
+   Let S = mulmid(a, b1 - b2) and T = mulmid(a, b1) - mulmid(a, b2), 
+   where a is of length 2*n - 1 and b1 and b2 are of length n. This 
+   function returns T - S. The sum of b1 and b2 is returned in 
+   {r, n}. Any borrow out is returned by the function. We require 
+   n >= 2.
+
+*/
 word_t _nn_mulmid_sub_rfix_m(nn_t r, nn_t ov, nn_t p,
-             nn_src_t a, nn_src_t b1, nn_src_t b2, len_t n, word_t ci);
+                      nn_src_t a, nn_src_t b1, nn_src_t b2, len_t n);
 
 /*
    Let S = mulmid(a1 + a2, b) and T = mulmid(a1, b) + mulmid(a2, b), 
    where a1, a2 are of length 2*n - 1 and b is of length n. This 
-   function returns T - S. The function accepts a carry in, so 
-   that any carries in to the sum a1 + a2 can be dealt with. The sum
-   of a1 and a2 plus the carry in is returned in {r, 2*n - 1}. Any 
-   carry out is returned by the function. We require n >= 2.
+   function returns T - S. The sum of a1 and a2 is returned in 
+   {r, 2*n - 1}. Any carry out is returned by the function. We 
+   require n >= 2.
 */
 word_t _nn_mulmid_add_lfix_m(nn_t r, nn_t ov, nn_t p,
-             nn_src_t a1, nn_src_t a2, nn_src_t b, len_t n, word_t ci);
+             nn_src_t a1, nn_src_t a2, nn_src_t b, len_t n);
 
 /*
    Set sl words of q to ~WORD(0) and subtract 
@@ -693,7 +699,11 @@ void nn_mul_m(nn_t p, nn_src_t a, nn_src_t b, len_t m);
 */
 void nn_mul(nn_t p, nn_src_t a, len_t m, nn_src_t b, len_t n);
 
-void nn_mulmid_kara_m(nn_t p, nn_src_t a, nn_src_t b, len_t n);
+/*
+   As per nn_mulmid_classical, except that we require m >= 2*n - 1 and
+   n >= 4.
+*/
+void nn_mulmid_kara(nn_t ov, nn_t p, nn_src_t a, len_t m, nn_src_t b, len_t n);
 
 /*
    As per nn_divrem_classical_preinv_c however only a partial remainder is

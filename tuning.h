@@ -40,5 +40,7 @@
 
 #define DIVREM_CLASSICAL_CUTOFF 30
 
+#define MULMID_CLASSICAL_CUTOFF 30
+
 #endif
 
