@@ -140,6 +140,40 @@ int test_mul_toom32(void)
    return result;
 }
 
+int test_mulmid_kara_m(void)
+{
+   int result = 1;
+   len_t m, n;
+   nn_t a, b, r1, r2;
+
+   printf("mulmid_kara_m...");
+
+   TEST_START(1, ITER) /* test mulmid_kara and mulmid_classical agree */
+   {
+      randoms_upto(30, NONZERO, state, &n, NULL);
+      n+=3; /* n is at least 4 */
+      if (n & 1) n++;
+      m = 2*n - 1;
+
+      randoms_of_len(m, ANY, state, &a, NULL);
+      randoms_of_len(n, ANY, state, &b, NULL);
+      randoms_of_len(n + 2, ANY, state, &r1, &r2, NULL);
+      
+      nn_mulmid_classical(r1 + n, r1, a, m, b, n);
+      nn_mulmid_kara_m(r2, a, b, n);
+      
+      result = nn_equal_m(r1, r2, n + 2);
+
+      if (!result) 
+      {
+         print_debug(a, m); print_debug(b, n); 
+         print_debug_diff(r1, r2, n + 2);
+      }
+   } TEST_END;
+
+   return result;
+}
+
 int test_divapprox_divconquer_preinv(void)
 {
    int result = 1;
@@ -256,6 +290,7 @@ int test_subquadratic(void)
    RUN(test_mul_kara);
    RUN(test_mul_toom33);
    RUN(test_mul_toom32);
+   RUN(test_mulmid_kara_m);
    RUN(test_divapprox_divconquer_preinv);
    RUN(test_divrem_divconquer_preinv);
    

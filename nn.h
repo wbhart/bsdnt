@@ -521,6 +521,9 @@ void nn_not(nn_t a, nn_src_t b, len_t m)
 word_t _nn_mulmid_add_rfix_m(nn_t r, nn_t ov, nn_t p,
              nn_src_t a, nn_src_t b1, nn_src_t b2, len_t n, word_t ci);
 
+word_t _nn_mulmid_sub_rfix_m(nn_t r, nn_t ov, nn_t p,
+             nn_src_t a, nn_src_t b1, nn_src_t b2, len_t n, word_t ci);
+
 /*
    Let S = mulmid(a1 + a2, b) and T = mulmid(a1, b) + mulmid(a2, b), 
    where a1, a2 are of length 2*n - 1 and b is of length n. This 
@@ -689,6 +692,8 @@ void nn_mul_m(nn_t p, nn_src_t a, nn_src_t b, len_t m);
    m, n > 0.
 */
 void nn_mul(nn_t p, nn_src_t a, len_t m, nn_src_t b, len_t n);
+
+void nn_mulmid_kara_m(nn_t p, nn_src_t a, nn_src_t b, len_t n);
 
 /*
    As per nn_divrem_classical_preinv_c however only a partial remainder is

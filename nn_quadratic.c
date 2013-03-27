@@ -153,6 +153,40 @@ word_t _nn_mulmid_add_rfix_m(nn_t r, nn_t ov, nn_t p,
    return ci;
 }
 
+word_t _nn_mulmid_sub_rfix_m(nn_t r, nn_t ov, nn_t p,
+              nn_src_t a, nn_src_t b1, nn_src_t b2, len_t n, word_t ci)
+{
+   len_t i;
+   dword_t s, t = 0;
+
+   ASSERT(n >= 2);
+
+   a += n - 2;
+
+   nn_zero(p, n);
+
+   if (ci)
+      t -= (dword_t) nn_sub_m(p, p, a + 1, n);
+
+   for (i = 0; i < n - 1; i++, a--)
+   {
+      s = (dword_t) b1[i] - (dword_t) b2[i] - (dword_t) ci;
+      r[i] = (word_t) s;
+      if ((ci = -(s >> WORD_BITS)))
+         t += (dword_t) a[n] - (dword_t) nn_sub1(p, p, n, a[0]);
+   }
+      
+   s = (dword_t) b1[i] - (dword_t) b2[i] - (dword_t) ci;
+   r[i] = (word_t) s;
+   if ((ci = -(s >> WORD_BITS)))
+      t += (dword_t) a[n] + (dword_t) nn_add_m(p + 1, p + 1, a + 1, n - 1);
+
+   ov[0] = (word_t) t;
+   ov[1] = (t >> WORD_BITS);
+
+   return ci;
+}
+
 #endif
 
 #ifndef HAVE_ARCH__nn_mulmid_add_lfix
