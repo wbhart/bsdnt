@@ -706,6 +706,11 @@ void nn_mul(nn_t p, nn_src_t a, len_t m, nn_src_t b, len_t n);
 void nn_mulmid_kara(nn_t ov, nn_t p, nn_src_t a, len_t m, nn_src_t b, len_t n);
 
 /*
+   As per nn_mullow_classical.
+*/
+void nn_mullow_kara(nn_t ov, nn_t p, nn_src_t a, len_t m, nn_src_t b, len_t n);
+
+/*
    As per nn_divrem_classical_preinv_c however only a partial remainder is
    computed. It is equal to a - sum_{i + j >= m - s + 1} q_i*d_j where q_i
    are the s = m - n + 1 limbs of the quotient and d_j are the limbs of d.

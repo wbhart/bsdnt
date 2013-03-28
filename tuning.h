@@ -42,5 +42,7 @@
 
 #define MULMID_CLASSICAL_CUTOFF 30
 
+#define MULLOW_CLASSICAL_CUTOFF 30
+
 #endif
 

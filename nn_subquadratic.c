@@ -363,6 +363,50 @@ void nn_mulmid_kara(nn_t ov, nn_t p, nn_src_t a, len_t m, nn_src_t b, len_t n)
 
 #endif
 
+#ifndef HAVE_ARCH_nn_mullow_kara
+
+void nn_mullow_kara(nn_t ov, nn_t p, nn_src_t a, len_t m, nn_src_t b, len_t n)
+{
+   len_t nl = n/2, nh = n - nl;
+   len_t mh = nl, ml = m - mh;
+   nn_t p1, p2;
+   word_t ci;
+
+   TMP_INIT;
+
+   ASSERT(MULLOW_CLASSICAL_CUTOFF >= 1);
+   ASSERT(n > 0);
+
+   if (n <= MULLOW_CLASSICAL_CUTOFF)
+   {
+      nn_mullow_classical(ov, p, a, m, b, n);
+      return;
+   }
+
+   ASSERT(m >= n);
+   ASSERT(n >= 2);
+
+   nn_mul(p, a, ml, b, nl);
+   
+   TMP_START;
+
+   p1 = TMP_ALLOC(mh);
+   p2 = TMP_ALLOC(ml + 2);
+
+   nn_mullow_kara(ov, p1, a + ml, mh, b, mh);
+   nn_mullow_kara(p2 + ml, p2, a, ml, b + nl, nh);
+
+   ci = nn_add_m(p + ml, p + ml, p1, mh);
+   nn_add1(ov, ov, 2, ci);
+
+   ci = nn_add_m(p + nl, p + nl, p2, ml);
+   nn_add_mc(ov, ov, p2 + ml, 2, ci);
+   
+   TMP_END;
+}
+
+#endif
+
 #ifndef HAVE_ARCH_nn_divapprox_divconquer_preinv_c
 
 word_t nn_divapprox_divconquer_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d, 
@@ -475,7 +519,7 @@ void nn_divrem_divconquer_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d,
 
    if (s > 0)
    {
-      nn_mullow_classical(t + n - 2, t, d, n - 2, q, s); /* Todo : switch to fast mullow */
+      nn_mullow_kara(t + n - 2, t, d, n - 2, q, s);
       ci -= nn_sub_m(a, a, t, n);
    } 
    
