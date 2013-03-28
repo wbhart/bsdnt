@@ -105,3 +105,5 @@
 23-Mar-2013:
 	v0.32 - Added nn_divapprox_divconquer, nn_divrem_divconquer.
 
+28-Mar-2013:
+	v0.33 - Added nn_mulmid_kara and nn_mullow_kara.
