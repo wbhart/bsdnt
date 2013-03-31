@@ -1,5 +1,5 @@
 /* 
-  Copyright (C) 2010, 2013 William Hart
+  Copyright (C) 2013 William Hart
 
   All rights reserved.
 
@@ -25,24 +25,69 @@
   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef TUNING_H
-#define TUNING_H
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+#include <math.h>
+#include "nn.h"
+#include "test.h"
 
-#define MUL_CLASSICAL_CUTOFF 33
+#undef ITER
+#define ITER 20000
 
-#define MUL_KARA_CUTOFF 400
+rand_t state;
 
-#define MUL_TOOM32_CUTOFF ULONG_MAX /* no fft yet */
+void time_mulmid_kara(void)
+{
+   nn_t a, b, r1, r2;
+   len_t size;
+   long count;
+   clock_t t;
 
-#define MUL_TOOM33_CUTOFF ULONG_MAX /* no fft yet */
+   TMP_INIT;
 
-#define MULMID_CLASSICAL_CUTOFF 80
+   for (size = 2; size < 500; size = (long) ceil(size*1.1))
+   {
+      TMP_START;
+      
+      a = TMP_ALLOC(2*size);
+      b = TMP_ALLOC(size);
+      r1 = TMP_ALLOC(size + 3);
+      r2 = TMP_ALLOC(size + 3);
+      
+      randoms_of_len(2*size, ANY, state, &a, NULL);
+      randoms_of_len(size, ANY, state, &b, NULL);
+      
+      printf("size = %ld: ", size);
 
-#define MULLOW_CLASSICAL_CUTOFF 160
+      t = clock();
+      for (count = 0; count < ITER; count++)
+         nn_mulmid_classical(r1 + size + 1, r1, a, 2*size, b, size);
+      t = clock() - t;
 
-#define DIVAPPROX_CLASSICAL_CUTOFF 35
+      printf("classical = %gs, ", ((double) t)/CLOCKS_PER_SEC/ITER);
 
-#define DIVREM_CLASSICAL_CUTOFF 24
+      t = clock();
+      for (count = 0; count < ITER; count++)
+         nn_mulmid_kara(r2 + size + 1, r2, a, 2*size, b, size);
+      t = clock() - t;
 
-#endif
+      printf("kara = %gs\n", ((double) t)/CLOCKS_PER_SEC/ITER);
+     
+      TMP_END;
+   }
+}
+
+int main(void)
+{
+   printf("\nTimig nn_mulmid_kara vs nn_mulmid_classical:\n");
+   
+   randinit(&state);
+   
+   time_mulmid_kara();
+
+   randclear(state);
+
+   return 0;
+}
 

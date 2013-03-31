@@ -49,6 +49,11 @@ TESTS = $(patsubst %.c, build/%, $(TSOURCES))
 
 BINARIES = __BINARIES__ $(TESTS)
 
+# PROFILE FILES
+PSOURCES = __PSOURCES__
+
+PROFS = $(patsubst %.c, build/%, $(PSOURCES))
+
 # PHONY SPEC
 .PHONY: all dist
 
@@ -70,6 +75,8 @@ check: $(OBJS) $(BINARIES)
 strip:
 	strip $(BINARIES)
 
+profile: $(OBJS) $(PROFS)
+
 build/arch/%.o: %.asm
 	$(QUIET_AS)$(AS)  $(AFLAGS) $< -o $@
 
@@ -79,11 +86,9 @@ build/%.o: %.c
 build/test/%.o: %.c
 	$(QUIET_CC)$(CC) $(CFLAGS) $(INCS) -c $< -o $@
 
-build/test/%: $(OBJS) 
+build/profile/%: $(OBJS) 
+	$(QUIET_LINK)$(CC) $(CFLAGS) $(INCS) profile/$(@F).c $(OBJS) -o $@ -lm
+
+build/test/%: $(OBJS)
 	$(QUIET_LINK)$(CC) $(CFLAGS) $(INCS) test/$(@F).c $(OBJS) -o $@
-
-# ---------------------------------------------------------
-# BUILD OBJECTS from unixbuild.map (./configure to gen)
-# ---------------------------------------------------------
-
 

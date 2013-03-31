@@ -291,6 +291,9 @@ word_t _nn_divapprox_helper(nn_t q, nn_t a, nn_src_t d, len_t s)
 
 #endif
 
+/* GCC thinks d1 is unused, so turn warning off */
+#pragma GCC diagnostic ignored "-Wunused-variable"
+
 #ifndef HAVE_ARCH_nn_divapprox_classical_preinv_c
 
 word_t nn_divapprox_classical_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d, 
@@ -347,6 +350,9 @@ word_t nn_divapprox_classical_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d,
 }
 
 #endif
+
+/* turn warning back on */
+#pragma GCC diagnostic warning "-Wunused-variable"
 
 #ifndef HAVE_ARCH_nn_div_hensel_preinv
 

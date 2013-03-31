@@ -161,6 +161,7 @@ fill_makefile_wireframe()
     CFILESARR=`ls -1 *.c rand/*.c`
     HFILESARR=`ls -1 *.h`
     TFILESARR=`ls -1 test/t-*.c`
+    PFILESARR=`ls -1 profile/p-*.c`
 
     for C in `echo ${CFILESARR[*]}`;
     do
@@ -175,6 +176,11 @@ fill_makefile_wireframe()
     for T in `echo ${TFILESARR[*]}`;
     do
         TFILES="$TFILES $T"
+    done
+
+    for P in `echo ${PFILESARR[*]}`;
+    do
+        PFILES="$PFILES $P"
     done
 
     echo "Creating Makefile "
@@ -195,6 +201,7 @@ sed_makefile()
     sed -i "s|__HEADERS__|${HFILES}|g" Makefile
     sed -i "s|__TSOURCES__|${TFILES}|g" Makefile
     sed -i "s|__TESTS__|${TESTS}|g" Makefile
+    sed -i "s|__PSOURCES__|${PFILES}|g" Makefile
     sed -i "s|__BINARIES__|${BINARIES}|g" Makefile
 }
 
@@ -204,6 +211,7 @@ make_directory_structure()
     mkdir -p build/arch
     mkdir -p build/rand
     mkdir -p build/test
+    mkdir -p build/profile
     mkdir -p dist/lib
 }
 

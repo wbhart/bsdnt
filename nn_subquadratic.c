@@ -160,7 +160,6 @@ void nn_mul_toom33(nn_t p, nn_src_t a, len_t m, nn_src_t b, len_t n)
    ASSERT_ALWAYS(nn_divrem1_preinv(r3, r3, 2*m3 + 2, WORD(3) << norm, ninv) == 0);
 #pragma GCC diagnostic warning "-Wunused-value"
 
-
    nn_shr(r3, r3, 2*m3 + 1, 1);
    nn_sub_m(r2, r2, r3, 2*m3 + 1);
    nn_sub_m(r2, r2, r4, 2*m3 + 1);
