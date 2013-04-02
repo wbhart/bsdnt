@@ -602,7 +602,7 @@ void nn_mulmid_classical(nn_t ov, nn_t p,
    must have space for m - n + 1 limbs. The quotient may not alias d.
 */
 void nn_divrem_classical_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d, 
-                                     len_t n, preinv1_t inv, word_t ci);
+                                     len_t n, preinv2_t inv, word_t ci);
 
 /*
    As per nn_divrem_classical_preinv_c however only a partial remainder is
@@ -616,7 +616,7 @@ void nn_divrem_classical_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d,
    may exceed d, in which case the extra word is returned by this function.
 */
 word_t nn_divapprox_classical_preinv_c(nn_t q, nn_t a, len_t m, 
-                         nn_src_t d,len_t n, preinv1_t inv, word_t ci);
+                         nn_src_t d,len_t n, preinv2_t inv, word_t ci);
 
 /*
    Perform Hensel division of {a, m} by {d, n} with the quotient mod B^m
@@ -722,13 +722,13 @@ void nn_mullow_kara(nn_t ov, nn_t p, nn_src_t a, len_t m, nn_src_t b, len_t n);
    may exceed d, in which case the extra word is returned by this function.
 */
 word_t nn_divapprox_divconquer_preinv_c(nn_t q, nn_t a, len_t m, 
-                     nn_src_t d, len_t n, preinv1_t dinv, word_t ci);
+                     nn_src_t d, len_t n, preinv2_t dinv, word_t ci);
 
 /*
    As per nn_divrem_classical_preinv_c.
 */
 void nn_divrem_divconquer_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d, 
-                                  len_t n, preinv1_t dinv, word_t ci);
+                                  len_t n, preinv2_t dinv, word_t ci);
 
 
 #endif

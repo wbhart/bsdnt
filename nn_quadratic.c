@@ -233,11 +233,11 @@ void nn_mulmid_classical(nn_t ov, nn_t p,
 #ifndef HAVE_ARCH_nn_divrem_classical_preinv_c
 
 void nn_divrem_classical_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d, 
-                                  len_t n, preinv1_t dinv, word_t ci)
+                                  len_t n, preinv2_t dinv, word_t ci)
 {
    long i = m - 1, j = m - n;
-   word_t d1 = d[n - 1];
-
+   word_t d1 = d[n - 1], d2 = d[n - 2];
+   
    ASSERT(q != d);
    ASSERT(m >= n);
    ASSERT(n > 1);
@@ -247,11 +247,11 @@ void nn_divrem_classical_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d,
 
    for ( ; i >= n - 1; i--, j--)
    {
-      divapprox21_preinv1(q[j], ci, a[i], d1, dinv);
+      divapprox21_preinv2(q[j], ci, a[i], dinv);
       
 	  /* a -= d*q1 */
       ci -= nn_submul1(a + j, d, n, q[j]);
-      
+
       /* correct if remainder is too large */
       while (ci || nn_cmp_m(a + j, d, n) >= 0)
       {
@@ -297,7 +297,7 @@ word_t _nn_divapprox_helper(nn_t q, nn_t a, nn_src_t d, len_t s)
 #ifndef HAVE_ARCH_nn_divapprox_classical_preinv_c
 
 word_t nn_divapprox_classical_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d, 
-                                  len_t n, preinv1_t dinv, word_t ci)
+                                  len_t n, preinv2_t dinv, word_t ci)
 {
    word_t cy, d1 = d[n - 1];
    len_t sh, s = m - n + 1; 
@@ -327,7 +327,7 @@ word_t nn_divapprox_classical_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d,
       if (ci > d[s] || (ci == d[s] && nn_cmp_m(a + 1, d, s) >= 0))
          return _nn_divapprox_helper(q, a, d, s);
 
-      divapprox21_preinv1(q[s - 1], ci, a[s], d1, dinv);
+      divapprox21_preinv2(q[s - 1], ci, a[s], dinv);
          
       /* a -= d*q1 */
       ci -= nn_submul1(a, d, s + 1, q[s - 1]);

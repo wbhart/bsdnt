@@ -212,7 +212,7 @@ int test_divapprox_divconquer_preinv(void)
    int result = 1;
    len_t m, n;
    nn_t a, r1, r2, s, q1, q2, d;
-   preinv1_t inv;
+   preinv2_t inv;
    
    printf("divapprox_divconquer_preinv...");
 
@@ -236,7 +236,7 @@ int test_divapprox_divconquer_preinv(void)
       
       nn_copy(r2, r1, m + n);
 
-      inv = precompute_inverse1(d[n - 1]);
+      inv = precompute_inverse2(d[n - 1], d[n - 2]);
       nn_divrem_classical_preinv_c(q1, r1, m + n - 1, d, n, inv, r1[m + n - 1]);
 
       nn_divapprox_divconquer_preinv_c(q2, r2, m + n - 1, d, n, inv, r2[m + n - 1]);
@@ -271,7 +271,7 @@ int test_divrem_divconquer_preinv(void)
    int result = 1;
    len_t m, n;
    nn_t a, r1, r2, s, q1, q2, d;
-   preinv1_t inv;
+   preinv2_t inv;
    
    printf("divrem_divconquer_preinv...");
 
@@ -295,7 +295,7 @@ int test_divrem_divconquer_preinv(void)
       
       nn_copy(r2, r1, m + n);
 
-      inv = precompute_inverse1(d[n - 1]);
+      inv = precompute_inverse2(d[n - 1], d[n - 2]);
       nn_divrem_classical_preinv_c(q1, r1, m + n - 1, d, n, inv, r1[m + n - 1]);
 
       nn_divrem_divconquer_preinv_c(q2, r2, m + n - 1, d, n, inv, r2[m + n - 1]);

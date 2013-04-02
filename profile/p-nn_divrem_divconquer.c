@@ -57,7 +57,7 @@ void time_divrem_divconquer(void)
       q2 = TMP_ALLOC(size);
       
       randoms_of_len(size, NORMALISED, state, &b, NULL);
-      inv = precompute_inverse1(b[size - 1]);
+      inv = precompute_inverse2(b[size - 1], b[size - 2]);
          
       printf("size = %ld: ", size);
 

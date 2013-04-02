@@ -85,6 +85,8 @@ typedef const word_t * nn_src_t;
 
 typedef word_t preinv1_t;
 
+typedef word_t preinv2_t;
+
 typedef word_t hensel_preinv1_t;
 
 typedef struct mod_preinv1_t
@@ -204,6 +206,46 @@ preinv1_t precompute_inverse1(word_t d)
 
    return (word_t) ((((dword_t) -d) << WORD_BITS) / (dword_t) d);
 }
+
+#endif
+
+/*
+   Precomputes an inverse of a two limb value d. The value 
+   of the inverse is 2^{3*WORD_BITS} / (d + 1) - 2^{WORD_BITS}. 
+   We assume d is normalised, i.e. the most significant bit of d 
+   is set.
+*/
+preinv2_t precompute_inverse2(word_t d1, word_t d2);
+
+#ifndef HAVE_ARCH_divapprox21_preinv2
+
+#define divapprox21_preinv2(q, a_hi, a_lo, dinv) \
+   do { \
+      const dword_t __a = ((dword_t) (a_hi) << WORD_BITS) + (dword_t) (a_lo); \
+      dword_t __q2 = (dword_t) (a_hi) * (dword_t) (dinv); \
+      dword_t __q3 = (dword_t) (a_lo) * (dword_t) (dinv); \
+      __q2 += (__q3 >> WORD_BITS) + __a; \
+      (q) = (word_t) (__q2 >> WORD_BITS); \
+   } while (0)
+
+#endif
+
+#ifndef HAVE_ARCH_divrem21_preinv2
+
+#define divrem21_preinv2(q, a_hi, a_lo, d1, d2, dinv) \
+   do { \
+      dword_t __a = ((dword_t) (a_hi) << WORD_BITS) + (dword_t) (a_lo); \
+      const dword_t __d = ((dword_t) (d1) << WORD_BITS) + (dword_t) (d2); \
+      dword_t __q2 = (dword_t) (a_hi) * (dword_t) (dinv); \
+      dword_t __q3 = (dword_t) (a_lo) * (dword_t) (dinv); \
+      q2 += (__q3 >> WORD_BITS) + __a; \
+      (q) = (word_t) (q2 >> WORD_BITS); \
+      __a -= (dword_t) (q) * (dword_t) (d1); \
+      __a -= (((dword_t) (q) * (dword_t) (d2)) >> WORD_BITS); \
+      if (__a > (dword_t) d1) __a -= (dword_t) d1, (q)++; \
+      (a_lo) = (word_t) __a; \
+      (a_hi) = (word_t) (__a >> WORD_BITS); \
+   } while (0)
 
 #endif
 

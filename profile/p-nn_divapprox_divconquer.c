@@ -64,7 +64,7 @@ void time_divapprox_divconquer(void)
       for (count = 0; count < ITER; count++)
       {
          randoms_of_len(2*size - 1, ANY, state, &a, NULL);
-         inv = precompute_inverse1(b[size - 1]);
+         inv = precompute_inverse2(b[size - 1], b[size - 2]);
          nn_divapprox_classical_preinv_c(q1, a, 2*size - 1, b, size, inv, 0);
       }
       t = clock() - t;

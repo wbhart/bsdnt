@@ -409,7 +409,7 @@ void nn_mullow_kara(nn_t ov, nn_t p, nn_src_t a, len_t m, nn_src_t b, len_t n)
 #ifndef HAVE_ARCH_nn_divapprox_divconquer_preinv_c
 
 word_t nn_divapprox_divconquer_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d, 
-                                            len_t n, preinv1_t dinv, word_t ci)
+                                            len_t n, preinv2_t dinv, word_t ci)
 {
    len_t s = m - n + 1;
    len_t sh, sl;
@@ -480,7 +480,7 @@ word_t nn_divapprox_divconquer_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d,
 #ifndef HAVE_ARCH_nn_divrem_divconquer_preinv_c
 
 void nn_divrem_divconquer_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d, 
-                                            len_t n, preinv1_t dinv, word_t ci)
+                                            len_t n, preinv2_t dinv, word_t ci)
 {
    len_t sh, s = m - n + 1;
    nn_t t;

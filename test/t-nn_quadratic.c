@@ -172,7 +172,7 @@ int test_divrem_classical_preinv(void)
    int result = 1;
    len_t m, n;
    nn_t a, r1, s, q, d;
-   preinv1_t inv;
+   preinv2_t inv;
 
    printf("divrem_classical_preinv...");
 
@@ -188,7 +188,8 @@ int test_divrem_classical_preinv(void)
       if (m >= n) nn_mul_classical(r1, a, m, d, n);
       else nn_mul_classical(r1, d, n, a, m);
 
-	   inv = precompute_inverse1(d[n - 1]);
+	   inv = precompute_inverse2(d[n - 1], d[n - 2]);
+      
       nn_divrem_classical_preinv_c(q, r1, m + n - 1, d, n, inv, r1[m + n - 1]);
 	   
       result = (nn_equal_m(q, a, m) && nn_normalise(r1, n) == 0);
@@ -218,7 +219,7 @@ int test_divrem_classical_preinv(void)
       nn_mul_classical(r1, d, n, a, m);
       nn_add(r1, r1, n + m, s, n);
       
-      inv = precompute_inverse1(d[n - 1]);
+      inv = precompute_inverse2(d[n - 1], d[n - 2]);
       nn_divrem_classical_preinv_c(q, r1, m + n - 1, d, n, inv, r1[m + n - 1]);
 
       result = (nn_equal_m(q, a, m) && nn_equal_m(s, r1, n));
@@ -240,7 +241,7 @@ int test_divapprox_classical_preinv(void)
    int result = 1;
    len_t m, n;
    nn_t a, r1, r2, s, q1, q2, d, t;
-   preinv1_t inv;
+   preinv2_t inv;
    
    printf("divapprox_classical_preinv...");
 
@@ -263,7 +264,7 @@ int test_divapprox_classical_preinv(void)
       nn_add(r1, r1, m + n, s, n);
       nn_copy(r2, r1, m + n);
 
-      inv = precompute_inverse1(d[n - 1]);
+      inv = precompute_inverse2(d[n - 1], d[n - 2]);
       nn_divrem_classical_preinv_c(q1, r1, m + n - 1, d, n, inv, r1[m + n - 1]);
 
       nn_divapprox_classical_preinv_c(q2, r2, m + n - 1, d, n, inv, r2[m + n - 1]);
@@ -301,7 +302,7 @@ int test_divapprox_classical_preinv(void)
       nn_add(r1, r1, m + n, s, n);
       nn_copy(r2, r1, m + n);
 
-      inv = precompute_inverse1(d[n - 1]);
+      inv = precompute_inverse2(d[n - 1], d[n - 2]);
       nn_divrem_classical_preinv_c(q1, r1, m + n - 1, d, n, inv, r1[m + n - 1]);
 
       nn_divapprox_classical_preinv_c(q2, r2, m + n - 1, d, n, inv, r2[m + n - 1]);
