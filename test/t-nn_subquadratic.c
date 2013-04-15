@@ -174,13 +174,44 @@ int test_mulmid_kara_m(void)
    return result;
 }
 
-int test_mullow_kara(void)
+int test_mullow_kara_m(void)
+{
+   int result = 1;
+   len_t n;
+   nn_t a, b, r1, r2;
+   
+   printf("mullow_kara_m...");
+
+   TEST_START(1, ITER) /* test mullow_kara is the same as mullow_classical */
+   {
+      randoms_upto(150, NONZERO, state, &n, NULL);
+      n++; /* n at least 2 */
+
+      randoms_of_len(n, ANY, state, &a, &b, NULL);
+      randoms_of_len(n + 2, ANY, state, &r1, &r2, NULL);
+      
+      nn_mullow_classical(r1 + n, r1, a, n, b, n);
+      nn_mullow_kara_m(r2 + n, r2, a, b, n);
+      
+      result = (nn_equal_m(r1, r2, n + 2));
+
+      if (!result) 
+      {
+         print_debug(a, n); print_debug(b, n);
+         print_debug_diff(r1, r2, n + 2);
+      }
+   } TEST_END;
+
+   return result;
+}
+
+int test_mullow(void)
 {
    int result = 1;
    len_t m, n;
    nn_t a, b, r1, r2;
    
-   printf("mullow_kara...");
+   printf("mullow...");
 
    TEST_START(1, ITER) /* test mullow_kara is the same as mullow_classical */
    {
@@ -193,7 +224,7 @@ int test_mullow_kara(void)
       randoms_of_len(m + 2, ANY, state, &r1, &r2, NULL);
       
       nn_mullow_classical(r1 + m, r1, a, m, b, n);
-      nn_mullow_kara(r2 + m, r2, a, m, b, n);
+      nn_mullow(r2 + m, r2, a, m, b, n);
       
       result = (nn_equal_m(r1, r2, m + 2));
 
@@ -266,6 +297,53 @@ int test_divapprox_divconquer_preinv(void)
    return result;
 }
 
+int test_div_divconquer_preinv(void)
+{
+   int result = 1;
+   len_t m, n;
+   nn_t a, r1, r2, s, q1, q2, d;
+   preinv2_t inv;
+   
+   printf("div_divconquer_preinv...");
+
+   TEST_START(1, ITER) /* test div is the same as divrem */
+   {
+      randoms_upto(150, NONZERO, state, &n, NULL);
+      n++; /* require n at least 2 */
+      randoms_upto(n + 1, NONZERO, state, &m, NULL);
+      
+      randoms_of_len(m, ANY, state, &a, &q1, &q2, NULL);
+      randoms_of_len(m + n, ANY, state, &r1, &r2, NULL);
+      
+      /* ensure s is reduced mod d */
+      do {
+         randoms_of_len(n, NORMALISED, state, &d, NULL);
+         randoms_of_len(n, ANY, state, &s, NULL);
+      } while (nn_cmp_m(d, s, n) <= 0);
+
+      nn_mul_classical(r1, d, n, a, m);
+      nn_add(r1, r1, m + n, s, n);
+      
+      nn_copy(r2, r1, m + n);
+
+      inv = precompute_inverse2(d[n - 1], d[n - 2]);
+      nn_divrem_classical_preinv_c(q1, r1, m + n - 1, d, n, inv, r1[m + n - 1]);
+
+      nn_div_divconquer_preinv_c(q2, r2, m + n - 1, d, n, inv, r2[m + n - 1]);
+
+      result = (nn_cmp_m(q1, q2, m) == 0);
+      
+      if (!result) 
+      {
+         bsdnt_printf("inv = %wx\n", inv);
+         print_debug(a, m); print_debug(q1, m); print_debug(d, n);  print_debug(s, n);
+         print_debug_diff(q1, q2, m);
+      }
+   } TEST_END;
+
+   return result;
+}
+
 int test_divrem_divconquer_preinv(void)
 {
    int result = 1;
@@ -308,7 +386,7 @@ int test_divrem_divconquer_preinv(void)
          bsdnt_printf("inv = %wx\n", inv);
          print_debug(a, m); print_debug(q1, m); print_debug(d, n);  print_debug(s, n);
          print_debug_diff(q1, q2, m);
-         print_debug_diff(r1, r2, m);
+         print_debug_diff(r1, r2, n);
       }
    } TEST_END;
 
@@ -324,8 +402,10 @@ int test_subquadratic(void)
    RUN(test_mul_toom33);
    RUN(test_mul_toom32);
    RUN(test_mulmid_kara_m);
-   RUN(test_mullow_kara);
+   RUN(test_mullow_kara_m);
+   RUN(test_mullow);
    RUN(test_divapprox_divconquer_preinv);
+   RUN(test_div_divconquer_preinv);
    RUN(test_divrem_divconquer_preinv);
    
    printf("%ld of %ld tests pass.\n", pass, pass + fail);

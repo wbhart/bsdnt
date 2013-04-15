@@ -69,7 +69,7 @@ void time_mullow_kara(void)
 
       t = clock();
       for (count = 0; count < ITER; count++)
-         nn_mullow_kara(r2 + size, r2, a, size, b, size);
+         nn_mullow_kara_m(r2 + size, r2, a, b, size);
       t = clock() - t;
 
       printf("kara = %gs\n", ((double) t)/CLOCKS_PER_SEC/ITER);
@@ -80,7 +80,7 @@ void time_mullow_kara(void)
 
 int main(void)
 {
-   printf("\nTimig nn_mullow_kara vs nn_mullow_classical:\n");
+   printf("\nTiming nn_mullow_kara vs nn_mullow_classical:\n");
    
    randinit(&state);
    

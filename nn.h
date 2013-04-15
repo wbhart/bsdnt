@@ -679,31 +679,13 @@ void nn_mul_toom33(nn_t p, nn_src_t a, len_t m, nn_src_t b, len_t n);
 */
 void nn_mul_toom32(nn_t p, nn_src_t a, len_t m, nn_src_t b, len_t n);
 
-/**********************************************************************
- 
-    Tuned (best-of-breed) arithmetic functions
-
-**********************************************************************/
-
-/*
-   Set {p, 2*m} = {a, m} * {b, m}. 
-   The output p may not alias either of the inputs a or b. We require 
-   m > 0.
-*/
-void nn_mul_m(nn_t p, nn_src_t a, nn_src_t b, len_t m);
-
-/*
-   Set {p, m + n} = {a, m} * {b, n}. 
-   The output p may not alias either of the inputs a or b. We require 
-   m, n > 0.
-*/
-void nn_mul(nn_t p, nn_src_t a, len_t m, nn_src_t b, len_t n);
-
 /*
    As per nn_mulmid_classical, except that we require m >= 2*n - 1 and
    n >= 4.
 */
 void nn_mulmid_kara(nn_t ov, nn_t p, nn_src_t a, len_t m, nn_src_t b, len_t n);
+
+void nn_mullow_kara_m(nn_t ov, nn_t p, nn_src_t a, nn_src_t b, len_t n);
 
 /*
    As per nn_mullow_classical.
@@ -730,6 +712,73 @@ word_t nn_divapprox_divconquer_preinv_c(nn_t q, nn_t a, len_t m,
 void nn_divrem_divconquer_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d, 
                                   len_t n, preinv2_t dinv, word_t ci);
 
+/*
+   As per nn_divrem_classical_preinv_c but returning quotient only. The
+   value of a is destroyed.
+*/
+void nn_div_divconquer_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d, 
+                                        len_t n, preinv2_t dinv, word_t ci);
+
+/**********************************************************************
+ 
+    Tuned (best-of-breed) arithmetic functions
+
+**********************************************************************/
+
+/*
+   Set {p, 2*m} = {a, m} * {b, m}. 
+   The output p may not alias either of the inputs a or b. We require 
+   m > 0.
+*/
+void nn_mul_m(nn_t p, nn_src_t a, nn_src_t b, len_t m);
+
+/*
+   Set {p, m + n} = {a, m} * {b, n}. 
+   The output p may not alias either of the inputs a or b. We require 
+   m, n > 0.
+*/
+void nn_mul(nn_t p, nn_src_t a, len_t m, nn_src_t b, len_t n);
+
+static __inline__
+void nn_mullow_m(nn_t ov, nn_t p, nn_src_t a, nn_src_t b, len_t n)
+{   
+   if (n <= MULLOW_CLASSICAL_CUTOFF)
+      nn_mullow_classical(ov, p, a, n, b, n);
+   else
+      nn_mullow_kara_m(ov, p, a, b, n);
+}
+
+/*
+   As per nn_mullow_basecase.
+*/
+static __inline__
+void nn_mullow(nn_t ov, nn_t p, nn_src_t a, len_t m, nn_src_t b, len_t n)
+{
+   if (m > n)
+   {
+      nn_t t;
+      word_t ci;
+
+      TMP_INIT;
+    
+      if (n >= m - n) nn_mul(p, b, n, a, m - n);
+      else nn_mul(p, a, m - n, b, n);        
+      
+      TMP_START;
+
+      t = TMP_ALLOC(n + 2);
+
+      nn_mullow(t + n, t, a + m - n, n, b, n);
+      
+      /* do missing parts of mullow */
+
+      ci = nn_add_m(p + m - n, p + m - n, t, n);
+      nn_add1(ov, t + n, 2, ci);
+
+      TMP_END;
+   } else
+      nn_mullow_m(ov, p, a, b, n);
+}
 
 #endif
 

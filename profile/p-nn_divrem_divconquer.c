@@ -33,61 +33,95 @@
 #include "test.h"
 
 #undef ITER
-#define ITER 20000
+#define ITER 10000000
 
 rand_t state;
 
 void time_divrem_divconquer(void)
 {
-   nn_t a, b, q1, q2;
+   nn_t a, a2, b, q1, q2;
    len_t size;
    word_t inv;
-   long count;
+   long count, i;
    clock_t t;
 
    TMP_INIT;
 
-   for (size = 2; size < 500; size = (long) ceil(size*1.1))
+   for (size = 3; size < 40; size = (long) ceil(size*1.1))
    {
       TMP_START;
       
       a = TMP_ALLOC(2*size - 1);
+      a2 = TMP_ALLOC(2*size - 1);
       b = TMP_ALLOC(size);
       q1 = TMP_ALLOC(size);
       q2 = TMP_ALLOC(size);
-      
-      randoms_of_len(size, NORMALISED, state, &b, NULL);
-      inv = precompute_inverse2(b[size - 1], b[size - 2]);
-         
+               
       printf("size = %ld: ", size);
 
       t = clock();
-      for (count = 0; count < ITER; count++)
+      for (i = 0; i < 10; i++)
       {
-         randoms_of_len(2*size - 1, ANY, state, &a, NULL);
-         nn_divrem_classical_preinv_c(q1, a, 2*size - 1, b, size, inv, 0);
+         mpn_random(b, size);
+         b[size - 1] |= (1UL<<(WORD_BITS - 1));
+         mpn_random(a, 2*size - 1);
+         inv = precompute_inverse2(b[size - 1], b[size - 2]);
+         
+         for (count = 0; count < ITER/10; count++)
+         {
+            nn_copy(a2, a, 2*size - 1);
+            nn_divrem_classical_preinv_c(q1, a2, 2*size - 1, b, size, inv, 0);
+         }
       }
       t = clock() - t;
+
+      t += clock();
+      for (i = 0; i < 10; i++)
+      {
+         mpn_random(b, size);
+         b[size - 1] |= (1UL<<(WORD_BITS - 1));
+         mpn_random(a, 2*size - 1);
+         inv = precompute_inverse2(b[size - 1], b[size - 2]);
+         
+         for (count = 0; count < ITER/10; count++)
+         {
+            nn_copy(a2, a, 2*size - 1);
+         }
+      }
+      t -= clock();
 
       printf("classical = %gs, ", ((double) t)/CLOCKS_PER_SEC/ITER);
 
-      t = clock();
-      for (count = 0; count < ITER; count++)
+      if (size >= 5)
       {
-         randoms_of_len(2*size - 1, ANY, state, &a, NULL);
-         nn_divrem_divconquer_preinv_c(q2, a, 2*size - 1, b, size, inv, 0);
-      }
-      t = clock() - t;
+         t = clock();
+         for (i = 0; i < 10; i++)
+         {
+            mpn_random(b, size);
+            b[size - 1] |= (1UL<<(WORD_BITS - 1));
+            mpn_random(a, 2*size - 1);
+            inv = precompute_inverse2(b[size - 1], b[size - 2]);
+         
+            for (count = 0; count < ITER/10; count++)
+            {
+               nn_copy(a2, a, 2*size - 1);
+               nn_divrem_divconquer_preinv_c(q2, a2, 2*size - 1, b, size, inv, 0);
+            }
+         }
+         t = clock() - t;
 
-      printf("divconquer = %gs\n", ((double) t)/CLOCKS_PER_SEC/ITER);
-     
+         printf("divconquer = %gs", ((double) t)/CLOCKS_PER_SEC/ITER);
+      }
+
+      printf("\n");
+
       TMP_END;
    }
 }
 
 int main(void)
 {
-   printf("\nTimig nn_divrem_divconquer vs nn_divrem_classical:\n");
+   printf("\nTiming nn_divrem_divconquer vs nn_divrem_classical:\n");
    
    randinit(&state);
    

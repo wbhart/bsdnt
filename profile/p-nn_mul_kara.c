@@ -80,7 +80,7 @@ void time_mul_kara(void)
 
 int main(void)
 {
-   printf("\nTimig nn_mul_kara vs nn_mul_classical:\n");
+   printf("\nTiming nn_mul_kara vs nn_mul_classical:\n");
    
    randinit(&state);
    

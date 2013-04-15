@@ -91,7 +91,7 @@ void free_redzoned_nn(nn_t a, len_t n)
 word_t test_randword1(rand_t state)
 {
 	word_t res = 0;
-    int bits = (int) randint(7, state);
+   int bits = (int) randint(7, state);
 	int i;
 
 	for (i = 0; i < bits; i++)

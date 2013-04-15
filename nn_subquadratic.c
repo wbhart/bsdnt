@@ -362,6 +362,40 @@ void nn_mulmid_kara(nn_t ov, nn_t p, nn_src_t a, len_t m, nn_src_t b, len_t n)
 
 #endif
 
+#ifndef HAVE_ARCH_nn_mullow_kara_m
+
+void nn_mullow_kara_m(nn_t ov, nn_t p, nn_src_t a, nn_src_t b, len_t n)
+{
+   len_t nl = n/2, nh = n - nl;
+   nn_t p1, p2;
+   word_t ci;
+
+   TMP_INIT;
+
+   ASSERT(MULLOW_CLASSICAL_CUTOFF >= 1);
+   ASSERT(n >= 4);
+
+   nn_mul(p, b, nh, a, nl);
+   
+   TMP_START;
+
+   p1 = TMP_ALLOC(nh);
+   p2 = TMP_ALLOC(nl + 2);
+   
+   nn_mullow_m(ov, p1, a + nl, b, nh);
+   nn_mullow_m(p2 + nl, p2, a, b + nh, nl);
+
+   ci = nn_add_m(p + nl, p + nl, p1, nh);
+   nn_add1(ov, ov, 2, ci);
+
+   ci = nn_add_m(p + nh, p + nh, p2, nl);
+   nn_add_mc(ov, ov, p2 + nl, 2, ci);
+   
+   TMP_END;
+}
+
+#endif
+
 #ifndef HAVE_ARCH_nn_mullow_kara
 
 void nn_mullow_kara(nn_t ov, nn_t p, nn_src_t a, len_t m, nn_src_t b, len_t n)
@@ -532,6 +566,60 @@ void nn_divrem_divconquer_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d,
    } 
 
    ASSERT(ci == 0);
+}
+
+#endif
+
+#ifndef HAVE_ARCH_nn_div_divconquer_preinv_c
+
+void nn_div_divconquer_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d, 
+                                            len_t n, preinv2_t dinv, word_t ci)
+{
+   len_t s = m - n + 1;
+   nn_t t, t2;
+
+   TMP_INIT;
+
+   ASSERT(q != d);
+   ASSERT(m >= n);
+   ASSERT(n > 1);
+   ASSERT((ci < d[n - 1]) 
+      || ((ci == d[n - 1]) && (nn_cmp_m(a + m - n + 1, d, n - 1) < 0)));
+   ASSERT((long) d[n - 1] < 0);
+
+   TMP_START;
+   
+   t = TMP_ALLOC(s + 1);
+   t2 = TMP_ALLOC(m + 1);
+
+   nn_copy(t2 + 1, a, m);
+   t2[0] = 0;
+
+   /* compute one extra limb of the quotient */
+   if (n <= DIVAPPROX_CLASSICAL_CUTOFF)
+      nn_divapprox_classical_preinv_c(t, t2, m + 1, d, n, dinv, ci);
+   else
+      nn_divapprox_divconquer_preinv_c(t, t2, m + 1, d, n, dinv, ci);
+
+   if (-t[0] <= 1)
+   {
+      if (s >= n) nn_mul(t2, t + 1, s, d, n);
+      else nn_mul(t2, d, n, t + 1, s);
+
+      nn_sub_m(a, a, t2, n + 1);
+      ci = a[n];
+
+      /* quotient may be one too small or too large */
+      if ((sword_t) ci < 0)
+         nn_sub1(q, t + 1, s, 1);
+      else if (ci || nn_cmp_m(a, d, n) >= 0)
+         nn_add1(q, t + 1, s, 1);
+      else
+         nn_copy(q, t + 1, s);
+   } else
+      nn_copy(q, t + 1, s);
+
+   TMP_END;
 }
 
 #endif

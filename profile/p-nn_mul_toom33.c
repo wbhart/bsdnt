@@ -87,7 +87,7 @@ void time_mul_toom33(void)
 
 int main(void)
 {
-   printf("\nTimig nn_mul_toom33 vs nn_mul_kara:\n");
+   printf("\nTiming nn_mul_toom33 vs nn_mul_kara:\n");
    
    randinit(&state);
    

@@ -46,14 +46,14 @@ void time_mulmid_kara(void)
 
    TMP_INIT;
 
-   for (size = 2; size < 500; size = (long) ceil(size*1.1))
+   for (size = 2; size < 1000; size = (long) ceil(size*1.1))
    {
       TMP_START;
       
       a = TMP_ALLOC(2*size);
       b = TMP_ALLOC(size);
-      r1 = TMP_ALLOC(size + 3);
-      r2 = TMP_ALLOC(size + 3);
+      r1 = TMP_ALLOC(3*size);
+      r2 = TMP_ALLOC(3*size);
       
       randoms_of_len(2*size, ANY, state, &a, NULL);
       randoms_of_len(size, ANY, state, &b, NULL);
@@ -62,14 +62,14 @@ void time_mulmid_kara(void)
 
       t = clock();
       for (count = 0; count < ITER; count++)
-         nn_mulmid_classical(r1 + size + 1, r1, a, 2*size, b, size);
+         mpn_mul(r1, a, 2*size, b, size);
       t = clock() - t;
 
       printf("classical = %gs, ", ((double) t)/CLOCKS_PER_SEC/ITER);
 
       t = clock();
       for (count = 0; count < ITER; count++)
-         nn_mulmid_kara(r2 + size + 1, r2, a, 2*size, b, size);
+         mpn_mulmid(r2, a, 2*size, b, size);
       t = clock() - t;
 
       printf("kara = %gs\n", ((double) t)/CLOCKS_PER_SEC/ITER);
@@ -80,7 +80,7 @@ void time_mulmid_kara(void)
 
 int main(void)
 {
-   printf("\nTimig nn_mulmid_kara vs nn_mulmid_classical:\n");
+   printf("\nTiming nn_mulmid_kara vs nn_mulmid_classical:\n");
    
    randinit(&state);
    
