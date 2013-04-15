@@ -200,19 +200,22 @@ preinv2_t precompute_inverse2(word_t d1, word_t d2)
       r[1] = (word_t) (t % (dword_t) (d1 + 1));
    }
 
-   r[0] = 0;
-
    if (d2 + 1 == 0)
       return q;
    
-   t = (dword_t) q * (dword_t) (~d2 - 1);
+   r[0] = 0;
+
+   t = (dword_t) q * (dword_t) (~d2);
    p[0] = (word_t) t;
    p[1] = (word_t) (t >> WORD_BITS);
    ci = nn_add_m(r, r, p, 2);
  
    p[0] = d2 + 1, p[1] = d1 + (d2 + 1 == 0);
-   if (ci || nn_cmp_m(r, p, 2) >= 0)
+   while (ci || nn_cmp_m(r, p, 2) >= 0)
+   {
       q++;
+      ci -= nn_sub_m(r, r, p, 2);
+   }
    
    return q;
 }
