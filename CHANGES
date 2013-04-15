@@ -107,3 +107,8 @@
 
 28-Mar-2013:
 	v0.33 - Added nn_mulmid_kara and nn_mullow_kara.
+
+15-Apr-2013:
+	v0.34 - Added nn_div_divconquer, nn_mullow, nn_mullow_m and
+                nn_mullow_kara_m.
+
