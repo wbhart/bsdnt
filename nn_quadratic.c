@@ -299,8 +299,8 @@ word_t _nn_divapprox_helper(nn_t q, nn_t a, nn_src_t d, len_t s)
 word_t nn_divapprox_classical_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d, 
                                   len_t n, preinv2_t dinv, word_t ci)
 {
-   word_t cy, d1 = d[n - 1];
-   len_t sh, s = m - n + 1; 
+   word_t cy = 0;
+   len_t s = m - n + 1; 
    
    ASSERT(q != d);
    ASSERT(q != a);
@@ -308,40 +308,54 @@ word_t nn_divapprox_classical_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d,
    ASSERT(n > 1);
    ASSERT((long) d1 < 0);
 
+   a += m;
+
    /* Reduce until n - 2 >= s */
-   while (n - 2 < s)
+   for (s = m - n; s > n - 2; s--)
    {
-      sh = BSDNT_MIN(n, s - n + 2);
-      nn_divrem_classical_preinv_c(q + s - sh, a + m - n - sh + 1, 
-                                                   n + sh - 1, d, n, dinv, ci);
-      s -= sh; m -= sh; 
-      ci = a[m];
+      a--;
+      divapprox21_preinv2(q[s], ci, a[0], dinv);
+      
+	  /* a -= d*q1 */
+      ci -= nn_submul1(a - n + 1, d, n, q[s]);
+
+      /* correct if remainder is too large */
+      if (ci || nn_cmp_m(a - n + 1, d, n) >= 0)
+      {
+         q[s]++;
+         ci -= nn_sub_m(a - n + 1, a - n + 1, d, n);
+      }
+      
+      /* fetch next word now that it has been updated */
+      cy = ci;
+      ci = a[0];
    }
    
-   d = d + n - s - 1; /* make d length s - 1 */
-   a = a + n - 2; /* make a length s - 1 (+ carry) */
+   s++;
+   d = d + n - s - 1; /* make d length s + 1 */
    
    for ( ; s > 0; s--)
    {
+      a--;
       /* rare case where truncation ruins normalisation */
-      if (ci > d[s] || (ci == d[s] && nn_cmp_m(a + 1, d, s) >= 0))
-         return _nn_divapprox_helper(q, a, d, s);
+      if (ci > d[s] || (ci == d[s] && nn_cmp_m(a - s + 1, d, s) >= 0))
+         return _nn_divapprox_helper(q, a - s, d, s);
 
-      divapprox21_preinv2(q[s - 1], ci, a[s], dinv);
+      divapprox21_preinv2(q[s - 1], ci, a[0], dinv);
          
       /* a -= d*q1 */
-      ci -= nn_submul1(a, d, s + 1, q[s - 1]);
+      ci -= nn_submul1(a - s, d, s + 1, q[s - 1]);
 
 	   /* correct if remainder is too large */
-      while (ci || nn_cmp_m(a, d, s + 1) >= 0)
+      if (ci || nn_cmp_m(a - s, d, s + 1) >= 0)
       {
          q[s - 1]++;
-         ci -= nn_sub_m(a, a, d, s + 1);
+         ci -= nn_sub_m(a - s, a - s, d, s + 1);
       }
-
+      
       /* fetch next word now that it has been updated */
       cy = ci;
-      ci = a[s];
+      ci = a[0];
       
       d++;
    }  
