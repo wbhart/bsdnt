@@ -235,9 +235,9 @@ void nn_mulmid_classical(nn_t ov, nn_t p,
 void nn_divrem_classical_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d, 
                                   len_t n, preinv2_t dinv, word_t ci)
 {
-   long i = m - 1, j = m - n;
-   word_t d1 = d[n - 1], d2 = d[n - 2];
-   
+   long j;
+   word_t d1 = d[n - 1];
+
    ASSERT(q != d);
    ASSERT(m >= n);
    ASSERT(n > 1);
@@ -245,25 +245,28 @@ void nn_divrem_classical_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d,
       || ((ci == d1) && (nn_cmp_m(a + m - n + 1, d, n - 1) < 0)));
    ASSERT((long) d1 < 0);
 
-   for ( ; i >= n - 1; i--, j--)
+   a += m;
+
+   for (j = m - n; j >= 0; j--)
    {
-      divapprox21_preinv2(q[j], ci, a[i], dinv);
+      a--;
+      
+      divapprox21_preinv2(q[j], ci, a[0], dinv);
       
 	  /* a -= d*q1 */
-      ci -= nn_submul1(a + j, d, n, q[j]);
+      ci -= nn_submul1(a - n + 1, d, n, q[j]);
 
       /* correct if remainder is too large */
-      while (ci || nn_cmp_m(a + j, d, n) >= 0)
+      if (ci || nn_cmp_m(a - n + 1, d, n) >= 0)
       {
          q[j]++;
-         ci -= nn_sub_m(a + j, a + j, d, n);
+         ci -= nn_sub_m(a - n + 1, a - n + 1, d, n);
       }
       
       /* fetch next word now that it has been updated */
-      ci = a[i];
+      ci = a[0];
    }
 }
-
 
 #endif
 
@@ -299,7 +302,7 @@ word_t _nn_divapprox_helper(nn_t q, nn_t a, nn_src_t d, len_t s)
 word_t nn_divapprox_classical_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d, 
                                   len_t n, preinv2_t dinv, word_t ci)
 {
-   word_t cy = 0;
+   word_t cy = 0, d1 = d[n - 1];
    len_t s = m - n + 1; 
    
    ASSERT(q != d);
