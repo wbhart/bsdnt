@@ -62,9 +62,9 @@ void time_divrem_divconquer(void)
       t = clock();
       for (i = 0; i < 10; i++)
       {
-         mpn_random(b, size);
+         randoms_of_len(size, ANY, state, &b, NULL);
          b[size - 1] |= (1UL<<(WORD_BITS - 1));
-         mpn_random(a, 2*size - 1);
+         randoms_of_len(2*size - 1, ANY, state, &a, NULL);
          inv = precompute_inverse2(b[size - 1], b[size - 2]);
          
          for (count = 0; count < ITER/10; count++)
@@ -78,9 +78,9 @@ void time_divrem_divconquer(void)
       t += clock();
       for (i = 0; i < 10; i++)
       {
-         mpn_random(b, size);
+         randoms_of_len(size, ANY, state, &b, NULL);
          b[size - 1] |= (1UL<<(WORD_BITS - 1));
-         mpn_random(a, 2*size - 1);
+         randoms_of_len(2*size - 1, ANY, state, &a, NULL);
          inv = precompute_inverse2(b[size - 1], b[size - 2]);
          
          for (count = 0; count < ITER/10; count++)
@@ -97,9 +97,9 @@ void time_divrem_divconquer(void)
          t = clock();
          for (i = 0; i < 10; i++)
          {
-            mpn_random(b, size);
+            randoms_of_len(size, ANY, state, &b, NULL);
             b[size - 1] |= (1UL<<(WORD_BITS - 1));
-            mpn_random(a, 2*size - 1);
+            randoms_of_len(2*size - 1, ANY, state, &a, NULL);
             inv = precompute_inverse2(b[size - 1], b[size - 2]);
          
             for (count = 0; count < ITER/10; count++)

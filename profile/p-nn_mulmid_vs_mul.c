@@ -33,67 +33,75 @@
 #include "test.h"
 
 #undef ITER
-#define ITER 10000
+#define ITER 25000
 
 rand_t state;
 
-void time_divapprox_divconquer(void)
+void time_mulmid_kara(void)
 {
-   nn_t a, a2, b, q1, q2;
+   nn_t a, b, r1, r2;
    len_t size;
-   word_t inv;
-   long i, count;
+   long count;
    clock_t t;
 
    TMP_INIT;
 
-   for (size = 408; size < 1000; size = (long) ceil(size*1.1))
+   for (size = 2; size < 4000; size = (long) ceil(size*1.1))
    {
       TMP_START;
       
-      a = TMP_ALLOC(2*size - 1);
-      a2 = TMP_ALLOC(2*size - 1);
+      a = TMP_ALLOC(2*size);
       b = TMP_ALLOC(size);
-      q1 = TMP_ALLOC(size);
-      q2 = TMP_ALLOC(size);
-            
+      r1 = TMP_ALLOC(size + 3);
+      r2 = TMP_ALLOC(3*size);
+      
+      randoms_of_len(2*size, ANY, state, &a, NULL);
+      randoms_of_len(size, ANY, state, &b, NULL);
+      
       printf("size = %ld: ", size);
 
-      t = clock();
-      for (i = 0; i < 10; i++)
+      if (size < 100)
       {
-         randoms_of_len(size, ANY, state, &b, NULL);
-         b[size - 1] |= (1UL<<(WORD_BITS - 1));
-         randoms_of_len(2*size - 1, ANY, state, &a, NULL);
-         inv = precompute_inverse2(b[size - 1], b[size - 2]);
-      
-         for (count = 0; count < ITER/10; count++)
-         {
-            nn_copy(a2, a, 2*size - 1);
-            nn_divapprox_classical_preinv_c(q1, a2, 2*size - 1, b, size, inv, 0);
-         }
-      }
-      t = clock() - t;
+         t = clock();
+         for (count = 0; count < ITER; count++)
+            nn_mulmid_classical(r1 + size + 1, r1, a, 2*size, b, size);
+         t = clock() - t;
 
-      printf("classical = %gs, ", ((double) t)/CLOCKS_PER_SEC/ITER);
+         printf("mulmid_classical = %gs, ", ((double) t)/CLOCKS_PER_SEC/ITER);
+      }
 
       t = clock();
-      for (i = 0; i < 10; i++)
-      {
-         randoms_of_len(size, ANY, state, &b, NULL);
-         b[size - 1] |= (1UL<<(WORD_BITS - 1));
-         randoms_of_len(2*size - 1, ANY, state, &a, NULL);
-         inv = precompute_inverse2(b[size - 1], b[size - 2]);
-      
-         for (count = 0; count < ITER/10; count++)
-         {
-            nn_copy(a2, a, 2*size - 1);
-            nn_divapprox_divconquer_preinv_c(q2, a2, 2*size - 1, b, size, inv, 0);
-         }
-      }
+      for (count = 0; count < ITER; count++)
+         nn_mulmid_kara(r1 + size + 1, r2, a, 2*size, b, size);
       t = clock() - t;
 
-      printf("divconquer = %gs\n", ((double) t)/CLOCKS_PER_SEC/ITER);
+      printf("mulmid_kara = %gs\n", ((double) t)/CLOCKS_PER_SEC/ITER);
+     
+      printf("size = %ld: ", size);
+
+      if (size < 100)
+      {
+         t = clock();
+         for (count = 0; count < ITER; count++)
+            nn_mul_classical(r2, a, 2*size, b, size);
+         t = clock() - t;
+      
+         printf("mul_classical = %gs, ", ((double) t)/CLOCKS_PER_SEC/ITER);
+      }
+
+      t = clock();
+      for (count = 0; count < ITER; count++)
+         nn_mul(r2, a, 2*size, b, size);
+      t = clock() - t;
+
+      printf("mul = %gs, ", ((double) t)/CLOCKS_PER_SEC/ITER);
+     
+      t = clock();
+      for (count = 0; count < ITER; count++)
+         nn_mullow(r2 + 2*size, r2, a, 2*size, b, size);
+      t = clock() - t;
+
+      printf("mullow = %gs\n", ((double) t)/CLOCKS_PER_SEC/ITER);
      
       TMP_END;
    }
@@ -101,11 +109,11 @@ void time_divapprox_divconquer(void)
 
 int main(void)
 {
-   printf("\nTiming nn_divapprox_divconquer vs nn_divapprox_classical:\n");
+   printf("\nTiming nn_mulmid_kara vs nn_mulmid_classical:\n");
    
    randinit(&state);
    
-   time_divapprox_divconquer();
+   time_mulmid_kara();
 
    randclear(state);
 

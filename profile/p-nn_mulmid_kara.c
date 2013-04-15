@@ -62,14 +62,14 @@ void time_mulmid_kara(void)
 
       t = clock();
       for (count = 0; count < ITER; count++)
-         mpn_mul(r1, a, 2*size, b, size);
+         nn_mulmid_classical(r1 + size, r1, a, 2*size, b, size);
       t = clock() - t;
 
       printf("classical = %gs, ", ((double) t)/CLOCKS_PER_SEC/ITER);
 
       t = clock();
       for (count = 0; count < ITER; count++)
-         mpn_mulmid(r2, a, 2*size, b, size);
+         nn_mulmid_kara(r2 + size, r2, a, 2*size, b, size);
       t = clock() - t;
 
       printf("kara = %gs\n", ((double) t)/CLOCKS_PER_SEC/ITER);

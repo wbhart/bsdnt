@@ -37,17 +37,17 @@
 
 rand_t state;
 
-void time_divapprox_divconquer(void)
+void time_div_divconquer(void)
 {
    nn_t a, a2, b, q1, q2;
    len_t size;
    word_t inv;
-   long i, count;
+   long count, i;
    clock_t t;
 
    TMP_INIT;
 
-   for (size = 408; size < 1000; size = (long) ceil(size*1.1))
+   for (size = 370; size < 1000; size = (long) ceil(size*1.1))
    {
       TMP_START;
       
@@ -56,7 +56,7 @@ void time_divapprox_divconquer(void)
       b = TMP_ALLOC(size);
       q1 = TMP_ALLOC(size);
       q2 = TMP_ALLOC(size);
-            
+               
       printf("size = %ld: ", size);
 
       t = clock();
@@ -66,11 +66,11 @@ void time_divapprox_divconquer(void)
          b[size - 1] |= (1UL<<(WORD_BITS - 1));
          randoms_of_len(2*size - 1, ANY, state, &a, NULL);
          inv = precompute_inverse2(b[size - 1], b[size - 2]);
-      
+         
          for (count = 0; count < ITER/10; count++)
          {
             nn_copy(a2, a, 2*size - 1);
-            nn_divapprox_classical_preinv_c(q1, a2, 2*size - 1, b, size, inv, 0);
+            nn_divrem_classical_preinv_c(q1, a2, 2*size - 1, b, size, inv, 0);
          }
       }
       t = clock() - t;
@@ -84,11 +84,11 @@ void time_divapprox_divconquer(void)
          b[size - 1] |= (1UL<<(WORD_BITS - 1));
          randoms_of_len(2*size - 1, ANY, state, &a, NULL);
          inv = precompute_inverse2(b[size - 1], b[size - 2]);
-      
+         
          for (count = 0; count < ITER/10; count++)
          {
             nn_copy(a2, a, 2*size - 1);
-            nn_divapprox_divconquer_preinv_c(q2, a2, 2*size - 1, b, size, inv, 0);
+            nn_div_divconquer_preinv_c(q2, a2, 2*size - 1, b, size, inv, 0);
          }
       }
       t = clock() - t;
@@ -101,11 +101,11 @@ void time_divapprox_divconquer(void)
 
 int main(void)
 {
-   printf("\nTiming nn_divapprox_divconquer vs nn_divapprox_classical:\n");
+   printf("\nTiming nn_div_divconquer vs nn_divrem_classical:\n");
    
    randinit(&state);
    
-   time_divapprox_divconquer();
+   time_div_divconquer();
 
    randclear(state);
 
