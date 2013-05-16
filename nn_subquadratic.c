@@ -44,7 +44,7 @@ void nn_mul_kara(nn_t p, nn_src_t a, len_t m, nn_src_t b, len_t n)
    ASSERT(n > m2);
    ASSERT(p != a);
    ASSERT(p != b);
-   ASSERT(n > 1);
+   ASSERT(n >= 2);
 
    p[m2]       = nn_add(p, a, m2, a + m2, h1);
    p[2*m2 + 1] = nn_add(p + m2 + 1, b, m2, b + m2, h2);
@@ -83,6 +83,8 @@ void nn_mul_toom33(nn_t p, nn_src_t a, len_t m, nn_src_t b, len_t n)
    ASSERT(n > 2);
    ASSERT(m >= n);
    ASSERT(n > 2*m3);
+   ASSERT(p != a);
+   ASSERT(p != b);
    
    TMP_START;
    t = TMP_ALLOC(6*m3 + 6);
@@ -198,6 +200,8 @@ void nn_mul_toom32(nn_t p, nn_src_t a, len_t m, nn_src_t b, len_t n)
    ASSERT(n > 4);
    ASSERT(n <= 2*m3);
    ASSERT(n > m3);
+   ASSERT(p != a);
+   ASSERT(p != b);
 
    TMP_START;
    t = TMP_ALLOC(4*m3 + 4);
@@ -276,13 +280,17 @@ void nn_mulmid_kara(nn_t ov, nn_t p, nn_src_t a, len_t m, nn_src_t b, len_t n)
 
   TMP_INIT;
 
+  ASSERT(p != a);
+  ASSERT(p != b);
+  ASSERT(MULMID_CLASSICAL_CUTOFF >= 3);
+  ASSERT(n >= 2);
+  ASSERT(m >= 2*n - 1);
+
   if (n <= MULMID_CLASSICAL_CUTOFF)
   {
      nn_mulmid_classical(ov, p, a, m, b, n);
      return;
   }
-
-  ASSERT(n2 >= 2);
 
   if (nn_cmp_m(b, b + n2, n2) < 0)
      neg = 1;
@@ -372,8 +380,10 @@ void nn_mullow_kara_m(nn_t ov, nn_t p, nn_src_t a, nn_src_t b, len_t n)
 
    TMP_INIT;
 
+   ASSERT(p != a);
+   ASSERT(p != b);
    ASSERT(MULLOW_CLASSICAL_CUTOFF >= 1);
-   ASSERT(n >= 4);
+   ASSERT(n >= 2);
 
    nn_mul(p, b, nh, a, nl);
    
@@ -407,17 +417,17 @@ void nn_mullow_kara(nn_t ov, nn_t p, nn_src_t a, len_t m, nn_src_t b, len_t n)
 
    TMP_INIT;
 
+   ASSERT(p != a);
+   ASSERT(p != b);
    ASSERT(MULLOW_CLASSICAL_CUTOFF >= 1);
-   ASSERT(n > 0);
+   ASSERT(m >= n);
+   ASSERT(n >= 0);
 
    if (n <= MULLOW_CLASSICAL_CUTOFF)
    {
       nn_mullow_classical(ov, p, a, m, b, n);
       return;
    }
-
-   ASSERT(m >= n);
-   ASSERT(n >= 2);
 
    nn_mul(p, a, ml, b, nl);
    
@@ -452,7 +462,13 @@ word_t nn_divapprox_divconquer_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d,
    
    TMP_INIT;
 
+   ASSERT(q != a);
+   ASSERT(q != d);
    ASSERT(DIVAPPROX_CLASSICAL_CUTOFF >= 3);
+   ASSERT(n >= 2);
+   ASSERT((ci < d[n - 1]) 
+      || ((ci == d[n - 1]) && (nn_cmp_m(a + m - n + 1, d, n - 1) < 0)));
+   ASSERT((long) d[n - 1] < 0);
 
    /* Base case */
    if (s <= DIVAPPROX_CLASSICAL_CUTOFF)
@@ -521,9 +537,10 @@ void nn_divrem_divconquer_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d,
 
    TMP_INIT;
 
+   ASSERT(q != a);
    ASSERT(q != d);
    ASSERT(m >= n);
-   ASSERT(n > 1);
+   ASSERT(n >= 2);
    ASSERT((ci < d[n - 1]) 
       || ((ci == d[n - 1]) && (nn_cmp_m(a + m - n + 1, d, n - 1) < 0)));
    ASSERT((long) d[n - 1] < 0);
@@ -580,9 +597,10 @@ void nn_div_divconquer_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d,
 
    TMP_INIT;
 
+   ASSERT(q != a);
    ASSERT(q != d);
    ASSERT(m >= n);
-   ASSERT(n > 1);
+   ASSERT(n >= 2);
    ASSERT((ci < d[n - 1]) 
       || ((ci == d[n - 1]) && (nn_cmp_m(a + m - n + 1, d, n - 1) < 0)));
    ASSERT((long) d[n - 1] < 0);

@@ -209,6 +209,8 @@ void nn_mulmid_classical(nn_t ov, nn_t p,
  
   ASSERT(m + 1 >= n);
   ASSERT(n >= 2);
+  ASSERT(p != a);
+  ASSERT(p != b);
 
   a += n - 1;
   m -= n - 1;
@@ -238,6 +240,7 @@ void nn_divrem_classical_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d,
    long j;
    word_t d1 = d[n - 1];
 
+   ASSERT(q != a);
    ASSERT(q != d);
    ASSERT(m >= n);
    ASSERT(n > 1);
@@ -305,10 +308,12 @@ word_t nn_divapprox_classical_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d,
    word_t cy = 0, d1 = d[n - 1];
    len_t s = m - n + 1; 
    
-   ASSERT(q != d);
    ASSERT(q != a);
+   ASSERT(q != d);
    ASSERT(m >= n);
    ASSERT(n > 1);
+   ASSERT((ci < d1) 
+      || ((ci == d1) && (nn_cmp_m(a + m - n + 1, d, n - 1) < 0)));
    ASSERT((long) d1 < 0);
 
    a += m;
@@ -380,8 +385,8 @@ void nn_div_hensel_preinv(nn_t ov, nn_t q, nn_t a, len_t m,
    dword_t t;
    word_t ci, ct = 0;
    
-   ASSERT(q != d);
    ASSERT(q != a);
+   ASSERT(q != d);
    ASSERT(m >= n);
    ASSERT(n > 0);
    ASSERT(d[0] & 1);

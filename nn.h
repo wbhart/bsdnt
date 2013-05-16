@@ -587,6 +587,7 @@ void nn_mulhigh_classical(nn_t r, nn_src_t a, len_t m1,
    Set ov, {p, m - n + 1} to the middle product of {a, m} and {b, n}, i.e.
    set p to sum_{m - 1 >= i + j >= n - 1} a[i]*b[j]*B^{i + j - n + 1}, with 
    overflows accumulating in the two limb ov. We require m + 1 >= n >= 2.
+   The output p may not alias either a or b.
 */
 void nn_mulmid_classical(nn_t ov, nn_t p,
                             nn_src_t a, len_t m, nn_src_t b, len_t n);
@@ -597,9 +598,10 @@ void nn_mulmid_classical(nn_t ov, nn_t p,
    the quotient of ci*B^m + a by d, and leave the remainder in the bottom 
    n limbs of a. Requires m >= n > 0. The precomputed inverse inv should 
    be computed from the leading two limbs of d (or the leading limb and 0 
-   if n is 1) using precompute_inverse_lead. If a_n is the leading n limbs 
+   if n is 1) using precompute_inverse_lead. If a_n is the leading n words 
    of a, then ci*B^n + a_n must be less than B * d. The quotient
-   must have space for m - n + 1 limbs. The quotient may not alias d.
+   must have space for m - n + 1 limbs. The quotient may not alias a or d.
+   The leading word of d must be normalised, i.e. d[n - 1] >= B/2.
 */
 void nn_divrem_classical_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d, 
                                      len_t n, preinv2_t inv, word_t ci);
@@ -611,9 +613,10 @@ void nn_divrem_classical_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d,
    If q1 is the actual quotient and q2 the computed quotient, then we have
    q1 + 1 >= q2 >= q1 - 1. The partial remainder is stored in the first 
    m - s + 1 words of a, the other words being destroyed. 
-   We require that a may not alias q.
+   We require that q may not alias a or d.
    Due to successive truncation, it is possible that the partial remainder 
    may exceed d, in which case the extra word is returned by this function.
+   The leading word of d must be normalised, i.e. d[n - 1] >= B/2.
 */
 word_t nn_divapprox_classical_preinv_c(nn_t q, nn_t a, len_t m, 
                          nn_src_t d,len_t n, preinv2_t inv, word_t ci);
@@ -623,8 +626,8 @@ word_t nn_divapprox_classical_preinv_c(nn_t q, nn_t a, len_t m,
    being returned in q and any overflow from mullow(q, d) being returned
    in ov. We require m >= n > 0. The quotient q requires m words of space
    and ov requires 2 words. The dividend, a, is destroyed and may not alias
-   q. We also require that q does not alias d. The divisor d must be odd 
-   and inv must be a precomputed inverse of d[0] computed with
+   q. We also require that q does not alias a or d. The divisor d must be 
+   odd and inv must be a precomputed inverse of d[0] computed with
    precompute_hensel_inverse1.
 */
 void nn_div_hensel_preinv(nn_t ov, nn_t q, nn_t a, len_t m, 
@@ -639,7 +642,7 @@ void nn_div_hensel_preinv(nn_t ov, nn_t q, nn_t a, len_t m,
 /*
    Perform Karatsuba multiplication of {a, m}, {b, n}.
    
-   Assumes n > 1 and m >= n >= 3*m/4
+   Assumes n > 1 and m >= n >= (m + 1)/2
    No overlap between src and dst
  
    Algorithm: 
@@ -680,11 +683,13 @@ void nn_mul_toom33(nn_t p, nn_src_t a, len_t m, nn_src_t b, len_t n);
 void nn_mul_toom32(nn_t p, nn_src_t a, len_t m, nn_src_t b, len_t n);
 
 /*
-   As per nn_mulmid_classical, except that we require m >= 2*n - 1 and
-   n >= 4.
+   As per nn_mulmid_classical, except that we require m >= 2*n - 1.
 */
 void nn_mulmid_kara(nn_t ov, nn_t p, nn_src_t a, len_t m, nn_src_t b, len_t n);
 
+/*
+   As per nn_mullow_classical, except that m = n and n >= 2.
+*/
 void nn_mullow_kara_m(nn_t ov, nn_t p, nn_src_t a, nn_src_t b, len_t n);
 
 /*
@@ -694,27 +699,27 @@ void nn_mullow_kara(nn_t ov, nn_t p, nn_src_t a, len_t m, nn_src_t b, len_t n);
 
 /*
    As per nn_divrem_classical_preinv_c however only a partial remainder is
-   computed. It is equal to a - sum_{i + j >= m - s + 1} q_i*d_j where q_i
-   are the s = m - n + 1 limbs of the quotient and d_j are the limbs of d.
-   If q1 is the actual quotient and q2 the computed quotient, then we have
-   q1 + 1 >= q2 >= q1 - 1. The partial remainder is stored in the first 
-   m - s + 1 words of a, the other words being destroyed. 
-   We require that a may not alias q.
-   Due to successive truncation, it is possible that the partial remainder 
-   may exceed d, in which case the extra word is returned by this function.
+   computed and we require n >= 2. The partial remainder is equal to 
+   a - sum_{i + j >= m - s - 1} q_i*d_j*B^{i+j} where the q_i are the 
+   s = m - n + 1 limbs of the quotient and d_j are the limbs of d. 
+   If q1 is the actual quotient and q2 the computed quotient, then we have 
+   q1 + 1 >= q2 >= q1 - 1. The partial remainder is stored in the low 
+   m - s + 1 words of a, the other words being destroyed. Due to successive 
+   truncation, it is possible that the partial remainder may exceed d, in 
+   which case the extra word is returned by this function.
 */
 word_t nn_divapprox_divconquer_preinv_c(nn_t q, nn_t a, len_t m, 
                      nn_src_t d, len_t n, preinv2_t dinv, word_t ci);
 
 /*
-   As per nn_divrem_classical_preinv_c.
+   As per nn_divrem_classical_preinv_c except that n >= 2.
 */
 void nn_divrem_divconquer_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d, 
                                   len_t n, preinv2_t dinv, word_t ci);
 
 /*
-   As per nn_divrem_classical_preinv_c but returning quotient only. The
-   value of a is destroyed.
+   As per nn_divrem_classical_preinv_c but returning quotient only and we
+   require n >= 2. The value of a is destroyed.
 */
 void nn_div_divconquer_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d, 
                                         len_t n, preinv2_t dinv, word_t ci);
@@ -739,6 +744,9 @@ void nn_mul_m(nn_t p, nn_src_t a, nn_src_t b, len_t m);
 */
 void nn_mul(nn_t p, nn_src_t a, len_t m, nn_src_t b, len_t n);
 
+/*
+   As per nn_mullow_classical, but with m = n.
+*/
 static __inline__
 void nn_mullow_m(nn_t ov, nn_t p, nn_src_t a, nn_src_t b, len_t n)
 {   
@@ -749,7 +757,7 @@ void nn_mullow_m(nn_t ov, nn_t p, nn_src_t a, nn_src_t b, len_t n)
 }
 
 /*
-   As per nn_mullow_basecase.
+   As per nn_mullow_classical.
 */
 static __inline__
 void nn_mullow(nn_t ov, nn_t p, nn_src_t a, len_t m, nn_src_t b, len_t n)

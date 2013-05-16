@@ -151,9 +151,9 @@ int test_mulmid_kara_m(void)
    TEST_START(1, ITER) /* test mulmid_kara and mulmid_classical agree */
    {
       randoms_upto(200, NONZERO, state, &n, NULL);
-      n+=3; /* n is at least 4 */
+      n++; /* n is at least 2 */
       randoms_upto(30, ANY, state, &m, NULL);
-      m += 2*n - 1;
+      m += 2*n - 1; /* m is at least 2*n - 1 */
 
       randoms_of_len(m, ANY, state, &a, NULL);
       randoms_of_len(n, ANY, state, &b, NULL);
@@ -199,6 +199,39 @@ int test_mullow_kara_m(void)
       {
          print_debug(a, n); print_debug(b, n);
          print_debug_diff(r1, r2, n + 2);
+      }
+   } TEST_END;
+
+   return result;
+}
+
+int test_mullow_kara(void)
+{
+   int result = 1;
+   len_t m, n;
+   nn_t a, b, r1, r2;
+   
+   printf("mullow_kara...");
+
+   TEST_START(1, ITER) /* test mullow_kara is the same as mullow_classical */
+   {
+      randoms_upto(150, NONZERO, state, &n, NULL);
+      randoms_upto(150, ANY, state, &m, NULL);
+      m += n;
+      
+      randoms_of_len(m, ANY, state, &a, NULL);
+      randoms_of_len(n, ANY, state, &b, NULL);
+      randoms_of_len(m + 2, ANY, state, &r1, &r2, NULL);
+      
+      nn_mullow_classical(r1 + m, r1, a, m, b, n);
+      nn_mullow_kara(r2 + m, r2, a, m, b, n);
+      
+      result = (nn_equal_m(r1, r2, m + 2));
+
+      if (!result) 
+      {
+         print_debug(a, m); print_debug(b, n);
+         print_debug_diff(r1, r2, m + 2);
       }
    } TEST_END;
 
@@ -403,6 +436,7 @@ int test_subquadratic(void)
    RUN(test_mul_toom32);
    RUN(test_mulmid_kara_m);
    RUN(test_mullow_kara_m);
+   RUN(test_mullow_kara);
    RUN(test_mullow);
    RUN(test_divapprox_divconquer_preinv);
    RUN(test_div_divconquer_preinv);
