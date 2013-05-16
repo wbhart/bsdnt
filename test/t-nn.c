@@ -99,6 +99,69 @@ int test_mul(void)
    return result;
 }
 
+int test_mullow_m(void)
+{
+   int result = 1;
+   len_t n;
+   nn_t a, b, r1, r2;
+   
+   printf("mullow_m...");
+
+   TEST_START(1, ITER) /* test mullow_kara is the same as mullow_classical */
+   {
+      randoms_upto(150, NONZERO, state, &n, NULL);
+      
+      randoms_of_len(n, ANY, state, &a, &b, NULL);
+      randoms_of_len(n + 2, ANY, state, &r1, &r2, NULL);
+      
+      nn_mullow_classical(r1 + n, r1, a, n, b, n);
+      nn_mullow_m(r2 + n, r2, a, b, n);
+      
+      result = (nn_equal_m(r1, r2, n + 2));
+
+      if (!result) 
+      {
+         print_debug(a, n); print_debug(b, n);
+         print_debug_diff(r1, r2, n + 2);
+      }
+   } TEST_END;
+
+   return result;
+}
+
+int test_mullow(void)
+{
+   int result = 1;
+   len_t m, n;
+   nn_t a, b, r1, r2;
+   
+   printf("mullow...");
+
+   TEST_START(1, ITER) /* test mullow_kara is the same as mullow_classical */
+   {
+      randoms_upto(150, NONZERO, state, &n, NULL);
+      randoms_upto(150, ANY, state, &m, NULL);
+      m += n;
+      
+      randoms_of_len(m, ANY, state, &a, NULL);
+      randoms_of_len(n, ANY, state, &b, NULL);
+      randoms_of_len(m + 2, ANY, state, &r1, &r2, NULL);
+      
+      nn_mullow_classical(r1 + m, r1, a, m, b, n);
+      nn_mullow(r2 + m, r2, a, m, b, n);
+      
+      result = (nn_equal_m(r1, r2, m + 2));
+
+      if (!result) 
+      {
+         print_debug(a, m); print_debug(b, n);
+         print_debug_diff(r1, r2, m + 2);
+      }
+   } TEST_END;
+
+   return result;
+}
+
 int test_divrem(void)
 {
    int result = 1;
@@ -189,6 +252,8 @@ int test(void)
    
    RUN(test_mul_m);
    RUN(test_mul);
+   RUN(test_mullow_m);
+   RUN(test_mullow);
    RUN(test_divrem);
    RUN(test_div);
    
