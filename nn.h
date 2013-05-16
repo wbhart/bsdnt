@@ -763,6 +763,34 @@ void nn_mullow_m(nn_t ov, nn_t p, nn_src_t a, nn_src_t b, len_t n)
 void nn_mullow(nn_t ov, nn_t p, nn_src_t a, len_t m, nn_src_t b, len_t n);
 
 /*
+   As per nn_divapprox_classical_preinv_c.
+*/
+static __inline__
+word_t nn_divapprox_preinv_c(nn_t q, nn_t a, len_t m, 
+                          nn_src_t d, len_t n, preinv2_t dinv, word_t ci)
+{
+   ASSERT(DIVAPPROX_CLASSICAL_CUTOFF >= 3);
+   
+   if (m - n + 1 <= DIVAPPROX_CLASSICAL_CUTOFF || n == 1)
+      return nn_divapprox_classical_preinv_c(q, a, m, d, n, dinv, ci);
+   else
+      return nn_divapprox_divconquer_preinv_c(q, a, m, d, n, dinv, ci);
+}
+
+/*
+   As per nn_divrem_classical_preinv_c.
+*/
+static __inline__
+void nn_divrem_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d, 
+                                            len_t n, preinv2_t dinv, word_t ci)
+{
+   if (n <= DIVREM_CLASSICAL_CUTOFF || m == n)
+      nn_divrem_classical_preinv_c(q, a, m, d, n, dinv, ci);
+   else
+      nn_divrem_divconquer_preinv_c(q, a, m, d, n, dinv, ci);
+}
+
+/*
    Set {q, m - n + 1} to the quotient of {a, m} by {d, n} and set 
    {a, n} to the remainder. Requires m >= n > 0.
    Aliasing of q with a or d or aliasing of a and d is not 

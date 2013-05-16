@@ -464,15 +464,13 @@ word_t nn_divapprox_divconquer_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d,
 
    ASSERT(q != a);
    ASSERT(q != d);
-   ASSERT(DIVAPPROX_CLASSICAL_CUTOFF >= 3);
    ASSERT(n >= 2);
    ASSERT((ci < d[n - 1]) 
       || ((ci == d[n - 1]) && (nn_cmp_m(a + m - n + 1, d, n - 1) < 0)));
    ASSERT((long) d[n - 1] < 0);
 
-   /* Base case */
-   if (s <= DIVAPPROX_CLASSICAL_CUTOFF)
-      return nn_divapprox_classical_preinv_c(q, a, m, d, n, dinv, ci);
+   /* special case, s <= 3 */
+   if (s <= 3 || n <= 5) return nn_divapprox_classical_preinv_c(q, a, m, d, n, dinv, ci);
 
    /* Reduce until n - 2 >= s */
    while (n - 2 < s)
@@ -492,8 +490,8 @@ word_t nn_divapprox_divconquer_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d,
      && nn_cmp_m(a + m - s + 1, d + n - s, s - 1) >= 0))
       return _nn_divapprox_helper(q, a + m - s - 1, d + n - s - 1, s);
 
-   ci = nn_divapprox_divconquer_preinv_c(q + sl, a + sl, 
-                                                   n + sh - 1, d, n, dinv, ci);
+   ci = nn_divapprox_preinv_c(q + sl, a + sl, n + sh - 1, d, n, dinv, ci);
+
    TMP_START;
    t = TMP_ALLOC(sl + 2);
 
@@ -520,7 +518,7 @@ word_t nn_divapprox_divconquer_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d,
    if (ci != 0) /* special case: unable to canonicalise */
       return _nn_divapprox_helper(q, a + m - s - 1, d + n - sl - 1, sl);
 
-   ci = nn_divapprox_divconquer_preinv_c(q, a, n + sl - 1, d, n, dinv, a[m - sh]);
+   ci = nn_divapprox_preinv_c(q, a, n + sl - 1, d, n, dinv, a[m - sh]);
 
    return ci;
 }
@@ -546,7 +544,7 @@ void nn_divrem_divconquer_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d,
    ASSERT((long) d[n - 1] < 0);
 
    /* Base case */
-   if (n <= DIVREM_CLASSICAL_CUTOFF || s <= 1)
+   if (n <= 3 || s <= 1)
    {
       nn_divrem_classical_preinv_c(q, a, m, d, n, dinv, ci);
       return;
@@ -556,13 +554,13 @@ void nn_divrem_divconquer_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d,
    while (n - 2 < s)
    {
       sh = BSDNT_MIN(n, s - n + 2);
-      nn_divrem_divconquer_preinv_c(q + s - sh, a + m - n - sh + 1, 
+      nn_divrem_preinv_c(q + s - sh, a + m - n - sh + 1, 
                                                    n + sh - 1, d, n, dinv, ci);
       s -= sh; m -= sh; 
       ci = a[m];
    }
 
-   ci = nn_divapprox_divconquer_preinv_c(q, a, m, d, n, dinv, ci);
+   ci = nn_divapprox_preinv_c(q, a, m, d, n, dinv, ci);
 
    TMP_START;
    t = TMP_ALLOC(n);
@@ -614,10 +612,7 @@ void nn_div_divconquer_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d,
    t2[0] = 0;
 
    /* compute one extra limb of the quotient */
-   if (n <= DIVAPPROX_CLASSICAL_CUTOFF)
-      nn_divapprox_classical_preinv_c(t, t2, m + 1, d, n, dinv, ci);
-   else
-      nn_divapprox_divconquer_preinv_c(t, t2, m + 1, d, n, dinv, ci);
+   nn_divapprox_preinv_c(t, t2, m + 1, d, n, dinv, ci);
 
    if (-t[0] <= 1)
    {
