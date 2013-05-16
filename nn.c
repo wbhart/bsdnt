@@ -40,7 +40,6 @@ void nn_mul_m(nn_t p, nn_src_t a, nn_src_t b, len_t m)
       talker("Out of options in nn_mul_m\n");
 }
 
-
 void nn_mul(nn_t p, nn_src_t a, len_t m, nn_src_t b, len_t n)
 {
    len_t r;
@@ -104,3 +103,112 @@ void nn_mul(nn_t p, nn_src_t a, len_t m, nn_src_t b, len_t n)
    TMP_END;
 }
 
+void nn_mullow(nn_t ov, nn_t p, nn_src_t a, len_t m, nn_src_t b, len_t n)
+{
+   ASSERT(p != a);
+   ASSERT(p != b);
+   ASSERT(m >= n);
+   ASSERT(n > 0);
+   
+   if (m > n)
+   {
+      nn_t t;
+      word_t ci;
+
+      TMP_INIT;
+    
+      if (n >= m - n) nn_mul(p, b, n, a, m - n);
+      else nn_mul(p, a, m - n, b, n);        
+      
+      TMP_START;
+
+      t = TMP_ALLOC(n + 2);
+
+      nn_mullow(t + n, t, a + m - n, n, b, n);
+      
+      /* do missing parts of mullow */
+
+      ci = nn_add_m(p + m - n, p + m - n, t, n);
+      nn_add1(ov, t + n, 2, ci);
+
+      TMP_END;
+   } else
+      nn_mullow_m(ov, p, a, b, n);
+}
+
+void nn_divrem(nn_t q, nn_t a, len_t m, nn_src_t d, len_t n)
+{   
+   word_t norm, ci = 0;
+   nn_t t;
+
+   TMP_INIT;
+
+   ASSERT(q != a);
+   ASSERT(q != d);
+   ASSERT(a != d);
+   ASSERT(n > 0);
+   ASSERT(m >= n);
+   
+   if ((norm = high_zero_bits(d[n - 1])))
+   {
+      TMP_START;
+         
+      t = TMP_ALLOC(n);
+      ci = nn_shl(a, a, m, norm);
+      nn_shl(t, d, n, norm);
+   } else
+      t = (nn_t) d;
+
+   if (n == 1)
+   {
+      preinv1_t inv = precompute_inverse1(t[0]);
+      a[0] = nn_divrem1_preinv_c(q, a, m, t[0], inv, ci);
+   } else
+   {
+      preinv2_t inv = precompute_inverse2(t[n - 1], t[n - 2]);
+      nn_divrem_divconquer_preinv_c(q, a, m, t, n, inv, ci);
+   }
+
+   if (norm)
+   {
+      nn_shr(a, a, n, norm);
+      TMP_END;
+   }
+}
+
+void nn_div(nn_t q, nn_t a, len_t m, nn_src_t d, len_t n)
+{   
+   word_t norm, ci = 0;
+   nn_t t;
+
+   TMP_INIT;
+
+   ASSERT(q != a);
+   ASSERT(q != d);
+   ASSERT(a != d);
+   ASSERT(n > 0);
+   ASSERT(m >= n);
+   
+   if ((norm = high_zero_bits(d[n - 1])))
+   {
+      TMP_START;
+         
+      t = TMP_ALLOC(n);
+      ci = nn_shl(a, a, m, norm);
+      nn_shl(t, d, n, norm);
+   } else
+      t = (nn_t) d;
+
+   if (n == 1)
+   {
+      preinv1_t inv = precompute_inverse1(t[0]);
+      nn_divrem1_preinv_c(q, a, m, t[0], inv, ci);
+   } else
+   {
+      preinv2_t inv = precompute_inverse2(t[n - 1], t[n - 2]);
+      nn_div_divconquer_preinv_c(q, a, m, t, n, inv, ci);
+   }
+
+   if (norm)
+      TMP_END;
+}

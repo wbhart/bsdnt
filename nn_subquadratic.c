@@ -546,7 +546,7 @@ void nn_divrem_divconquer_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d,
    ASSERT((long) d[n - 1] < 0);
 
    /* Base case */
-   if (s <= DIVREM_CLASSICAL_CUTOFF)
+   if (n <= DIVREM_CLASSICAL_CUTOFF || s <= 1)
    {
       nn_divrem_classical_preinv_c(q, a, m, d, n, dinv, ci);
       return;

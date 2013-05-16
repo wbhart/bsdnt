@@ -242,6 +242,7 @@ void nn_divrem_classical_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d,
 
    ASSERT(q != a);
    ASSERT(q != d);
+   ASSERT(a != d);
    ASSERT(m >= n);
    ASSERT(n > 1);
    ASSERT((ci < d1) 
@@ -310,6 +311,7 @@ word_t nn_divapprox_classical_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d,
    
    ASSERT(q != a);
    ASSERT(q != d);
+   ASSERT(a != d);
    ASSERT(m >= n);
    ASSERT(n > 1);
    ASSERT((ci < d1) 
@@ -387,6 +389,7 @@ void nn_div_hensel_preinv(nn_t ov, nn_t q, nn_t a, len_t m,
    
    ASSERT(q != a);
    ASSERT(q != d);
+   ASSERT(a != d);
    ASSERT(m >= n);
    ASSERT(n > 0);
    ASSERT(d[0] & 1);

@@ -99,6 +99,89 @@ int test_mul(void)
    return result;
 }
 
+int test_divrem(void)
+{
+   int result = 1;
+   len_t m, n;
+   nn_t a, r1, r2, q, d;
+   
+   printf("divrem...");
+
+   TEST_START(1, ITER) /* test a = d*q + r */
+   {
+      randoms_upto(150, NONZERO, state, &n, NULL);
+      randoms_upto(150, ANY, state, &m, NULL);
+      m += n; /* m >= n */
+
+      randoms_of_len(m - n + 1, ANY, state, &q, NULL);
+      randoms_of_len(m, ANY, state, &a, &r1, &r2, NULL);
+      randoms_of_len(n, FULL, state, &d, NULL);
+
+      nn_copy(r2, a, m);
+
+      nn_divrem(q, a, m, d, n);
+
+      if (m - n >= n) nn_mul(r1, q, m - n, d, n);
+      else if (m > n) nn_mul(r1, d, n, q, m - n);
+      else nn_zero(r1, m);
+
+      nn_addmul1(r1 + m - n, d, n, q[m - n]);
+
+      nn_add(r1, r1, m, a, n);
+
+      result &= (nn_equal_m(r1, r2, m));
+
+      if (!result) 
+      {
+         print_debug(a, n); print_debug(q, m - n); print_debug(d, n);
+         print_debug_diff(r1, r2, m);
+      }
+   } TEST_END;
+
+   return result;
+}
+
+int test_div(void)
+{
+   int result = 1;
+   len_t m, n;
+   nn_t a, r1, r2, q, d;
+   
+   printf("div...");
+
+   TEST_START(1, ITER) /* test a - d*q < d */
+   {
+      randoms_upto(150, NONZERO, state, &n, NULL);
+      randoms_upto(150, ANY, state, &m, NULL);
+      m += n; /* m >= n */
+
+      randoms_of_len(m - n + 1, ANY, state, &q, NULL);
+      randoms_of_len(m, ANY, state, &a, &r1, &r2, NULL);
+      randoms_of_len(n, FULL, state, &d, NULL);
+
+      nn_copy(r2, a, m);
+
+      nn_divrem(q, a, m, d, n);
+
+      if (m - n >= n) nn_mul(r1, q, m - n, d, n);
+      else if (m > n) nn_mul(r1, d, n, q, m - n);
+      else nn_zero(r1, m);
+
+      nn_addmul1(r1 + m - n, d, n, q[m - n]);
+      nn_sub_m(r2, r2, r1, m);
+
+      result &= (nn_cmp_m(r2, d, n) < 0);
+
+      if (!result) 
+      {
+         print_debug(a, n); print_debug(q, m - n); print_debug(d, n);
+         print_debug(r2, n);
+      }
+   } TEST_END;
+
+   return result;
+}
+
 int test(void)
 {
    long pass = 0;
@@ -106,6 +189,8 @@ int test(void)
    
    RUN(test_mul_m);
    RUN(test_mul);
+   RUN(test_divrem);
+   RUN(test_div);
    
    printf("%ld of %ld tests pass.\n", pass, pass + fail);
 

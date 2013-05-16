@@ -43,7 +43,7 @@
 **********************************************************************/
 
 /*
-   Set the first m limbs of a to random words.
+   Set the first m words of a to random words.
 */
 void nn_random(nn_t a, rand_t state, len_t m);
 
@@ -72,7 +72,7 @@ void nn_test_random(nn_t a, rand_t state, len_t m);
 
 /*
    Allocates an array of m words and returns it. Despite the
-   name, the limbs are not initialised to zero.
+   name, the words are not initialised to zero.
 */
 static inline
 nn_t nn_init(len_t m)
@@ -126,7 +126,7 @@ void nn_printx_diff(nn_src_t a, nn_src_t b, len_t m);
 **********************************************************************/
 
 /*
-   Copy the m limbs at b to a. Aliasing is allowed, but is 
+   Copy the m words at b to a. Aliasing is allowed, but is 
    not currently dealt with specially, i.e. the data is 
    actually copied.
 */
@@ -140,7 +140,7 @@ void nn_copy(nn_t a, nn_src_t b, len_t m)
 }
 
 /*
-   Set the m limbs at b to 0.
+   Set the m words at b to 0.
 */
 static inline
 void nn_zero(nn_t a, len_t m)
@@ -154,7 +154,7 @@ void nn_zero(nn_t a, len_t m)
 /*
    The pair {a, m} is said to be normalised if either m is
    zero, or a[m-1] is non-zero. In other words, {a, m} has
-   no leading zero limbs. This function normalises {a, m}
+   no leading zero words. This function normalises {a, m}
    by returning the largest value m0 <= m for which {a, m0}
    is normalised.
 */
@@ -367,14 +367,14 @@ word_t nn_submul1_c(nn_t a, nn_src_t b, len_t m, word_t c, word_t ci);
 /*
    Set q = (ci*B^m + a) / d and return the remainder, where a is m 
    words in length, d is a word and ci is a "carry-in" which must be
-   reduced mod d. The quotient q requires m limbs of space.  An 
+   reduced mod d. The quotient q requires m words of space.  An 
    exception will result if d is 0.
 */
 word_t nn_divrem1_simple_c(nn_t q, nn_src_t a, len_t m, word_t d, word_t ci);
 
 /*
    Set q = a / d and return the remainder, where a is m words in 
-   length and d is a word. The quotient q requires m limbs of space. 
+   length and d is a word. The quotient q requires m words of space. 
    An exception will result if d is 0.
 */
 #define nn_divrem1_simple(q, a, m, d) \
@@ -383,7 +383,7 @@ word_t nn_divrem1_simple_c(nn_t q, nn_src_t a, len_t m, word_t d, word_t ci);
 /*
    Set q = (ci*B^m + a) / d and return the remainder, where a is m 
    words in length, d is a word and ci is a "carry-in" which must 
-   be reduced mod d. The quotient q requires m limbs of space.  
+   be reduced mod d. The quotient q requires m words of space.  
    Requires that inv is a precomputed inverse of d computed by the 
    function precompute_inverse1. Also requires that d is normalised, 
    i.e with most significant bit set.
@@ -434,7 +434,7 @@ word_t nn_mod1_preinv_c(nn_src_t a, len_t m, word_t d,
 **********************************************************************/
 
 /* 
-   Return 1 if the m limbs at a match the n limbs at b,
+   Return 1 if the m words at a match the n words at b,
    otherwise return 0.
 */
 static inline
@@ -449,8 +449,8 @@ int nn_equal_m(nn_src_t a, nn_src_t b, len_t m)
 }
 
 /* 
-   Return 1 if am == bm and the am limbs at a match the am 
-   limbs at b, otherwise return 0.
+   Return 1 if am == bm and the am words at a match the am 
+   words at b, otherwise return 0.
 */
 static inline
 int nn_equal(nn_src_t a, len_t am, nn_src_t b, len_t bm)
@@ -586,7 +586,7 @@ void nn_mulhigh_classical(nn_t r, nn_src_t a, len_t m1,
 /*
    Set ov, {p, m - n + 1} to the middle product of {a, m} and {b, n}, i.e.
    set p to sum_{m - 1 >= i + j >= n - 1} a[i]*b[j]*B^{i + j - n + 1}, with 
-   overflows accumulating in the two limb ov. We require m + 1 >= n >= 2.
+   overflows accumulating in the two word ov. We require m + 1 >= n >= 2.
    The output p may not alias either a or b.
 */
 void nn_mulmid_classical(nn_t ov, nn_t p,
@@ -596,12 +596,13 @@ void nn_mulmid_classical(nn_t ov, nn_t p,
 /*
    Given a of length m and d of length n with a carry-in ci, compute
    the quotient of ci*B^m + a by d, and leave the remainder in the bottom 
-   n limbs of a. Requires m >= n > 0. The precomputed inverse inv should 
-   be computed from the leading two limbs of d (or the leading limb and 0 
+   n words of a. Requires m >= n > 0. The precomputed inverse inv should 
+   be computed from the leading two words of d (or the leading word and 0 
    if n is 1) using precompute_inverse_lead. If a_n is the leading n words 
    of a, then ci*B^n + a_n must be less than B * d. The quotient
-   must have space for m - n + 1 limbs. The quotient may not alias a or d.
-   The leading word of d must be normalised, i.e. d[n - 1] >= B/2.
+   must have space for m - n + 1 words. The quotient may not alias a or d
+   and a must not alias d. The leading word of d must be normalised, i.e. 
+   d[n - 1] >= B/2.
 */
 void nn_divrem_classical_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d, 
                                      len_t n, preinv2_t inv, word_t ci);
@@ -609,11 +610,11 @@ void nn_divrem_classical_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d,
 /*
    As per nn_divrem_classical_preinv_c however only a partial remainder is
    computed. It is equal to a - sum_{i + j >= m - s + 1} q_i*d_j where q_i
-   are the s = m - n + 1 limbs of the quotient and d_j are the limbs of d.
+   are the s = m - n + 1 words of the quotient and d_j are the words of d.
    If q1 is the actual quotient and q2 the computed quotient, then we have
    q1 + 1 >= q2 >= q1 - 1. The partial remainder is stored in the first 
    m - s + 1 words of a, the other words being destroyed. 
-   We require that q may not alias a or d.
+   We require that q may not alias a or d and a must not alias d.
    Due to successive truncation, it is possible that the partial remainder 
    may exceed d, in which case the extra word is returned by this function.
    The leading word of d must be normalised, i.e. d[n - 1] >= B/2.
@@ -625,9 +626,9 @@ word_t nn_divapprox_classical_preinv_c(nn_t q, nn_t a, len_t m,
    Perform Hensel division of {a, m} by {d, n} with the quotient mod B^m
    being returned in q and any overflow from mullow(q, d) being returned
    in ov. We require m >= n > 0. The quotient q requires m words of space
-   and ov requires 2 words. The dividend, a, is destroyed and may not alias
-   q. We also require that q does not alias a or d. The divisor d must be 
-   odd and inv must be a precomputed inverse of d[0] computed with
+   and ov requires 2 words. The dividend, a, is destroyed. We also require 
+   that q does not alias a or d and a must not alias d. The divisor d must 
+   be odd and inv must be a precomputed inverse of d[0] computed with 
    precompute_hensel_inverse1.
 */
 void nn_div_hensel_preinv(nn_t ov, nn_t q, nn_t a, len_t m, 
@@ -701,7 +702,7 @@ void nn_mullow_kara(nn_t ov, nn_t p, nn_src_t a, len_t m, nn_src_t b, len_t n);
    As per nn_divrem_classical_preinv_c however only a partial remainder is
    computed and we require n >= 2. The partial remainder is equal to 
    a - sum_{i + j >= m - s - 1} q_i*d_j*B^{i+j} where the q_i are the 
-   s = m - n + 1 limbs of the quotient and d_j are the limbs of d. 
+   s = m - n + 1 words of the quotient and d_j are the words of d. 
    If q1 is the actual quotient and q2 the computed quotient, then we have 
    q1 + 1 >= q2 >= q1 - 1. The partial remainder is stored in the low 
    m - s + 1 words of a, the other words being destroyed. Due to successive 
@@ -759,34 +760,23 @@ void nn_mullow_m(nn_t ov, nn_t p, nn_src_t a, nn_src_t b, len_t n)
 /*
    As per nn_mullow_classical.
 */
-static __inline__
-void nn_mullow(nn_t ov, nn_t p, nn_src_t a, len_t m, nn_src_t b, len_t n)
-{
-   if (m > n)
-   {
-      nn_t t;
-      word_t ci;
+void nn_mullow(nn_t ov, nn_t p, nn_src_t a, len_t m, nn_src_t b, len_t n);
 
-      TMP_INIT;
-    
-      if (n >= m - n) nn_mul(p, b, n, a, m - n);
-      else nn_mul(p, a, m - n, b, n);        
-      
-      TMP_START;
+/*
+   Set {q, m - n + 1} to the quotient of {a, m} by {d, n} and set 
+   {a, n} to the remainder. Requires m >= n > 0.
+   Aliasing of q with a or d or aliasing of a and d is not 
+   permitted.
+*/
+void nn_divrem(nn_t q, nn_t a, len_t m, nn_src_t d, len_t n);
 
-      t = TMP_ALLOC(n + 2);
-
-      nn_mullow(t + n, t, a + m - n, n, b, n);
-      
-      /* do missing parts of mullow */
-
-      ci = nn_add_m(p + m - n, p + m - n, t, n);
-      nn_add1(ov, t + n, 2, ci);
-
-      TMP_END;
-   } else
-      nn_mullow_m(ov, p, a, b, n);
-}
+/*
+   Set {q, m - n + 1} to the quotient of {a, m} by {d, n}. 
+   The value of a is destroyed. Requires m >= n > 0.
+   Aliasing of q with a or d or aliasing of a and d is not 
+   permitted.
+*/
+void nn_div(nn_t q, nn_t a, len_t m, nn_src_t d, len_t n);
 
 #endif
 
