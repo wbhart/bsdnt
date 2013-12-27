@@ -458,6 +458,95 @@ int test_div_hensel_preinv(void)
    return result;
 }
 
+int test_xgcd_lehmer(void)
+{
+   int result = 1;
+   len_t m, n, s1, s2, s3;
+   nn_t a, b, a2, b2, v, g, p, q;
+   word_t ci;
+
+   printf("xgcd_lehmer...");
+
+   TEST_START(1, ITER) /* test g + v*b is divisible by a */
+   {
+      randoms_upto(10, NONZERO, state, &m, NULL);
+      randoms_upto(10, NONZERO, state, &n, NULL);
+      m += n; /* m >= n */
+
+      randoms_of_len(m, FULL, state, &a, &b2, &a2, &v, &g, NULL);
+      randoms_of_len(n, FULL, state, &b, NULL);
+      randoms_of_len(m + n, FULL, state, &p, NULL);
+      randoms_of_len(n + 1, FULL, state, &q, NULL);
+      
+      nn_copy(a2, a, m);
+      nn_copy(b2, b, n);
+
+      s1 = nn_xgcd_lehmer(g, v, a2, m, b2, n);
+      s2 = nn_normalise(v, m);
+      
+      nn_mul(p, v, m, b, n);
+      ci = nn_add_m(p, p, g, s1);
+      nn_add1(p + s1, p + s1, m + n - s1, ci);
+      nn_divrem(q, p, m + n, a, m);
+     
+      s3 = nn_normalise(p, m);
+
+      result = (s3 == 0);
+
+      if (!result) 
+      {
+         printf("FAIL\n");
+         print_debug(a, m); print_debug(b, n); print_debug(v, s2);
+         print_debug(g, s1);
+      }
+   } TEST_END;
+
+   return result;
+}
+
+int test_gcd_lehmer(void)
+{
+   int result = 1;
+   len_t m, n, d1, d2;
+   nn_t a, b, c, g, r1, r2;
+
+   printf("gcd_lehmer...");
+
+   TEST_START(1, ITER) /* test gcd */
+   {
+      randoms_upto(50, ANY, state, &m, NULL);
+      randoms_upto(50, NONZERO, state, &n, &d1, NULL);
+      m += n; /* m >= n */
+
+      randoms_of_len(m + d1, ANY, state, &r1, NULL);
+      randoms_of_len(n + d1, ANY, state, &r2, &g, NULL);
+      randoms_of_len(d1, FULL, state, &c, NULL);
+      randoms_of_len(m, FULL, state, &a, NULL);
+      randoms_of_len(n, FULL, state, &b, NULL);
+      
+      if (m >= d1) nn_mul(r1, a, m, c, d1);
+      else nn_mul(r1, c, d1, a, m);
+      m += d1; if (r1[m - 1] == 0) m--;
+
+      if (n >= d1) nn_mul(r2, b, n, c, d1);
+      else nn_mul(r2, c, d1, b, n);
+      n += d1; if (r2[n - 1] == 0) n--;
+
+      if (m >= n) d2 = nn_gcd_lehmer(g, r1, m, r2, n);
+      else d2 = nn_gcd_lehmer(g, r2, n, r1, m);
+      
+      result = (nn_cmp(g, d2, c, d1) >= 0);
+
+      if (!result) 
+      {
+         print_debug(c, d1);
+         print_debug(g, d2);
+      }
+   } TEST_END;
+
+   return result;
+}
+
 int test_quadratic(void)
 {
    long pass = 0;
@@ -469,6 +558,8 @@ int test_quadratic(void)
    RUN(test_divrem_classical_preinv);
    RUN(test_divapprox_classical_preinv);
    RUN(test_div_hensel_preinv);
+   RUN(test_gcd_lehmer);
+   RUN(test_xgcd_lehmer);
    
    printf("%ld of %ld tests pass.\n", pass, pass + fail);
 

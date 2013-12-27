@@ -36,6 +36,13 @@
 #include "helper.h"
 #include "rand.h"
 
+#define NN_SWAP(a, b) \
+   do {               \
+      nn_t __t = a;   \
+      a = b;          \
+      b = __t;        \
+   } while (0)
+
 /**********************************************************************
  
     Random functions
@@ -118,6 +125,17 @@ void nn_printx_short(nn_src_t a, len_t m);
    there is no difference, "don't differ" is printed.
 */
 void nn_printx_diff(nn_src_t a, nn_src_t b, len_t m);
+
+/*
+   Return a string representation of {a, m} in decimal. The user is
+   responsible for freeing the string.
+*/
+char * nn_get_str(nn_t a, len_t m);
+
+/*
+   Print {a, m} in decimal. If m == 0 then 0 is printed.
+*/
+void nn_print(nn_t a, len_t m);
 
 /**********************************************************************
  
@@ -634,6 +652,11 @@ word_t nn_divapprox_classical_preinv_c(nn_t q, nn_t a, len_t m,
 void nn_div_hensel_preinv(nn_t ov, nn_t q, nn_t a, len_t m, 
                             nn_src_t d, len_t n, hensel_preinv1_t inv);
 
+len_t nn_xgcd_lehmer(nn_t g, nn_t v, 
+                                     nn_t a, len_t m, nn_t b, len_t n);
+
+len_t nn_gcd_lehmer(nn_t g, nn_t a, len_t m, nn_t b, len_t n);
+
 /**********************************************************************
  
     Subquadratic arithmetic functions
@@ -782,7 +805,7 @@ word_t nn_divapprox_preinv_c(nn_t q, nn_t a, len_t m,
 */
 static __inline__
 void nn_divrem_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d, 
-                                            len_t n, preinv2_t dinv, word_t ci)
+                                    len_t n, preinv2_t dinv, word_t ci)
 {
    if (n <= DIVREM_CLASSICAL_CUTOFF || m == n)
       nn_divrem_classical_preinv_c(q, a, m, d, n, dinv, ci);

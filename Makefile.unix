@@ -90,5 +90,5 @@ build/profile/%: $(OBJS)
 	$(QUIET_LINK)$(CC) $(CFLAGS) $(INCS) profile/$(@F).c $(OBJS) -o $@ -lm
 
 build/test/%: $(OBJS)
-	$(QUIET_LINK)$(CC) $(CFLAGS) $(INCS) test/$(@F).c $(OBJS) -o $@
+	$(QUIET_LINK)$(CC) $(CFLAGS) $(INCS) test/$(@F).c $(OBJS) -o $@ -lm
 

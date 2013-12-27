@@ -25,8 +25,10 @@
   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include <math.h>
 #include "nn.h"
 #include "nn_quadratic_arch.h"
+#include "zz0.h"
 
 #ifndef HAVE_ARCH_nn_mul_classical
 
@@ -411,6 +413,347 @@ void nn_div_hensel_preinv(nn_t ov, nn_t q, nn_t a, len_t m,
    
    ov[0] = (word_t) t;
    ov[1] = (t >> WORD_BITS);
+}
+
+#define __get_bits_lehmer(rr1, rr2, a, m, b, n) \
+   do { \
+      word_t __ah = (a)[(m) - 1]; \
+      word_t __bits = high_zero_bits(__ah); \
+      if (m >= n + 1) { \
+         if (__bits == 0) (rr1) = 0, (rr2) = (__ah >> 1); \
+         else if (__bits == 1) (rr1) = 0, (rr2) = __ah; \
+         else { \
+            __bits--; \
+           (rr2) = (__ah << __bits) + ((a)[(m) - 2] >> (WORD_BITS - __bits)); \
+           if (m == n + 1) (rr1) = ((b)[(n) - 1] >> (WORD_BITS - __bits)); \
+           else (rr1) = 0; \
+         } \
+      } else { \
+         word_t __bh = b[n - 1]; \
+         __bits = BSDNT_MIN(__bits, high_zero_bits(__bh)); \
+         if (__bits == 0) (rr1) = (__bh >> 1), (rr2) = (__ah >> 1); \
+         else if (__bits == 1) (rr1) = __bh, (rr2) = __ah; \
+         else { \
+            __bits--; \
+            if (n == 1) (rr1) = (__bh << __bits), (rr2) = (__ah << __bits); \
+            else { \
+               (rr2) = (__ah << __bits) + ((a)[(m) - 2] >> (WORD_BITS - __bits)); \
+               (rr1) = (__bh << __bits) + ((b)[(m) - 2] >> (WORD_BITS - __bits)); \
+            } \
+         } \
+      } \
+   } while (0)
+
+len_t nn_xgcd_lehmer(nn_t g, nn_t v, nn_t a, len_t m, nn_t b, len_t n)
+{
+   nn_t q, r, c1, c2, temp, temp2;
+   long aa2, aa1, bb2, bb1, rr1 = 0, rr2 = 0, qq, t1, t2, t3, i;
+   len_t s1, s2, s1u, s2u, s, m_orig = m;
+   word_t ci, aci, rci;
+
+   TMP_INIT;
+   
+   TMP_START;
+   
+   q = TMP_ALLOC(m);
+   r = TMP_ALLOC(m);
+   c1 = TMP_ALLOC(m);
+   c2 = TMP_ALLOC(m);
+   temp = TMP_ALLOC(m);
+   temp2 = TMP_ALLOC(m);
+
+   nn_copy(temp2, a, m);
+
+   nn_zero(c2, m);
+   nn_zero(c1, m);
+   c2[0] = 1;
+   s2 = 1;
+   s1 = 0;
+   
+   while (n > 0)
+   {
+      __get_bits_lehmer(rr1, rr2, a, m, b, n);
+
+      aa2 = 0; aa1 = 1;
+      bb2 = 1; bb1 = 0;
+
+      for (i = 0; rr1 != 0; i++)
+      {
+         qq = rr2 / rr1;
+
+         t1 = rr2 - qq*rr1; 
+         t2 = aa2 - qq*aa1; 
+         t3 = bb2 - qq*bb1; 
+
+         if (i & 1)
+         {
+            if (t1 < -t3 || rr1 - t1 < t2 - aa1) break;
+         } else 
+         {
+            if (t1 < -t2 || rr1 - t1 < t3 - bb1) break;
+         }
+
+         rr2 = rr1; rr1 = t1;
+         aa2 = aa1; aa1 = t2;
+         bb2 = bb1; bb1 = t3;
+      }
+
+      if (i == 0 || bb2 == 0)
+      {
+         nn_divrem(q, a, m, b, n);
+         NN_SWAP(a, b);
+         s = m - n + 1; m = n; 
+         n = nn_normalise(b, n);
+         
+         s = zz0_mul(temp, c2, s2, q, s);
+         s1 = zz0_sub(c1, c1, s1, temp, s);
+
+         NN_SWAP(c1, c2); 
+         BSDNT_SWAP(s1, s2);
+      } else
+      {
+         s1u = BSDNT_ABS(s1);
+         s2u = BSDNT_ABS(s2);
+            
+         if (bb2 <= 0)
+         {
+            rci = nn_mul1(r, a, m, -bb2);
+            ci = nn_submul1(r, b, n, aa2);
+            rci -= nn_sub1(r + n, r + n, m - n, ci);
+
+            q[s2u] = nn_mul1(q, c2, s2u, aa2);
+            ci = nn_addmul1(q, c1, s1u, -bb2);
+            q[s2u] += nn_add1(q + s1u, q + s1u, s2u - s1u, ci);   
+         } else
+         {
+            rci = nn_mul1(r, a, m, bb2);
+            ci = nn_submul1(r, b, n, -aa2);
+            rci -= nn_sub1(r + n, r + n, m - n, ci);
+
+            q[s2u] = nn_mul1(q, c2, s2u, -aa2);
+            ci = nn_addmul1(q, c1, s1u, bb2);
+            q[s2u] += nn_add1(q + s1u, q + s1u, s2u - s1u, ci);
+            s1 = -s1;
+         }
+         
+         if (aa1 < 0)
+         {
+            aci = nn_mul1(a, a, m, bb1);
+            ci = nn_submul1(a, b, n, -aa1);
+            aci -= nn_sub1(a + n, a + n, m - n, ci);
+
+            c2[s2u] = nn_mul1(c2, c2, s2u, -aa1);
+            ci = nn_addmul1(c2, c1, s1u, bb1);
+            c2[s2u] += nn_add1(c2 + s1u, c2 + s1u, s2u - s1u, ci);
+            s2 = -s2;
+         } else
+         {
+            aci = nn_mul1(a, a, m, -bb1);
+            ci = nn_submul1(a, b, n, aa1);
+            aci -= nn_sub1(a + n, a + n, m - n, ci);
+
+            c2[s2u] = nn_mul1(c2, c2, s2u, aa1);
+            ci = nn_addmul1(c2, c1, s1u, -bb1);
+            c2[s2u] += nn_add1(c2 + s1u, c2 + s1u, s2u - s1u, ci);
+         }
+
+         n = m; 
+         if (((sword_t) rci) < 0) { nn_neg(r, r, n); s1 = -s1; }
+         if (((sword_t) aci) < 0) { nn_neg(a, a, n); s1 = -s1; }
+
+         n = nn_normalise(r, n);
+         m = nn_normalise(a, m);
+         
+         s2u++;
+         s1u = s2u;
+         s1u = nn_normalise(q, s1u);
+         s1 = s1 < 0 || (s1 == 0 && s2 > 0) ? -s1u : s1u;
+         s2u = nn_normalise(c2, s2u);
+         s2 = s2 < 0 ? -s2u : s2u;
+         
+         nn_copy(c1, q, s1u);
+
+         if (nn_cmp(a, m, r, n) < 0)
+         {
+            nn_copy(b, a, m);
+            nn_copy(a, r, n);
+            BSDNT_SWAP(m, n);    
+         } else {
+            nn_copy(b, r, n);
+            BSDNT_SWAP(s1, s2);
+            NN_SWAP(c1, c2);
+         }
+      }
+   }
+
+   if (s1 > 0) {
+      ci = nn_sub_m(c1, temp2, c1, s1);
+      nn_sub1(c1 + s1, temp2 + s1, m_orig - s1, ci);
+      s1 = -m_orig;
+   }
+
+   nn_copy(g, a, m);
+   if (-s1 > 0) 
+      nn_copy(v, c1, -s1);
+   if (m_orig + s1 > 0) 
+      nn_zero(v - s1, m_orig + s1);
+
+   TMP_END;
+
+   return m;
+}
+
+len_t nn_gcd_lehmer(nn_t g, nn_t a, len_t m, nn_t b, len_t n)
+{
+   nn_t q, r, s, t;
+   sword_t aa2, aa1, bb2, bb1, rr1 = 0, rr2 = 0, qq, t1, t2, t3, i;
+   word_t ci, c1, c2;
+
+   TMP_INIT;
+   
+   TMP_START;
+   
+   q = TMP_ALLOC(m);
+   r = TMP_ALLOC(m + 1);
+   
+   if (m != n)
+   {
+      s = TMP_ALLOC(m);
+      nn_copy(s, b, n);
+      b = s;
+   }
+   
+   while (n)
+   {
+      __get_bits_lehmer(rr1, rr2, a, m, b, n);
+
+      aa2 = 0; aa1 = 1;
+      bb2 = 1; bb1 = 0;
+
+      for (i = 0; rr1 != 0; i++)
+      {
+         qq = rr2 / rr1;
+
+         t1 = rr2 - qq*rr1; 
+         t2 = aa2 - qq*aa1; 
+         t3 = bb2 - qq*bb1; 
+
+         if (i & 1)
+         {
+            if (t1 < -t3 || rr1 - t1 < t2 - aa1) break;
+         } else 
+         {
+            if (t1 < -t2 || rr1 - t1 < t3 - bb1) break;
+         }
+
+         rr2 = rr1; rr1 = t1;
+         aa2 = aa1; aa1 = t2;
+         bb2 = bb1; bb1 = t3;
+      }
+
+      if (i == 0)
+      {
+         nn_divrem(q, a, m, b, n);
+         t = a; a = b; b = t; /* swap */
+         m = n; 
+         n = nn_normalise(b, n);
+      } else
+      {
+         if (bb2 <= 0)
+         {
+            c1 = nn_mul1(r, a, m, -bb2);
+            ci = nn_submul1(r, b, n, aa2);
+            c1 -= nn_sub1(r + n, r + n, m - n, ci);
+         } else
+         {
+            c1 = nn_mul1(r, a, m, bb2);
+            ci = nn_submul1(r, b, n, -aa2);
+            c1 -= nn_sub1(r + n, r + n, m - n, ci);
+         }
+         
+         if (aa1 <= 0)
+         {
+            c2 = nn_mul1(a, a, m, bb1);
+            ci = nn_submul1(a, b, n, -aa1);
+            c2 -= nn_sub1(a + n, a + n, m - n, ci);
+         } else
+         {
+            c2 = nn_mul1(a, a, m, -bb1);
+            ci = nn_submul1(a, b, n, aa1);
+            c2 -= nn_sub1(a + n, a + n, m - n, ci);
+         }
+      
+         n = m; 
+         if ((sword_t) c1 < 0) nn_neg(r, r, n);
+         if ((sword_t) c2 < 0) nn_neg(a, a, n);
+
+         n = nn_normalise(r, n);
+         m = nn_normalise(a, m);
+         
+         if (nn_cmp(a, m, r, n) < 0)
+         {
+            nn_copy(b, a, m);
+            nn_copy(a, r, n);
+            BSDNT_SWAP(m, n);
+         } else
+            nn_copy(b, r, n);
+      }
+   }
+
+   nn_copy(g, a, m);
+      
+   TMP_END;
+
+   return m;
+}
+
+char * nn_get_str(nn_t a, len_t m)
+{
+   /* 9.63... is log_10(2^32) */
+   len_t i = 0, j;
+   len_t digits = (long) ceil(m * 9.632959861247398 * (WORD_BITS/32)) + (m == 0);
+   char * str = (char *) malloc(digits + 1);
+   word_t ci, d = 10UL << (WORD_BITS - 4);
+   nn_t q1, q2, t;
+   TMP_INIT;
+
+   if (m == 0)
+      str[0] = '0';
+   else {
+      TMP_START;
+      q1 = TMP_ALLOC(m*sizeof(word_t));
+      q2 = TMP_ALLOC(m*sizeof(word_t));
+      nn_copy(q1, a, m);
+
+      /* compute digits in reverse order */
+      for (i = digits; m > 0; i--) {
+         ci = nn_shl(q1, q1, m, WORD_BITS - 4);
+         str[i - 1] = 48 + (char) (nn_divrem1_simple_c(q2, q1, m, d, ci) >> (WORD_BITS - 4));
+         t = q1; q1 = q2; q2 = t;
+         m = nn_normalise(q1, m);
+      }
+
+      TMP_END;
+
+      /* didn't get the right number of digits, shift */
+      if (i) {
+         for (j = i; j < digits; j++)
+            str[j - i] = str[j];
+      }
+   }
+
+   str[digits - i] = '\0';
+
+   return str;
+}
+
+void nn_print(nn_t a, len_t m)
+{
+   char * str = nn_get_str(a, m);
+
+   printf("%s", str);
+
+   free(str);
 }
 
 #endif
