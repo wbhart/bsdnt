@@ -458,52 +458,6 @@ int test_div_hensel_preinv(void)
    return result;
 }
 
-int test_xgcd_lehmer(void)
-{
-   int result = 1;
-   len_t m, n, s1, s2, s3;
-   nn_t a, b, a2, b2, v, g, p, q;
-   word_t ci;
-
-   printf("xgcd_lehmer...");
-
-   TEST_START(1, ITER) /* test g + v*b is divisible by a */
-   {
-      randoms_upto(10, NONZERO, state, &m, NULL);
-      randoms_upto(10, NONZERO, state, &n, NULL);
-      m += n; /* m >= n */
-
-      randoms_of_len(m, FULL, state, &a, &b2, &a2, &v, &g, NULL);
-      randoms_of_len(n, FULL, state, &b, NULL);
-      randoms_of_len(m + n, FULL, state, &p, NULL);
-      randoms_of_len(n + 1, FULL, state, &q, NULL);
-      
-      nn_copy(a2, a, m);
-      nn_copy(b2, b, n);
-
-      s1 = nn_xgcd_lehmer(g, v, a2, m, b2, n);
-      s2 = nn_normalise(v, m);
-      
-      nn_mul(p, v, m, b, n);
-      ci = nn_add_m(p, p, g, s1);
-      nn_add1(p + s1, p + s1, m + n - s1, ci);
-      nn_divrem(q, p, m + n, a, m);
-     
-      s3 = nn_normalise(p, m);
-
-      result = (s3 == 0);
-
-      if (!result) 
-      {
-         printf("FAIL\n");
-         print_debug(a, m); print_debug(b, n); print_debug(v, s2);
-         print_debug(g, s1);
-      }
-   } TEST_END;
-
-   return result;
-}
-
 int test_gcd_lehmer(void)
 {
    int result = 1;
@@ -541,6 +495,52 @@ int test_gcd_lehmer(void)
       {
          print_debug(c, d1);
          print_debug(g, d2);
+      }
+   } TEST_END;
+
+   return result;
+}
+
+int test_xgcd_lehmer(void)
+{
+   int result = 1;
+   len_t m, n, s1, s2, s3;
+   nn_t a, b, a2, b2, v, g, p, q;
+   word_t ci;
+
+   printf("xgcd_lehmer...");
+
+   TEST_START(1, ITER) /* test g + v*b is divisible by a */
+   {
+      randoms_upto(10, NONZERO, state, &m, NULL);
+      randoms_upto(10, NONZERO, state, &n, NULL);
+      m += n; /* m >= n */
+
+      randoms_of_len(m, FULL, state, &a, &b2, &a2, &v, &g, NULL);
+      randoms_of_len(n, FULL, state, &b, NULL);
+      randoms_of_len(m + n, FULL, state, &p, NULL);
+      randoms_of_len(n + 1, FULL, state, &q, NULL);
+      
+      nn_copy(a2, a, m);
+      nn_copy(b2, b, n);
+
+      s1 = nn_xgcd_lehmer(g, v, a2, m, b2, n);
+      s2 = nn_normalise(v, m);
+      
+      nn_mul(p, v, m, b, n);
+      ci = nn_add_m(p, p, g, s1);
+      nn_add1(p + s1, p + s1, m + n - s1, ci);
+      nn_divrem(q, p, m + n, a, m);
+     
+      s3 = nn_normalise(p, m);
+
+      result = (s3 == 0 && nn_cmp(v, s2, a, m) < 0);
+
+      if (!result) 
+      {
+         printf("FAIL\n");
+         print_debug(a, m); print_debug(b, n); print_debug(v, s2);
+         print_debug(g, s1);
       }
    } TEST_END;
 

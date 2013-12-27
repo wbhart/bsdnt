@@ -652,10 +652,21 @@ word_t nn_divapprox_classical_preinv_c(nn_t q, nn_t a, len_t m,
 void nn_div_hensel_preinv(nn_t ov, nn_t q, nn_t a, len_t m, 
                             nn_src_t d, len_t n, hensel_preinv1_t inv);
 
-len_t nn_xgcd_lehmer(nn_t g, nn_t v, 
-                                     nn_t a, len_t m, nn_t b, len_t n);
-
+/*
+   Compute the gcd g of {a, m} and {b, n}. We assume m >= n > 0. The value
+   g must have enough space for m words, but the actual number used is
+   returned by the function.
+*/
 len_t nn_gcd_lehmer(nn_t g, nn_t a, len_t m, nn_t b, len_t n);
+
+/*
+   As per nn_gcd_lehmer except that an additonal value v is computed
+   such that u' = g + bv is divisible by a. If u = u'/a then the identity
+   ua - bv = g is satisfied. The value v computed will be reduced modulo
+   a. We require v to have enough space for m words.
+*/
+len_t nn_xgcd_lehmer(nn_t g, nn_t v, nn_t a, len_t m, nn_t b, len_t n);
+
 
 /**********************************************************************
  
