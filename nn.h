@@ -655,7 +655,9 @@ void nn_div_hensel_preinv(nn_t ov, nn_t q, nn_t a, len_t m,
 /*
    Compute the gcd g of {a, m} and {b, n}. We assume m >= n > 0. The value
    g must have enough space for m words, but the actual number used is
-   returned by the function.
+   returned by the function. Both a and b must have space for m limbs.
+   The inputs a and b are destroyed. The inputs a and b may not be aliased
+   and must not have leading words that are zero.
 */
 len_t nn_gcd_lehmer(nn_t g, nn_t a, len_t m, nn_t b, len_t n);
 
@@ -663,7 +665,9 @@ len_t nn_gcd_lehmer(nn_t g, nn_t a, len_t m, nn_t b, len_t n);
    As per nn_gcd_lehmer except that an additonal value v is computed
    such that u' = g + bv is divisible by a. If u = u'/a then the identity
    ua - bv = g is satisfied. The value v computed will be reduced modulo
-   a. We require v to have enough space for m words.
+   a. We require v to have enough space for m words. Both a and b must have
+   space for m limbs. The inputs a and b are destroyed. The inputs a and
+   b may not be aliased and must not have leading words that are zero.
 */
 len_t nn_xgcd_lehmer(nn_t g, nn_t v, nn_t a, len_t m, nn_t b, len_t n);
 
