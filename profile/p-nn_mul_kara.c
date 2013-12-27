@@ -1,6 +1,5 @@
 /* 
-  Copyright (C) 2010, William Hart
-  Copyright (C) 2010, Brian Gladman
+  Copyright (C) 2013 William Hart
 
   All rights reserved.
 
@@ -25,3 +24,70 @@
   OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+#include <math.h>
+#include "nn.h"
+#include "test.h"
+
+#undef ITER
+#define ITER 20000
+
+rand_t state;
+
+void time_mul_kara(void)
+{
+   nn_t a, b, r1, r2;
+   len_t size;
+   long count;
+   clock_t t;
+
+   TMP_INIT;
+
+   for (size = 2; size < 500; size = (long) ceil(size*1.1))
+   {
+      TMP_START;
+      
+      a = TMP_ALLOC(size);
+      b = TMP_ALLOC(size);
+      r1 = TMP_ALLOC(2*size);
+      r2 = TMP_ALLOC(2*size);
+      
+      randoms_of_len(size, ANY, state, &a, NULL);
+      randoms_of_len(size, ANY, state, &b, NULL);
+      
+      printf("size = %ld: ", size);
+
+      t = clock();
+      for (count = 0; count < ITER; count++)
+         nn_mul_classical(r1, a, size, b, size);
+      t = clock() - t;
+
+      printf("classical = %gs, ", ((double) t)/CLOCKS_PER_SEC/ITER);
+
+      t = clock();
+      for (count = 0; count < ITER; count++)
+         nn_mul_kara(r2, a, size, b, size);
+      t = clock() - t;
+
+      printf("kara = %gs\n", ((double) t)/CLOCKS_PER_SEC/ITER);
+     
+      TMP_END;
+   }
+}
+
+int main(void)
+{
+   printf("\nTiming nn_mul_kara vs nn_mul_classical:\n");
+   
+   randinit(&state);
+   
+   time_mul_kara();
+
+   randclear(state);
+
+   return 0;
+}
+

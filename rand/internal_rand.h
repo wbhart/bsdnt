@@ -32,8 +32,8 @@
 #include <stdlib.h>
 #include <malloc.h>
 
-#include "../helper.h"
-#include "bsdnt_rand.h"
+#include "helper.h"
+#include "rand.h"
 
 /***************************************************************************
  

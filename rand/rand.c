@@ -1,5 +1,4 @@
 /* 
-  Copyright (C) 2010, William Hart
   Copyright (C) 2010, Brian Gladman
 
   All rights reserved.
@@ -26,18 +25,45 @@
   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#define HAVE_ARCH_nn_add_mc
-#define HAVE_ARCH_nn_sub_mc
-#define HAVE_ARCH_nn_shl_c
-#define HAVE_ARCH_nn_shr_c
-#define HAVE_ARCH_nn_add1
-#define HAVE_ARCH_nn_sub1
-#define HAVE_ARCH_nn_neg_c
-#define HAVE_ARCH_nn_mul1_c
-#define HAVE_ARCH_nn_addmul1_c
-#define HAVE_ARCH_nn_muladd1_c
-#define HAVE_ARCH_nn_submul1_c
-#define HAVE_ARCH_nn_divrem1_simple_c
-#define HAVE_ARCH_nn_divrem1_preinv_c
-#define HAVE_ARCH_nn_divrem_hensel1_preinv_c
-#define HAVE_ARCH_nn_mod1_preinv_c
+#include <string.h>
+#include "helper.h"
+#include "internal_rand.h"
+
+static char *name[3] = { "Kiss", "Mersenne_Twister", "Super_Kiss" };
+
+rand_t set_rand_algorithm(random_algorithm a)
+{   
+   rand_t r;
+
+   switch(a)
+   {
+   case KISS:
+      r.init = (rand_init_f) kiss_init;
+      r.clear = (rand_clear_f) kiss_clear;
+      r.word = (rand_word_f) kiss_word;
+      strcpy(r.name, name[0]);
+      break;
+   case MERSENNE_TWISTER:
+      r.init = (rand_init_f) mt_init;
+      r.clear = (rand_clear_f) mt_clear;
+      r.word = (rand_word_f) mt_word;
+      strcpy(r.name, name[1]);
+      break;
+   case SUPER_KISS:
+      r.init = (rand_init_f) skiss_init;
+      r.clear = (rand_clear_f) skiss_clear;
+      r.word = (rand_word_f) skiss_word;
+      strcpy(r.name, name[2]);
+      break;
+   default:
+      r.init = (rand_init_f) kiss_init;
+      r.clear = (rand_clear_f) kiss_clear;
+      r.word = (rand_word_f) kiss_word;
+      strcpy(r.name, name[0]);
+      break;
+   }
+   
+   r.ctx = NULL;
+
+   return r;
+}

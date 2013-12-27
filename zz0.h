@@ -1,6 +1,5 @@
 /* 
-  Copyright (C) 2010, William Hart
-  Copyright (C) 2010, Brian Gladman
+  Copyright (C) 2010, 2013 William Hart
 
   All rights reserved.
 
@@ -26,8 +25,53 @@
   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#define HAVE_ARCH_nn_mullow_classical
-#define HAVE_ARCH_nn_mulhigh_classical
-#define HAVE_ARCH_nn_divrem_classical_preinv_c
-#define HAVE_ARCH_nn_divapprox_classical_preinv_c
-#define HAVE_ARCH_nn_div_hensel_preinv
+#ifndef BSD_ZZ0_H
+#define BSD_ZZ0_H
+
+#include "helper.h"
+
+#define ZZ0_SWAP(a, b)      \
+   do {                     \
+      nn_src_t __t = a;     \
+      a = b;                \
+      b = __t;              \
+   } while (0)
+
+#define ZZ0_ORDER(a, an, b, bn) \
+   do {                         \
+      if (an < bn) {            \
+         BSDNT_SWAP(an, bn);    \
+         ZZ0_SWAP(a, b);        \
+      }                         \
+   } while (0)
+
+#define zz0_normalise(r, rsize)            \
+   do {                                    \
+      if (rsize < 0)                       \
+         rsize = -nn_normalise(r, -rsize); \
+      else                                 \
+         rsize = nn_normalise(r, rsize);   \
+   } while (0)
+
+/**********************************************************************
+ 
+    Arithmetic functions
+
+**********************************************************************/
+
+/*
+   Set {r, ret} to {a, m} + {b, n}.
+*/
+len_t zz0_add(nn_t r, nn_src_t a, len_t m, nn_src_t b, len_t n);
+
+/*
+   Set {r, ret} to {a, m} - {b, n}.
+*/
+len_t zz0_sub(nn_t r, nn_src_t a, len_t m, nn_src_t b, len_t n);
+
+/*
+   Set {r, ret} to {a, m} - {b, n}.
+*/
+len_t zz0_mul(nn_t r, nn_src_t a, len_t m, nn_src_t b, len_t n);
+
+#endif

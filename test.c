@@ -32,11 +32,6 @@
 
 node_t * garbage = NULL;
 
-void talker(const char * str)
-{
-   fprintf(stderr, "Error: %s\n", str);
-}
-
 node_t * new_node(type_t type, void * ptr, len_t length, node_t * next)
 {
    node_t * node = malloc(sizeof(node_t));
@@ -96,7 +91,7 @@ void free_redzoned_nn(nn_t a, len_t n)
 word_t test_randword1(rand_t state)
 {
 	word_t res = 0;
-    int bits = (int) randint(7, state);
+   int bits = (int) randint(7, state);
 	int i;
 
 	for (i = 0; i < bits; i++)
@@ -143,6 +138,10 @@ void randoms(flag_t flag, rand_t state, ...)
 
       case ODD: 
          (*w) |= 1;
+         break;
+
+      case NORMALISED:
+         (*w) |= (((word_t) 1) << (WORD_BITS - 1));
          break;
 
       case NONZERO: 
@@ -212,9 +211,13 @@ void randoms_of_len(len_t n, flag_t flag, rand_t state, ...)
       switch (flag)
       {
       case ANY: break;
-      case FULL: while (nn_normalise(*obj, n) != n)
-                    nn_test_random(*obj, state, n);
-                 break;
+      case FULL: 
+         while (nn_normalise(*obj, n) != n)
+            nn_test_random(*obj, state, n);
+         break;
+      case NORMALISED:
+         (*obj)[n-1] |= (((word_t) 1) << (WORD_BITS - 1));
+         break;
       case ODD: (*obj)[0] |= (word_t) 1; break;
       default: talker("Unknown flag in randoms_of_len");
          abort();

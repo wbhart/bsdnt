@@ -30,11 +30,6 @@
 #include "sha1.h"
 #include "config.h"
 
-#if defined( _MSC_VER ) && ( _MSC_VER > 800 )
-#pragma intrinsic(memcpy)
-#pragma intrinsic(memset)
-#endif
-
 #define rotl32(x,n)   (((x) << n) | ((x) >> (32 - n)))
 #define rotr32(x,n)   (((x) >> n) | ((x) << (32 - n)))
 
@@ -78,8 +73,6 @@
 #define q(v,n)  v##n
 #endif
 
-#ifdef SHA_1
-
 #define one_cycle(v,a,b,c,d,e,f,k,h)            \
     q(v,e) += rotr32(q(v,a),27) +               \
               f(q(v,b),q(v,c),q(v,d)) + k + h;  \
@@ -94,7 +87,7 @@
 
 void sha1_compile(sha1_ctx ctx[1])
 {   
-	uint32_t * w = ctx->wbuf;
+	 uint32_t * w = ctx->wbuf;
 
 #ifdef ARRAY
     uint32_t v[5];
@@ -266,9 +259,7 @@ void sha1_end(unsigned char hval[], sha1_ctx ctx[1])
 
 void sha1(unsigned char hval[], const unsigned char data[], unsigned long len)
 {   
-	sha1_ctx cx[1];
+	 sha1_ctx cx[1];
 
     sha1_begin(cx); sha1_hash(data, len, cx); sha1_end(hval, cx);
 }
-
-#endif

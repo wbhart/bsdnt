@@ -1,5 +1,39 @@
+/* 
+  Copyright (C) 2010, 2013 William Hart
+
+  All rights reserved.
+
+  Redistribution and use in source and binary forms, with or without
+  modification, are permitted provided that the following conditions are met:
+
+  1. Redistributions of source code must retain the above copyright notice, 
+     this list of conditions and the following disclaimer.
+
+  2. Redistributions in binary form must reproduce the above copyright
+     notice, this list of conditions and the following disclaimer in the
+	 documentation and/or other materials provided with the distribution.
+
+  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS''
+  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+  DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDERS OR CONTRIBUTORS BE LIABLE
+  FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+  DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+  SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+  CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+  OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+*/
+
+#include <stdio.h>
+#include <stdlib.h>
+#include "nn.h"
+#include "test.h"
+
 #undef ITER
 #define ITER 30000
+
+rand_t state;
 
 int test_mul_classical(void)
 {
@@ -12,7 +46,7 @@ int test_mul_classical(void)
    TEST_START(1, ITER) /* test a * (b + c) = a * b + a * c */
    {
       randoms_upto(30, NONZERO, state, &m, NULL);
-      randoms_upto(m + 1, NONZERO, state, &n, NULL);
+      randoms_upto(30, NONZERO, state, &n, NULL);
       
       randoms_of_len(m, ANY, state, &a, NULL);
       randoms_of_len(n + 1, ANY, state, &s, NULL);
@@ -20,14 +54,14 @@ int test_mul_classical(void)
       
       do {
          randoms_of_len(n, ANY, state, &b, &c, NULL);
-         nn_s_add_m(s, b, c, n);
+         s[n] = nn_add_m(s, b, c, n);
       } while (s[n]);
       
-      nn_s_mul_classical(r1, a, m, b, n);
-      nn_s_mul_classical(r2, a, m, c, n);
+      nn_mul_classical(r1, a, m, b, n);
+      nn_mul_classical(r2, a, m, c, n);
       nn_add_m(r2, r2, r1, m + n);
 
-      nn_s_mul_classical(r1, a, m, s, n);
+      nn_mul_classical(r1, a, m, s, n);
       
       result = nn_equal_m(r1, r2, m + n);
 
@@ -41,57 +75,92 @@ int test_mul_classical(void)
    return result;
 }
 
-int test_muladd_classical(void)
+int test_mulmid_classical(void)
 {
    int result = 1;
    len_t m, n;
-   nn_t a, b, c, r1, r2;
+   nn_t a, a1, a2, b1, b2, b, r1, r2, r3, r4;
 
-   printf("muladd_classical...");
+   printf("mulmid_classical...");
 
-   TEST_START(1, ITER) /* test a + b * c = muladd(a, b, c) */
+   TEST_START(1, ITER) /* test mulmid_add_rfix */
    {
-      randoms_upto(30, NONZERO, state, &m, NULL);
-      randoms_upto(m + 1, NONZERO, state, &n, NULL);
+      randoms_upto(30, NONZERO, state, &n, NULL);
+      n++; /* n is at least 2 */
+      m = 2*n - 1;
+
+      randoms_of_len(m, ANY, state, &a, NULL);
+      randoms_of_len(n, ANY, state, &b1, &b2, &b, NULL);
+      randoms_of_len(n + 2, ANY, state, &r1, &r2, &r3, &r4, NULL);
       
-      randoms_of_len(m, ANY, state, &a, &b, NULL);
-      randoms_of_len(n, ANY, state, &c, NULL);
-      randoms_of_len(m + n, ANY, state, &r1, &r2, NULL);
+      nn_mulmid_classical(r1 + n, r1, a, m, b1, n);
+      nn_mulmid_classical(r2 + n, r2, a, m, b2, n);
+      _nn_mulmid_add_rfix_m(b, r4 + n, r4, a, b1, b2, n);
+      nn_mulmid_classical(r3 + n, r3, a, m, b, n);
       
-      nn_s_mul_classical(r1, b, m, c, n);
-      nn_add(r1, r1, m + n, a, m);
-      
-      nn_s_muladd_classical(r2, a, b, m, c, n);
-      
-      result = nn_equal_m(r1, r2, m + n);
+      nn_add_m(r2, r2, r1, n + 2);
+      nn_add_m(r3, r3, r4, n + 2);
+
+      result = nn_equal_m(r2, r3, n + 2);
 
       if (!result) 
       {
-         print_debug(a, m); print_debug(b, m); print_debug(c, n);
-         print_debug_diff(r1, r2, m + n);
+         print_debug(a, m); print_debug(b1, n); print_debug(b2, n); 
+         print_debug(r4, m); print_debug_diff(r2, r3, n + 2);
       }
    } TEST_END;
 
-   TEST_START(aliasing, ITER) /* test aliasing of r and a in muladd */
+   TEST_START(2, ITER) /* test mulmid_sub_rfix */
    {
-      randoms_upto(30, NONZERO, state, &m, NULL);
-      randoms_upto(m + 1, NONZERO, state, &n, NULL);
+      randoms_upto(30, NONZERO, state, &n, NULL);
+      n++; /* n is at least 2 */
+      m = 2*n - 1;
+
+      randoms_of_len(m, ANY, state, &a, NULL);
+      randoms_of_len(n, ANY, state, &b1, &b2, &b, NULL);
+      randoms_of_len(n + 2, ANY, state, &r1, &r2, &r3, &r4, NULL);
       
-      randoms_of_len(m, ANY, state, &a, &b, NULL);
-      randoms_of_len(n, ANY, state, &c, NULL);
-      randoms_of_len(m + n, ANY, state, &r1, &r2, NULL);
+      nn_mulmid_classical(r1 + n, r1, a, m, b1, n);
+      nn_mulmid_classical(r2 + n, r2, a, m, b2, n);
+      _nn_mulmid_sub_rfix_m(b, r4 + n, r4, a, b1, b2, n);
+      nn_mulmid_classical(r3 + n, r3, a, m, b, n);
       
-      nn_copy(r1, a, m);
-      nn_s_muladd_classical(r1, r1, b, m, c, n);
-      
-      nn_s_muladd_classical(r2, a, b, m, c, n);
-      
-      result = nn_equal_m(r1, r2, m + n);
+      nn_sub_m(r1, r1, r2, n + 2);
+      nn_sub_m(r3, r3, r4, n + 2);
+
+      result = nn_equal_m(r1, r3, n + 2);
 
       if (!result) 
       {
-         print_debug(a, m); print_debug(b, m); print_debug(c, n);
-         print_debug_diff(r1, r2, m + n);
+         print_debug(a, m); print_debug(b1, n); print_debug(b2, n); 
+         print_debug(r4, m); print_debug_diff(r2, r3, n + 2);
+      }
+   } TEST_END;
+
+   TEST_START(3, ITER) /* test mulmid_add_lfix */
+   {
+      randoms_upto(30, NONZERO, state, &n, NULL);
+      n++; /* n is at least 2 */
+      m = 2*n - 1;
+
+      randoms_of_len(m, ANY, state, &a1, &a2, &a, NULL);
+      randoms_of_len(n, ANY, state, &b, NULL);
+      randoms_of_len(n + 2, ANY, state, &r1, &r2, &r3, &r4, NULL);
+      
+      nn_mulmid_classical(r1 + n, r1, a1, m, b, n);
+      nn_mulmid_classical(r2 + n, r2, a2, m, b, n);
+      _nn_mulmid_add_lfix_m(a, r4 + n, r4, a1, a2, b, n);
+      nn_mulmid_classical(r3 + n, r3, a, m, b, n);
+      
+      nn_add_m(r2, r2, r1, n + 2);
+      nn_add_m(r3, r3, r4, n + 2);
+
+      result = nn_equal_m(r2, r3, n + 2);
+
+      if (!result) 
+      {
+         print_debug(a1, m); print_debug(a2, m); print_debug(b, n); 
+         print_debug(r4, m); print_debug_diff(r2, r3, n + 2);
       }
    } TEST_END;
 
@@ -103,7 +172,7 @@ int test_divrem_classical_preinv(void)
    int result = 1;
    len_t m, n;
    nn_t a, r1, s, q, d;
-   preinv1_2_t inv;
+   preinv2_t inv;
 
    printf("divrem_classical_preinv...");
 
@@ -113,19 +182,21 @@ int test_divrem_classical_preinv(void)
       n++; /* require n >= 2 */
 
       randoms_of_len(m, ANY, state, &a, &q, NULL);
-      randoms_of_len(n, FULL, state, &d, NULL);
+      randoms_of_len(n, NORMALISED, state, &d, NULL);
       randoms_of_len(m + n, ANY, state, &r1, NULL);
       
-      if (m >= n) nn_s_mul_classical(r1, a, m, d, n);
-      else nn_s_mul_classical(r1, d, n, a, m);
+      if (m >= n) nn_mul_classical(r1, a, m, d, n);
+      else nn_mul_classical(r1, d, n, a, m);
 
-	  precompute_inverse1_2(&inv, d[n - 1], d[n - 2]);
-      nn_r_divrem_classical_preinv(q, r1, m + n - 1, d, n, inv);
-	  
+	   inv = precompute_inverse2(d[n - 1], d[n - 2]);
+      
+      nn_divrem_classical_preinv_c(q, r1, m + n - 1, d, n, inv, r1[m + n - 1]);
+	   
       result = (nn_equal_m(q, a, m) && nn_normalise(r1, n) == 0);
 
       if (!result) 
       {
+         printf("inv = %lu\n", inv);
          print_debug(a, m); print_debug(q, m); print_debug(d, n);  print_debug(r1, n);
          print_debug_diff(q, a, m);
       }
@@ -142,21 +213,21 @@ int test_divrem_classical_preinv(void)
       
       /* ensure s is reduced mod d */
       do {
-         randoms_of_len(n, FULL, state, &d, NULL);
+         randoms_of_len(n, NORMALISED, state, &d, NULL);
          randoms_of_len(n, ANY, state, &s, NULL);
       } while (nn_cmp_m(d, s, n) <= 0);
       
-      nn_s_muladd_classical(r1, s, d, n, a, m);
+      nn_mul_classical(r1, d, n, a, m);
+      nn_add(r1, r1, n + m, s, n);
       
-      precompute_inverse1_2(&inv, d[n - 1], d[n - 2]);
-      nn_r_divrem_classical_preinv(q, r1, m + n - 1, d, n, inv);
+      inv = precompute_inverse2(d[n - 1], d[n - 2]);
+      nn_divrem_classical_preinv_c(q, r1, m + n - 1, d, n, inv, r1[m + n - 1]);
 
       result = (nn_equal_m(q, a, m) && nn_equal_m(s, r1, n));
 
       if (!result) 
       {
-         bsdnt_printf("inv.norm = %b, inv.dinv = %wx, inv.d1 = %wx\n", 
-            inv.norm, inv.dinv, inv.d1);
+         bsdnt_printf("inv = %wx\n", inv);
          print_debug(a, m); print_debug(q, m); print_debug(d, n);  print_debug(s, n);
          print_debug_diff(q, a, m);
          print_debug_diff(s, r1, m);
@@ -170,8 +241,8 @@ int test_divapprox_classical_preinv(void)
 {
    int result = 1;
    len_t m, n;
-   nn_t a, r1, r2, s, q1, q2, d;
-   preinv1_2_t inv;
+   nn_t a, r1, r2, s, q1, q2, d, t;
+   preinv2_t inv;
    
    printf("divapprox_classical_preinv...");
 
@@ -186,17 +257,18 @@ int test_divapprox_classical_preinv(void)
       
       /* ensure s is reduced mod d */
       do {
-         randoms_of_len(n, FULL, state, &d, NULL);
+         randoms_of_len(n, NORMALISED, state, &d, NULL);
          randoms_of_len(n, ANY, state, &s, NULL);
       } while (nn_cmp_m(d, s, n) <= 0);
       
-      nn_s_muladd_classical(r1, s, d, n, a, m);
+      nn_mul_classical(r1, d, n, a, m);
+      nn_add(r1, r1, m + n, s, n);
       nn_copy(r2, r1, m + n);
 
-      precompute_inverse1_2(&inv, d[n - 1], d[n - 2]);
-      nn_r_divrem_classical_preinv(q1, r1, m + n - 1, d, n, inv);
+      inv = precompute_inverse2(d[n - 1], d[n - 2]);
+      nn_divrem_classical_preinv_c(q1, r1, m + n - 1, d, n, inv, r1[m + n - 1]);
 
-      nn_r_divapprox_classical_preinv(q2, r2, m + n - 1, d, n, inv);
+      nn_divapprox_classical_preinv_c(q2, r2, m + n - 1, d, n, inv, r2[m + n - 1]);
 
       result = nn_equal_m(q1, q2, m);
       nn_add1(q1, q1, m, 1);
@@ -204,8 +276,51 @@ int test_divapprox_classical_preinv(void)
 
       if (!result) 
       {
-         bsdnt_printf("inv.norm = %b, inv.dinv = %wx, inv.d1 = %wx\n", 
-            inv.norm, inv.dinv, inv.d1);
+         bsdnt_printf("inv = %wx\n", inv);
+         print_debug(a, m); print_debug(q1, m); print_debug(d, n);  print_debug(s, n);
+         print_debug_diff(q1, q2, m);
+      }
+   } TEST_END;
+
+   TEST_START(2, ITER) /* test divapprox and mullow give divrem */
+   {
+      randoms_upto(30, NONZERO, state, &n, NULL);
+      n += 2;
+      randoms_upto(n - 1, NONZERO, state, &m, NULL);
+      
+      randoms_of_len(m, ANY, state, &a, &q1, &q2, NULL);
+      randoms_of_len(m + n, ANY, state, &r1, &r2, NULL);
+      
+      /* ensure s is reduced mod d */
+      do {
+         randoms_of_len(n, NORMALISED, state, &d, NULL);
+         randoms_of_len(n, ANY, state, &s, NULL);
+      } while (nn_cmp_m(d, s, n) <= 0);
+      
+      randoms_of_len(n, ANY, state, &t, NULL);
+
+      nn_mul_classical(r1, d, n, a, m);
+      nn_add(r1, r1, m + n, s, n);
+      nn_copy(r2, r1, m + n);
+
+      inv = precompute_inverse2(d[n - 1], d[n - 2]);
+      nn_divrem_classical_preinv_c(q1, r1, m + n - 1, d, n, inv, r1[m + n - 1]);
+
+      nn_divapprox_classical_preinv_c(q2, r2, m + n - 1, d, n, inv, r2[m + n - 1]);
+      nn_mullow_classical(t + n - 2, t, d, n - 2, q2, m);
+      nn_sub_m(r2, r2, t, n);
+      if (!nn_equal_m(q1, q2, m)) 
+      {
+         nn_sub1(q2, q2, m, 1);
+         nn_add_m(r2, r2, d, n);
+      }
+
+      result  = nn_equal_m(q1, q2, m);
+      result &= nn_equal_m(r1, r2, n);
+      
+      if (!result) 
+      {
+         bsdnt_printf("inv = %wx\n", inv);
          print_debug(a, m); print_debug(q1, m); print_debug(d, n);  print_debug(s, n);
          print_debug_diff(q1, q2, m);
       }
@@ -232,10 +347,10 @@ int test_mullow_classical(void)
       randoms_of_len(2, ANY, state, &ov, NULL);
       randoms_of_len(m + n, ANY, state, &r1, &r2, NULL);
       
-      nn_s_mul_classical(r1, a, m, b, n);
+      nn_mul_classical(r1, a, m, b, n);
       
       nn_mullow_classical(ov, r2, a, m, b, n);
-      nn_s_mulhigh_classical(r2 + m, a, m, b, n, ov);
+      nn_mulhigh_classical(r2 + m, a, m, b, n, ov);
       
       result = nn_equal_m(r1, r2, m + n);
 
@@ -268,8 +383,8 @@ int test_div_hensel_preinv(void)
       randoms_of_len(m + n, ANY, state, &r1, &q, NULL);
       randoms_of_len(2, ANY, state, &ov, NULL);
       
-      if (m >= n) nn_s_mul_classical(r1, a, m, d, n);
-      else nn_s_mul_classical(r1, d, n, a, m);
+      if (m >= n) nn_mul_classical(r1, a, m, d, n);
+      else nn_mul_classical(r1, d, n, a, m);
 
 	  precompute_hensel_inverse1(&inv, d[0]);
       nn_div_hensel_preinv(ov, q, r1, m + n, d, n, inv);
@@ -323,7 +438,7 @@ int test_div_hensel_preinv(void)
 
       precompute_hensel_inverse1(&inv, d[0]);
       nn_div_hensel_preinv(ov, q1, a1, m, d, n, inv);
-      nn_s_mulhigh_classical(t, q1, m, d, n, ov);
+      nn_mulhigh_classical(t, q1, m, d, n, ov);
       nn_sub(a1 + m, a1 + m, m, t, n);
       nn_div_hensel_preinv(ov, q1 + m, a1 + m, m, d, n, inv);
 
@@ -343,21 +458,127 @@ int test_div_hensel_preinv(void)
    return result;
 }
 
+int test_gcd_lehmer(void)
+{
+   int result = 1;
+   len_t m, n, d1, d2;
+   nn_t a, b, c, g, r1, r2;
+
+   printf("gcd_lehmer...");
+
+   TEST_START(1, ITER) /* test gcd */
+   {
+      randoms_upto(50, ANY, state, &m, NULL);
+      randoms_upto(50, NONZERO, state, &n, &d1, NULL);
+      m += n; /* m >= n */
+
+      randoms_of_len(m + d1, ANY, state, &r1, NULL);
+      randoms_of_len(n + d1, ANY, state, &r2, &g, NULL);
+      randoms_of_len(d1, FULL, state, &c, NULL);
+      randoms_of_len(m, FULL, state, &a, NULL);
+      randoms_of_len(n, FULL, state, &b, NULL);
+      
+      if (m >= d1) nn_mul(r1, a, m, c, d1);
+      else nn_mul(r1, c, d1, a, m);
+      m += d1; if (r1[m - 1] == 0) m--;
+
+      if (n >= d1) nn_mul(r2, b, n, c, d1);
+      else nn_mul(r2, c, d1, b, n);
+      n += d1; if (r2[n - 1] == 0) n--;
+
+      if (m >= n) d2 = nn_gcd_lehmer(g, r1, m, r2, n);
+      else d2 = nn_gcd_lehmer(g, r2, n, r1, m);
+      
+      result = (nn_cmp(g, d2, c, d1) >= 0);
+
+      if (!result) 
+      {
+         print_debug(c, d1);
+         print_debug(g, d2);
+      }
+   } TEST_END;
+
+   return result;
+}
+
+int test_xgcd_lehmer(void)
+{
+   int result = 1;
+   len_t m, n, s1, s2, s3;
+   nn_t a, b, a2, b2, v, g, p, q;
+   word_t ci;
+
+   printf("xgcd_lehmer...");
+
+   TEST_START(1, ITER) /* test g + v*b is divisible by a */
+   {
+      randoms_upto(10, NONZERO, state, &m, NULL);
+      randoms_upto(10, NONZERO, state, &n, NULL);
+      m += n; /* m >= n */
+
+      randoms_of_len(m, FULL, state, &a, &b2, &a2, &v, &g, NULL);
+      randoms_of_len(n, FULL, state, &b, NULL);
+      randoms_of_len(m + n, FULL, state, &p, NULL);
+      randoms_of_len(n + 1, FULL, state, &q, NULL);
+      
+      nn_copy(a2, a, m);
+      nn_copy(b2, b, n);
+
+      s1 = nn_xgcd_lehmer(g, v, a2, m, b2, n);
+      s2 = nn_normalise(v, m);
+      
+      nn_mul(p, v, m, b, n);
+      ci = nn_add_m(p, p, g, s1);
+      nn_add1(p + s1, p + s1, m + n - s1, ci);
+      nn_divrem(q, p, m + n, a, m);
+     
+      s3 = nn_normalise(p, m);
+
+      result = (s3 == 0 && nn_cmp(v, s2, a, m) < 0);
+
+      if (!result) 
+      {
+         printf("FAIL\n");
+         print_debug(a, m); print_debug(b, n); print_debug(v, s2);
+         print_debug(g, s1);
+      }
+   } TEST_END;
+
+   return result;
+}
+
 int test_quadratic(void)
 {
    long pass = 0;
    long fail = 0;
    
    RUN(test_mul_classical);
-   RUN(test_muladd_classical);
    RUN(test_mullow_classical);
+   RUN(test_mulmid_classical);
    RUN(test_divrem_classical_preinv);
    RUN(test_divapprox_classical_preinv);
    RUN(test_div_hensel_preinv);
+   RUN(test_gcd_lehmer);
+   RUN(test_xgcd_lehmer);
    
    printf("%ld of %ld tests pass.\n", pass, pass + fail);
 
    return (fail != 0);
 }
 
+int main(void)
+{
+   int ret = 0;
+   
+   printf("\nTesting nn_quadratic functions:\n");
+   
+   randinit(&state);
+   checkpoint_rand("First Random Word: ");
+
+   ret = test_quadratic();
+
+   randclear(state);
+
+   return ret;
+}
 

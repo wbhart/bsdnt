@@ -28,7 +28,7 @@
   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "../helper.h"
+#include "helper.h"
 #include <stdlib.h>
 #include "internal_rand.h"
 
@@ -47,10 +47,11 @@ typedef struct
 
 #define CTX(c) ((skiss_ctx *)(c))
 
-#define CNG(p)  (p->xcng = WORD(69069) * p->xcng + WORD(123))
-#define XS(p)   (p->xs ^= p->xs << 13, p->xs ^= p->xs >> 17, \
-                  p->xs ^= p->xs << 5)
-#define SUPR(p) ((p->indx < 41265L) ? p->q[p->indx++] : refill(p))
+#define CNG(p)  (CTX(p)->xcng = WORD(69069) * CTX(p)->xcng + WORD(123))
+#define XS(p)   (CTX(p)->xs ^= CTX(p)->xs << 13, CTX(p)->xs ^= CTX(p)->xs >> 17, \
+                  CTX(p)->xs ^= CTX(p)->xs << 5)
+#define SUPR(p) ((CTX(p)->indx < 41265L) ? CTX(p)->q[CTX(p)->indx++] : refill(CTX(p)))
+
 #define KISS(p) (SUPR(p) + CNG(p) + XS(p))
 
 rand_ctx skiss_init(void)
@@ -64,7 +65,7 @@ rand_ctx skiss_init(void)
 	CTX(c)->indx = WORD(41265);
 
    for (i = 0; i < 41265; ++i)
-      CTX(c)->q[i] = (CNG(CTX(c)) + XS(CTX(c)));
+      CTX(c)->q[i] = (CNG(c) + XS(c));
 
    return c;
 }
@@ -96,7 +97,7 @@ word_t refill(rand_ctx c)
 
 word_t skiss_word(rand_ctx c)
 {
-   return  KISS(CTX(c));
+   return  KISS(c);
 }
 
 #elif WORD_BITS == 64
@@ -112,9 +113,10 @@ typedef struct
 
 #define CTX(x) ((skiss_ctx *)(x))
 
-#define CNG(x)  ( (x)->xcng = WORD(6906969069) * (x)->xcng + 123 )
-#define XS(x)   ( (x)->xs ^= (x)->xs << 13, (x)->xs ^= (x)->xs >> 17, (x)->xs ^= (x)->xs << 43 )
-#define SUPR(x) ( (x)->indx < 20632 ? (x)->q[(x)->indx++] : refill((x)) )
+#define CNG(x)  ( CTX(x)->xcng = WORD(6906969069) * CTX(x)->xcng + 123 )
+#define XS(x)   ( CTX(x)->xs ^= CTX(x)->xs << 13, CTX(x)->xs ^= CTX(x)->xs >> 17, CTX(x)->xs ^= CTX(x)->xs << 43 )
+#define SUPR(x) ( CTX(x)->indx < 20632 ? CTX(x)->q[CTX(x)->indx++] : refill(CTX(x)) )
+
 #define KISS(x) ( SUPR(x) + CNG(x) + XS(x) )
 
 word_t refill(rand_ctx c)
@@ -146,7 +148,7 @@ rand_ctx skiss_init(void)
 	CTX(c)->indx = WORD(20632);
 
    for (i = 0 ; i < 20632 ; ++i) 
-	   CTX(c)->q[i] = CNG(CTX(c)) + XS(CTX(c));
+	   CTX(c)->q[i] = CNG(c) + XS(c);
 
    return c; 
 }
@@ -158,7 +160,7 @@ void skiss_clear(rand_ctx c)
 
 word_t skiss_word(rand_ctx c)
 {
-   return  SUPR(CTX(c)) + CNG(CTX(c)) + XS(CTX(c));
+   return  KISS(c);
 }
 
 #endif

@@ -87,3 +87,28 @@
 24-Oct-2011:
 	v0.27 - stopped quadratic division functions rereading inputs
 
+11-Mar-2013:
+	v0.28 - removed MSVC build, cleaned up configure removed _r/s_ 
+                functions, removed muladd functions, switched to simpler
+                division code.
+
+12-Mar-2013:
+	v0.29 - switched to gas assembly format.
+
+12-Mar-2013:
+	v0.30 - Added TMP_INIT/START/ALLOC/ALLOC_BYTES/END.
+
+13-Mar-2013:
+	v0.31 - Added nn_mul_kara, nn_mul_toom33, nn_mul_toom32, nn_mul and
+                nn_mul_m.
+
+23-Mar-2013:
+	v0.32 - Added nn_divapprox_divconquer, nn_divrem_divconquer.
+
+28-Mar-2013:
+	v0.33 - Added nn_mulmid_kara and nn_mullow_kara.
+
+15-Apr-2013:
+	v0.34 - Added nn_div_divconquer, nn_mullow, nn_mullow_m and
+                nn_mullow_kara_m, nn_divrem, nn_div.
+

@@ -1,5 +1,5 @@
 /* 
-  Copyright (C) 2010, William Hart
+  Copyright (C) 2013 William Hart
 
   All rights reserved.
 
@@ -27,34 +27,74 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "../nn.h"
-#include "../test.h"
+#include <time.h>
+#include <math.h>
+#include "nn.h"
+#include "test.h"
+
+#undef ITER
+#define ITER 5000
 
 rand_t state;
 
-#include "t-rand.c"
-#include "t-nn_linear.c"
-#include "t-nn_quadratic.c"
-
-static void checkpoint_rand(char *s)
+void time_mul_toom33(void)
 {
-   printf(s);
-   bsdnt_printf("%wx\n", randword(state));
+   nn_t a, b, r1, r2;
+   len_t size;
+   long count;
+   clock_t t;
+
+   TMP_INIT;
+
+   for (size = 5; size < 2000; size = (long) ceil(size*1.1))
+   {
+      TMP_START;
+      
+      a = TMP_ALLOC(size);
+      b = TMP_ALLOC(size);
+      r1 = TMP_ALLOC(2*size);
+      r2 = TMP_ALLOC(2*size);
+      
+      randoms_of_len(size, ANY, state, &a, NULL);
+      randoms_of_len(size, ANY, state, &b, NULL);
+      
+      printf("size = %ld: ", size);
+
+      t = clock();
+      for (count = 0; count < ITER; count++)
+         nn_mul_classical(r1, a, size, b, size);
+      t = clock() - t;
+
+      printf("classical = %gs, ", ((double) t)/CLOCKS_PER_SEC/ITER);
+
+      t = clock();
+      for (count = 0; count < ITER; count++)
+         nn_mul_kara(r1, a, size, b, size);
+      t = clock() - t;
+
+      printf("kara = %gs, ", ((double) t)/CLOCKS_PER_SEC/ITER);
+
+      t = clock();
+      for (count = 0; count < ITER; count++)
+         nn_mul_toom33(r2, a, size, b, size);
+      t = clock() - t;
+
+      printf("toom33 = %gs\n", ((double) t)/CLOCKS_PER_SEC/ITER);
+     
+      TMP_END;
+   }
 }
 
 int main(void)
 {
-   int ret = 0;
+   printf("\nTiming nn_mul_toom33 vs nn_mul_kara:\n");
    
    randinit(&state);
-   checkpoint_rand("First Random Word: ");
+   
+   time_mul_toom33();
 
-    ret |= test_rand();
-    ret |= test_linear();
-	ret |= test_quadratic();
-
-   checkpoint_rand("Last Random Word: ");
    randclear(state);
 
-   return ret;
+   return 0;
 }
+

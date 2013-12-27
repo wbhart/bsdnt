@@ -1,6 +1,5 @@
 /* 
-  Copyright (C) 2010, William Hart
-  Copyright (C) 2010, Brian Gladman
+  Copyright (C) 2010, 2013 William Hart
 
   All rights reserved.
 
@@ -25,3 +24,25 @@
   OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
+
+#ifndef TUNING_H
+#define TUNING_H
+
+#define MUL_CLASSICAL_CUTOFF 33
+
+#define MUL_KARA_CUTOFF 400
+
+#define MUL_TOOM32_CUTOFF ULONG_MAX /* no fft yet */
+
+#define MUL_TOOM33_CUTOFF ULONG_MAX /* no fft yet */
+
+#define MULMID_CLASSICAL_CUTOFF 80
+
+#define MULLOW_CLASSICAL_CUTOFF 120
+
+#define DIVAPPROX_CLASSICAL_CUTOFF 45
+
+#define DIVREM_CLASSICAL_CUTOFF 80
+
+#endif
+

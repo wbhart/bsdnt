@@ -36,7 +36,14 @@
 #else
 #define REDZONE_WORDS 0
 #endif
+
 #define REDZONE_BYTE 0xA /* byte of data to use in a redzone */
+
+#define checkpoint_rand(s) \
+   do { \
+      printf(s); \
+      bsdnt_printf("%wx\n", randword(state)); \
+   } while (0)
 
 #define TEST_START(XXX, YYY) \
    do { \
@@ -79,7 +86,7 @@ typedef enum
 
 typedef enum
 {
-   ANY, NONZERO, ODD, FULL
+   ANY, NONZERO, ODD, FULL, NORMALISED
 } flag_t;
 
 typedef struct node_t
@@ -89,11 +96,6 @@ typedef struct node_t
    len_t length;
    struct node_t * next;
 } node_t;
-
-/*
-   Send the given error message to stderr.
-*/
-void talker(const char * str);
 
 /*
    Given a NULL terminated list of *pointers* to words, generate 

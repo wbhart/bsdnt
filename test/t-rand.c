@@ -24,10 +24,15 @@
   OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-
+#include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
-#include "../rand/bsdnt_rand.h"
+#include "rand.h"
+#include "nn.h"
+#include "test.h"
 #include "sha1.h"
+
+rand_t state;
 
 #define N_ITER   10000
 #define BUF_SIZE  1000
@@ -71,7 +76,7 @@ int test_rand(void)
         {
             for (j = 0; j < BUF_SIZE; ++j) /* fill a buffer with words */
             {   
-				word_t v = state->word(state->ctx);
+				    word_t v = state->word(state->ctx);
 
                 for (k = 0; k < sizeof(word_t); ++k) /* for each byte in a word */
                 {
@@ -86,7 +91,7 @@ int test_rand(void)
         sha1_end(hash, ctx);
         state->clear(state->ctx);
         
-		if (memcmp(hash, digest[r - 1], SHA1_DIGEST_SIZE)) /* check against a precomputed hash */
+		  if (memcmp(hash, digest[r - 1], SHA1_DIGEST_SIZE)) /* check against a precomputed hash */
         {
             printf("Error in the %s %2d-bit Pseudo Random Number Generator\n", state->name, WORD_BITS);
             fail++;
@@ -99,4 +104,20 @@ int test_rand(void)
 
     printf("%ld of %ld tests pass.\n", pass, pass + fail);
     return (fail != 0);
+}
+
+int main(void)
+{
+   int ret = 0;
+   
+   printf("\nTesting rand functions:\n");
+   
+   randinit(&state);
+   checkpoint_rand("First Random Word: ");
+
+   ret = test_rand();
+   
+   randclear(state);
+
+   return ret;
 }

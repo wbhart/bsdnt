@@ -1,5 +1,5 @@
 /* 
-  Copyright (C) 2010, William Hart
+  Copyright (C) 2010, 2013 William Hart
   Copyright (C) 2010, Brian Gladman
 
   All rights reserved.
@@ -58,14 +58,19 @@ void nn_test_random1(nn_t a, rand_t state, len_t m)
 
 void nn_test_random2(nn_t a, rand_t state, len_t m)
 {
-	nn_t b = malloc(m*sizeof(word_t)); /* TODO: replace with temporary allocation */
+	nn_t b;
+   TMP_INIT;
+   
+   TMP_START;
+
+   b = TMP_ALLOC(m); 
 	
 	nn_test_random1(a, state, m);
 	nn_test_random1(b, state, m);
 
 	nn_sub_m(a, a, b, m);
 
-	free(b);
+	TMP_END;
 }
 
 void nn_test_random(nn_t a, rand_t state, len_t m)
@@ -393,25 +398,6 @@ word_t nn_addmul1_c(nn_t a, nn_src_t b, len_t m, word_t c, word_t ci)
 
 #endif
 
-#ifndef HAVE_ARCH_nn_muladd1_c
-
-word_t nn_muladd1_c(nn_t r, nn_src_t a, nn_src_t b, len_t m, word_t c, word_t ci)
-{
-   dword_t t;
-   long i;
-
-   for (i = 0; i < m; i++)
-   {
-      t = (dword_t) a[i] + (dword_t) b[i] * (dword_t) c + (dword_t) ci;
-      r[i] = (word_t) t;
-      ci = (t >> WORD_BITS);
-   }
-
-   return ci;
-}
-
-#endif
-
 #ifndef HAVE_ARCH_nn_submul1_c
 
 word_t nn_submul1_c(nn_t a, nn_src_t b, len_t m, word_t c, word_t ci)
@@ -456,26 +442,16 @@ word_t nn_divrem1_simple_c(nn_t q, nn_src_t a, len_t m, word_t d, word_t ci)
 #ifndef HAVE_ARCH_nn_divrem1_preinv_c
 
 word_t nn_divrem1_preinv_c(nn_t q, nn_src_t a, len_t m, 
-                            word_t d, preinv1_t inv, word_t ci)
+                            word_t d, preinv1_t dinv, word_t ci)
 {
-   dword_t t;
    long i;
-   word_t norm = inv.norm;
-   word_t dinv = inv.dinv;
    
-   ASSERT(d != 0);
    ASSERT(ci < d);
 
-	d <<= norm;
-	ci <<= norm;
+   for (i = m - 1; i >= 0; --i)
+      divrem21_preinv1(q[i], ci, ci, a[i], d, dinv);
 
-	for( i = m - 1 ; i >= 0 ; --i )
-	{
-		t = (((dword_t) ci) << WORD_BITS) + (((dword_t) a[i]) << norm);
-		divrem21_preinv1(q[i], ci, t, d, dinv);	
-	}
-
-   return (ci >> norm);
+   return ci;
 }
 
 #endif
@@ -557,7 +533,7 @@ word_t nn_mod1_preinv_c(nn_src_t a, len_t m, word_t d,
 
 **********************************************************************/
 
-#ifndef HAVE_ARCH_nn_cmp_c
+#ifndef HAVE_ARCH_nn_cmp_m
 
 int nn_cmp_m(nn_src_t a, nn_src_t b, len_t m)
 {

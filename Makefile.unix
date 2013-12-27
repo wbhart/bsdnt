@@ -37,11 +37,6 @@ QUIET_LINK       = @echo '   ' LINK ' ' $@;
 QUIET_AR         = @echo '   ' AR '   ' $@;
 QUIET_SO         = @echo '   ' SO '   ' $@;
 
-# Assembly
-
-ASFILES = __ASFILES__
-ASOBJS  = $(patsubst %.asm, build/%.o, $(ASFILES))
-
 # FILES
 SOURCES = __SOURCES__
 HEADERS = __HEADERS__
@@ -49,31 +44,38 @@ OBJS = $(patsubst %.c, build/%.o, $(SOURCES))
 
 # TEST FILES
 TSOURCES = __TSOURCES__
-TOBJS = $(patsubst %.c, build/%.o, $(TSOURCES))
 
 TESTS = $(patsubst %.c, build/%, $(TSOURCES)) 
 
 BINARIES = __BINARIES__ $(TESTS)
 
+# PROFILE FILES
+PSOURCES = __PSOURCES__
+
+PROFS = $(patsubst %.c, build/%, $(PSOURCES))
+
 # PHONY SPEC
 .PHONY: all dist
 
 # RULES
-all: $(ASOBJS) $(OBJS) $(BINARIES)
+all: $(OBJS) $(BINARIES)
 
 clean:
-	rm -f $(ASOBJS) $(OBJS) $(BINARIES)
+	rm -f $(OBJS) $(BINARIES)
 	rm -f cpuid
 	rm -f endian
 
 distclean: clean
 	rm -f *arch.h
+	rm -f config.h
 
 check: $(OBJS) $(BINARIES)
 	$(foreach prog, $(TESTS), $(prog);)	
 
 strip:
 	strip $(BINARIES)
+
+profile: $(OBJS) $(PROFS)
 
 build/arch/%.o: %.asm
 	$(QUIET_AS)$(AS)  $(AFLAGS) $< -o $@
@@ -84,11 +86,9 @@ build/%.o: %.c
 build/test/%.o: %.c
 	$(QUIET_CC)$(CC) $(CFLAGS) $(INCS) -c $< -o $@
 
-build/test/%_all: $(OBJS) $(TOBJS)
-	$(QUIET_LINK)$(CC) $(CFLAGS) $(INCS) $(OBJS) $(TOBJS) -o $@
+build/profile/%: $(OBJS) 
+	$(QUIET_LINK)$(CC) $(CFLAGS) $(INCS) profile/$(@F).c $(OBJS) -o $@ -lm
 
-# ---------------------------------------------------------
-# BUILD OBJECTS from unixbuild.map (./configure to gen)
-# ---------------------------------------------------------
-
+build/test/%: $(OBJS)
+	$(QUIET_LINK)$(CC) $(CFLAGS) $(INCS) test/$(@F).c $(OBJS) -o $@ -lm
 

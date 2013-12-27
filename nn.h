@@ -1,5 +1,5 @@
 /* 
-  Copyright (C) 2010, William Hart
+  Copyright (C) 2010, 2013 William Hart
 
   All rights reserved.
 
@@ -34,7 +34,14 @@
 #include <malloc.h>
 
 #include "helper.h"
-#include "rand/bsdnt_rand.h"
+#include "rand.h"
+
+#define NN_SWAP(a, b) \
+   do {               \
+      nn_t __t = a;   \
+      a = b;          \
+      b = __t;        \
+   } while (0)
 
 /**********************************************************************
  
@@ -43,7 +50,7 @@
 **********************************************************************/
 
 /*
-   Set the first m limbs of a to random words.
+   Set the first m words of a to random words.
 */
 void nn_random(nn_t a, rand_t state, len_t m);
 
@@ -72,7 +79,7 @@ void nn_test_random(nn_t a, rand_t state, len_t m);
 
 /*
    Allocates an array of m words and returns it. Despite the
-   name, the limbs are not initialised to zero.
+   name, the words are not initialised to zero.
 */
 static inline
 nn_t nn_init(len_t m)
@@ -88,7 +95,7 @@ nn_t nn_init(len_t m)
 static inline
 void nn_clear(nn_t a)
 {
-   if (a) free(a);
+   free(a);
 }
 
 /**********************************************************************
@@ -119,6 +126,17 @@ void nn_printx_short(nn_src_t a, len_t m);
 */
 void nn_printx_diff(nn_src_t a, nn_src_t b, len_t m);
 
+/*
+   Return a string representation of {a, m} in decimal. The user is
+   responsible for freeing the string.
+*/
+char * nn_get_str(nn_t a, len_t m);
+
+/*
+   Print {a, m} in decimal. If m == 0 then 0 is printed.
+*/
+void nn_print(nn_t a, len_t m);
+
 /**********************************************************************
  
     Basic manipulation
@@ -126,7 +144,7 @@ void nn_printx_diff(nn_src_t a, nn_src_t b, len_t m);
 **********************************************************************/
 
 /*
-   Copy the m limbs at b to a. Aliasing is allowed, but is 
+   Copy the m words at b to a. Aliasing is allowed, but is 
    not currently dealt with specially, i.e. the data is 
    actually copied.
 */
@@ -140,7 +158,7 @@ void nn_copy(nn_t a, nn_src_t b, len_t m)
 }
 
 /*
-   Set the m limbs at b to 0.
+   Set the m words at b to 0.
 */
 static inline
 void nn_zero(nn_t a, len_t m)
@@ -154,7 +172,7 @@ void nn_zero(nn_t a, len_t m)
 /*
    The pair {a, m} is said to be normalised if either m is
    zero, or a[m-1] is non-zero. In other words, {a, m} has
-   no leading zero limbs. This function normalises {a, m}
+   no leading zero words. This function normalises {a, m}
    by returning the largest value m0 <= m for which {a, m0}
    is normalised.
 */
@@ -216,62 +234,16 @@ word_t nn_neg_c(nn_t a, nn_src_t b, len_t m, word_t ci);
     nn_neg_c(a, b, m, 0)
 
 /*
-   Set a to the twos complement negation of b, where b is m words
-   in length. The word ci is a carry-in. It is effectively subtracted
-   from the result. The borrow is written out to a[m] and returned. 
-   The carry-in can be at most 1.
-*/
-static inline
-word_t nn_s_neg_c(nn_t a, nn_src_t b, len_t m, word_t ci)
-{
-   return (a[m] = -nn_neg_c(a, b, m, ci));
-}
-
-/*
-   Set a to the twos complement negation of b, where b is m words
-   in length. The borrow is written out to a[m].
-*/
-#define nn_s_neg(a, b, m) \
-   nn_s_neg_c(a, b, m, 0)
-
-/*
    Set a = b + c where b is m words in length, and c is a word. 
    Return any carry out. 
 */
 word_t nn_add1(nn_t a, nn_src_t b, len_t m, word_t c);
 
 /*
-   Set a = b + c where b is m words in length, and c is a word. 
-   Write any carry out to a[m]. If a and b are aliased, the 
-   carry out is added to a[m], otherwise it is written to a[m].
-*/
-#define nn_s_add1(a, b, m, c) \
-   do { \
-      if ((a) == (b)) \
-         (a)[m] += nn_add1(a, b, m, c); \
-      else \
-         (a)[m] = nn_add1(a, b, m, c); \
-   } while (0)
-
-/*
    Set a = b - c where b is m words in length, and c is a word. 
    Return any borrow out. 
 */
 word_t nn_sub1(nn_t a, nn_src_t b, len_t m, word_t c);
-
-/*
-   Set a = b - c where b is m words in length, and c is a word. 
-   Write any borrow out to a[m]. If a and b are aliased, the 
-   borrow out is subtracted from a[m], otherwise it is written 
-   to a[m].
-*/
-#define nn_s_sub1(a, b, m, c) \
-   do { \
-      if ((a) == (b)) \
-         (a)[m] -= nn_sub1(a, b, m, c); \
-      else \
-         (a)[m] = -nn_sub1(a, b, m, c); \
-   } while (0)
 
 /*
    Set a = b + c + ci where b and c are both m words in length,
@@ -288,28 +260,6 @@ word_t nn_add_mc(nn_t a, nn_src_t b, nn_src_t c, len_t m, word_t ci);
    nn_add_mc(a, b, c, m, (word_t) 0)
 
 /*
-   Set a = b + c + ci where b and c are both m words in length, 
-   writing the carry to a. If a and b are aliased, the carry is 
-   added to a[m], otherwise a[m] is set to the carry. The carry-in 
-   may be at most 1.
-*/
-#define nn_s_add_mc(a, b, c, m, ci) \
-   do { \
-      if ((a) == (b)) \
-         (a)[m] += nn_add_mc(a, b, c, m, ci); \
-      else \
-         (a)[m] = nn_add_mc(a, b, c, m, ci); \
-   } while (0)
-
-/*
-   Set a = b + c where b and c are both m words in length, 
-   writing the carry to a. If a and b are aliased, the carry is 
-   added to a[m], otherwise a[m] is set to the carry.
-*/
-#define nn_s_add_m(a, b, c, m) \
-   nn_s_add_mc(a, b, c, m, (word_t) 0)
-
-/*
    Set a = b - c - bi where b and c are both m words in length,
    bi is a "borrow". Return any borrow. The borrow-in may be at
    most 1.
@@ -322,28 +272,6 @@ word_t nn_sub_mc(nn_t a, nn_src_t b, nn_src_t c, len_t m, word_t bi);
 */
 #define nn_sub_m(a, b, c, m) \
    nn_sub_mc(a, b, c, m, (word_t) 0)
-
-/*
-   Set a = b - c - bi where b and c are both m words in length, 
-   writing the borrow to a. If a and b are aliased, the boorow is 
-   subtracted from a[m], otherwise a[m] is set to the borrow. The 
-   borrow-in may be at most 1.
-*/
-#define nn_s_sub_mc(a, b, c, m, bi) \
-   do { \
-      if ((a) == (b)) \
-         (a)[m] -= nn_sub_mc(a, b, c, m, bi); \
-      else \
-         (a)[m] = -nn_sub_mc(a, b, c, m, bi); \
-   } while (0)
-
-/*
-   Set a = b - c where b and c are both m words in length, 
-   writing the borrow to a. If a and b are aliased, the borrow is 
-   subtracted from a[m], otherwise a[m] is set to the borrow.
-*/
-#define nn_s_sub_m(a, b, c, m) \
-   nn_s_sub_mc(a, b, c, m, (word_t) 0)
 
 /*
    Set a = b + c + ci where b is bm words, c is cm words in length,
@@ -366,29 +294,6 @@ word_t nn_add_c(nn_t a, nn_src_t b, len_t bm,
    nn_add_c(a, b, bm, c, cm, (word_t) 0)
 
 /*
-   Set a = b + c + ci where b is bm words, c is cm words in length,
-   bm >= cm and ci is a "carry in". We write the carry out to a[bm].
-   If a and b are aliased the carry out is added to a[bm], otherwise
-   it is written there. The carry-in may be at most 1.
-*/
-#define nn_s_add_c(a, b, bm, c, cm, ci) \
-   do { \
-      if ((a) == (b)) \
-         (a)[bm] += nn_add_c(a, b, bm, c, cm, ci); \
-      else \
-         (a)[bm] = nn_add_c(a, b, bm, c, cm, ci); \
-   } while (0)
-
-/*
-   Set a = b + c + ci where b is bm words, c is cm words in length,
-   and bm >= cm. We write the carry out to a[bm]. If a and b are 
-   aliased the carry out is added to a[bm], otherwise it is written 
-   there.
-*/
-#define nn_s_add(a, b, bm, c, cm) \
-   nn_s_add_c(a, b, bm, c, cm, (word_t) 0)
-
-/*
    Set a = b - c - ci where b is bm words, c is cm words in length,
    bm >= cm and ci is a "borrow in". We return any borrow out. The
    borrow-in may be at most 1.
@@ -409,29 +314,6 @@ word_t nn_sub_c(nn_t a, nn_src_t b, len_t bm,
    nn_sub_c(a, b, bm, c, cm, (word_t) 0)
 
 /*
-   Set a = b - c - ci where b is bm words, c is cm words in length,
-   bm >= cm and ci is a "borrow in". We write the borrow out to a[bm].
-   If a and b are aliased the borrow out is subtracted from a[bm], 
-   otherwise it is written there. The borrow-in may be at most 1.
-*/
-#define nn_s_sub_c(a, b, bm, c, cm, ci) \
-   do { \
-      if ((a) == (b)) \
-         (a)[bm] -= nn_sub_c(a, b, bm, c, cm, ci); \
-      else \
-         (a)[bm] = -nn_sub_c(a, b, bm, c, cm, ci); \
-   } while (0)
-
-/*
-   Set a = b - c - ci where b is bm words, c is cm words in length,
-   and bm >= cm. We write the borrow out to a[bm]. If a and b are 
-   aliased the borrow out is subtracted from a[bm], otherwise it is 
-   written there.
-*/
-#define nn_s_sub(a, b, bm, c, cm) \
-   nn_s_sub_c(a, b, bm, c, cm, (word_t) 0)
-
-/*
    Set a = (b << bits) + ci where b is m words in length,
    ci is a "carry in". Return any carry out. Assumes 0 <= bits
    < WORD_BITS. Assumes ci is not more than the given number of 
@@ -447,28 +329,9 @@ word_t nn_shl_c(nn_t a, nn_src_t b, len_t m, bits_t bits, word_t ci);
    nn_shl_c(a, b, m, bits, (word_t) 0)
 
 /*
-   Set a = (b << bits) + ci where b is m words in length, ci is
-   a "carry in", and write the carry out to a[m] and return it. 
-   Assumes 0 <= bits < WORD_BITS. Assumes ci is not more than the 
-   given number of bits.
-*/
-static inline
-word_t nn_s_shl_c(nn_t a, nn_src_t b, len_t m, bits_t bits, word_t ci)
-{
-   return (a[m] = nn_shl_c(a, b, m, bits, ci));
-}
-
-/*
-   Set a = (b << bits) where b is m words in length, writing the 
-   carry out to a[m]. Assumes 0 <= bits < WORD_BITS.
-*/
-#define nn_s_shl(a, b, m, bits) \
-   nn_s_shl_c(a, b, m, bits, (word_t) 0)
-
-/*
    Set a = (b >> bits) + ci*B^(m - 1) where b is m words 
    in length, ci is a "carry in". Return any carry out from the low
-   end. Assumes 0 <= bits < WORD_BITS. Assumes the at most the top 
+   end. Assumes 0 <= bits < WORD_BITS. Assumes at most the top 
    "bits" bits of ci are nonzero.
 */
 word_t nn_shr_c(nn_t a, nn_src_t b, len_t m, bits_t bits, word_t ci);
@@ -479,20 +342,6 @@ word_t nn_shr_c(nn_t a, nn_src_t b, len_t m, bits_t bits, word_t ci);
 */
 #define nn_shr(a, b, m, bits) \
    nn_shr_c(a, b, m, bits, (word_t) 0)
-
-/*
-   Set a = (b >> bits) + ci*B^(m - 1) where b is m words 
-   in length, and ci is a[m]*2^(WORD_BITS - bits). Assumes 0 <= bits < 
-   WORD_BITS. Assumes at most the top "bits" bits of ci are nonzero.
-*/
-static inline
-word_t nn_r_shr(nn_t a, nn_src_t b, len_t m, bits_t bits)
-{
-   if (bits)
-      return nn_shr_c(a, b, m, bits, (b)[m] << (WORD_BITS - (bits))); \
-   else
-      return nn_shr_c(a, b, m, bits, (word_t) 0); \
-}
 
 /*
    Set a = b * c + ci where b is m words in length, c is a word and
@@ -508,23 +357,6 @@ word_t nn_mul1_c(nn_t a, nn_src_t b, len_t m, word_t c, word_t ci);
    nn_mul1_c(a, b, m, c, (word_t) 0)
 
 /*
-   Set a = b * c + ci where b is m words in length, c is a word and
-   ci is a "carry in". Write any carry out to a[m] and return it.
-*/
-static inline
-word_t nn_s_mul1_c(nn_t a, nn_src_t b, len_t m, word_t c, word_t ci)
-{
-   return (a[m] = nn_mul1_c(a, b, m, c, ci)); 
-}
-
-/*
-   Set a = b * c where b is m words in length and c is a word.
-   Write any carry out to a[m]. 
-*/
-#define nn_s_mul1(a, b, m, c) \
-   nn_s_mul1_c(a, b, m, c, (word_t) 0)
-
-/*
    Set a = a + b * c + ci where a and b are m words in length, c 
    is a word and ci is a "carry in". The carry out is returned. 
 */
@@ -536,57 +368,6 @@ word_t nn_addmul1_c(nn_t a, nn_src_t b, len_t m, word_t c, word_t ci);
 */
 #define nn_addmul1(a, b, m, c) \
    nn_addmul1_c(a, b, m, c, (word_t) 0)
-
-/*
-   Set a = a + b * c + ci where a and b are m words in length, c 
-   is a word and ci is a "carry in". The carry out is added to
-   a[m]. 
-*/
-#define nn_s_addmul1_c(a, b, m, c, ci) \
-   do { \
-      (a)[m] += nn_addmul1_c(a, b, m, c, ci); \
-   } while (0)
-
-/*
-   Set a = a + b * c where a and b are m words in length and c 
-   is a word. The carry out is added to a[m].  
-*/
-#define nn_s_addmul1(a, b, m, c) \
-   nn_s_addmul1_c(a, b, m, c, (word_t) 0)
-
-/*
-   Set r = a + b * c + ci where a and b are m words in length, c 
-   is a word and ci is a "carry in". The carry out is returned. 
-*/
-word_t nn_muladd1_c(nn_t r, nn_src_t a, nn_src_t b, len_t m, word_t c, word_t ci);
-
-/*
-   Set r = a + b * c where a and b are m words in length, and c 
-   is a word. The carry out is returned. 
-*/
-#define nn_muladd1(r, a, b, m, c) \
-   nn_muladd1_c(r, a, b, m, c, (word_t) 0)
-
-/*
-   Set r = a + b * c + ci where a and b are m words in length, c 
-   is a word and ci is a "carry in". The carry out is added to
-   a[m] if r aliases a, otherwise it is written to r[m]. 
-*/
-#define nn_s_muladd1_c(r, a, b, m, c, ci) \
-   do { \
-      if ((r) == (a)) \
-         (a)[m] += nn_addmul1_c(a, b, m, c, ci); \
-      else \
-         (r)[m] = nn_muladd1_c(r, a, b, m, c, ci); \
-   } while (0)
-
-/*
-   Set r = a + b * c where a and b are m words in length and c 
-   is a word. The carry out is added to a[m] if r aliases a, 
-   otherwise it is written to r[m].   
-*/
-#define nn_s_muladd1(r, a, b, m, c) \
-   nn_s_muladd1_c(r, a, b, m, c, (word_t) 0)
 
 /*
    Set a = a - b * c - ci where a and b are m words in length, c 
@@ -602,33 +383,16 @@ word_t nn_submul1_c(nn_t a, nn_src_t b, len_t m, word_t c, word_t ci);
    nn_submul1_c(a, b, m, c, (word_t) 0)
 
 /*
-   Set a = a - b * c - ci where a and b are m words in length, c 
-   is a word and ci is a "borrow in". The borrow out is subtracted
-   from a[m]. 
-*/
-#define nn_s_submul1_c(a, b, m, c, ci) \
-   do { \
-      (a)[m] -= nn_submul1_c(a, b, m, c, ci); \
-   } while (0)
-
-/*
-   Set a = a - b * c where a and b are m words in length and c 
-   is a word. The borrow out is subtracted from a[m].  
-*/
-#define nn_s_submul1(a, b, m, c) \
-   nn_s_submul1_c(a, b, m, c, (word_t) 0)
-
-/*
    Set q = (ci*B^m + a) / d and return the remainder, where a is m 
    words in length, d is a word and ci is a "carry-in" which must be
-   reduced mod d. The quotient q requires m limbs of space.  An 
+   reduced mod d. The quotient q requires m words of space.  An 
    exception will result if d is 0.
 */
 word_t nn_divrem1_simple_c(nn_t q, nn_src_t a, len_t m, word_t d, word_t ci);
 
 /*
    Set q = a / d and return the remainder, where a is m words in 
-   length and d is a word. The quotient q requires m limbs of space. 
+   length and d is a word. The quotient q requires m words of space. 
    An exception will result if d is 0.
 */
 #define nn_divrem1_simple(q, a, m, d) \
@@ -636,10 +400,11 @@ word_t nn_divrem1_simple_c(nn_t q, nn_src_t a, len_t m, word_t d, word_t ci);
 
 /*
    Set q = (ci*B^m + a) / d and return the remainder, where a is m 
-   words in length, d is a word and ci is a "carry-in" which must be
-   reduced mod d. The quotient q requires m limbs of space.  An 
-   exception will result if d is 0. Requires that inv is a precomputed 
-   inverse of d computed by the function precompute_inverse1. 
+   words in length, d is a word and ci is a "carry-in" which must 
+   be reduced mod d. The quotient q requires m words of space.  
+   Requires that inv is a precomputed inverse of d computed by the 
+   function precompute_inverse1. Also requires that d is normalised, 
+   i.e with most significant bit set.
 */
 word_t nn_divrem1_preinv_c(nn_t q, nn_src_t a, len_t m, 
                             word_t d, preinv1_t inv, word_t ci);
@@ -687,7 +452,7 @@ word_t nn_mod1_preinv_c(nn_src_t a, len_t m, word_t d,
 **********************************************************************/
 
 /* 
-   Return 1 if the m limbs at a match the n limbs at b,
+   Return 1 if the m words at a match the n words at b,
    otherwise return 0.
 */
 static inline
@@ -702,8 +467,8 @@ int nn_equal_m(nn_src_t a, nn_src_t b, len_t m)
 }
 
 /* 
-   Return 1 if am == bm and the am limbs at a match the am 
-   limbs at b, otherwise return 0.
+   Return 1 if am == bm and the am words at a match the am 
+   words at b, otherwise return 0.
 */
 static inline
 int nn_equal(nn_src_t a, len_t am, nn_src_t b, len_t bm)
@@ -755,6 +520,52 @@ void nn_not(nn_t a, nn_src_t b, len_t m)
       a[i] = ~b[i];
 }
 
+
+/**********************************************************************
+ 
+    Internal helper functions
+
+**********************************************************************/
+
+/*
+   Let S = mulmid(a, b1 + b2) and T = mulmid(a, b1) + mulmid(a, b2), 
+   where a is of length 2*n - 1 and b1 and b2 are of length n. This 
+   function returns T - S. The sum of b1 and b2 is returned in 
+   {r, n}. Any carry out is returned by the function. We require 
+   n >= 2.
+
+*/
+word_t _nn_mulmid_add_rfix_m(nn_t r, nn_t ov, nn_t p,
+                      nn_src_t a, nn_src_t b1, nn_src_t b2, len_t n);
+
+/*
+   Let S = mulmid(a, b1 - b2) and T = mulmid(a, b1) - mulmid(a, b2), 
+   where a is of length 2*n - 1 and b1 and b2 are of length n. This 
+   function returns T - S. The sum of b1 and b2 is returned in 
+   {r, n}. Any borrow out is returned by the function. We require 
+   n >= 2.
+
+*/
+word_t _nn_mulmid_sub_rfix_m(nn_t r, nn_t ov, nn_t p,
+                      nn_src_t a, nn_src_t b1, nn_src_t b2, len_t n);
+
+/*
+   Let S = mulmid(a1 + a2, b) and T = mulmid(a1, b) + mulmid(a2, b), 
+   where a1, a2 are of length 2*n - 1 and b is of length n. This 
+   function returns T - S. The sum of a1 and a2 is returned in 
+   {r, 2*n - 1}. Any carry out is returned by the function. We 
+   require n >= 2.
+*/
+word_t _nn_mulmid_add_lfix_m(nn_t r, nn_t ov, nn_t p,
+             nn_src_t a1, nn_src_t a2, nn_src_t b, len_t n);
+
+/*
+   Set sl words of q to ~WORD(0) and subtract 
+   sum_{i = 0)^{s - 1} q[i]*{d + s - i - 1, i + 2} from a.
+   Return a[2].
+*/
+word_t _nn_divapprox_helper(nn_t q, nn_t a, nn_src_t d, len_t s);
+
 /**********************************************************************
  
     Quadratic arithmetic functions
@@ -762,41 +573,11 @@ void nn_not(nn_t a, nn_src_t b, len_t m)
 **********************************************************************/
 
 /*
-   Set {r, m1 + m2 - 1} = {a, m1} * {b, m2} and return any carry-out. 
+   Set {r, m1 + m2} = {a, m1} * {b, m2}. 
    The output r may not alias either of the inputs a or b. We require 
-   m1 >= m2 > 0.
+   m1, m2 > 0.
 */
-word_t nn_mul_classical(nn_t r, nn_src_t a, len_t m1, nn_src_t b, len_t m2);
-
-/*
-   Set {r, m1 + m2 - 1} = {a, m1} * {b, m2} and write any carry-out. 
-   The output r may not alias either of the inputs a or b. We require 
-   m1 >= m2 > 0.
-*/
-#define nn_s_mul_classical(r, a, m1, b, m2) \
-   do { \
-      (r)[(m1) + (m2) - 1] = nn_mul_classical(r, a, m1, b, m2); \
-   } while (0)
-
-/*
-   Set {r, m1 + m2 - 1} = {a, m1} + {b, m1} * {c, m2} and return any 
-   carry-out. The output r may not alias either of the inputs b or c, 
-   but a may alias with r as long as the requisite space is available. 
-   We require m1 >= m2 > 0.
-*/
-word_t nn_muladd_classical(nn_t r, nn_src_t a, nn_src_t b, 
-                                     len_t m1, nn_src_t c, len_t m2);
-
-/*
-   Set {r, m1 + m2 - 1} = {a, m1} + {b, m1} * {c, m2} and write any 
-   carry-out. The output r may not alias either of the inputs b or c, 
-   but a may alias with r as long as the requisite space is available. 
-   We require m1 >= m2 > 0.
-*/
-#define nn_s_muladd_classical(r, a, b, m1, c, m2) \
-   do { \
-      (r)[(m1) + (m2) - 1] = nn_muladd_classical(r, a, b, m1, c, m2); \
-   } while (0)
+void nn_mul_classical(nn_t r, nn_src_t a, len_t m1, nn_src_t b, len_t m2);
 
 /*
    Set ov*B^m1 + {r, m1} to sum_{i + j < m1} a[i]*b[j]*B^{i + j}. In 
@@ -812,72 +593,252 @@ void nn_mullow_classical(nn_t ov, nn_t r, nn_src_t a, len_t m1,
 /*
    Set r to ov + sum_{i + j > m1} a[i]*b[j]*B^{i + j - m1}. In other
    words, this returns the high part of the multiplication {a, m1}*
-   {b, m2}. The output requires m2 - 1 words and any carry will be 
-   returned in a carry-out. We require m1 >= m2 > 0. If ov from mullow
-   is passed to mulhigh then a mullow followed by a mulhigh is the same
-   as a full mul. The output r may not alias either a or b.
+   {b, m2}. The output requires m2 words. We require m1 >= m2 > 0. 
+   If ov from mullow is passed to mulhigh then a mullow followed by a 
+   mulhigh is the same as a full mul. The output r may not alias 
+   either a or b.
 */
-   word_t nn_mulhigh_classical(nn_t r, nn_src_t a, len_t m1, 
+void nn_mulhigh_classical(nn_t r, nn_src_t a, len_t m1, 
                                        nn_src_t b, len_t m2, nn_t ov);
 
 /*
-   As per nn_mullhigh_classical except the carry-out is written at
-   word r[m2 - 1].
+   Set ov, {p, m - n + 1} to the middle product of {a, m} and {b, n}, i.e.
+   set p to sum_{m - 1 >= i + j >= n - 1} a[i]*b[j]*B^{i + j - n + 1}, with 
+   overflows accumulating in the two word ov. We require m + 1 >= n >= 2.
+   The output p may not alias either a or b.
 */
-#define nn_s_mulhigh_classical(r, a, m1, b, m2, ov) \
-   do { \
-      (r)[(m2) - 1] = nn_mulhigh_classical(r, a, m1, b, m2, ov); \
-   } while (0)
+void nn_mulmid_classical(nn_t ov, nn_t p,
+                            nn_src_t a, len_t m, nn_src_t b, len_t n);
+
 
 /*
    Given a of length m and d of length n with a carry-in ci, compute
    the quotient of ci*B^m + a by d, and leave the remainder in the bottom 
-   n limbs of a. Requires m >= n > 0. The precomputed inverse inv should 
-   be computed from the leading two limbs of d (or the leading limb and 0 
-   if n is 1) using precompute_inverse_lead. If a_n is the leading n limbs 
-   of a, then ci*B^m + a_n must be less than B * d. The quotient
-   must have space for m - n + 1 limbs. The quotient may not alias d.
+   n words of a. Requires m >= n > 0. The precomputed inverse inv should 
+   be computed from the leading two words of d (or the leading word and 0 
+   if n is 1) using precompute_inverse_lead. If a_n is the leading n words 
+   of a, then ci*B^n + a_n must be less than B * d. The quotient
+   must have space for m - n + 1 words. The quotient may not alias a or d
+   and a must not alias d. The leading word of d must be normalised, i.e. 
+   d[n - 1] >= B/2.
 */
 void nn_divrem_classical_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d, 
-                                     len_t n, preinv1_2_t inv, word_t ci);
+                                     len_t n, preinv2_t inv, word_t ci);
 
 /*
-   As per nn_divrem_classical_preinv_c except that the carry-in is read 
-   from a[m]. The quotient will therefore be {a, m + 1} by {d, n}.
+   As per nn_divrem_classical_preinv_c however only a partial remainder is
+   computed. It is equal to a - sum_{i + j >= m - s + 1} q_i*d_j where q_i
+   are the s = m - n + 1 words of the quotient and d_j are the words of d.
+   If q1 is the actual quotient and q2 the computed quotient, then we have
+   q1 + 1 >= q2 >= q1 - 1. The partial remainder is stored in the first 
+   m - s + 1 words of a, the other words being destroyed. 
+   We require that q may not alias a or d and a must not alias d.
+   Due to successive truncation, it is possible that the partial remainder 
+   may exceed d, in which case the extra word is returned by this function.
+   The leading word of d must be normalised, i.e. d[n - 1] >= B/2.
 */
-#define nn_r_divrem_classical_preinv(q, a, m, d, n, inv) \
-   do { \
-      nn_divrem_classical_preinv_c(q, a, m, d, n, inv, (a)[m]); \
-   } while (0)
-
-/*
-   As per nn_divrem_classical_preinv_c, however no remainder is computed
-   and the quotient is either correct or one too large, i.e. |a - q*d| < d.
-   The dividend a is destroyed and may not alias q.
-*/
-void nn_divapprox_classical_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d, 
-                                  len_t n, preinv1_2_t inv, word_t ci);
-
-/*
-   As per nn_divapprox_classical_preinv_c except that the carry-in is read 
-   from a[m]. The approx. quotient will therefore be {a, m + 1} by {d, n}.
-*/
-#define nn_r_divapprox_classical_preinv(q, a, m, d, n, inv) \
-   do { \
-      nn_divapprox_classical_preinv_c(q, a, m, d, n, inv, (a)[m]); \
-   } while (0)
+word_t nn_divapprox_classical_preinv_c(nn_t q, nn_t a, len_t m, 
+                         nn_src_t d,len_t n, preinv2_t inv, word_t ci);
 
 /*
    Perform Hensel division of {a, m} by {d, n} with the quotient mod B^m
    being returned in q and any overflow from mullow(q, d) being returned
    in ov. We require m >= n > 0. The quotient q requires m words of space
-   and ov requires 2 words. The dividend, a, is destroyed and may not alias
-   q. We also require that q does not alias d. The divisor d must be odd 
-   and inv must be a precomputed inverse of d[0] computed with
+   and ov requires 2 words. The dividend, a, is destroyed. We also require 
+   that q does not alias a or d and a must not alias d. The divisor d must 
+   be odd and inv must be a precomputed inverse of d[0] computed with 
    precompute_hensel_inverse1.
 */
 void nn_div_hensel_preinv(nn_t ov, nn_t q, nn_t a, len_t m, 
                             nn_src_t d, len_t n, hensel_preinv1_t inv);
+
+/*
+   Compute the gcd g of {a, m} and {b, n}. We assume m >= n > 0. The value
+   g must have enough space for m words, but the actual number used is
+   returned by the function.
+*/
+len_t nn_gcd_lehmer(nn_t g, nn_t a, len_t m, nn_t b, len_t n);
+
+/*
+   As per nn_gcd_lehmer except that an additonal value v is computed
+   such that u' = g + bv is divisible by a. If u = u'/a then the identity
+   ua - bv = g is satisfied. The value v computed will be reduced modulo
+   a. We require v to have enough space for m words.
+*/
+len_t nn_xgcd_lehmer(nn_t g, nn_t v, nn_t a, len_t m, nn_t b, len_t n);
+
+
+/**********************************************************************
+ 
+    Subquadratic arithmetic functions
+
+**********************************************************************/
+
+/*
+   Perform Karatsuba multiplication of {a, m}, {b, n}.
+   
+   Assumes n > 1 and m >= n >= (m + 1)/2
+   No overlap between src and dst
+ 
+   Algorithm: 
+      z = ah*bh*B^2l + ((ah + al)*(bh + bl) - ah*bh - al*bl)*B^l + al*bl
+*/
+void nn_mul_kara(nn_t p, nn_src_t a, len_t m, nn_src_t b, len_t n);
+
+/*
+   Perform Toom-3 multiplication of {a, m}, {b, n}.
+   
+   Assumes n > 2 and m >= n > 2*((m + 2)/3)
+   No overlap between src and dst
+ 
+   Algorithm: 
+      + Split a and b into 3 parts of lengths m3, m3, h1 and m3, m3, h2
+        respectively, where m3 = (m + 2)/3
+      + Evaluate split a and b at 1, 2, 4, 0, oo
+      + Pointwise multiplication
+      + Interpolate 5 part result
+      + Recombine 5 parts into one result by evaluation at B^m3
+*/
+void nn_mul_toom33(nn_t p, nn_src_t a, len_t m, nn_src_t b, len_t n);
+
+/*
+   Perform Toom-3,2 multiplication of {a, m}, {b, n}.
+   
+   Assumes n > 4 and 2*((m + 2)/3) >= n > (m + 2)/3
+   No overlap between src and dst
+ 
+   Algorithm: 
+      + Split a into 3 parts and b into two parts of lengths m3, m3, h1 and 
+        m3, h2 respectively, where m3 = (m + 2)/3
+      + Evaluate split a and b at 1, 2, 0, oo
+      + Pointwise multiplication
+      + Interpolate 4 part result
+      + Recombine 4 parts into one result by evaluation at B^m3
+*/
+void nn_mul_toom32(nn_t p, nn_src_t a, len_t m, nn_src_t b, len_t n);
+
+/*
+   As per nn_mulmid_classical, except that we require m >= 2*n - 1.
+*/
+void nn_mulmid_kara(nn_t ov, nn_t p, nn_src_t a, len_t m, nn_src_t b, len_t n);
+
+/*
+   As per nn_mullow_classical, except that m = n and n >= 2.
+*/
+void nn_mullow_kara_m(nn_t ov, nn_t p, nn_src_t a, nn_src_t b, len_t n);
+
+/*
+   As per nn_mullow_classical.
+*/
+void nn_mullow_kara(nn_t ov, nn_t p, nn_src_t a, len_t m, nn_src_t b, len_t n);
+
+/*
+   As per nn_divrem_classical_preinv_c however only a partial remainder is
+   computed and we require n >= 2. The partial remainder is equal to 
+   a - sum_{i + j >= m - s - 1} q_i*d_j*B^{i+j} where the q_i are the 
+   s = m - n + 1 words of the quotient and d_j are the words of d. 
+   If q1 is the actual quotient and q2 the computed quotient, then we have 
+   q1 + 1 >= q2 >= q1 - 1. The partial remainder is stored in the low 
+   m - s + 1 words of a, the other words being destroyed. Due to successive 
+   truncation, it is possible that the partial remainder may exceed d, in 
+   which case the extra word is returned by this function.
+*/
+word_t nn_divapprox_divconquer_preinv_c(nn_t q, nn_t a, len_t m, 
+                     nn_src_t d, len_t n, preinv2_t dinv, word_t ci);
+
+/*
+   As per nn_divrem_classical_preinv_c except that n >= 2.
+*/
+void nn_divrem_divconquer_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d, 
+                                  len_t n, preinv2_t dinv, word_t ci);
+
+/*
+   As per nn_divrem_classical_preinv_c but returning quotient only and we
+   require n >= 2. The value of a is destroyed.
+*/
+void nn_div_divconquer_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d, 
+                                        len_t n, preinv2_t dinv, word_t ci);
+
+/**********************************************************************
+ 
+    Tuned (best-of-breed) arithmetic functions
+
+**********************************************************************/
+
+/*
+   Set {p, 2*m} = {a, m} * {b, m}. 
+   The output p may not alias either of the inputs a or b. We require 
+   m > 0.
+*/
+void nn_mul_m(nn_t p, nn_src_t a, nn_src_t b, len_t m);
+
+/*
+   Set {p, m + n} = {a, m} * {b, n}. 
+   The output p may not alias either of the inputs a or b. We require 
+   m, n > 0.
+*/
+void nn_mul(nn_t p, nn_src_t a, len_t m, nn_src_t b, len_t n);
+
+/*
+   As per nn_mullow_classical, but with m = n.
+*/
+static __inline__
+void nn_mullow_m(nn_t ov, nn_t p, nn_src_t a, nn_src_t b, len_t n)
+{   
+   if (n <= MULLOW_CLASSICAL_CUTOFF)
+      nn_mullow_classical(ov, p, a, n, b, n);
+   else
+      nn_mullow_kara_m(ov, p, a, b, n);
+}
+
+/*
+   As per nn_mullow_classical.
+*/
+void nn_mullow(nn_t ov, nn_t p, nn_src_t a, len_t m, nn_src_t b, len_t n);
+
+/*
+   As per nn_divapprox_classical_preinv_c.
+*/
+static __inline__
+word_t nn_divapprox_preinv_c(nn_t q, nn_t a, len_t m, 
+                          nn_src_t d, len_t n, preinv2_t dinv, word_t ci)
+{
+   ASSERT(DIVAPPROX_CLASSICAL_CUTOFF >= 3);
+   
+   if (m - n + 1 <= DIVAPPROX_CLASSICAL_CUTOFF || n == 1)
+      return nn_divapprox_classical_preinv_c(q, a, m, d, n, dinv, ci);
+   else
+      return nn_divapprox_divconquer_preinv_c(q, a, m, d, n, dinv, ci);
+}
+
+/*
+   As per nn_divrem_classical_preinv_c.
+*/
+static __inline__
+void nn_divrem_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d, 
+                                    len_t n, preinv2_t dinv, word_t ci)
+{
+   if (n <= DIVREM_CLASSICAL_CUTOFF || m == n)
+      nn_divrem_classical_preinv_c(q, a, m, d, n, dinv, ci);
+   else
+      nn_divrem_divconquer_preinv_c(q, a, m, d, n, dinv, ci);
+}
+
+/*
+   Set {q, m - n + 1} to the quotient of {a, m} by {d, n} and set 
+   {a, n} to the remainder. Requires m >= n > 0.
+   Aliasing of q with a or d or aliasing of a and d is not 
+   permitted.
+*/
+void nn_divrem(nn_t q, nn_t a, len_t m, nn_src_t d, len_t n);
+
+/*
+   Set {q, m - n + 1} to the quotient of {a, m} by {d, n}. 
+   The value of a is destroyed. Requires m >= n > 0.
+   Aliasing of q with a or d or aliasing of a and d is not 
+   permitted.
+*/
+void nn_div(nn_t q, nn_t a, len_t m, nn_src_t d, len_t n);
 
 #endif
 

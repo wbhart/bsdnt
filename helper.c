@@ -33,12 +33,18 @@
 #include <ctype.h>
 #include "helper.h"
 #include "helper_arch.h"
+#include "nn.h"
 
 /**********************************************************************
  
     Printing functions
 
 **********************************************************************/
+
+void talker(const char * str)
+{
+   fprintf(stderr, "Error: %s\n", str);
+}
 
 /* return number of arguments called for by a specific format specifier */
 int parse_fmt(int * floating, const char * fmt)
@@ -111,31 +117,31 @@ void bsdnt_printf(const char * str, ...)
    {
 	  n = strcspn(str + 2, "%") + 2; /* be sure to skip a %% */
 	  strncpy(str2, str, n);
-      str2[n] = '\0';
+     str2[n] = '\0';
 	
-      switch (str[1])
+     switch (str[1])
 	  {
 	  case 'w':
 		  w = (word_t) va_arg(ap, word_t);
 		  if (str[2] == 'x')
 		  {
 			 printf(WORD_FMT "x", w);
-			 printf(str2 + 3);
+			 printf("%s", str2 + 3);
 		  } else
 		  {
 			 printf(WORD_FMT "d", w);
-			 printf(str2 + 2);
+			 printf("%s", str2 + 2);
 		  }
 		  break;
 	  case 'b':
 		  b = (bits_t) va_arg(ap, bits_t);
 		  printf(BITS_FMT, b);
-          printf(str2 + 2);
+        printf("%s", str2 + 2);
 		  break;
 	  case 'm':
 		  m = (len_t) va_arg(ap, len_t);
 		  printf(LEN_FMT, m);
-          printf(str2 + 2);
+        printf("%s", str2 + 2);
 		  break;
 	  default: /* pass to printf */
 		  args = parse_fmt(&floating, str2);
@@ -157,14 +163,14 @@ void bsdnt_printf(const char * str, ...)
 			 } else
 			 {
 				 w3 = va_arg(ap, void *);
-			     if (args == 2)
+			    if (args == 2)
 			        printf(str2, w2, w3);
 				 else if (args == 3)
 			        printf(str2, w1, w2, w3);
 				 else
 					printf(str2, w3);
 			 }
-	      } else printf(str2); /* zero args */
+	      } else printf("%s", str2); /* zero args */
 	  }
 
 	  len -= n;
@@ -174,3 +180,44 @@ void bsdnt_printf(const char * str, ...)
    va_end(ap);
    free(str2);
 }
+
+#ifndef HAVE_NATIVE_precompute_inverse2
+
+preinv2_t precompute_inverse2(word_t d1, word_t d2)
+{
+   word_t q, r[2], p[2], ci;
+   dword_t t;
+
+   if (d2 + 1 == 0 && d1 + 1 == 0)
+      return 0;
+
+   if (d1 + 1 == 0)
+      q = ~d1, r[1] = ~d2;
+   else
+   {
+      t = ((((dword_t) ~d1) << WORD_BITS) + (dword_t) ~d2);
+      q = (word_t) (t / (dword_t) (d1 + 1));
+      r[1] = (word_t) (t % (dword_t) (d1 + 1));
+   }
+
+   if (d2 + 1 == 0)
+      return q;
+   
+   r[0] = 0;
+
+   t = (dword_t) q * (dword_t) (~d2);
+   p[0] = (word_t) t;
+   p[1] = (word_t) (t >> WORD_BITS);
+   ci = nn_add_m(r, r, p, 2);
+ 
+   p[0] = d2 + 1, p[1] = d1 + (d2 + 1 == 0);
+   while (ci || nn_cmp_m(r, p, 2) >= 0)
+   {
+      q++;
+      ci -= nn_sub_m(r, r, p, 2);
+   }
+   
+   return q;
+}
+
+#endif

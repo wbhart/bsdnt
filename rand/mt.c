@@ -89,7 +89,7 @@
 -------------------------------------------------------------------------
 */
 
-#include "../helper.h"
+#include "helper.h"
 #include <stdlib.h>
 #include "internal_rand.h"
 
@@ -111,17 +111,17 @@ typedef struct
 #define UM WORD(0x80000000) /* most significant w-r bits */
 #define LM WORD(0x7fffffff) /* least significant r bits */
 
-#define MT(x)	((x)->mt)
-#define IX(x)	((x)->mti)
-#define MG(x)	((x)->mag01)
+#define MT(x)	(CTX(x)->mt)
+#define IX(x)	(CTX(x)->mti)
+#define MG(x)	(CTX(x)->mag01)
 
 rand_ctx mt_init(void)
 {
 	rand_ctx c = malloc(sizeof(mt_ctx));
 
-	IX(CTX(c)) = NN + 1;
-	MG(CTX(c))[0] = 0;
-	MG(CTX(c))[1] = MATRIX_A;
+	IX(c) = NN + 1;
+	MG(c)[0] = 0;
+	MG(c)[1] = MATRIX_A;
 
 	return c;
 }
@@ -133,13 +133,13 @@ void mt_clear(rand_ctx ctx)
 
 void init_genrand(word_t seed, rand_ctx c)
 {
-   MT(CTX(c))[0] = seed;
+   MT(c)[0] = seed;
 
-   for (IX(CTX(c)) = 1; IX(CTX(c)) < NN; IX(CTX(c))++) 
+   for (IX(c) = 1; IX(c) < NN; IX(c)++) 
    {
-      MT(CTX(c))[IX(CTX(c))] = 
-	   (WORD(1812433253) * (MT(CTX(c))[IX(CTX(c)) - 1] 
-                    ^ (MT(CTX(c))[IX(CTX(c)) - 1] >> 30)) + IX(CTX(c))); 
+      MT(c)[IX(c)] = 
+	   (WORD(1812433253) * (MT(c)[IX(c) - 1] 
+                    ^ (MT(c)[IX(c) - 1] >> 30)) + IX(c)); 
    }
 }
 
@@ -156,28 +156,28 @@ void init_by_array(word_t * init_key, word_t key_length, rand_ctx c)
 
     for ( ; k; k--) 
     {
-        MT(CTX(c))[i] = (MT(CTX(c))[i] ^ ((MT(CTX(c))[i - 1] 
-                      ^ (MT(CTX(c))[i - 1] >> 30)) * WORD(1664525)))
+        MT(c)[i] = (MT(c)[i] ^ ((MT(c)[i - 1] 
+                      ^ (MT(c)[i - 1] >> 30)) * WORD(1664525)))
                       + init_key[j] + j; /* non linear */
         
         i++; j++;
         
-        if (i >= NN) { MT(CTX(c))[0] = MT(CTX(c))[NN - 1]; i = 1; }
+        if (i >= NN) { MT(c)[0] = MT(c)[NN - 1]; i = 1; }
         if (j >= key_length) j = 0;
     }
     
     for (k = NN - 1; k; k--) 
     {
-        MT(CTX(c))[i] = (MT(CTX(c))[i] ^ ((MT(CTX(c))[i - 1] 
-                      ^ (MT(CTX(c))[i - 1] >> 30)) * WORD(1566083941))) 
+        MT(c)[i] = (MT(c)[i] ^ ((MT(c)[i - 1] 
+                      ^ (MT(c)[i - 1] >> 30)) * WORD(1566083941))) 
                       - i; /* non linear */
         
         i++;
         
-        if (i >= NN) { MT(CTX(c))[0] = MT(CTX(c))[NN - 1]; i = 1; }
+        if (i >= NN) { MT(c)[0] = MT(c)[NN - 1]; i = 1; }
     }
 
-    MT(CTX(c))[0] = WORD(0x80000000); /* MSB is 1; assuring non-zero initial array */ 
+    MT(c)[0] = WORD(0x80000000); /* MSB is 1; assuring non-zero initial array */ 
 }
 
 /* generates a random number in [0, 2^32-1]-interval */
@@ -186,33 +186,33 @@ word_t mt_word(rand_ctx c)
 {
    word_t kk, y;
 
-   if (IX(CTX(c)) >= NN)  /* generate NN words at one time */
+   if (IX(c) >= NN)  /* generate NN words at one time */
    {
-      if (IX(CTX(c)) == NN + 1)   /* if init_genrand() has not been called, */
+      if (IX(c) == NN + 1)   /* if init_genrand() has not been called, */
          init_genrand(WORD(5489), CTX(c)); /* a default initial seed is used */
 
       for (kk = 0; kk < NN - MM; kk++) 
       {
-         y = (MT(CTX(c))[kk] & UM) | (MT(CTX(c))[kk + 1] & LM);
-         MT(CTX(c))[kk] = MT(CTX(c))[kk + MM] 
-            ^ (y >> 1) ^ MG(CTX(c))[y & WORD(0x1)];
+         y = (MT(c)[kk] & UM) | (MT(c)[kk + 1] & LM);
+         MT(c)[kk] = MT(c)[kk + MM] 
+            ^ (y >> 1) ^ MG(c)[y & WORD(0x1)];
       }
         
       for ( ; kk < NN - 1; kk++) 
       {
-         y = (MT(CTX(c))[kk] & UM) | (MT(CTX(c))[kk + 1] & LM);
-         MT(CTX(c))[kk] = MT(CTX(c))[kk + (MM - NN)] 
-            ^ (y >> 1) ^ MG(CTX(c))[y & WORD(0x1)];
+         y = (MT(c)[kk] & UM) | (MT(c)[kk + 1] & LM);
+         MT(c)[kk] = MT(c)[kk + (MM - NN)] 
+            ^ (y >> 1) ^ MG(c)[y & WORD(0x1)];
       }
        
-      y = (MT(CTX(c))[NN - 1] & UM) | (MT(CTX(c))[0] & LM);
-      MT(CTX(c))[NN - 1] = MT(CTX(c))[MM - 1] 
-         ^ (y >> 1) ^ MG(CTX(c))[y & WORD(0x1)];
+      y = (MT(c)[NN - 1] & UM) | (MT(c)[0] & LM);
+      MT(c)[NN - 1] = MT(c)[MM - 1] 
+         ^ (y >> 1) ^ MG(c)[y & WORD(0x1)];
 
-      IX(CTX(c)) = 0;
+      IX(c) = 0;
    }
   
-   y = MT(CTX(c))[IX(CTX(c))++];
+   y = MT(c)[IX(c)++];
 
    /* Tempering */
    y ^= (y >> 11);
@@ -240,17 +240,17 @@ typedef struct
 #define MATRIX_A WORD(0xb5026f5aa96619e9) /* constant vector a */
 #define LM WORD(0x7fffffff)
 
-#define MT(x)	((x)->mt)
-#define IX(x)	((x)->mti)
-#define MG(x)	((x)->mag01)
+#define MT(x)	(CTX(x)->mt)
+#define IX(x)	(CTX(x)->mti)
+#define MG(x)	(CTX(x)->mag01)
 
 rand_ctx mt_init(void)
 {
 	rand_ctx c = malloc(sizeof(mt_ctx));
 
-	IX(CTX(c)) = NN + 1;
-	MG(CTX(c))[0] = 0;
-	MG(CTX(c))[1] = MATRIX_A;
+	IX(c) = NN + 1;
+	MG(c)[0] = 0;
+	MG(c)[1] = MATRIX_A;
 
 	return c;
 }
@@ -262,13 +262,13 @@ void mt_clear(rand_ctx c)
 
 void init_genrand(word_t seed, rand_ctx c)
 {
-    MT(CTX(c))[0] = seed;
+    MT(c)[0] = seed;
 
-    for (IX(CTX(c)) = 1 ; IX(CTX(c)) < NN ; ++(IX(CTX(c)))) 
+    for (IX(c) = 1 ; IX(c) < NN ; ++(IX(c))) 
     {
-       MT(CTX(c))[IX(CTX(c))] = (WORD(6364136223846793005) * 
-		         (MT(CTX(c))[IX(CTX(c)) - 1] ^ 
-               (MT(CTX(c))[IX(CTX(c)) - 1] >> 62)) + IX(CTX(c)));
+       MT(c)[IX(c)] = (WORD(6364136223846793005) * 
+		         (MT(c)[IX(c) - 1] ^ 
+               (MT(c)[IX(c) - 1] >> 62)) + IX(c));
     }
 }
 
@@ -283,15 +283,15 @@ void init_by_array(word_t * init_key, word_t key_length, rand_ctx c)
    
    for( ; k ; --k ) 
 	{
-		MT(CTX(c))[i] = (MT(CTX(c))[i] ^ ((MT(CTX(c))[i - 1] ^ 
-			(MT(CTX(c))[i - 1] >> 62)) * WORD(3935559000370003845))) 
+		MT(c)[i] = (MT(c)[i] ^ ((MT(c)[i - 1] ^ 
+			(MT(c)[i - 1] >> 62)) * WORD(3935559000370003845))) 
          + init_key[j] + j; /* non linear */
       
       i++; j++;
 
       if(i >= NN) 
 		{ 
-			MT(CTX(c))[0] = MT(CTX(c))[NN - 1];
+			MT(c)[0] = MT(c)[NN - 1];
 			i = 1; 
 		}
         
@@ -301,20 +301,20 @@ void init_by_array(word_t * init_key, word_t key_length, rand_ctx c)
 
    for (k = NN - 1 ; k ; --k) 
    {
-      MT(CTX(c))[i] = (MT(CTX(c))[i] ^ ((MT(CTX(c))[i - 1] ^ 
-		  (MT(CTX(c))[i - 1] >> 62)) * WORD(2862933555777941757))) 
+      MT(c)[i] = (MT(c)[i] ^ ((MT(c)[i - 1] ^ 
+		  (MT(c)[i - 1] >> 62)) * WORD(2862933555777941757))) 
         - i; /* non linear */
         
       i++;
         
 		if(i >= NN) 
 		{ 
-			MT(CTX(c))[0] = MT(CTX(c))[NN - 1];
+			MT(c)[0] = MT(c)[NN - 1];
 			i = 1; 
       }
    }
 
-   MT(CTX(c))[0] = WORD(1) << 63; /* MSB is 1; assuring non-zero initial array */
+   MT(c)[0] = WORD(1) << 63; /* MSB is 1; assuring non-zero initial array */
 }
 
 /* generates a random number in [0, 2^64-1]-interval */
@@ -323,34 +323,34 @@ word_t mt_word(rand_ctx c)
 {
    word_t i, x;
 
-	if (IX(CTX(c)) >= NN) 
+	if (IX(c) >= NN) 
 	{
-      if (IX(CTX(c)) == NN + 1) /* if init_genrand() has not been called, */
+      if (IX(c) == NN + 1) /* if init_genrand() has not been called, */
          init_genrand(WORD(5489), (CTX(c))); /* a default initial seed is used */
 
       for( i = 0 ; i < NN - MM ; ++i ) 
 		{
-			x = (MT(CTX(c))[i] & ~LM) | (MT(CTX(c))[i + 1] & LM);
-         MT(CTX(c))[i] = MT(CTX(c))[i + MM] ^ (x >> 1) 
-                       ^ MG(CTX(c))[x & 1];
+			x = (MT(c)[i] & ~LM) | (MT(c)[i + 1] & LM);
+         MT(c)[i] = MT(c)[i + MM] ^ (x >> 1) 
+                       ^ MG(c)[x & 1];
       }
         
       for( ; i < NN - 1 ; ++i ) 
 		{
-         x = (MT(CTX(c))[i] & ~LM) | (MT(CTX(c))[i + 1] & LM);
-          MT(CTX(c))[i] = MT(CTX(c))[i + (MM - NN)] ^ (x >> 1) 
-                        ^ MG(CTX(c))[x & 1];
+         x = (MT(c)[i] & ~LM) | (MT(c)[i + 1] & LM);
+          MT(c)[i] = MT(c)[i + (MM - NN)] ^ (x >> 1) 
+                        ^ MG(c)[x & 1];
       }
         
-      x = (MT(CTX(c))[NN - 1] & ~LM) | (MT(CTX(c))[0] & LM);
-      MT(CTX(c))[NN - 1] = MT(CTX(c))[MM - 1] ^ (x >> 1) 
-                         ^ MG(CTX(c))[x & 1];
+      x = (MT(c)[NN - 1] & ~LM) | (MT(c)[0] & LM);
+      MT(c)[NN - 1] = MT(c)[MM - 1] ^ (x >> 1) 
+                         ^ MG(c)[x & 1];
 
-      IX(CTX(c)) = 0;
+      IX(c) = 0;
    }
   
    /* Tempering */
-   x = MT(CTX(c))[IX(CTX(c))++];
+   x = MT(c)[IX(c)++];
    x ^= (x >> 29) & WORD(0x5555555555555555);
    x ^= (x << 17) & WORD(0x71D67FFFEDA60000);
    x ^= (x << 37) & WORD(0xFFF7EEE000000000);

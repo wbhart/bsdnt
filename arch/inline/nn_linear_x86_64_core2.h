@@ -5,29 +5,28 @@
 
 word_t nn_add_mc(nn_t a, nn_src_t b, nn_src_t c, len_t m, word_t ci)
 {
-   __asm__ (
+   __asm__ __volatile__ (
 
-   ".intel_syntax noprefix; \
-    mov rax, r8; \
+   "movq %%r8, %%rax; \
     jrcxz 3f; \
-    lea rdi, [rdi+rcx*8]; \
-    lea rsi, [rsi+rcx*8]; \
-    lea rdx, [rdx+rcx*8]; \
-    neg rcx; \
-    bt  rax, 0; \
+    leaq (%%rdi,%%rcx,8), %%rdi; \
+    leaq (%%rsi,%%rcx,8), %%rsi; \
+    leaq (%%rdx,%%rcx,8), %%rdx; \
+    neg %%rcx; \
+    bt  $0, %%rax; \
 1:; \
-    mov r10, [rsi+rcx*8]; \
-    adc r10, [rdx+rcx*8]; \
-    mov [rdi+rcx*8], r10; \
-    lea rcx, [rcx+1]; \
+    movq (%%rsi,%%rcx,8), %%r10; \
+    adc (%%rdx,%%rcx,8), %%r10; \
+    mov %%r10, (%%rdi,%%rcx,8); \
+    leaq 1(%%rcx), %%rcx; \
     jrcxz 2f; \
     jmp 1b; \
 2:; \
-    setc al; \
+    setc %%al; \
 3:;"
 
-   : "=a" ((word_t)(ci))
-   : "c" ((len_t)(m)), "d" ((nn_src_t)(c)), "S" ((nn_src_t)(b)), "D" ((nn_src_t *)(a))
+   : "=a" (ci)
+   : "c" (m), "d" (c), "S" (b), "D" (a)
    );
 
    return ci;
@@ -40,29 +39,28 @@ word_t nn_add_mc(nn_t a, nn_src_t b, nn_src_t c, len_t m, word_t ci)
 
 word_t nn_sub_mc(nn_t a, nn_src_t b, nn_src_t c, len_t m, word_t ci)
 {
-   __asm__ (
+   __asm__ __volatile__ (
 
-   ".intel_syntax noprefix; \
-    mov rax, r8; \
+   "mov %%r8, %%rax; \
     jrcxz 3f; \
-    lea rdi, [rdi+rcx*8]; \
-    lea rsi, [rsi+rcx*8]; \
-    lea rdx, [rdx+rcx*8]; \
-    neg rcx; \
-    bt  rax, 0; \
+    leaq (%%rdi,%%rcx,8), %%rdi; \
+    leaq (%%rsi,%%rcx,8), %%rsi; \
+    leaq (%%rdx,%%rcx,8), %%rdx; \
+    neg %%rcx; \
+    bt  $0, %%rax; \
 1:; \
-    mov r10, [rsi+rcx*8]; \
-    sbb r10, [rdx+rcx*8]; \
-    mov [rdi+rcx*8], r10; \
-    lea rcx, [rcx+1]; \
+    movq (%%rsi,%%rcx,8), %%r10; \
+    sbb (%%rdx,%%rcx,8), %%r10; \
+    movq %%r10, (%%rdi,%%rcx,8); \
+    lea 1(%%rcx), %%rcx; \
     jrcxz 2f; \
     jmp 1b; \
 2:; \
-    setc al; \
+    setc %%al; \
 3:;"
 
-   : "=a" ((word_t)(ci))
-   : "c" ((len_t)(m)), "d" ((nn_src_t)(c)), "S" ((nn_src_t)(b)), "D" ((nn_src_t *)(a))
+   : "=a" (ci)
+   : "c" (m), "d" (c), "S" (b), "D" (a)
    );
 
    return ci;
