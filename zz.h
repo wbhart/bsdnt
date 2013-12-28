@@ -28,7 +28,11 @@
 #ifndef BSDNT_ZZ_H
 #define BSDNT_ZZ_H
 
+#include <math.h>
+#include <string.h> /* strspn */
 #include "helper.h"
+#include "rand.h"
+#include "nn.h"
 
 typedef struct
 {
@@ -64,11 +68,23 @@ typedef const zz_struct * zz_srcptr;
 
 **********************************************************************/
 
+void zz_init(zz_ptr r);
+
+void zz_init_fit(zz_ptr r, len_t m);
+
+void zz_clear(zz_ptr r);
+
+void zz_fit(zz_ptr r, len_t m);
+
+void zz_normalise(zz_ptr r);
+
 /**********************************************************************
  
     Comparison
 
 **********************************************************************/
+
+int zz_equali(zz_srcptr r, sword_t c);
 
 static inline
 int zz_equal(zz_srcptr a, zz_srcptr b)
@@ -81,6 +97,82 @@ int zz_equal(zz_srcptr a, zz_srcptr b)
 
    return (nn_cmp_m(a->n, b->n, BSDNT_ABS(a->size)) == 0);
 }
+
+int zz_cmpi(zz_srcptr a, sword_t b);
+
+int zz_cmp(zz_srcptr a, zz_srcptr b);
+
+int zz_cmpabs(zz_srcptr a, zz_srcptr b);
+
+int zz_is_zero(zz_srcptr r);
+
+/**********************************************************************
+ 
+    Random generation
+
+**********************************************************************/
+
+void zz_random(zz_ptr a, rand_t state, bits_t bits);
+
+/**********************************************************************
+ 
+    Basic manipulation
+
+**********************************************************************/
+
+void zz_seti(zz_ptr r, sword_t c);
+
+void zz_set(zz_ptr a, zz_srcptr b);
+
+void zz_neg(zz_ptr r, zz_srcptr a);
+
+void zz_swap(zz_ptr a, zz_ptr b);
+
+void zz_zero(zz_ptr a);
+
+/**********************************************************************
+ 
+    Basic arithmetic
+
+**********************************************************************/
+
+void zz_addi(zz_ptr r, zz_srcptr a, sword_t c);
+
+void zz_subi(zz_ptr r, zz_srcptr a, sword_t c);
+
+void zz_add(zz_ptr r, zz_srcptr a, zz_srcptr b);
+
+void zz_sub(zz_ptr r, zz_srcptr a, zz_srcptr b);
+
+void zz_mul_2exp(zz_ptr r, zz_srcptr a, bits_t exp);
+
+void zz_div_2exp(zz_ptr r, zz_srcptr a, bits_t exp);
+
+void zz_muli(zz_ptr r, zz_srcptr a, sword_t c);
+
+sword_t zz_divremi(zz_ptr q, zz_srcptr a, sword_t b);
+
+void zz_mul(zz_ptr r, zz_srcptr a, zz_srcptr b);
+
+void zz_divrem(zz_ptr q, zz_ptr r, zz_srcptr a, zz_srcptr b);
+
+void zz_div(zz_ptr q, zz_srcptr a, zz_srcptr b);
+
+void zz_gcd(zz_ptr g, zz_srcptr a, zz_srcptr b);
+
+void zz_xgcd(zz_ptr g, zz_ptr s, zz_ptr t, zz_srcptr a, zz_srcptr b);
+
+/**********************************************************************
+ 
+    I/O
+
+**********************************************************************/
+
+char * zz_get_str(zz_srcptr a);
+
+size_t zz_set_str(zz_t a, const char * str);
+
+
 
 #endif
 
