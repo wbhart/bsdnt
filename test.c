@@ -1,5 +1,5 @@
 /* 
-  Copyright (C) 2010, William Hart
+  Copyright (C) 2010, 2013 William Hart
 
   All rights reserved.
 
@@ -37,7 +37,7 @@ node_t * new_node(type_t type, void * ptr, len_t length, node_t * next)
    node_t * node = malloc(sizeof(node_t));
    node->type = type;
    
-   if (type == NN)
+   if (type == NN || type == ZZ)
       node->ptr = ptr;
 
    node->length = length;
@@ -229,10 +229,50 @@ void randoms_of_len(len_t n, flag_t flag, rand_t state, ...)
    va_end(ap);
 }
 
+void randoms_signed(len_t n, flag_t flag, rand_t state, ...)
+{
+   va_list ap;
+   zz_ptr obj;
+
+   va_start(ap, state);
+   
+   while ((obj = va_arg(ap, zz_ptr)) != NULL) 
+   {
+      obj->n = (nn_t) malloc(n*sizeof(word_t));
+      nn_test_random(obj->n, state, n);
+      obj->size = nn_normalise(obj->n, n);
+      obj->alloc = n;
+      
+      if (randint(2, state))
+         obj->size = -obj->size;
+
+      switch (flag)
+      {
+      case ANY: break;
+      case FULL: 
+         while (nn_normalise(obj->n, n) != n)
+            nn_test_random(obj->n, state, n);
+         break;
+      case NORMALISED:
+         obj->n[n-1] |= (((word_t) 1) << (WORD_BITS - 1));
+         break;
+      case ODD: obj->n[0] |= (word_t) 1; break;
+      default: talker("Unknown flag in randoms_signed");
+         abort();
+      }
+
+      garbage = new_node(ZZ, (void *) obj->n, n, garbage);
+   } 
+
+   va_end(ap);
+}
+
 void free_obj(node_t * obj)
 {
    if (obj->type == NN)
       free_redzoned_nn(obj->ptr, obj->length);
+   else if (obj->type == ZZ)
+      free(obj->ptr);
 }
 
 void gc_cleanup(void)

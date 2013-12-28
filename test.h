@@ -1,5 +1,5 @@
 /* 
-  Copyright (C) 2010, William Hart
+  Copyright (C) 2010, 2013 William Hart
 
   All rights reserved.
 
@@ -29,6 +29,7 @@
 #define BSDNT_GENERIC_H
 
 #include "nn.h"
+#include "zz.h"
 #include "config.h"
 
 #if WANT_REDZONES
@@ -71,17 +72,18 @@
 
 #define print_debug(a, m) \
    do { \
-      bsdnt_printf(#a "(%m) = ", m); nn_printx_short(a, m); printf("\n"); \
+      bsdnt_printf(#a "(%m) = ", m); \
+      nn_printx_short(a, BSDNT_ABS(m)); printf("\n"); \
    } while (0)
 
 #define print_debug_diff(a, b, m) \
    do { \
-   bsdnt_printf(#a " vs " #b "(%m) ", m); nn_printx_diff(a, b, m); printf("\n"); \
+   bsdnt_printf(#a " vs " #b "(%m) ", m); nn_printx_diff(a, b, BSDNT_ABS(m)); printf("\n"); \
    } while (0)
 
 typedef enum
 {
-   NN 
+   NN, ZZ
 } type_t;
 
 typedef enum
@@ -117,12 +119,22 @@ void randoms_upto(word_t limit, flag_t flag, rand_t state, ...);
 /*
    Given a NULL terminated list of *pointers* to nn_t's, generate 
    random integers which have the property specified by the flag and
-   which have the specified number of limbs. These can only be
+   which have the specified number of words. These can only be
    cleaned up by calling gc_cleanup() (see below).
 
-   randoms_upto(100, FULL, state, &a, &b, NULL);
+   randoms_of_len(100, FULL, state, &a, &b, NULL);
 */
 void randoms_of_len(len_t n, flag_t flag, rand_t state, ...);
+
+/*
+   Given a NULL terminated list of zz_t's, generate random signed integers
+   which have the property specified by the flag and which have the
+   specified number of words. These can only be cleaned up by calling
+   gc_cleanup() (see below).
+
+   randoms_signed(100, FULL, state, &a, &b, NULL);
+*/
+void randoms_signed(len_t n, flag_t flag, rand_t state, ...);
 
 /*
    Clean up any objects allocated by the random functions above.
