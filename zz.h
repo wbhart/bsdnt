@@ -68,14 +68,33 @@ typedef const zz_struct * zz_srcptr;
 
 **********************************************************************/
 
+/*
+   Initialise a zz_t for use.
+*/
 void zz_init(zz_ptr r);
 
+/*
+   Initialise a zz_t for use and ensure it has space for an integer
+   whose absolute value has m words. This is included for performance
+   reasons only. Usually it is sufficient to call zz_init.
+*/
 void zz_init_fit(zz_ptr r, len_t m);
 
+/*
+   Free any memory used by a zz_t.
+*/
 void zz_clear(zz_ptr r);
 
+/*
+   Ensure a zz_t has space for an integer whose absolute value has m
+   words. This is mainly used internally.
+*/
 void zz_fit(zz_ptr r, len_t m);
 
+/*
+   Normalise a zz_t so that its internal representation does not have
+   any leading zero words. This function is mainly used internally.
+*/
 void zz_normalise(zz_ptr r);
 
 /**********************************************************************
@@ -84,8 +103,15 @@ void zz_normalise(zz_ptr r);
 
 **********************************************************************/
 
+/*
+   Return 1 if the zz_t r is equal to the signed word c. Otherwise
+   return 0.
+*/
 int zz_equali(zz_srcptr r, sword_t c);
 
+/*
+   Return 1 if the two zz_t's a and b are equal.
+*/
 static inline
 int zz_equal(zz_srcptr a, zz_srcptr b)
 {
@@ -98,12 +124,28 @@ int zz_equal(zz_srcptr a, zz_srcptr b)
    return (nn_cmp_m(a->n, b->n, BSDNT_ABS(a->size)) == 0);
 }
 
+/*
+   Compare the zz_t a with the signed word b. The return value
+   will be positive if a > b, zero if a == b and negative if a < b.
+*/
 int zz_cmpi(zz_srcptr a, sword_t b);
 
+/*
+   Compare the zz_t's a and b. The return value will be positive if
+   a > b, zero if a == b and negative if a < b.
+*/
 int zz_cmp(zz_srcptr a, zz_srcptr b);
 
+/*
+   Compare the absolute values of the zz_t's a and b. The return value
+   will be positive if abs(a) > abs(b), zero if abs(a) == abs(b) and
+   negative if abs(a) < abs(b).
+*/
 int zz_cmpabs(zz_srcptr a, zz_srcptr b);
 
+/*
+   Return 1 if the zz_t is zero, otherwise return 0.
+*/
 int zz_is_zero(zz_srcptr r);
 
 /**********************************************************************
@@ -112,6 +154,10 @@ int zz_is_zero(zz_srcptr r);
 
 **********************************************************************/
 
+/*
+   Generate a signed, uniformly random zz_t whose absolute value has
+   at most the given number of bits.
+*/
 void zz_random(zz_ptr a, rand_t state, bits_t bits);
 
 /**********************************************************************
@@ -120,14 +166,31 @@ void zz_random(zz_ptr a, rand_t state, bits_t bits);
 
 **********************************************************************/
 
+/*
+   Set the zz_t to the given signed word c.
+*/
 void zz_seti(zz_ptr r, sword_t c);
 
-void zz_set(zz_ptr a, zz_srcptr b);
+/*
+   Set r = a. The data is copied unless a and b are the same object.
+*/
+void zz_set(zz_ptr r, zz_srcptr a);
 
+/*
+   Set r = -a. The date is copied unless r and a are the same object,
+   in which case its sign is simply changed.
+*/
 void zz_neg(zz_ptr r, zz_srcptr a);
 
+/*
+   Efficiently swap the contents of a and b by swapping pointers and
+   other information.
+*/
 void zz_swap(zz_ptr a, zz_ptr b);
 
+/*
+   Set the zz_t to zero.
+*/
 void zz_zero(zz_ptr a);
 
 /**********************************************************************
@@ -136,30 +199,75 @@ void zz_zero(zz_ptr a);
 
 **********************************************************************/
 
+/*
+   Set r = a + c, where c is a signed word.
+*/
 void zz_addi(zz_ptr r, zz_srcptr a, sword_t c);
 
+/*
+   Set r = a - c, where c is a signed word.
+*/
 void zz_subi(zz_ptr r, zz_srcptr a, sword_t c);
 
+/*
+   Set r = a + b.
+*/
 void zz_add(zz_ptr r, zz_srcptr a, zz_srcptr b);
 
+/*
+   Set r = a - b.
+*/
 void zz_sub(zz_ptr r, zz_srcptr a, zz_srcptr b);
 
+/*
+   Set r = a*2^exp.
+*/
 void zz_mul_2exp(zz_ptr r, zz_srcptr a, bits_t exp);
 
+/*
+   Set r = a/2^exp.
+*/
 void zz_div_2exp(zz_ptr r, zz_srcptr a, bits_t exp);
 
+/*
+   Set r = a*c, where c is a signed word.
+*/
 void zz_muli(zz_ptr r, zz_srcptr a, sword_t c);
 
+/*
+   Set q such that a = bq + r with |r| < |b|. Rounding occurs towards
+   minus infinity. The remainder is returned as a signed word.
+*/
 sword_t zz_divremi(zz_ptr q, zz_srcptr a, sword_t b);
 
+/*
+   Set r = a*b.
+*/
 void zz_mul(zz_ptr r, zz_srcptr a, zz_srcptr b);
 
+/*
+   Set q and r such that a = bq + r with |r| < |b|. Rounding occurs
+   towards minus infinity.
+*/
 void zz_divrem(zz_ptr q, zz_ptr r, zz_srcptr a, zz_srcptr b);
 
+/*
+   Set q such that a = bq + r with |r| < |b|. Rounding occurs towards
+   minus infinity.
+*/
 void zz_div(zz_ptr q, zz_srcptr a, zz_srcptr b);
 
+/*
+   Set g to the greatest common divisor of a and b. If both are
+   negative then g will be negative, otherwise g will be positive.
+   If a = 0 then g = b, and similarly if b = 0 then g = a.
+*/
 void zz_gcd(zz_ptr g, zz_srcptr a, zz_srcptr b);
 
+/*
+   As for zz_gcd except that additionally s and t are returned with
+   |s| < |b| and |t| < |a| and g = as + bt.
+*/
 void zz_xgcd(zz_ptr g, zz_ptr s, zz_ptr t, zz_srcptr a, zz_srcptr b);
 
 /**********************************************************************
@@ -168,11 +276,26 @@ void zz_xgcd(zz_ptr g, zz_ptr s, zz_ptr t, zz_srcptr a, zz_srcptr b);
 
 **********************************************************************/
 
+/*
+   Return a string giving the decimal representation of the zz_t a.
+   If the value is negative, the string is prepended with a '-' sign.
+   If the value is 0, the string "0" is returned. The user is
+   required to clean up the string using free when finished.
+*/
 char * zz_get_str(zz_srcptr a);
 
+/*
+   Set the zz_t a to the integer whose decimal representation is
+   given by the string str. If a negative value is required, the
+   string can be prepended with a '-' character.
+*/
 size_t zz_set_str(zz_t a, const char * str);
 
-
+/*
+   Print the decimal representation of the zz_t a to stdout. No
+   newline character is output.
+*/
+void zz_print(zz_srcptr a);
 
 #endif
 
