@@ -26,6 +26,7 @@
 */
 
 #include <math.h>
+#include <string.h> /* strspn */
 #include "nn.h"
 #include "nn_quadratic_arch.h"
 #include "zz0.h"
@@ -719,8 +720,8 @@ len_t nn_gcd_lehmer(nn_t g, nn_t a, len_t m, nn_t b, len_t n)
 char * nn_get_str(nn_t a, len_t m)
 {
    /* 9.63... is log_10(2^32) */
-   len_t i = 0, j;
-   len_t digits = (long) ceil(m * 9.632959861247398 * (WORD_BITS/32)) + (m == 0);
+   size_t i = 0, j;
+   size_t digits = (long) ceil(m * 9.632959861247398 * (WORD_BITS/32)) + (m == 0);
    char * str = (char *) malloc(digits + 1);
    word_t ci, d = 10UL << (WORD_BITS - 4);
    nn_t q1, q2, t;
@@ -728,14 +729,16 @@ char * nn_get_str(nn_t a, len_t m)
 
    if (m == 0)
       str[0] = '0';
-   else {
+   else 
+   {
       TMP_START;
       q1 = TMP_ALLOC(m*sizeof(word_t));
       q2 = TMP_ALLOC(m*sizeof(word_t));
       nn_copy(q1, a, m);
 
       /* compute digits in reverse order */
-      for (i = digits; m > 0; i--) {
+      for (i = digits; m > 0; i--) 
+      {
          ci = nn_shl(q1, q1, m, WORD_BITS - 4);
          str[i - 1] = 48 + (char) (nn_divrem1_simple_c(q2, q1, m, d, ci) >> (WORD_BITS - 4));
          t = q1; q1 = q2; q2 = t;
@@ -745,7 +748,8 @@ char * nn_get_str(nn_t a, len_t m)
       TMP_END;
 
       /* didn't get the right number of digits, shift */
-      if (i) {
+      if (i) 
+      {
          for (j = i; j < digits; j++)
             str[j - i] = str[j];
       }
@@ -754,6 +758,30 @@ char * nn_get_str(nn_t a, len_t m)
    str[digits - i] = '\0';
 
    return str;
+}
+
+size_t nn_set_str(nn_t a, len_t * len, const char * str)
+{
+   len_t i, m = 1;
+   size_t digits = strspn(str, "0123456789");
+   word_t ci;
+
+   if (digits == 1 && str[0] == '0')
+   {
+      *len = 0;
+      return 1;
+   }
+
+   a[0] = (word_t) str[0] - 48;
+   for (i = 1; i < digits; i++) 
+   {
+      ci = nn_mul1(a, a, m, 10);
+      ci += nn_add1(a, a, m, (word_t) str[i] - 48);
+      if (ci) a[m++] = ci;
+   }
+
+   *len = m;
+   return digits;
 }
 
 void nn_print(nn_t a, len_t m)

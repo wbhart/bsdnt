@@ -27,6 +27,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "nn.h"
 #include "test.h"
 
@@ -574,6 +575,38 @@ int test_xgcd_lehmer(void)
    return result;
 }
 
+int test_get_set_str(void)
+{
+   int result = 1;
+   len_t m, m2;
+   nn_t r1, r2;
+   char * str;
+   size_t digits;
+
+   printf("get/set_str...");
+
+   TEST_START(1, 1000) /* test string representation can be read */
+   {
+      randoms_upto(60, ANY, state, &m, NULL);
+      
+      randoms_of_len(m, FULL, state, &r1, &r2, NULL);
+      
+      str = nn_get_str(r1, m);
+      digits = nn_set_str(r2, &m2, str);
+      
+      result = (nn_equal_m(r1, r2, m) && digits == strlen(str));
+
+      if (!result) 
+      {
+         print_debug_diff(r1, r2, m);
+      }
+
+      free(str);
+   } TEST_END;
+
+   return result;
+}
+
 int test_quadratic(void)
 {
    long pass = 0;
@@ -587,6 +620,7 @@ int test_quadratic(void)
    RUN(test_div_hensel_preinv);
    RUN(test_gcd_lehmer);
    RUN(test_xgcd_lehmer);
+   RUN(test_get_set_str);
    
    printf("%ld of %ld tests pass.\n", pass, pass + fail);
 

@@ -100,7 +100,7 @@ void nn_clear(nn_t a)
 
 /**********************************************************************
  
-    Printing functions
+    I/O functions
 
 **********************************************************************/
 
@@ -133,7 +133,14 @@ void nn_printx_diff(nn_src_t a, nn_src_t b, len_t m);
 char * nn_get_str(nn_t a, len_t m);
 
 /*
-   Print {a, m} in decimal. If m == 0 then 0 is printed.
+   Set {a, *len} to the natural number given by the string str. If
+   the string is "0" then len is set to 0. The function returns the
+   number of digits read, where "0" counts as a single digit.
+*/
+size_t nn_set_str(nn_t a, len_t * len, const char * str);
+
+/*
+   Print {a, m} in decimal to stdout. If m == 0 then 0 is printed.
 */
 void nn_print(nn_t a, len_t m);
 
