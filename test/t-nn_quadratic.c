@@ -27,11 +27,12 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "nn.h"
 #include "test.h"
 
 #undef ITER
-#define ITER 30000
+#define ITER 20000
 
 rand_t state;
 
@@ -505,7 +506,7 @@ int test_xgcd_lehmer(void)
 {
    int result = 1;
    len_t m, n, s1, s2, s3;
-   nn_t a, b, a2, b2, v, g, p, q;
+   nn_t a, b, a1, b1, a2, b2, v, g, g2, p, q;
    word_t ci;
 
    printf("xgcd_lehmer...");
@@ -544,6 +545,65 @@ int test_xgcd_lehmer(void)
       }
    } TEST_END;
 
+   TEST_START(2, ITER) /* test xgcd against gcd */
+   {
+      randoms_upto(10, NONZERO, state, &m, NULL);
+      randoms_upto(10, NONZERO, state, &n, NULL);
+      m += n; /* m >= n */
+
+      randoms_of_len(m, FULL, state, &a, &a2, &b2, &a1, &b1, &g, &g2, &v, NULL);
+      randoms_of_len(n, FULL, state, &b, NULL);
+
+      nn_copy(a2, a, m);
+      nn_copy(b2, b, n);
+      nn_copy(a1, a, m);
+      nn_copy(b1, b, n);
+
+      s1 = nn_xgcd_lehmer(g, v, a1, m, b1, n);
+      s2 = nn_gcd_lehmer(g2, a2, m, b2, n);
+      
+      result = (s1 == s2 && nn_cmp_m(g, g2, s1) == 0);
+
+      if (!result) 
+      {
+         printf("FAIL\n");
+         print_debug(a, m); print_debug(b, n);
+         print_debug(g, s1); print_debug(g2, s2);
+      }
+   } TEST_END;
+
+   return result;
+}
+
+int test_get_set_str(void)
+{
+   int result = 1;
+   len_t m, m2;
+   nn_t r1, r2;
+   char * str;
+   size_t digits;
+
+   printf("get/set_str...");
+
+   TEST_START(1, 1000) /* test string representation can be read */
+   {
+      randoms_upto(60, ANY, state, &m, NULL);
+      
+      randoms_of_len(m, FULL, state, &r1, &r2, NULL);
+      
+      str = nn_get_str(r1, m);
+      digits = nn_set_str(r2, &m2, str);
+      
+      result = (nn_equal_m(r1, r2, m) && digits == strlen(str));
+
+      if (!result) 
+      {
+         print_debug_diff(r1, r2, m);
+      }
+
+      free(str);
+   } TEST_END;
+
    return result;
 }
 
@@ -560,6 +620,7 @@ int test_quadratic(void)
    RUN(test_div_hensel_preinv);
    RUN(test_gcd_lehmer);
    RUN(test_xgcd_lehmer);
+   RUN(test_get_set_str);
    
    printf("%ld of %ld tests pass.\n", pass, pass + fail);
 

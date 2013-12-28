@@ -26,6 +26,7 @@
 */
 
 #include <math.h>
+#include <string.h> /* strspn */
 #include "nn.h"
 #include "nn_quadratic_arch.h"
 #include "zz0.h"
@@ -446,23 +447,27 @@ void nn_div_hensel_preinv(nn_t ov, nn_t q, nn_t a, len_t m,
 
 len_t nn_xgcd_lehmer(nn_t g, nn_t v, nn_t a, len_t m, nn_t b, len_t n)
 {
-   nn_t q, r, c1, c2, temp, temp2;
+   nn_t q, r, c1, c2, a2;
    long aa2, aa1, bb2, bb1, rr1 = 0, rr2 = 0, qq, t1, t2, t3, i;
    len_t s1, s2, s1u, s2u, s, m_orig = m;
    word_t ci, aci, rci;
-
    TMP_INIT;
+
+   ASSERT(m >= n);
+   ASSERT(n > 0);
+   ASSERT(a != b);
+   ASSERT(a[m - 1] != 0);
+   ASSERT(b[n - 1] != 0);
    
    TMP_START;
    
-   q = TMP_ALLOC(m);
-   r = TMP_ALLOC(m);
-   c1 = TMP_ALLOC(m);
-   c2 = TMP_ALLOC(m);
-   temp = TMP_ALLOC(m);
-   temp2 = TMP_ALLOC(m);
+   q = TMP_ALLOC(m + 1);
+   r = TMP_ALLOC(m + 1);
+   c1 = TMP_ALLOC(m + 1);
+   c2 = TMP_ALLOC(m + 1);
+   a2 = TMP_ALLOC(m);
 
-   nn_copy(temp2, a, m);
+   nn_copy(a2, a, m);
 
    nn_zero(c2, m);
    nn_zero(c1, m);
@@ -498,15 +503,15 @@ len_t nn_xgcd_lehmer(nn_t g, nn_t v, nn_t a, len_t m, nn_t b, len_t n)
          bb2 = bb1; bb1 = t3;
       }
 
-      if (i == 0 || bb2 == 0)
+      if (i == 0)
       {
          nn_divrem(q, a, m, b, n);
          NN_SWAP(a, b);
          s = m - n + 1; m = n; 
          n = nn_normalise(b, n);
          
-         s = zz0_mul(temp, c2, s2, q, s);
-         s1 = zz0_sub(c1, c1, s1, temp, s);
+         s = zz0_mul(r, c2, s2, q, s);
+         s1 = zz0_sub(c1, c1, s1, r, s);
 
          NN_SWAP(c1, c2); 
          BSDNT_SWAP(s1, s2);
@@ -557,19 +562,17 @@ len_t nn_xgcd_lehmer(nn_t g, nn_t v, nn_t a, len_t m, nn_t b, len_t n)
             c2[s2u] += nn_add1(c2 + s1u, c2 + s1u, s2u - s1u, ci);
          }
 
-         n = m; 
-         if (((sword_t) rci) < 0) { nn_neg(r, r, n); s1 = -s1; }
-         if (((sword_t) aci) < 0) { nn_neg(a, a, n); s1 = -s1; }
+         if (((sword_t) rci) < 0) { nn_neg(r, r, m); s1 = -s1; }
+         if (((sword_t) aci) < 0) { nn_neg(a, a, m); s1 = -s1; }
 
-         n = nn_normalise(r, n);
+         n = nn_normalise(r, m);
          m = nn_normalise(a, m);
          
-         s2u++;
-         s1u = s2u;
+         s1u = ++s2u;
          s1u = nn_normalise(q, s1u);
-         s1 = s1 < 0 || (s1 == 0 && s2 > 0) ? -s1u : s1u;
+         s1 = s1 < 0 || s2 > 0 ? -s1u : s1u;
          s2u = nn_normalise(c2, s2u);
-         s2 = s2 < 0 ? -s2u : s2u;
+         s2 = s2 < 0 || s1 > 0 ? -s2u : s2u;
          
          nn_copy(c1, q, s1u);
 
@@ -586,18 +589,20 @@ len_t nn_xgcd_lehmer(nn_t g, nn_t v, nn_t a, len_t m, nn_t b, len_t n)
       }
    }
 
-   if (s1 > 0) {
-      ci = nn_sub_m(c1, temp2, c1, s1);
-      nn_sub1(c1 + s1, temp2 + s1, m_orig - s1, ci);
+   if (s1 > 0) { /* adjust cofactor to be negative */
+      ci = nn_sub_m(c1, a2, c1, s1);
+      nn_sub1(c1 + s1, a2 + s1, m_orig - s1, ci);
       s1 = -m_orig;
    }
 
-   nn_copy(g, a, m);
-   if (-s1 > 0) 
-      nn_copy(v, c1, -s1);
-   if (m_orig + s1 > 0) 
-      nn_zero(v - s1, m_orig + s1);
+   s1 = -s1;
+   if (s1 > 0) /* write out cofactor and zero top limbs */
+      nn_copy(v, c1, s1);
+   if (m_orig > s1) 
+      nn_zero(v + s1, m_orig - s1);
 
+   nn_copy(g, a, m); /* write out gcd */
+   
    TMP_END;
 
    return m;
@@ -608,8 +613,13 @@ len_t nn_gcd_lehmer(nn_t g, nn_t a, len_t m, nn_t b, len_t n)
    nn_t q, r, s, t;
    sword_t aa2, aa1, bb2, bb1, rr1 = 0, rr2 = 0, qq, t1, t2, t3, i;
    word_t ci, c1, c2;
-
    TMP_INIT;
+
+   ASSERT(m >= n);
+   ASSERT(n > 0);
+   ASSERT(a != b);
+   ASSERT(a[m - 1] != 0);
+   ASSERT(b[n - 1] != 0);
    
    TMP_START;
    
@@ -700,7 +710,7 @@ len_t nn_gcd_lehmer(nn_t g, nn_t a, len_t m, nn_t b, len_t n)
       }
    }
 
-   nn_copy(g, a, m);
+   nn_copy(g, a, m); /* write out gcd */
       
    TMP_END;
 
@@ -710,8 +720,8 @@ len_t nn_gcd_lehmer(nn_t g, nn_t a, len_t m, nn_t b, len_t n)
 char * nn_get_str(nn_t a, len_t m)
 {
    /* 9.63... is log_10(2^32) */
-   len_t i = 0, j;
-   len_t digits = (long) ceil(m * 9.632959861247398 * (WORD_BITS/32)) + (m == 0);
+   size_t i = 0, j;
+   size_t digits = (long) ceil(m * 9.632959861247398 * (WORD_BITS/32)) + (m == 0);
    char * str = (char *) malloc(digits + 1);
    word_t ci, d = 10UL << (WORD_BITS - 4);
    nn_t q1, q2, t;
@@ -719,14 +729,16 @@ char * nn_get_str(nn_t a, len_t m)
 
    if (m == 0)
       str[0] = '0';
-   else {
+   else 
+   {
       TMP_START;
       q1 = TMP_ALLOC(m*sizeof(word_t));
       q2 = TMP_ALLOC(m*sizeof(word_t));
       nn_copy(q1, a, m);
 
       /* compute digits in reverse order */
-      for (i = digits; m > 0; i--) {
+      for (i = digits; m > 0; i--) 
+      {
          ci = nn_shl(q1, q1, m, WORD_BITS - 4);
          str[i - 1] = 48 + (char) (nn_divrem1_simple_c(q2, q1, m, d, ci) >> (WORD_BITS - 4));
          t = q1; q1 = q2; q2 = t;
@@ -736,7 +748,8 @@ char * nn_get_str(nn_t a, len_t m)
       TMP_END;
 
       /* didn't get the right number of digits, shift */
-      if (i) {
+      if (i) 
+      {
          for (j = i; j < digits; j++)
             str[j - i] = str[j];
       }
@@ -745,6 +758,30 @@ char * nn_get_str(nn_t a, len_t m)
    str[digits - i] = '\0';
 
    return str;
+}
+
+size_t nn_set_str(nn_t a, len_t * len, const char * str)
+{
+   len_t i, m = 1;
+   size_t digits = strspn(str, "0123456789");
+   word_t ci;
+
+   if (digits == 1 && str[0] == '0')
+   {
+      *len = 0;
+      return 1;
+   }
+
+   a[0] = (word_t) str[0] - 48;
+   for (i = 1; i < digits; i++) 
+   {
+      ci = nn_mul1(a, a, m, 10);
+      ci += nn_add1(a, a, m, (word_t) str[i] - 48);
+      if (ci) a[m++] = ci;
+   }
+
+   *len = m;
+   return digits;
 }
 
 void nn_print(nn_t a, len_t m)
