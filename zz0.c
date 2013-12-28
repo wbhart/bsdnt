@@ -30,13 +30,15 @@
 
 len_t zz0_add(nn_t r, nn_src_t a, len_t m, nn_src_t b, len_t n)
 {
-   long asize = BSDNT_ABS(m);
-   long bsize = BSDNT_ABS(n);
-   long rsize;
-
+   len_t asize = BSDNT_ABS(m);
+   len_t bsize = BSDNT_ABS(n);
+   len_t rsize;
+   len_t big = asize >= bsize ? m : n;
+   
    ZZ0_ORDER(a, asize, b, bsize);
    
-   if ((m ^ n) < 0) {
+   if ((m ^ n) < 0) 
+   {
       word_t bi = nn_sub(r, a, asize, b, bsize);
       rsize = asize;
       
@@ -44,11 +46,14 @@ len_t zz0_add(nn_t r, nn_src_t a, len_t m, nn_src_t b, len_t n)
          nn_neg(r, r, asize);
          rsize = -rsize;
       }
-   } else {
+   } else 
+   {
       r[asize] = nn_add(r, a, asize, b, bsize);
       rsize = asize + 1;
-      if (m < 0) rsize = -rsize;
    }
+
+   if (big < 0)
+      rsize = -rsize;
 
    zz0_normalise(r, rsize);
 
@@ -57,10 +62,10 @@ len_t zz0_add(nn_t r, nn_src_t a, len_t m, nn_src_t b, len_t n)
 
 len_t zz0_sub(nn_t r, nn_src_t a, len_t m, nn_src_t b, len_t n)
 {
-   long asize = BSDNT_ABS(m);
-   long bsize = BSDNT_ABS(n);
-   long rsize;
-   int sign = (asize < bsize);
+   len_t asize = BSDNT_ABS(m);
+   len_t bsize = BSDNT_ABS(n);
+   len_t rsize;
+   len_t sign = asize - bsize;
 
    ZZ0_ORDER(a, asize, b, bsize);
    
@@ -72,7 +77,7 @@ len_t zz0_sub(nn_t r, nn_src_t a, len_t m, nn_src_t b, len_t n)
          nn_neg(r, r, asize);
          rsize = -rsize;
       }
-      if (sign) rsize = -rsize;
+      if ((sign ^ m) < 0) rsize = -rsize;
    } else {
       r[asize] = nn_add(r, a, asize, b, bsize);
       rsize = asize + 1;
