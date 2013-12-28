@@ -153,7 +153,8 @@ void nn_print(nn_t a, len_t m);
 /*
    Copy the m words at b to a. Aliasing is allowed, but is 
    not currently dealt with specially, i.e. the data is 
-   actually copied.
+   actually copied. Words are copied in order of increasing
+   index.
 */
 static inline
 void nn_copy(nn_t a, nn_src_t b, len_t m)
@@ -161,6 +162,21 @@ void nn_copy(nn_t a, nn_src_t b, len_t m)
    long i;
 
    for (i = 0; i < m; i++)
+      a[i] = b[i];
+}
+
+/*
+   Copy the m words at b to a. Aliasing is allowed, but is 
+   not currently dealt with specially, i.e. the data is 
+   actually copied. Words are copied in order of decreasing
+   index.
+*/
+static inline
+void nn_copyd(nn_t a, nn_src_t b, len_t m)
+{
+   long i;
+
+   for (i = m - 1; i >= 0; i--)
       a[i] = b[i];
 }
 
@@ -677,6 +693,12 @@ len_t nn_gcd_lehmer(nn_t g, nn_t a, len_t m, nn_t b, len_t n);
    b may not be aliased and must not have leading words that are zero.
 */
 len_t nn_xgcd_lehmer(nn_t g, nn_t v, nn_t a, len_t m, nn_t b, len_t n);
+
+#define nn_gcd(g, a, m, b, n) \
+   nn_gcd_lehmer(g, a, m, b, n)
+
+#define nn_xgcd(g, v, a, m, b, n) \
+   nn_xgcd_lehmer(g, v, a, m, b, n)
 
 
 /**********************************************************************

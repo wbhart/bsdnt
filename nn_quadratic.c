@@ -732,8 +732,8 @@ char * nn_get_str(nn_t a, len_t m)
    else 
    {
       TMP_START;
-      q1 = TMP_ALLOC(m*sizeof(word_t));
-      q2 = TMP_ALLOC(m*sizeof(word_t));
+      q1 = TMP_ALLOC(m);
+      q2 = TMP_ALLOC(m);
       nn_copy(q1, a, m);
 
       /* compute digits in reverse order */
