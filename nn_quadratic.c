@@ -541,7 +541,7 @@ len_t nn_xgcd_lehmer(nn_t g, nn_t v, nn_t a, len_t m, nn_t b, len_t n)
             s1 = -s1;
          }
          
-         if (aa1 < 0)
+         if (aa1 <= 0)
          {
             aci = nn_mul1(a, a, m, bb1);
             ci = nn_submul1(a, b, n, -aa1);
@@ -610,7 +610,7 @@ len_t nn_xgcd_lehmer(nn_t g, nn_t v, nn_t a, len_t m, nn_t b, len_t n)
 
 len_t nn_gcd_lehmer(nn_t g, nn_t a, len_t m, nn_t b, len_t n)
 {
-   nn_t q, r, s, t;
+   nn_t q, r, s;
    sword_t aa2, aa1, bb2, bb1, rr1 = 0, rr2 = 0, qq, t1, t2, t3, i;
    word_t ci, c1, c2;
    TMP_INIT;
@@ -633,7 +633,7 @@ len_t nn_gcd_lehmer(nn_t g, nn_t a, len_t m, nn_t b, len_t n)
       b = s;
    }
    
-   while (n)
+   while (n > 0)
    {
       __get_bits_lehmer(rr1, rr2, a, m, b, n);
 
@@ -664,7 +664,7 @@ len_t nn_gcd_lehmer(nn_t g, nn_t a, len_t m, nn_t b, len_t n)
       if (i == 0)
       {
          nn_divrem(q, a, m, b, n);
-         t = a; a = b; b = t; /* swap */
+         NN_SWAP(a, b);
          m = n; 
          n = nn_normalise(b, n);
       } else

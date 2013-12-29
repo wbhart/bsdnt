@@ -124,17 +124,16 @@ int zz_is_zero(zz_srcptr r)
    return r->size == 0;
 }
 
-void zz_random(zz_ptr a, rand_t state, bits_t bits)
+void zz_random(zz_ptr a, rand_t state, len_t words)
 {
-   bits_t ubits = BSDNT_ABS(bits);
-   len_t size = (ubits + WORD_BITS - 1)/WORD_BITS;
-
+   len_t size = BSDNT_ABS(words);
+   
    zz_fit(a, size);
 
-   nn_random(a->n, state, ubits);
+   nn_random(a->n, state, size);
 
    size = nn_normalise(a->n, size);
-   a->size = (bits < 0 && randint(2, state) == 0) ? -size : size;
+   a->size = (words < 0 && randint(2, state) == 0) ? -size : size;
 }
 
 void zz_seti(zz_ptr r, sword_t c)
@@ -624,8 +623,8 @@ void zz_gcd(zz_ptr g, zz_srcptr a, zz_srcptr b)
 
       ZZ_ORDER(a, asize, b, bsize);
 
-      ta = TMP_ALLOC(asize);
-      tb = TMP_ALLOC(bsize);
+      ta = (nn_t) TMP_ALLOC(asize);
+      tb = (nn_t) TMP_ALLOC(bsize);
 
       nn_copy(ta, a->n, asize);
       nn_copy(tb, b->n, bsize);
@@ -661,6 +660,8 @@ void zz_xgcd(zz_ptr g, zz_ptr s, zz_ptr t, zz_srcptr a, zz_srcptr b)
       zz_seti(t, 0);
    } else 
    {
+      zz_t temp;
+      zz_ptr a2, b2;
       TMP_START;
 
       ZZ_ORDER(a, asize, b, bsize);
@@ -670,6 +671,20 @@ void zz_xgcd(zz_ptr g, zz_ptr s, zz_ptr t, zz_srcptr a, zz_srcptr b)
 
       nn_copy(ta, a->n, asize);
       nn_copy(tb, b->n, bsize);
+
+      if (t == a || g == a)
+      {
+         TMP_ZZ(a2);
+         zz_set(a2, a);
+      } else
+         a2 = (zz_ptr) a;
+
+      if (t == b || g == b)
+      {
+         TMP_ZZ(b2);
+         zz_set(b2, b);
+      } else
+         b2 = (zz_ptr) b;
 
       zz_fit(g, bsize);
       zz_fit(s, asize);
@@ -683,9 +698,17 @@ void zz_xgcd(zz_ptr g, zz_ptr s, zz_ptr t, zz_srcptr a, zz_srcptr b)
       t->size = b->size < 0 && a->size > 0 ? tsize : -tsize;
       g->size = gsize;
 
-      zz_mul(s, b, t); /* compute other cofactor s = (g - bt)/a */
-      zz_sub(s, g, s);
-      zz_div(s, s, a); /* TODO: use divexact */
+      zz_init(temp);
+      zz_mul(temp, b2, t); /* compute other cofactor s = (g - bt)/a */
+      zz_sub(temp, g, temp);
+      zz_div(s, temp, a2); /* TODO: use divexact */
+      zz_clear(temp);
+      
+      if (t == a || g == a)
+         zz_clear(a2);
+
+      if (t == b || g == b)
+         zz_clear(b2);
 
       TMP_END;
    }

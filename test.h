@@ -88,6 +88,19 @@
       zz_clear(__tzz); \
    } while (0)
 
+#define test_zz_aliasing_32(xxx, a, b, c, d, e) \
+   do { \
+      zz_t __tzz; \
+      zz_init(__tzz); \
+      test_zz_aliasing(xxx(a, b, c, d, e), xxx(__tzz, b, c, d, __tzz), a, e, __tzz); \
+      test_zz_aliasing(xxx(a, b, c, d, e), xxx(__tzz, b, c, __tzz, e), a, d, __tzz); \
+      test_zz_aliasing(xxx(a, b, c, d, e), xxx(a, __tzz, c, d, __tzz), b, e, __tzz); \
+      test_zz_aliasing(xxx(a, b, c, d, e), xxx(a, __tzz, c, __tzz, e), b, d, __tzz); \
+      test_zz_aliasing(xxx(a, b, c, d, e), xxx(a, b, __tzz, d, __tzz), c, e, __tzz); \
+      test_zz_aliasing(xxx(a, b, c, d, e), xxx(a, b, __tzz, __tzz, e), c, d, __tzz); \
+      zz_clear(__tzz); \
+   } while (0)
+
 #define test_zz_aliasing_12i(xxx, a, b, c) \
    do { \
       zz_t __tzz; \
