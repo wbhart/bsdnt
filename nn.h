@@ -130,7 +130,7 @@ void nn_printx_diff(nn_src_t a, nn_src_t b, len_t m);
    Return a string representation of {a, m} in decimal. The user is
    responsible for freeing the string.
 */
-char * nn_get_str(nn_t a, len_t m);
+char * nn_get_str(nn_src_t a, len_t m);
 
 /*
    Set {a, *len} to the natural number given by the string str. If
@@ -142,7 +142,7 @@ size_t nn_set_str(nn_t a, len_t * len, const char * str);
 /*
    Print {a, m} in decimal to stdout. If m == 0 then 0 is printed.
 */
-void nn_print(nn_t a, len_t m);
+void nn_print(nn_src_t a, len_t m);
 
 /**********************************************************************
  

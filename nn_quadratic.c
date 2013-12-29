@@ -717,7 +717,7 @@ len_t nn_gcd_lehmer(nn_t g, nn_t a, len_t m, nn_t b, len_t n)
    return m;
 }
 
-char * nn_get_str(nn_t a, len_t m)
+char * nn_get_str(nn_src_t a, len_t m)
 {
    /* 9.63... is log_10(2^32) */
    size_t i = 0, j;
@@ -784,7 +784,7 @@ size_t nn_set_str(nn_t a, len_t * len, const char * str)
    return digits;
 }
 
-void nn_print(nn_t a, len_t m)
+void nn_print(nn_src_t a, len_t m)
 {
    char * str = nn_get_str(a, m);
 

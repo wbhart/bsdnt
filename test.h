@@ -77,6 +77,17 @@
       zz_clear(__tzz); \
    } while (0)
 
+#define test_zz_aliasing_22(xxx, a, b, c, d) \
+   do { \
+      zz_t __tzz; \
+      zz_init(__tzz); \
+      test_zz_aliasing(xxx(a, b, c, d), xxx(__tzz, b, __tzz, d), a, c, __tzz); \
+      test_zz_aliasing(xxx(a, b, c, d), xxx(__tzz, b, c, __tzz), a, d, __tzz); \
+      test_zz_aliasing(xxx(a, b, c, d), xxx(a, __tzz, __tzz, d), b, c, __tzz); \
+      test_zz_aliasing(xxx(a, b, c, d), xxx(a, __tzz, c, __tzz), b, d, __tzz); \
+      zz_clear(__tzz); \
+   } while (0)
+
 #define test_zz_aliasing_12i(xxx, a, b, c) \
    do { \
       zz_t __tzz; \
