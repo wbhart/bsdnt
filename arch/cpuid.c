@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <limits.h>
 
 typedef struct cpuid_t
 {
@@ -11,42 +12,28 @@ typedef struct cpuid_t
 int main(void)
 {
    char VendorID[13];
-   int val;
+   int val, a, b;
    cpuid_t fms;
 
    VendorID[12] = '\0';
 
-#if ULONG_MAX == 4294967295U /* 32 bits */
-   __asm( 
-          "push %%eax;"
-          "mov $0, %%eax;"
-          "cpuid;"
+   a = 0;
+   
+   __asm( "cpuid;"
           "mov %%ebx, %0;"
           "mov %%edx, %1;"
           "mov %%ecx, %2;"
-          "pop %%eax;"
-          : "=m"(*(int*)(VendorID)), "=m"(*(int*)(VendorID+4)), "=m"(*(int*)(VendorID+8))
-          :
-          : "%ebx", "%edx", "%ecx"
+          : "=m"(*(int*)(VendorID)), "=m"(*(int*)(VendorID+4)), "=m"(*(int*)(VendorID+8)), "=a"(a)
+          : "3"(a)
+          : "%ebx", "%ecx", "%edx", "memory"
    );
-#else /* 64 bits */
-   __asm( 
-          "mov $0, %%eax;"
-          "cpuid;"
-          "mov %%ebx, %0;"
-          "mov %%edx, %1;"
-          "mov %%ecx, %2;"
-          : "=m"(*(int*)(VendorID)), "=m"(*(int*)(VendorID+4)), "=m"(*(int*)(VendorID+8))
-          :
-          : "%eax", "%ebx", "%edx", "%ecx"
-   );
-#endif
 
-   __asm( "mov $1, %%eax;"
-          "cpuid;"
+   a = 1;
+   
+   __asm( "cpuid;"
           "mov %%eax, %0;"
           : "=r"(val)
-          :
+          : "0"(a)
           : "%eax"
    );
 
