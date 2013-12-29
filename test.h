@@ -81,6 +81,12 @@
    bsdnt_printf(#a " vs " #b "(%m) ", m); nn_printx_diff(a, b, BSDNT_ABS(m)); printf("\n"); \
    } while (0)
 
+#define zz_print_debug(a) \
+   do { \
+      bsdnt_printf(#a "(%m) = ", a->size); \
+      zz_print(a); printf("\n"); \
+   } while (0)
+
 typedef enum
 {
    NN, ZZ
@@ -135,6 +141,11 @@ void randoms_of_len(len_t n, flag_t flag, rand_t state, ...);
    randoms_signed(100, FULL, state, &a, &b, NULL);
 */
 void randoms_signed(len_t n, flag_t flag, rand_t state, ...);
+
+/*
+   Clean up a bunch of zz_t's.
+*/
+void randoms_clear(zz_t * v1, ...);
 
 /*
    Clean up any objects allocated by the random functions above.

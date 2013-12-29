@@ -317,10 +317,10 @@ void zz_sub(zz_ptr r, zz_srcptr a, zz_srcptr b)
       if (a->size < 0) rsize = -rsize;
    }
 
-   r->size = rsize;
    if (sign < 0) 
       rsize = -rsize;
    
+   r->size = rsize;
    zz_normalise(r);
 }
 
@@ -436,7 +436,7 @@ void zz_mul(zz_ptr r, zz_srcptr a, zz_srcptr b)
    len_t rsize = asize + bsize;
    
    if (asize == 0 || bsize == 0)
-      rsize = 0;
+      r->size = 0;
    else 
    {
       zz_fit(r, rsize);
