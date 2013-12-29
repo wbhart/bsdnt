@@ -1486,9 +1486,6 @@ int test_divrem1_preinv(void)
       
       randoms(NORMALISED, state, &d, NULL);
 
-      r1 = nn_init(m + n);
-      r2 = nn_init(m + n);
-
       inv = precompute_inverse1(d);
 
       nn_random(a, state, m + n);
