@@ -34,6 +34,10 @@
 #include "rand.h"
 #include "nn.h"
 
+#ifdef __cplusplus
+ extern "C" {
+#endif
+
 typedef struct
 {
    nn_t n;
@@ -301,6 +305,10 @@ size_t zz_set_str(zz_t a, const char * str);
    newline character is output.
 */
 void zz_print(zz_srcptr a);
+
+#ifdef __cplusplus
+ }
+#endif
 
 #endif
 

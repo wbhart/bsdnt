@@ -25,12 +25,16 @@
   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef BSDNT_GENERIC_H
-#define BSDNT_GENERIC_H
+#ifndef BSDNT_TEST_H
+#define BSDNT_TEST_H
 
 #include "nn.h"
 #include "zz.h"
 #include "config.h"
+
+#ifdef __cplusplus
+ extern "C" {
+#endif
 
 #if WANT_REDZONES
 #define REDZONE_WORDS 4 /* number of words of redzone */
@@ -201,6 +205,10 @@ void randoms_signed(len_t n, flag_t flag, rand_t state, ...);
    in use.
 */
 void gc_cleanup(void);
+
+#ifdef __cplusplus
+ }
+#endif
 
 #endif
 

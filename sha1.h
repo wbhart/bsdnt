@@ -28,6 +28,10 @@
 #ifndef _SHA1_H
 #define _SHA1_H
 
+#ifdef __cplusplus
+ extern "C" {
+#endif
+
 /* define for bit or byte oriented SHA   */
 #if 1
 #  define SHA1_BITS 0   /* byte oriented */
@@ -71,5 +75,9 @@ void sha1_end(unsigned char hval[], sha1_ctx ctx[1]);
    Set hval[] to the 160 bit sha1 hash of data[] of length len bytes.
 */
 void sha1(unsigned char hval[], const unsigned char data[], unsigned long len);
+
+#ifdef __cplusplus
+ }
+#endif
 
 #endif

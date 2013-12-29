@@ -36,6 +36,10 @@
 #include "helper.h"
 #include "rand.h"
 
+#ifdef __cplusplus
+ extern "C" {
+#endif
+
 #define NN_SWAP(a, b) \
    do {               \
       nn_t __t = a;   \
@@ -871,6 +875,10 @@ void nn_div(nn_t q, nn_t a, len_t m, nn_src_t d, len_t n);
 
 #define nn_xgcd(g, v, a, m, b, n) \
    nn_xgcd_lehmer(g, v, a, m, b, n)
+
+#ifdef __cplusplus
+ }
+#endif
 
 #endif
 

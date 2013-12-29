@@ -38,6 +38,10 @@
 #include "types_arch.h"
 #include "tuning.h"
 
+#ifdef __cplusplus
+ extern "C" {
+#endif
+
 #if ULONG_MAX == 4294967295U /* 32 bit unsigned long */
 
 typedef uint32_t word_t;
@@ -327,5 +331,9 @@ void printx_word(word_t a);
    %b : print a bits_t
 */
 void bsdnt_printf(const char * str, ...);
+
+#ifdef __cplusplus
+ }
+#endif
 
 #endif

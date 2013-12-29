@@ -31,6 +31,10 @@
 
 #include "helper.h"
 
+#ifdef __cplusplus
+ extern "C" {
+#endif
+
 /* BSDNT Interface */
 
 typedef void * rand_ctx;
@@ -76,5 +80,9 @@ word_t randint(word_t m, rand_t state)
 {
    return ((word_t) state.word(state.ctx) % m);
 }
+
+#ifdef __cplusplus
+ }
+#endif
 
 #endif

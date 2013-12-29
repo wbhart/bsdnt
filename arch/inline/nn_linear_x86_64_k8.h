@@ -3,6 +3,10 @@
 #ifndef HAVE_ARCH_nn_add_mc
 #define HAVE_ARCH_nn_add_mc
 
+#ifdef __cplusplus
+ extern "C" {
+#endif
+
 word_t nn_add_mc(nn_t a, nn_src_t b, nn_src_t c, len_t m, word_t ci)
 {
    __asm__ __volatile__ (
@@ -61,5 +65,9 @@ word_t nn_sub_mc(nn_t a, nn_src_t b, nn_src_t c, len_t m, word_t ci)
 
    return ci;
 }
+
+#ifdef __cplusplus
+ }
+#endif
 
 #endif
