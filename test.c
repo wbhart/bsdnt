@@ -267,26 +267,12 @@ void randoms_signed(len_t n, flag_t flag, rand_t state, ...)
    va_end(ap);
 }
 
-void randoms_clear(zz_t * v1, ...)
-{
-   va_list ap;
-   zz_t * obj;
-   
-   zz_clear(*v1);
-   
-   va_start(ap, v1);
-   
-   while ((obj = va_arg(ap, zz_t *)) != NULL) 
-      zz_clear(*obj);
-
-   va_end(ap);
-}
-
 void free_obj(node_t * obj)
 {
    if (obj->type == NN)
       free_redzoned_nn(obj->ptr, obj->length);
-   /* don't clean up zz_t's as they can be realloc'd */
+   if (obj->type == ZZ)
+      zz_clear(*(zz_t *)obj->ptr);
 }
 
 void gc_cleanup(void)

@@ -143,11 +143,6 @@ void randoms_of_len(len_t n, flag_t flag, rand_t state, ...);
 void randoms_signed(len_t n, flag_t flag, rand_t state, ...);
 
 /*
-   Clean up a bunch of zz_t's.
-*/
-void randoms_clear(zz_t * v1, ...);
-
-/*
    Clean up any objects allocated by the random functions above.
    Note *all* objects are cleaned up. We have no way of knowing 
    which are still in use, so it is assumed none of them are still

@@ -53,7 +53,7 @@ int test_gc(void)
       
       randoms_signed(w1, ANY, state, &a, &b, &c, NULL);
 
-      randoms_clear(&a, &b, &c, NULL);
+      gc_cleanup();
    } TEST_END;
 
    return result;
@@ -92,7 +92,7 @@ int test_add(void)
          zz_print_debug(r1); zz_print_debug(r2);
       }
 
-      randoms_clear(&a, &b, &c, &r1, &r2, NULL);
+      gc_cleanup();
    } TEST_END;
 
    return result;
@@ -131,7 +131,7 @@ int test_sub(void)
          zz_print_debug(r1); zz_print_debug(r2);
       }
 
-      randoms_clear(&a, &b, &c, &r1, &r2, NULL);
+      gc_cleanup();
    } TEST_END;
 
    /* test (a + b) - b = a */
@@ -154,7 +154,31 @@ int test_sub(void)
          zz_print_debug(r1);
       }
 
-      randoms_clear(&a, &b, &r1, NULL);
+      gc_cleanup();
+   } TEST_END;
+
+   /* test a - b = a + (-b) */
+   TEST_START(3, ITER) 
+   {
+      randoms_upto(10, ANY, state, &m1, &m2, NULL);
+
+      randoms_signed(m1, ANY, state, &a, NULL);
+      randoms_signed(m2, ANY, state, &b, NULL);
+      randoms_signed(0, ANY, state, &r1, &r2, &c, NULL);
+      
+      zz_sub(r1, a, b);
+      zz_neg(c, b);
+      zz_add(r2, a, c);
+
+      result = zz_equal(r1, r2);
+
+      if (!result) 
+      {
+         zz_print_debug(a); zz_print_debug(b);  zz_print_debug(c); 
+         zz_print_debug(r1); zz_print_debug(r2);
+      }
+
+      gc_cleanup();
    } TEST_END;
 
    return result;
@@ -167,6 +191,29 @@ int test_mul(void)
    len_t m1, m2, m3;
    
    printf("zz_mul...");
+
+   /* test ab = ba */
+   TEST_START(1, ITER) 
+   {
+      randoms_upto(10, ANY, state, &m1, &m2, NULL);
+
+      randoms_signed(m1, ANY, state, &a, NULL);
+      randoms_signed(m2, ANY, state, &b, NULL);
+      randoms_signed(0, ANY, state, &r1, &r2, NULL);
+      
+      zz_mul(r1, a, b);
+      zz_mul(r2, b, a);
+      
+      result = zz_equal(r1, r2);
+
+      if (!result) 
+      {
+         zz_print_debug(a); zz_print_debug(b); 
+         zz_print_debug(r1); zz_print_debug(r2);
+      }
+
+      gc_cleanup();
+   } TEST_END;
 
    /* test a(b + c) = ac + bc */
    TEST_START(1, ITER) 
@@ -194,7 +241,7 @@ int test_mul(void)
          zz_print_debug(r1); zz_print_debug(r2);
       }
 
-      randoms_clear(&a, &b, &c, &r1, &r2, &t1, &t2, NULL);
+      gc_cleanup();
    } TEST_END;
 
    return result;

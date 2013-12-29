@@ -53,7 +53,7 @@ int test_gc(void)
       
       randoms_signed(w1, ANY, state, &a, &b, &c, NULL);
 
-      randoms_clear(&a, &b, &c, NULL);
+      gc_cleanup();
    } TEST_END;
 
    return result;
@@ -92,7 +92,7 @@ int test_add(void)
          zz_print_debug(r1); zz_print_debug(r2);
       }
 
-      randoms_clear(&a, &b, &c, &r1, &r2, NULL);
+      gc_cleanup();
    } TEST_END;
 
    return result;
@@ -131,7 +131,7 @@ int test_sub(void)
          zz_print_debug(r1); zz_print_debug(r2);
       }
 
-      randoms_clear(&a, &b, &c, &r1, &r2, NULL);
+      gc_cleanup();
    } TEST_END;
 
    /* test (a + b) - b = a */
@@ -154,7 +154,7 @@ int test_sub(void)
          zz_print_debug(r1);
       }
 
-      randoms_clear(&a, &b, &r1, NULL);
+      gc_cleanup();
    } TEST_END;
 
    return result;
@@ -194,7 +194,7 @@ int test_mul(void)
          zz_print_debug(r1); zz_print_debug(r2);
       }
 
-      randoms_clear(&a, &b, &c, &r1, &r2, &t1, &t2, NULL);
+      gc_cleanup();
    } TEST_END;
 
    return result;
