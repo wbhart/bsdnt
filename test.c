@@ -232,37 +232,52 @@ void randoms_of_len(len_t n, flag_t flag, rand_t state, ...)
 void randoms_signed(len_t n, flag_t flag, rand_t state, ...)
 {
    va_list ap;
-   zz_ptr obj;
+   zz_t * obj;
 
    va_start(ap, state);
    
-   while ((obj = va_arg(ap, zz_ptr)) != NULL) 
+   while ((obj = va_arg(ap, zz_t *)) != NULL) 
    {
-      obj->n = (nn_t) malloc(n*sizeof(word_t));
-      nn_test_random(obj->n, state, n);
-      obj->size = nn_normalise(obj->n, n);
-      obj->alloc = n;
+      (*obj)->n = (nn_t) malloc(n*sizeof(word_t));
+      nn_test_random((*obj)->n, state, n);
+      (*obj)->size = nn_normalise((*obj)->n, n);
+      (*obj)->alloc = n;
       
       if (randint(2, state))
-         obj->size = -obj->size;
+         (*obj)->size = -(*obj)->size;
 
       switch (flag)
       {
       case ANY: break;
       case FULL: 
-         while (nn_normalise(obj->n, n) != n)
-            nn_test_random(obj->n, state, n);
+         while (nn_normalise((*obj)->n, n) != n)
+            nn_test_random((*obj)->n, state, n);
          break;
       case NORMALISED:
-         obj->n[n-1] |= (((word_t) 1) << (WORD_BITS - 1));
+         (*obj)->n[n-1] |= (((word_t) 1) << (WORD_BITS - 1));
          break;
-      case ODD: obj->n[0] |= (word_t) 1; break;
+      case ODD: (*obj)->n[0] |= (word_t) 1; break;
       default: talker("Unknown flag in randoms_signed");
          abort();
       }
 
-      garbage = new_node(ZZ, (void *) obj->n, n, garbage);
+      garbage = new_node(ZZ, (void *) obj, n, garbage);
    } 
+
+   va_end(ap);
+}
+
+void randoms_clear(zz_t * v1, ...)
+{
+   va_list ap;
+   zz_t * obj;
+   
+   zz_clear(*v1);
+   
+   va_start(ap, v1);
+   
+   while ((obj = va_arg(ap, zz_t *)) != NULL) 
+      zz_clear(*obj);
 
    va_end(ap);
 }
@@ -271,8 +286,7 @@ void free_obj(node_t * obj)
 {
    if (obj->type == NN)
       free_redzoned_nn(obj->ptr, obj->length);
-   else if (obj->type == ZZ)
-      free(obj->ptr);
+   /* don't clean up zz_t's as they can be realloc'd */
 }
 
 void gc_cleanup(void)

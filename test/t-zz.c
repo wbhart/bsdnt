@@ -65,7 +65,7 @@ int test_add(void)
    zz_t a, b, c, r1, r2;
    len_t m1, m2, m3;
    
-   printf("zz0_add...");
+   printf("zz_add...");
 
    /* test (a + b) + c = a + (b + c) */
    TEST_START(1, ITER) 
@@ -75,20 +75,20 @@ int test_add(void)
       randoms_signed(m1, ANY, state, &a, NULL);
       randoms_signed(m2, ANY, state, &b, NULL);
       randoms_signed(m3, ANY, state, &c, NULL);
-      randoms_signed(12, ANY, state, &r1, &r2, NULL);
+      randoms_signed(0, ANY, state, &r1, &r2, NULL);
       
-      r1->size = zz0_add(r1->n, a->n, a->size, b->n, b->size);
-      r1->size = zz0_add(r1->n, r1->n, r1->size, c->n, c->size);
+      zz_add(r1, a, b);
+      zz_add(r1, r1, c);
 
-      r2->size = zz0_add(r2->n, b->n, b->size, c->n, c->size);
-      r2->size = zz0_add(r2->n, r2->n, r2->size, a->n, a->size);
+      zz_add(r2, b, c);
+      zz_add(r2, r2, a);
       
       result = zz_equal(r1, r2);
 
       if (!result) 
       {
-         zz_print_debug(a); zz_print_debug(b); 
-         zz_print_debug(c); 
+         zz_print_debug(a); zz_print_debug(b);
+         zz_print_debug(c);
          zz_print_debug(r1); zz_print_debug(r2);
       }
 
@@ -104,7 +104,7 @@ int test_sub(void)
    zz_t a, b, c, r1, r2;
    len_t m1, m2, m3;
    
-   printf("zz0_sub...");
+   printf("zz_sub...");
 
    /* test (a - b) - c = (a - c) - b */
    TEST_START(1, ITER) 
@@ -114,13 +114,13 @@ int test_sub(void)
       randoms_signed(m1, ANY, state, &a, NULL);
       randoms_signed(m2, ANY, state, &b, NULL);
       randoms_signed(m3, ANY, state, &c, NULL);
-      randoms_signed(12, ANY, state, &r1, &r2, NULL);
+      randoms_signed(0, ANY, state, &r1, &r2, NULL);
       
-      r1->size = zz0_sub(r1->n, a->n, a->size, b->n, b->size);
-      r1->size = zz0_sub(r1->n, r1->n, r1->size, c->n, c->size);
+      zz_sub(r1, a, b);
+      zz_sub(r1, r1, c);
 
-      r2->size = zz0_sub(r2->n, a->n, a->size, c->n, c->size);
-      r2->size = zz0_sub(r2->n, r2->n, r2->size, b->n, b->size);
+      zz_sub(r2, a, c);
+      zz_sub(r2, r2, b);
 
       result = zz_equal(r1, r2);
 
@@ -141,10 +141,10 @@ int test_sub(void)
 
       randoms_signed(m1, ANY, state, &a, NULL);
       randoms_signed(m2, ANY, state, &b, NULL);
-      randoms_signed(12, ANY, state, &r1, NULL);
+      randoms_signed(0, ANY, state, &r1, NULL);
       
-      r1->size = zz0_add(r1->n, a->n, a->size, b->n, b->size);
-      r1->size = zz0_sub(r1->n, r1->n, r1->size, b->n, b->size);
+      zz_add(r1, a, b);
+      zz_sub(r1, r1, b);
 
       result = zz_equal(r1, a);
 
@@ -166,7 +166,7 @@ int test_mul(void)
    zz_t a, b, c, r1, r2, t1, t2;
    len_t m1, m2, m3;
    
-   printf("zz0_mul...");
+   printf("zz_mul...");
 
    /* test a(b + c) = ac + bc */
    TEST_START(1, ITER) 
@@ -176,14 +176,14 @@ int test_mul(void)
       randoms_signed(m1, ANY, state, &a, NULL);
       randoms_signed(m2, ANY, state, &b, NULL);
       randoms_signed(m3, ANY, state, &c, NULL);
-      randoms_signed(21, ANY, state, &r1, &r2, &t1, &t2, NULL);
+      randoms_signed(0, ANY, state, &r1, &r2, &t1, &t2, NULL);
       
-      t1->size = zz0_add(t1->n, b->n, b->size, c->n, c->size);
-      r1->size = zz0_mul(r1->n, a->n, a->size, t1->n, t1->size);
+      zz_add(t1, b, c);
+      zz_mul(r1, a, t1);
 
-      t1->size = zz0_mul(t1->n, a->n, a->size, b->n, b->size);
-      t2->size = zz0_mul(t2->n, a->n, a->size, c->n, c->size);
-      r2->size = zz0_add(r2->n, t1->n, t1->size, t2->n, t2->size);
+      zz_mul(t1, a, b);
+      zz_mul(t2, a, c);
+      zz_add(r2, t1, t2);
 
       result = zz_equal(r1, r2);
 
@@ -200,7 +200,7 @@ int test_mul(void)
    return result;
 }
 
-int test_zz0(void)
+int test_zz(void)
 {
    long pass = 0;
    long fail = 0;
@@ -219,12 +219,12 @@ int main(void)
 {
    int ret = 0;
    
-   printf("\nTesting zz0 functions:\n");
+   printf("\nTesting zz functions:\n");
    
    randinit(&state);
    checkpoint_rand("First Random Word: ");
 
-   ret = test_zz0();
+   ret = test_zz();
 	
    randclear(state);
 
