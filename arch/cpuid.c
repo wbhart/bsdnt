@@ -16,7 +16,22 @@ int main(void)
 
    VendorID[12] = '\0';
 
-   __asm( "mov $0, %%eax;"
+#if ULONG_MAX == 4294967295U /* 32 bits */
+   __asm( 
+          "push %%eax;"
+          "mov $0, %%eax;"
+          "cpuid;"
+          "mov %%ebx, %0;"
+          "mov %%edx, %1;"
+          "mov %%ecx, %2;"
+          "pop %%eax;"
+          : "=m"(*(int*)(VendorID)), "=m"(*(int*)(VendorID+4)), "=m"(*(int*)(VendorID+8))
+          :
+          : "%ebx", "%edx", "%ecx"
+   );
+#else /* 64 bits */
+   __asm( 
+          "mov $0, %%eax;"
           "cpuid;"
           "mov %%ebx, %0;"
           "mov %%edx, %1;"
@@ -25,6 +40,7 @@ int main(void)
           :
           : "%eax", "%ebx", "%edx", "%ecx"
    );
+#endif
 
    __asm( "mov $1, %%eax;"
           "cpuid;"
