@@ -31,6 +31,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include <alloca.h>
 #include <limits.h>
 #include <assert.h>
