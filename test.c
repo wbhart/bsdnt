@@ -243,11 +243,18 @@ void randoms_signed(len_t n, flag_t flag, rand_t state, ...)
       (*obj)->size = nn_normalise((*obj)->n, n);
       (*obj)->alloc = n;
       
-      if (randint(2, state))
+      if (flag != POSITIVE && randint(2, state))
          (*obj)->size = -(*obj)->size;
 
       switch (flag)
       {
+      case NONZERO: 
+      case POSITIVE: 
+         if (n == 0)
+            talker("Cannot generate positive number of length 0 in randoms_signed");
+         if ((*obj)->size == 0)
+            zz_seti(*obj, 1);
+         break;
       case ANY: break;
       case FULL: 
          while (nn_normalise((*obj)->n, n) != n)
