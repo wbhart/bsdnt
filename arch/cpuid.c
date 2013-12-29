@@ -25,13 +25,16 @@ int main(void)
 {
    unsigned int regs[4];
    unsigned int val;
+   unsigned int dummy;
    cpuid_t fms;
+
+   #define VendorID ((char *) regs)
 
    regs[3] = 0; /* terminate string */
 
-   cpuid(0, &val, regs, regs + 1, regs + 1);
+   cpuid(0, &val, regs, regs + 1, regs + 2);
 
-   cpuid(1, &val, regs, regs + 1, regs + 2);
+   cpuid(1, &val, &dummy, &dummy, &dummy);
 
    if (strcmp(VendorID, "AuthenticAMD") == 0)
    {
