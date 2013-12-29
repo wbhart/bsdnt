@@ -1358,6 +1358,118 @@ int test_div(void)
    return result;
 }
 
+int test_gcd(void)
+{
+   int result = 1;
+   zz_t a, b, c, g;
+   len_t m1, m2, m3;
+   
+   printf("zz_gcd...");
+
+   /* test gcd(ac, bc) = c if gcd(a, b) = 1 */
+   TEST_START(1, ITER/5) 
+   {
+      do { /* find coprime a and b */
+         gc_cleanup();
+         randoms_upto(10, ANY, state, &m1, &m2, NULL);
+         randoms_signed(0, ANY, state, &g, NULL);
+         randoms_signed(m1, ANY, state, &a, NULL);
+         randoms_signed(m2, ANY, state, &b, NULL);
+         zz_gcd(g, a, b);
+      } while (!zz_equali(g, 1));
+      
+      randoms_upto(10, ANY, state, &m3, NULL);
+      randoms_signed(m3, ANY, state, &c, NULL);
+      
+      zz_mul(a, a, c);
+      zz_mul(b, b, c);
+
+      zz_gcd(g, a, b);
+
+      /* gcd cannot be negative if a and b have different signs */
+      if ((a->size ^ b->size) < 0 && a->size != 0 && b->size != 0)
+         c->size = BSDNT_ABS(c->size);
+
+      result = zz_equal(g, c);
+
+      if (!result) 
+      {
+         zz_print_debug(a); zz_print_debug(b); 
+         zz_print_debug(c); zz_print_debug(g); 
+      }
+
+      gc_cleanup();
+   } TEST_END;
+   
+   /* test aliasing */
+   TEST_START(aliasing, ITER/5) 
+   {
+      randoms_upto(10, ANY, state, &m1, NULL);
+      randoms_upto(10, ANY, state, &m2, NULL);
+
+      randoms_signed(0, ANY, state, &g, NULL);
+      randoms_signed(m1, ANY, state, &a, NULL);
+      randoms_signed(m2, ANY, state, &b, NULL);
+     
+      test_zz_aliasing_12(zz_gcd, g, a, b);
+
+      gc_cleanup();
+   } TEST_END;
+
+   return result;
+}
+
+int test_xgcd(void)
+{
+   int result = 1;
+   zz_t a, b, g, t1, u, v;
+   len_t m1, m2;
+   
+   printf("zz_xgcd...");
+
+   /* compare with gcd */
+   TEST_START(1, ITER/5) 
+   {
+      randoms_upto(10, ANY, state, &m1, &m2, NULL);
+         
+      randoms_signed(0, ANY, state, &t1, &g, &u, &v, NULL);
+      randoms_signed(m1, ANY, state, &a, NULL);
+      randoms_signed(m2, ANY, state, &b, NULL);
+         
+      zz_gcd(g, a, b);
+      zz_xgcd(t1, u, v, a, b);
+
+      result = zz_equal(g, t1);
+
+      if (!result) 
+      {
+         zz_print_debug(a); zz_print_debug(b); 
+         zz_print_debug(g); zz_print_debug(t1); 
+      }
+
+      gc_cleanup();
+   } TEST_END;
+   
+   /* test aliasing */
+   TEST_START(aliasing, ITER/5) 
+   {
+      randoms_upto(10, ANY, state, &m1, NULL);
+      randoms_upto(10, ANY, state, &m2, NULL);
+
+      randoms_signed(0, ANY, state, &g, NULL);
+      randoms_signed(0, ANY, state, &u, NULL);
+      randoms_signed(0, ANY, state, &v, NULL);
+      randoms_signed(m1, ANY, state, &a, NULL);
+      randoms_signed(m2, ANY, state, &b, NULL);
+     
+      test_zz_aliasing_32(zz_xgcd, g, u, v, a, b);
+
+      gc_cleanup();
+   } TEST_END;
+
+   return result;
+}
+
 int test_zz(void)
 {
    long pass = 0;
@@ -1383,6 +1495,8 @@ int test_zz(void)
    RUN(test_mul);
    RUN(test_divrem);
    RUN(test_div);
+   RUN(test_gcd);
+   RUN(test_xgcd);
    
    printf("%ld of %ld tests pass.\n", pass, pass + fail);
 

@@ -162,9 +162,9 @@ int zz_is_zero(zz_srcptr r);
 
 /*
    Generate a signed, uniformly random zz_t whose absolute value has
-   at most the given number of bits.
+   at most the given number of words.
 */
-void zz_random(zz_ptr a, rand_t state, bits_t bits);
+void zz_random(zz_ptr a, rand_t state, len_t words);
 
 /**********************************************************************
  
@@ -265,8 +265,8 @@ void zz_div(zz_ptr q, zz_srcptr a, zz_srcptr b);
 
 /*
    Set g to the greatest common divisor of a and b. If both are
-   negative then g will be negative, otherwise g will be positive.
-   If a = 0 then g = b, and similarly if b = 0 then g = a.
+   negative or zero then g will be negative or zero, otherwise g will
+   be positive. If a = 0 then g = b, and similarly if b = 0 then g = a.
 */
 void zz_gcd(zz_ptr g, zz_srcptr a, zz_srcptr b);
 
