@@ -664,7 +664,12 @@ void zz_xgcd(zz_ptr g, zz_ptr s, zz_ptr t, zz_srcptr a, zz_srcptr b)
       zz_ptr a2, b2;
       TMP_START;
 
-      ZZ_ORDER(a, asize, b, bsize);
+      if (asize < bsize)
+      {
+         BSDNT_SWAP(asize, bsize);
+         ZZ_SRC_SWAP(a, b);
+         ZZ_SWAP(s, t);
+      }
 
       ta = TMP_ALLOC(asize);
       tb = TMP_ALLOC(bsize);
@@ -718,6 +723,7 @@ char * zz_get_str(zz_srcptr a)
 {
    len_t size = BSDNT_ABS(a->size);
    char * str;
+   size_t i;
    nn_t t;
    TMP_INIT;
    
@@ -728,6 +734,15 @@ char * zz_get_str(zz_srcptr a)
    nn_copy(t, a->n, size);
 
    str = nn_get_str(t, size);
+
+   if (a->size < 0)
+   {
+      size_t len = strlen(str);
+      str = realloc(str, len + 2);
+      for (i = len + 1; i >= 1; i--)
+         str[i] = str[i - 1];
+      str[0] = '-';
+   }
 
    TMP_END;
 

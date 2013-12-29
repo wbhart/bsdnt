@@ -1422,7 +1422,7 @@ int test_gcd(void)
 int test_xgcd(void)
 {
    int result = 1;
-   zz_t a, b, g, t1, u, v;
+   zz_t a, b, g, t1, t2, u, v;
    len_t m1, m2;
    
    printf("zz_xgcd...");
@@ -1450,6 +1450,33 @@ int test_xgcd(void)
       gc_cleanup();
    } TEST_END;
    
+   /* check g = au + bv */
+   TEST_START(2, ITER/5) 
+   {
+      randoms_upto(10, ANY, state, &m1, &m2, NULL);
+         
+      randoms_signed(0, ANY, state, &t1, &t2, &g, &u, &v, NULL);
+      randoms_signed(m1, ANY, state, &a, NULL);
+      randoms_signed(m2, ANY, state, &b, NULL);
+         
+      zz_xgcd(g, u, v, a, b);
+
+      zz_mul(t1, a, u);
+      zz_mul(t2, b, v);
+      zz_add(t1, t1, t2);
+
+      result = zz_equal(g, t1);
+
+      if (!result) 
+      {
+         zz_print_debug(a); zz_print_debug(b); 
+         zz_print_debug(u); zz_print_debug(v); 
+         zz_print_debug(g); zz_print_debug(t1); 
+      }
+
+      gc_cleanup();
+   } TEST_END;
+   
    /* test aliasing */
    TEST_START(aliasing, ITER/5) 
    {
@@ -1469,6 +1496,43 @@ int test_xgcd(void)
 
    return result;
 }
+
+int test_get_set_str(void)
+{
+   int result = 1;
+   len_t m;
+   zz_t a, b;
+   char * str;
+   size_t digits;
+
+   printf("zz_get/set_str...");
+
+   TEST_START(1, ITER/2) 
+   {
+      randoms_upto(10, NONZERO, state, &m, NULL);
+      
+      randoms_signed(m, ANY, state, &a, NULL);
+      randoms_signed(0, ANY, state, &b, NULL);
+
+      str = zz_get_str(a);
+      digits = zz_set_str(b, str);
+
+      result = (zz_equal(a, b) && digits == strlen(str));
+      
+      if (!result)
+      {
+         zz_print_debug(a); zz_print_debug(b); 
+         printf("str = %s\n", str);
+         printf("digits = %ld\n", (long) digits);
+      }
+
+      free(str);
+      gc_cleanup();
+   } TEST_END;
+
+   return result;
+}
+
 
 int test_zz(void)
 {
@@ -1497,6 +1561,7 @@ int test_zz(void)
    RUN(test_div);
    RUN(test_gcd);
    RUN(test_xgcd);
+   RUN(test_get_set_str);
    
    printf("%ld of %ld tests pass.\n", pass, pass + fail);
 
