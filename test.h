@@ -77,6 +77,14 @@
       zz_clear(__tzz); \
    } while (0)
 
+#define test_zz_aliasing_12i(xxx, a, b, c) \
+   do { \
+      zz_t __tzz; \
+      zz_init(__tzz); \
+      test_zz_aliasing(xxx(a, b, c), xxx(__tzz, __tzz, c), a, b, __tzz); \
+      zz_clear(__tzz); \
+   } while (0)
+
 #define RUN(xxx) \
    do { \
       if (xxx()) \
@@ -114,7 +122,7 @@ typedef enum
 
 typedef enum
 {
-   ANY, NONZERO, ODD, FULL, NORMALISED
+   ANY, NONZERO, ODD, FULL, NORMALISED, POSITIVE
 } flag_t;
 
 typedef struct node_t

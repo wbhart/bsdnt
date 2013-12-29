@@ -326,24 +326,40 @@ void zz_sub(zz_ptr r, zz_srcptr a, zz_srcptr b)
 
 void zz_mul_2exp(zz_ptr r, zz_srcptr a, bits_t exp)
 {
-   bits_t bits = exp % WORD_BITS;
-   len_t words = exp / WORD_BITS;
-   len_t usize = BSDNT_ABS(a->size);
-   len_t rsize = usize + words;
+   if (a->size == 0)
+      r->size = 0;
+   else
+   {
+      bits_t bits = exp % WORD_BITS;
+      len_t words = exp / WORD_BITS;
+      len_t usize = BSDNT_ABS(a->size);
+      len_t rsize = usize + words;
+      TMP_INIT;
    
-   zz_fit(r, rsize + (bits != 0));
+      zz_fit(r, rsize + (bits != 0));
 
-   if (bits == 0) 
-   {
-      nn_copyd(r->n + words, a->n, usize);
-      rsize = usize + words;
-   } else 
-   {
-      r->n[rsize] = nn_shl(r->n + words, a->n, usize, bits);
-      rsize += (r->n[rsize] != 0);  
+      if (bits == 0) 
+         nn_copyd(r->n + words, a->n, usize);
+      else 
+      {
+         nn_t t = a->n;
+         TMP_START;
+         
+         if (r == a && words != 0 && words < usize)
+         {
+            t = TMP_ALLOC(usize);
+            nn_copy(t, a->n, usize);
+         }
+         
+         r->n[rsize] = nn_shl(r->n + words, t, usize, bits);
+         rsize += (r->n[rsize] != 0); 
+
+         TMP_END;
+      }
+
+      nn_zero(r->n, words);
+      r->size = a->size >= 0 ? rsize : -rsize;
    }
-
-   r->size = a->size >= 0 ? rsize : -rsize;
 }
 
 void zz_div_2exp(zz_ptr r, zz_srcptr a, bits_t exp)
@@ -357,14 +373,27 @@ void zz_div_2exp(zz_ptr r, zz_srcptr a, bits_t exp)
       r->size = 0;
    else 
    {
+      TMP_INIT;
+      
       zz_fit(r, rsize);
 
       if (bits == 0)
          nn_copy(r->n, a->n + words, rsize);
       else 
       {
-         nn_shr(r->n, a->n + words, rsize, bits);
-         rsize -= (r->n[rsize - 1] == 0);  
+         nn_t t = a->n;
+         TMP_START;
+         
+         if (r == a && words != 0)
+         {
+            t = TMP_ALLOC(usize);
+            nn_copy(t, a->n, usize);
+         }
+         
+         nn_shr(r->n, t + words, rsize, bits);
+         rsize -= (r->n[rsize - 1] == 0); 
+
+         TMP_END;
       }
 
       r->size = a->size >= 0 ? rsize : -rsize;
