@@ -47,19 +47,18 @@ typedef zz_struct * zz_ptr;
 
 typedef const zz_struct * zz_srcptr;
 
-#define ZZ_SWAP(a, b)      \
-   do {                    \
-      zz_srcptr __t = a;   \
-      a = b;               \
-      b = __t;             \
-   } while (0)
+#define ZZ_SWAP(a, b)  \
+  TYPED_SWAP(zz_ptr, a, b)
 
-#define ZZ_ORDER(a, an, b, bn) \
-   do {                        \
-      if (an < bn) {           \
-         BSDNT_SWAP(an, bn);   \
-         ZZ_SWAP(a, b);        \
-      }                        \
+#define ZZ_SRC_SWAP(a, b)  \
+  TYPED_SWAP(zz_srcptr, a, b)
+
+#define ZZ_ORDER(a, an, b, bn)        \
+   do {                               \
+      if (an < bn) {                  \
+         BSDNT_SWAP(an, bn);          \
+         TYPED_SWAP(zz_srcptr, a, b); \
+      }                               \
    } while (0)
 
 #define TMP_ZZ(xxx) \

@@ -83,12 +83,16 @@ typedef int64_t bits_t;
 #define BSDNT_MAX(x, y) \
    ((x) >= (y) ? (x) : (y))
 
-#define BSDNT_SWAP(a, b) \
-   do {                  \
-      len_t __t = (a);   \
-      (a) = (b);         \
-      (b) = __t;         \
+
+#define TYPED_SWAP(tt, a, b) \
+   do {                      \
+      tt __t = a;            \
+      a = b;                 \
+      b = __t;               \
    } while (0)
+
+#define BSDNT_SWAP(a, b) \
+   TYPED_SWAP(len_t, a, b)
 
 typedef word_t * nn_t;
 typedef const word_t * nn_src_t;
