@@ -11,42 +11,37 @@ typedef struct cpuid_t
 
 int main(void)
 {
-   char VendorID[13];
-   int val, a, b;
+   unsigned int regs[5];
+   unsigned int val;
+   unsigned int index = 0;
    cpuid_t fms;
 
-   VendorID[12] = '\0';
+   regs[4] = 0; /* terminate string */
 
-   a = 0;
-   
-#if ULONG_MAX == 4294967295U /* 32 bit unsigned long */
-    __asm( "push %%ebx;"
-          "cpuid;"
-          "mov %%ebx, %0;"
-          "mov %%edx, %1;"
-          "mov %%ecx, %2;"
-          "pop %%ebx;"
-          : "=m"(*(int*)(VendorID)), "=m"(*(int*)(VendorID+4)), "=m"(*(int*)(VendorID+8)), "=a"(a)
-          : "3"(a)
-          : "%ecx", "%edx", "memory"
-   );
-#else /* 64 bit unsigned long */
-    __asm( "cpuid;"
-          "mov %%ebx, %0;"
-          "mov %%edx, %1;"
-          "mov %%ecx, %2;"
-          : "=m"(*(int*)(VendorID)), "=m"(*(int*)(VendorID+4)), "=m"(*(int*)(VendorID+8)), "=a"(a)
-          : "3"(a)
-          : "%ebx", "%ecx", "%edx", "memory"
-   );
+#define VendorID ((char *) (regs + 1))
+
+   __asm__ __volatile__( 
+#if ULONG_MAX == 4294967295U /* 32 bit */
+          "pushl %%ebx;"
+#else /* 64 bit */
+          "pushq %%rbx;"
 #endif
+          "cpuid;"
+          "mov %%ebx, %[ebx];"
+#if ULONG_MAX == 4294967295U /* 32 bit unsigned long */
+          "popl %%ebx;"
+#else /* 64 bit unsigned long */
+          "popq %%rbx;"
+#endif
+          : "=a"(regs[0]), [ebx] "=r"(regs[1]), "=c"(regs[3]), "=d"(regs[2])
+          : "a"(index)
+   );
 
-   a = 1;
-   
-   __asm( "cpuid;"
+   index = 1; 
+   __asm__ __volatile__( "cpuid;"
           "mov %%eax, %0;"
           : "=r"(val)
-          : "0"(a)
+          : "0"(index)
           : "%eax"
    );
 
