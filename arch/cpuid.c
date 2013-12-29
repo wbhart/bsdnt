@@ -19,7 +19,19 @@ int main(void)
 
    a = 0;
    
-   __asm( "cpuid;"
+#if ULONG_MAX == 4294967295U /* 32 bit unsigned long */
+    __asm( "push %%ebx;"
+          "cpuid;"
+          "mov %%ebx, %0;"
+          "mov %%edx, %1;"
+          "mov %%ecx, %2;"
+          "pop %%ebx;"
+          : "=m"(*(int*)(VendorID)), "=m"(*(int*)(VendorID+4)), "=m"(*(int*)(VendorID+8)), "=a"(a)
+          : "3"(a)
+          : "%ecx", "%edx", "memory"
+   );
+#else /* 64 bit unsigned long */
+    __asm( "cpuid;"
           "mov %%ebx, %0;"
           "mov %%edx, %1;"
           "mov %%ecx, %2;"
@@ -27,6 +39,7 @@ int main(void)
           : "3"(a)
           : "%ebx", "%ecx", "%edx", "memory"
    );
+#endif
 
    a = 1;
    
