@@ -67,7 +67,7 @@ typedef const zz_struct * zz_srcptr;
 
 #define TMP_ZZ(xxx) \
    do { \
-      (xxx) = TMP_ALLOC_BYTES(sizeof(zz_t)); \
+      (xxx) = (zz_ptr) TMP_ALLOC_BYTES(sizeof(zz_t)); \
       zz_init(xxx); \
    } while (0)
 

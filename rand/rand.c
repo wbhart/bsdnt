@@ -29,7 +29,7 @@
 #include "helper.h"
 #include "internal_rand.h"
 
-static char *name[3] = { "Kiss", "Mersenne_Twister", "Super_Kiss" };
+static const char *name[3] = { "Kiss", "Mersenne_Twister", "Super_Kiss" };
 
 rand_t set_rand_algorithm(random_algorithm a)
 {   

@@ -94,7 +94,7 @@ void bsdnt_printf(const char * str, ...)
 {
    va_list ap;
    size_t len = strlen(str);
-   char * str2 = malloc(len + 1);
+   char * str2 = (char *) malloc(len + 1);
    int w1 = 0, w2 = 0;
    void * w3;
    double d;

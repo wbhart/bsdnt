@@ -419,7 +419,7 @@ void nn_div_hensel_preinv(nn_t ov, nn_t q, nn_t a, len_t m,
 #define __get_bits_lehmer(rr1, rr2, a, m, b, n) \
    do { \
       word_t __ah = (a)[(m) - 1]; \
-      word_t __bits = high_zero_bits(__ah); \
+      bits_t __bits = high_zero_bits(__ah); \
       if (m >= n + 1) { \
          if (__bits == 0) (rr1) = 0, (rr2) = (__ah >> 1); \
          else if (__bits == 1) (rr1) = 0, (rr2) = __ah; \
@@ -461,11 +461,11 @@ len_t nn_xgcd_lehmer(nn_t g, nn_t v, nn_t a, len_t m, nn_t b, len_t n)
    
    TMP_START;
    
-   q = TMP_ALLOC(m + 1);
-   r = TMP_ALLOC(m + 1);
-   c1 = TMP_ALLOC(m + 1);
-   c2 = TMP_ALLOC(m + 1);
-   a2 = TMP_ALLOC(m);
+   q = (nn_t) TMP_ALLOC(m + 1);
+   r = (nn_t) TMP_ALLOC(m + 1);
+   c1 = (nn_t) TMP_ALLOC(m + 1);
+   c2 = (nn_t) TMP_ALLOC(m + 1);
+   a2 = (nn_t) TMP_ALLOC(m);
 
    nn_copy(a2, a, m);
 
@@ -623,12 +623,12 @@ len_t nn_gcd_lehmer(nn_t g, nn_t a, len_t m, nn_t b, len_t n)
    
    TMP_START;
    
-   q = TMP_ALLOC(m);
-   r = TMP_ALLOC(m + 1);
+   q = (nn_t) TMP_ALLOC(m);
+   r = (nn_t) TMP_ALLOC(m + 1);
    
    if (m != n)
    {
-      s = TMP_ALLOC(m);
+      s = (nn_t) TMP_ALLOC(m);
       nn_copy(s, b, n);
       b = s;
    }
@@ -732,8 +732,8 @@ char * nn_get_str(nn_src_t a, len_t m)
    else 
    {
       TMP_START;
-      q1 = TMP_ALLOC(m);
-      q2 = TMP_ALLOC(m);
+      q1 = (nn_t) TMP_ALLOC(m);
+      q2 = (nn_t) TMP_ALLOC(m);
       nn_copy(q1, a, m);
 
       /* compute digits in reverse order */
@@ -762,8 +762,8 @@ char * nn_get_str(nn_src_t a, len_t m)
 
 size_t nn_set_str(nn_t a, len_t * len, const char * str)
 {
-   len_t i, m = 1;
-   size_t digits = strspn(str, "0123456789");
+   len_t m = 1;
+   size_t i, digits = strspn(str, "0123456789");
    word_t ci;
 
    if (digits == 1 && str[0] == '0')

@@ -127,7 +127,7 @@ typedef struct mod_preinv1_t
 
 #define TMP_ALLOC_BYTES(size) \
    ((size) > 8192 ? \
-      (__t = alloca(sizeof(__tmp_t)), \
+      (__t = (__tmp_t *) alloca(sizeof(__tmp_t)), \
        __t->next = __tmp_root, \
        __tmp_root = __t, \
        __t->block = malloc(size)) : \
