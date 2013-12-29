@@ -28,7 +28,15 @@ ASFILES=
 AR="ar"
 CC="gcc"
 AFLAGS=""
-CFLAGS="-pedantic -O2 -g -fPIC -Wall"
+CFLAGS="-pedantic -O2 -g -Wall"
+OS=`uname -s`
+
+case "$OS" in
+   CYGWIN* | MINGW*)
+      PIC_FLAG="";;
+   *)
+      PIC_FLAG="-fPIC";;
+esac
 
 # Header 
 echo "BSDNT Unix Build Script."
@@ -195,7 +203,7 @@ sed_makefile()
     sed -i "s|__ARCHIVE__|${AR}|g" Makefile
     sed -i "s|__COMPILER__|${CC}|g" Makefile
     sed -i "s|__AFLAGS__|${ASFLAGS}|g" Makefile
-    sed -i "s|__CFLAGS__|${CFLAGS}|g" Makefile
+    sed -i "s|__CFLAGS__|${CFLAGS} ${PIC_FLAG}|g" Makefile
     sed -i "s|__ASFILES__|${ASFILES}|g" Makefile
     sed -i "s|__SOURCES__|${CFILES}|g" Makefile
     sed -i "s|__HEADERS__|${HFILES}|g" Makefile
