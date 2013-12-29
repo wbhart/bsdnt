@@ -34,8 +34,6 @@
 
 #if WORD_BITS == 32
 
-typedef void * rand_ctx;
-
 typedef struct
 {   
    word_t q[41265];

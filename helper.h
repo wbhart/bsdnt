@@ -42,31 +42,26 @@
  extern "C" {
 #endif
 
-#if ULONG_MAX == 4294967295U /* 32 bit unsigned long */
+typedef unsigned long word_t;
+typedef long sword_t;
+typedef long len_t;
+typedef long bits_t;
 
-typedef uint32_t word_t;
-typedef int32_t sword_t;
-typedef unsigned int dword_t __attribute__((mode(DI)));
-typedef int32_t len_t;
-typedef int32_t bits_t;
-#define WORD_BITS 32
-#define WORD(x) (x##UL)
 #define WORD_FMT "%l"
 #define LEN_FMT "%ld"
 #define BITS_FMT "%ld"
+
+#if ULONG_MAX == 4294967295U /* 32 bit unsigned long */
+
+typedef unsigned int dword_t __attribute__((mode(DI)));
+#define WORD_BITS 32
+#define WORD(x) (x##UL)
 
 #else /* 64 bit unsigned long */
 
-typedef uint64_t word_t;
-typedef int64_t sword_t;
 typedef unsigned int dword_t __attribute__((mode(TI)));
-typedef int64_t len_t;
-typedef int64_t bits_t;
 #define WORD_BITS 64
 #define WORD(x) (x##UL)
-#define WORD_FMT "%l"
-#define LEN_FMT "%ld"
-#define BITS_FMT "%ld"
 
 #endif
 
