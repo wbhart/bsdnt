@@ -434,19 +434,36 @@ void zz_mul(zz_ptr r, zz_srcptr a, zz_srcptr b)
    len_t asize = BSDNT_ABS(a->size);
    len_t bsize = BSDNT_ABS(b->size);
    len_t rsize = asize + bsize;
-   
+   zz_ptr t;
+   TMP_INIT;
+
    if (asize == 0 || bsize == 0)
       r->size = 0;
    else 
    {
-      zz_fit(r, rsize);
+      TMP_START;
+      
+      if (r == a || r == b)
+         TMP_ZZ(t);
+      else
+         t = r;
+      
+      zz_fit(t, rsize);
 
       ZZ_ORDER(a, asize, b, bsize);
 
-      nn_mul(r->n, a->n, asize, b->n, bsize);
-      rsize -= (r->n[rsize - 1] == 0);
+      nn_mul(t->n, a->n, asize, b->n, bsize);
+      rsize -= (t->n[rsize - 1] == 0);
 
-      r->size = (a->size ^ b->size) < 0 ? -rsize : rsize;
+      t->size = (a->size ^ b->size) < 0 ? -rsize : rsize;
+
+      if (r == a || r == b)
+      {
+         zz_swap(t, r);
+         zz_clear(t);
+      }
+
+      TMP_END;
    }
 }
 

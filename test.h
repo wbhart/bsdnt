@@ -57,6 +57,26 @@
       gc_cleanup(); \
    } while (0)
 
+#define test_zz_aliasing(xxx, yyy, s, t, tz) \
+   do { \
+      int __resa; \
+      xxx; \
+      zz_set(tz, t); \
+      yyy; \
+      __resa = zz_equal(s, tz); \
+      if (!__resa) printf("Aliasing of " #s " and " #t " failed\n"); \
+      result &= __resa; \
+   } while (0)
+
+#define test_zz_aliasing_12(xxx, a, b, c) \
+   do { \
+      zz_t __tzz; \
+      zz_init(__tzz); \
+      test_zz_aliasing(xxx(a, b, c), xxx(__tzz, __tzz, c), a, b, __tzz); \
+      test_zz_aliasing(xxx(a, b, c), xxx(__tzz, b, __tzz), a, c, __tzz); \
+      zz_clear(__tzz); \
+   } while (0)
+
 #define RUN(xxx) \
    do { \
       if (xxx()) \

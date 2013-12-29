@@ -95,6 +95,20 @@ int test_add(void)
       gc_cleanup();
    } TEST_END;
 
+   /* test aliasing */
+   TEST_START(aliasing, ITER) 
+   {
+      randoms_upto(10, ANY, state, &m1, &m2, NULL);
+
+      randoms_signed(m1, ANY, state, &b, NULL);
+      randoms_signed(m2, ANY, state, &c, NULL);
+      randoms_signed(0, ANY, state, &a, NULL);
+      
+      test_zz_aliasing_12(zz_add, a, b, c);
+
+      gc_cleanup();
+   } TEST_END;
+
    return result;
 }
 
@@ -181,6 +195,20 @@ int test_sub(void)
       gc_cleanup();
    } TEST_END;
 
+   /* test aliasing */
+   TEST_START(aliasing, ITER) 
+   {
+      randoms_upto(10, ANY, state, &m1, &m2, NULL);
+
+      randoms_signed(m1, ANY, state, &b, NULL);
+      randoms_signed(m2, ANY, state, &c, NULL);
+      randoms_signed(0, ANY, state, &a, NULL);
+      
+      test_zz_aliasing_12(zz_sub, a, b, c);
+
+      gc_cleanup();
+   } TEST_END;
+
    return result;
 }
 
@@ -240,6 +268,20 @@ int test_mul(void)
          zz_print_debug(c); 
          zz_print_debug(r1); zz_print_debug(r2);
       }
+
+      gc_cleanup();
+   } TEST_END;
+
+   /* test aliasing */
+   TEST_START(aliasing, ITER) 
+   {
+      randoms_upto(10, ANY, state, &m1, &m2, NULL);
+
+      randoms_signed(m1, ANY, state, &b, NULL);
+      randoms_signed(m2, ANY, state, &c, NULL);
+      randoms_signed(0, ANY, state, &a, NULL);
+      
+      test_zz_aliasing_12(zz_mul, a, b, c);
 
       gc_cleanup();
    } TEST_END;
