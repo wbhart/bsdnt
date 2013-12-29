@@ -9,41 +9,29 @@ typedef struct cpuid_t
    int stepping;
 } cpuid_t;
 
+void cpuid(unsigned int index, unsigned int *v1, 
+           unsigned int *v2, unsigned int *v3, unsigned int *v4)
+{
+    __asm__ __volatile__(
+        "xchg %%ebx, %%edi;"
+        "cpuid;"
+        "xchg %%ebx, %%edi;"
+        :"=a" (*v1), "=D" (*v2), "=c" (*v4), "=d" (*v3)
+        :"0" (index)
+    );
+}
+
 int main(void)
 {
-   unsigned int regs[5];
+   unsigned int regs[4];
    unsigned int val;
-   unsigned int index = 0;
    cpuid_t fms;
 
-   regs[4] = 0; /* terminate string */
+   regs[3] = 0; /* terminate string */
 
-#define VendorID ((char *) (regs + 1))
+   cpuid(0, &val, regs, regs + 1, regs + 1);
 
-   __asm__ __volatile__( 
-#if ULONG_MAX == 4294967295U /* 32 bit */
-          "pushl %%ebx;"
-#else /* 64 bit */
-          "pushq %%rbx;"
-#endif
-          "cpuid;"
-          "mov %%ebx, %[ebx];"
-#if ULONG_MAX == 4294967295U /* 32 bit unsigned long */
-          "popl %%ebx;"
-#else /* 64 bit unsigned long */
-          "popq %%rbx;"
-#endif
-          : "=a"(regs[0]), [ebx] "=r"(regs[1]), "=c"(regs[3]), "=d"(regs[2])
-          : "a"(index)
-   );
-
-   index = 1; 
-   __asm__ __volatile__( "cpuid;"
-          "mov %%eax, %0;"
-          : "=r"(val)
-          : "0"(index)
-          : "%eax"
-   );
+   cpuid(1, &val, regs, regs + 1, regs + 2);
 
    if (strcmp(VendorID, "AuthenticAMD") == 0)
    {
