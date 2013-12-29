@@ -619,8 +619,12 @@ void nn_div_divconquer_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d,
       if (s >= n) nn_mul(t2, t + 1, s, d, n);
       else nn_mul(t2, d, n, t + 1, s);
 
-      nn_sub_m(a, a, t2, n + 1);
-      ci = a[n];
+      if (m > n)
+      {
+         nn_sub_m(a, a, t2, n + 1);
+         ci = a[n];
+      } else
+         ci -= t2[n] + nn_sub_m(a, a, t2, n);         
 
       /* quotient may be one too small or too large */
       if ((sword_t) ci < 0)

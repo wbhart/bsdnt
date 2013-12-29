@@ -427,7 +427,7 @@ sword_t zz_divremi(zz_ptr q, zz_srcptr a, sword_t b)
    if (asize == 0) 
    {
       q->size = 0;
-      r = b;
+      r = 0;
    } else 
    {
       zz_init_fit(t, asize);
@@ -502,29 +502,56 @@ void zz_divrem(zz_ptr q, zz_ptr r, zz_srcptr a, zz_srcptr b)
    long bsize = BSDNT_ABS(b->size);
    long rsize = bsize;
    long qsize = asize - bsize + 1;
+   zz_ptr t, u;
+   TMP_INIT;
+
+   TMP_START;
+   if (r == b)
+      TMP_ZZ(t);
+   else
+      t = r;
    
-   zz_set(r, a);
+   if (q == b)
+      TMP_ZZ(u);
+   else
+      u = q;
+   
+   zz_set(t, a);
 
    if (asize < bsize)
-      q->size = 0;
+      u->size = 0;
    else 
    {
-      zz_fit(q, qsize);
+      zz_fit(u, qsize);
    
-      nn_divrem(q->n, r->n, asize, b->n, bsize);
+      nn_divrem(u->n, t->n, asize, b->n, bsize);
          
-      qsize -= q->n[qsize - 1] == 0;
-      rsize = nn_normalise(r->n, rsize);
+      qsize -= u->n[qsize - 1] == 0;
+      rsize = nn_normalise(t->n, rsize);
 
-      q->size = (a->size ^ b->size) >= 0 ? qsize : -qsize;
-      r->size = a->size >= 0 ? rsize : -rsize;
+      u->size = (a->size ^ b->size) >= 0 ? qsize : -qsize;
+      t->size = a->size >= 0 ? rsize : -rsize;
 
-      if (q->size < 0 && r->size != 0) 
+      if (u->size < 0 && t->size != 0) 
       {
-         zz_subi(q, q, 1);
-         zz_add(r, r, b);
+         zz_subi(u, u, 1);
+         zz_add(t, t, b);
       }
    }
+
+   if (r == b)
+   {
+      zz_swap(t, r);
+      zz_clear(t);
+   }
+
+   if (q == b)
+   {
+      zz_swap(u, q);
+      zz_clear(u);
+   }
+
+   TMP_END;
 }
 
 void zz_div(zz_ptr q, zz_srcptr a, zz_srcptr b)
@@ -539,25 +566,43 @@ void zz_div(zz_ptr q, zz_srcptr a, zz_srcptr b)
    if (asize < bsize)
       q->size = 0;
    else {
+      zz_ptr t;
+      TMP_INIT;
+      
       zz_init(r);
       zz_set(r, a);
 
-      zz_fit(q, qsize);
+      TMP_START;
+      
+      if (q == b)
+         TMP_ZZ(t);
+      else
+         t = q;
+      
+      zz_fit(t, qsize);
    
       if (qsign < 0) /* TODO: test one remainder limb first */
       {
-         nn_divrem(q->n, r->n, asize, b->n, bsize);
+         nn_divrem(t->n, r->n, asize, b->n, bsize);
          rsize = nn_normalise(r->n, rsize);
       } else
-         nn_div(q->n, r->n, asize, b->n, bsize);
-
-      qsize -= q->n[qsize - 1] == 0;
-      q->size = qsign >= 0 ? qsize : -qsize;
+         nn_div(t->n, r->n, asize, b->n, bsize);
       
-      if (q->size < 0 && rsize != 0)
-         zz_subi(q, q, 1);
-
+      qsize -= t->n[qsize - 1] == 0;
+      t->size = qsign >= 0 ? qsize : -qsize;
+      
+      if (t->size < 0 && rsize != 0)
+         zz_subi(t, t, 1);
+      
       zz_clear(r);
+
+      if (q == b)
+      {
+         zz_swap(t, q);
+         zz_clear(t);
+      }
+
+      TMP_END;
    }
 }
 

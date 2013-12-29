@@ -526,7 +526,7 @@ int test_addi(void)
 {
    int result = 1;
    zz_t a, b, r1, r2;
-   len_t m1, m2;
+   len_t m1;
    sword_t c1, c2;
    
    printf("zz_addi...");
@@ -563,10 +563,10 @@ int test_addi(void)
    /* test aliasing */
    TEST_START(aliasing, ITER) 
    {
-      randoms_upto(10, ANY, state, &m1, &m2, NULL);
+      randoms_upto(10, ANY, state, &m1, NULL);
 
-      randoms_signed(m1, ANY, state, &a, NULL);
-      randoms_signed(m2, ANY, state, &b, NULL);
+      randoms_signed(0, ANY, state, &a, NULL);
+      randoms_signed(m1, ANY, state, &b, NULL);
       c1 = (sword_t) randword(state);
       
       test_zz_aliasing_12i(zz_addi, a, b, c1);
@@ -581,7 +581,7 @@ int test_subi(void)
 {
    int result = 1;
    zz_t a, b, r1, r2;
-   len_t m1, m2;
+   len_t m1;
    sword_t c1, c2;
    
    printf("zz_subi...");
@@ -666,10 +666,10 @@ int test_subi(void)
    /* test aliasing */
    TEST_START(aliasing, ITER) 
    {
-      randoms_upto(10, ANY, state, &m1, &m2, NULL);
+      randoms_upto(10, ANY, state, &m1, NULL);
 
-      randoms_signed(m1, ANY, state, &a, NULL);
-      randoms_signed(m2, ANY, state, &b, NULL);
+      randoms_signed(0, ANY, state, &a, NULL);
+      randoms_signed(m1, ANY, state, &b, NULL);
       c1 = (sword_t) randword(state);
       
       test_zz_aliasing_12i(zz_subi, a, b, c1);
@@ -684,7 +684,7 @@ int test_muli(void)
 {
    int result = 1;
    zz_t a, b, r1, r2, t1, t2;
-   len_t m1, m2;
+   len_t m1;
    sword_t c1, c2;
 
    printf("zz_muli...");
@@ -722,10 +722,10 @@ int test_muli(void)
    /* test aliasing */
    TEST_START(aliasing, ITER) 
    {
-      randoms_upto(10, ANY, state, &m1, &m2, NULL);
+      randoms_upto(10, ANY, state, &m1, NULL);
 
-      randoms_signed(m1, ANY, state, &a, NULL);
-      randoms_signed(m2, ANY, state, &b, NULL);
+      randoms_signed(0, ANY, state, &a, NULL);
+      randoms_signed(m1, ANY, state, &b, NULL);
       c1 = (sword_t) randword(state);
       
       test_zz_aliasing_12i(zz_muli, a, b, c1);
@@ -740,7 +740,7 @@ int test_mul_2exp(void)
 {
    int result = 1;
    zz_t a, b, r1, r2, t;
-   len_t m1, m2;
+   len_t m1;
    bits_t c1, c2;
 
    printf("zz_mul_2exp...");
@@ -775,10 +775,10 @@ int test_mul_2exp(void)
    /* test aliasing */
    TEST_START(aliasing, ITER) 
    {
-      randoms_upto(10, ANY, state, &m1, &m2, NULL);
+      randoms_upto(10, ANY, state, &m1, NULL);
 
-      randoms_signed(m1, ANY, state, &a, NULL);
-      randoms_signed(m2, ANY, state, &b, NULL);
+      randoms_signed(0, ANY, state, &a, NULL);
+      randoms_signed(m1, ANY, state, &b, NULL);
       c1 = (bits_t) randint(200, state);
       
       test_zz_aliasing_12i(zz_mul_2exp, a, b, c1);
@@ -793,7 +793,7 @@ int test_div_2exp(void)
 {
    int result = 1;
    zz_t a, b, r1, r2, t;
-   len_t m1, m2;
+   len_t m1;
    bits_t c1, c2;
 
    printf("zz_div_2exp...");
@@ -852,13 +852,92 @@ int test_div_2exp(void)
    /* test aliasing */
    TEST_START(aliasing, ITER) 
    {
-      randoms_upto(10, ANY, state, &m1, &m2, NULL);
+      randoms_upto(10, ANY, state, &m1, NULL);
 
-      randoms_signed(m1, ANY, state, &a, NULL);
-      randoms_signed(m2, ANY, state, &b, NULL);
+      randoms_signed(0, ANY, state, &a, NULL);
+      randoms_signed(m1, ANY, state, &b, NULL);
       c1 = (bits_t) randint(200, state);
       
       test_zz_aliasing_12i(zz_div_2exp, a, b, c1);
+
+      gc_cleanup();
+   } TEST_END;
+
+   return result;
+}
+
+int test_divremi(void)
+{
+   int result = 1;
+   zz_t a, b, q, t1, t2;
+   len_t m1;
+   sword_t c1, r;
+
+   printf("zz_divremi...");
+
+   /* test a = bq + r, |r| < |b| */
+   TEST_START(1, ITER) 
+   {
+      randoms_upto(10, ANY, state, &m1, NULL);
+
+      randoms_signed(m1, ANY, state, &a, NULL);
+      randoms_signed(0, ANY, state, &q, &t1, &t2, NULL);
+      c1 = (sword_t) randword(state);
+      if (c1 == 0) c1 = 1;
+       
+      r = zz_divremi(q, a, c1);
+
+      zz_muli(t1, q, c1);
+      zz_addi(t1, t1, r);
+
+      result = (zz_equal(a, t1) && BSDNT_ABS(r) < BSDNT_ABS(c1));
+
+      if (!result) 
+      {
+         zz_print_debug(a); zz_print_debug(q); 
+         bsdnt_printf("%w, %w\n", c1, r); 
+         zz_print_debug(t1);
+      }
+
+      gc_cleanup();
+   } TEST_END;
+
+   /* test a*b/b == b */
+   TEST_START(2, ITER) 
+   {
+      randoms_upto(10, ANY, state, &m1, NULL);
+
+      randoms_signed(m1, ANY, state, &a, NULL);
+      randoms_signed(0, ANY, state, &q, &t1, &t2, NULL);
+      c1 = (sword_t) randword(state);
+      if (c1 == 0) c1 = 1;
+       
+      zz_muli(t1, a, c1);
+      r = zz_divremi(q, t1, c1);
+
+      result = (zz_equal(a, q) && r == 0);
+
+      if (!result) 
+      {
+         zz_print_debug(a); zz_print_debug(q); 
+         bsdnt_printf("%w, %w\n", c1, r); 
+         zz_print_debug(t1);
+      }
+
+      gc_cleanup();
+   } TEST_END;
+
+   /* test aliasing */
+   TEST_START(aliasing, ITER) 
+   {
+      randoms_upto(10, ANY, state, &m1, NULL);
+
+      randoms_signed(0, ANY, state, &a, NULL);
+      randoms_signed(m1, ANY, state, &b, NULL);
+      c1 = (sword_t) randword(state);
+      if (c1 == 0) c1 = 1;
+
+      test_zz_aliasing_12i(zz_divremi, a, b, c1);
 
       gc_cleanup();
    } TEST_END;
@@ -1096,6 +1175,189 @@ int test_mul(void)
    return result;
 }
 
+int test_divrem(void)
+{
+   int result = 1;
+   zz_t a, b, q, r, t1;
+   len_t m1, m2;
+   sword_t c1, r2;
+
+   printf("zz_divrem...");
+
+   /* test a = bq + r, |r| < |b| */
+   TEST_START(1, ITER) 
+   {
+      randoms_upto(10, ANY, state, &m1, NULL);
+      randoms_upto(10, NONZERO, state, &m2, NULL);
+
+      randoms_signed(m1, ANY, state, &a, NULL);
+      randoms_signed(m2, NONZERO, state, &b, NULL);
+      randoms_signed(0, ANY, state, &q, &r, &t1, NULL);
+       
+      zz_divrem(q, r, a, b);
+
+      zz_mul(t1, q, b);
+      zz_add(t1, t1, r);
+
+      result = (zz_equal(a, t1) && zz_cmpabs(r, b) < 0);
+
+      if (!result) 
+      {
+         zz_print_debug(a); zz_print_debug(b); 
+         zz_print_debug(q); zz_print_debug(r); 
+         zz_print_debug(t1);
+      }
+
+      gc_cleanup();
+   } TEST_END;
+
+   /* test a*b/b == b */
+   TEST_START(2, ITER) 
+   {
+      randoms_upto(10, ANY, state, &m1, NULL);
+      randoms_upto(10, NONZERO, state, &m2, NULL);
+
+      randoms_signed(m1, ANY, state, &a, NULL);
+      randoms_signed(m2, NONZERO, state, &b, NULL);
+      randoms_signed(0, ANY, state, &q, &r, &t1, NULL);
+       
+      zz_mul(t1, a, b);
+      zz_divrem(q, r, t1, b);
+
+      result = (zz_equal(a, q) && zz_is_zero(r));
+
+      if (!result) 
+      {
+         zz_print_debug(a); zz_print_debug(b); 
+         zz_print_debug(q); zz_print_debug(r); 
+         zz_print_debug(t1);
+      }
+
+      gc_cleanup();
+   } TEST_END;
+
+   /* compare with divremi */
+   TEST_START(3, ITER) 
+   {
+      randoms_upto(10, ANY, state, &m1, NULL);
+      
+      randoms_signed(m1, ANY, state, &a, NULL);
+      randoms_signed(0, ANY, state, &b, NULL);
+      randoms_signed(0, ANY, state, &q, &r, &t1, NULL);
+      c1 = (sword_t) randword(state);
+      if (c1 == 0) c1 = 1;
+
+      zz_seti(b, c1);
+      zz_divrem(q, r, a, b);
+      r2 = zz_divremi(t1, a, c1);
+
+      result = (zz_equal(q, t1) && zz_equali(r, r2));
+
+      if (!result) 
+      {
+         zz_print_debug(a); zz_print_debug(b); 
+         zz_print_debug(q); zz_print_debug(r); 
+         zz_print_debug(t1);
+         bsdnt_printf("%w\n", r2);
+      }
+
+      gc_cleanup();
+   } TEST_END;
+   
+   /* test aliasing */
+   TEST_START(aliasing, ITER) 
+   {
+      randoms_upto(10, ANY, state, &m1, NULL);
+      randoms_upto(10, NONZERO, state, &m2, NULL);
+
+      randoms_signed(0, ANY, state, &q, &r, NULL);
+      randoms_signed(m1, ANY, state, &a, NULL);
+      randoms_signed(m2, NONZERO, state, &b, NULL);
+     
+      test_zz_aliasing_22(zz_divrem, q, r, a, b);
+
+      gc_cleanup();
+   } TEST_END;
+
+   return result;
+}
+
+int test_div(void)
+{
+   int result = 1;
+   zz_t a, b, q, r, t1;
+   len_t m1, m2;
+   
+   printf("zz_div...");
+
+   /* compare with divrem */
+   TEST_START(1, ITER) 
+   {
+      randoms_upto(10, ANY, state, &m1, NULL);
+      randoms_upto(10, NONZERO, state, &m2, NULL);
+
+      randoms_signed(m1, ANY, state, &a, NULL);
+      randoms_signed(m2, NONZERO, state, &b, NULL);
+      randoms_signed(0, ANY, state, &q, &r, &t1, NULL);
+       
+      zz_divrem(q, r, a, b);
+      zz_div(t1, a, b);
+
+      result = zz_equal(q, t1);
+
+      if (!result) 
+      {
+         zz_print_debug(a); zz_print_debug(b); 
+         zz_print_debug(q); zz_print_debug(r); 
+         zz_print_debug(t1);
+      }
+
+      gc_cleanup();
+   } TEST_END;
+
+   /* test a*b/b == b */
+   TEST_START(2, ITER) 
+   {
+      randoms_upto(10, ANY, state, &m1, NULL);
+      randoms_upto(10, NONZERO, state, &m2, NULL);
+
+      randoms_signed(m1, ANY, state, &a, NULL);
+      randoms_signed(m2, NONZERO, state, &b, NULL);
+      randoms_signed(0, ANY, state, &q, &t1, NULL);
+       
+      zz_mul(t1, a, b);
+      zz_div(q, t1, b);
+
+      result = zz_equal(a, q);
+
+      if (!result) 
+      {
+         zz_print_debug(a); zz_print_debug(b); 
+         zz_print_debug(q); zz_print_debug(r); 
+         zz_print_debug(t1);
+      }
+
+      gc_cleanup();
+   } TEST_END;
+   
+   /* test aliasing */
+   TEST_START(aliasing, ITER) 
+   {
+      randoms_upto(10, ANY, state, &m1, NULL);
+      randoms_upto(10, NONZERO, state, &m2, NULL);
+
+      randoms_signed(0, ANY, state, &q, NULL);
+      randoms_signed(m1, ANY, state, &a, NULL);
+      randoms_signed(m2, NONZERO, state, &b, NULL);
+     
+      test_zz_aliasing_12(zz_div, q, a, b);
+
+      gc_cleanup();
+   } TEST_END;
+
+   return result;
+}
+
 int test_zz(void)
 {
    long pass = 0;
@@ -1115,9 +1377,12 @@ int test_zz(void)
    RUN(test_muli);
    RUN(test_mul_2exp);
    RUN(test_div_2exp);
+   RUN(test_divremi);
    RUN(test_add);
    RUN(test_sub);
    RUN(test_mul);
+   RUN(test_divrem);
+   RUN(test_div);
    
    printf("%ld of %ld tests pass.\n", pass, pass + fail);
 
