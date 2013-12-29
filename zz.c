@@ -68,9 +68,9 @@ int zz_equali(zz_srcptr r, sword_t c)
    if (c == 0)
       return r->size == 0;
    else if (c > 0)
-      return r->size == 1 && r->n[0] == c;
+      return r->size == 1 && r->n[0] == (word_t) c;
    else
-      return r->size == -1 && r->n[0] == -c;
+      return r->size == -1 && r->n[0] == (word_t) -c;
 }
 
 int zz_cmpi(zz_srcptr a, sword_t b)
@@ -202,12 +202,12 @@ void zz_addi(zz_ptr r, zz_srcptr a, sword_t c)
       {
          word_t d = a->n[0];
 
-         if (d == c)
+         if (d == (word_t) c)
             r->size = 0;
          else
          {
-            r->n[0] = d > c ? d - c : c - d;
-            r->size = d > c ? -1 : 1;
+            r->n[0] = d > (word_t) c ? d - c : c - d;
+            r->size = d > (word_t) c ? -1 : 1;
          } 
       } else 
       {
@@ -241,12 +241,12 @@ void zz_subi(zz_ptr r, zz_srcptr a, sword_t c)
          {
             word_t d = a->n[0];
 
-            if (d == c)
+            if (d == (word_t) c)
                r->size = 0;
             else
             {
-               r->n[0] = d > c ? d - c : c - d;
-               r->size = d > c ? 1 : -1;
+               r->n[0] = d > (word_t) c ? d - c : c - d;
+               r->size = d > (word_t) c ? 1 : -1;
             }
          } else 
          {
@@ -346,7 +346,7 @@ void zz_mul_2exp(zz_ptr r, zz_srcptr a, bits_t exp)
          
          if (r == a && words != 0 && words < usize)
          {
-            t = TMP_ALLOC(usize);
+            t = (nn_t) TMP_ALLOC(usize);
             nn_copy(t, a->n, usize);
          }
          
@@ -385,7 +385,7 @@ void zz_div_2exp(zz_ptr r, zz_srcptr a, bits_t exp)
          
          if (r == a && words != 0)
          {
-            t = TMP_ALLOC(usize);
+            t = (nn_t) TMP_ALLOC(usize);
             nn_copy(t, a->n, usize);
          }
          
@@ -671,8 +671,8 @@ void zz_xgcd(zz_ptr g, zz_ptr s, zz_ptr t, zz_srcptr a, zz_srcptr b)
          ZZ_SWAP(s, t);
       }
 
-      ta = TMP_ALLOC(asize);
-      tb = TMP_ALLOC(bsize);
+      ta = (nn_t) TMP_ALLOC(asize);
+      tb = (nn_t) TMP_ALLOC(bsize);
 
       nn_copy(ta, a->n, asize);
       nn_copy(tb, b->n, bsize);
@@ -729,7 +729,7 @@ char * zz_get_str(zz_srcptr a)
    
    TMP_START;
    
-   t = TMP_ALLOC(size);
+   t = (nn_t) TMP_ALLOC(size);
   
    nn_copy(t, a->n, size);
 
@@ -738,7 +738,7 @@ char * zz_get_str(zz_srcptr a)
    if (a->size < 0)
    {
       size_t len = strlen(str);
-      str = realloc(str, len + 2);
+      str = (char *) realloc(str, len + 2);
       for (i = len + 1; i >= 1; i--)
          str[i] = str[i - 1];
       str[0] = '-';

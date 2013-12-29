@@ -70,9 +70,9 @@ int test_tmp(void)
       
       randoms_upto(2048, NONZERO, state, &m1, &m2, &m3, NULL);
       
-      a = TMP_ALLOC(m1);
-      b = TMP_ALLOC(m2);
-      c = TMP_ALLOC(m3);
+      a = (nn_t) TMP_ALLOC(m1);
+      b = (nn_t) TMP_ALLOC(m2);
+      c = (nn_t) TMP_ALLOC(m3);
 
       randoms_of_len(m1, ANY, state, &a, NULL);
       randoms_of_len(m2, ANY, state, &b, NULL);

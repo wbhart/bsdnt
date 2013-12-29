@@ -34,6 +34,10 @@
 #include "rand.h"
 #include "nn.h"
 
+#ifdef __cplusplus
+ extern "C" {
+#endif
+
 typedef struct
 {
    nn_t n;
@@ -63,7 +67,7 @@ typedef const zz_struct * zz_srcptr;
 
 #define TMP_ZZ(xxx) \
    do { \
-      (xxx) = TMP_ALLOC_BYTES(sizeof(zz_t)); \
+      (xxx) = (zz_ptr) TMP_ALLOC_BYTES(sizeof(zz_t)); \
       zz_init(xxx); \
    } while (0)
 
@@ -301,6 +305,10 @@ size_t zz_set_str(zz_t a, const char * str);
    newline character is output.
 */
 void zz_print(zz_srcptr a);
+
+#ifdef __cplusplus
+ }
+#endif
 
 #endif
 

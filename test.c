@@ -34,7 +34,7 @@ node_t * garbage = NULL;
 
 node_t * new_node(type_t type, void * ptr, len_t length, node_t * next)
 {
-   node_t * node = malloc(sizeof(node_t));
+   node_t * node = (node_t *) malloc(sizeof(node_t));
    node->type = type;
    
    if (type == NN || type == ZZ)
@@ -49,12 +49,12 @@ node_t * new_node(type_t type, void * ptr, len_t length, node_t * next)
 
 nn_t alloc_redzoned_nn(len_t n)
 {
-   nn_t a = nn_init(n + 2*REDZONE_WORDS);
+   nn_t a = (nn_t) nn_init(n + 2*REDZONE_WORDS);
    char * redzone1 = (char *) a;
    char * redzone2 = (char *) (a + REDZONE_WORDS + n);
-   long i;
+   long i, bytes = REDZONE_WORDS*sizeof(word_t);
 
-   for (i = 0; i < REDZONE_WORDS*sizeof(word_t); i++)
+   for (i = 0; i < bytes; i++)
    {
       redzone1[i] = REDZONE_BYTE;
       redzone2[i] = REDZONE_BYTE;
@@ -67,9 +67,9 @@ void free_redzoned_nn(nn_t a, len_t n)
 {
    char * redzone1 = (char *) (a - REDZONE_WORDS);
    char * redzone2 = (char *) (a + n);
-   long i;
+   long i, bytes = REDZONE_WORDS*sizeof(word_t);
 
-   for (i = 0; i < REDZONE_WORDS*sizeof(word_t); i++)
+   for (i = 0; i < bytes; i++)
    {
       if (redzone1[i] != REDZONE_BYTE)
       {
@@ -277,7 +277,7 @@ void randoms_signed(len_t n, flag_t flag, rand_t state, ...)
 void free_obj(node_t * obj)
 {
    if (obj->type == NN)
-      free_redzoned_nn(obj->ptr, obj->length);
+      free_redzoned_nn((nn_t) obj->ptr, obj->length);
    if (obj->type == ZZ)
       zz_clear(*(zz_t *)obj->ptr);
 }

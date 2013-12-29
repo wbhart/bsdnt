@@ -30,6 +30,10 @@
 
 #include "helper.h"
 
+#ifdef __cplusplus
+ extern "C" {
+#endif
+
 #define ZZ0_SWAP(a, b)      \
    do {                     \
       nn_src_t __t = a;     \
@@ -73,5 +77,9 @@ len_t zz0_sub(nn_t r, nn_src_t a, len_t m, nn_src_t b, len_t n);
    Set {r, ret} to {a, m} - {b, n}.
 */
 len_t zz0_mul(nn_t r, nn_src_t a, len_t m, nn_src_t b, len_t n);
+
+#ifdef __cplusplus
+ }
+#endif
 
 #endif

@@ -50,7 +50,7 @@ void nn_mul_kara(nn_t p, nn_src_t a, len_t m, nn_src_t b, len_t n)
    p[2*m2 + 1] = nn_add(p + m2 + 1, b, m2, b + m2, h2);
    
    TMP_START;
-   t = TMP_ALLOC(2*m2 + 2);
+   t = (nn_t) TMP_ALLOC(2*m2 + 2);
    
    nn_mul_m(t, p + m2 + 1, p, m2 + 1); 
    
@@ -87,7 +87,7 @@ void nn_mul_toom33(nn_t p, nn_src_t a, len_t m, nn_src_t b, len_t n)
    ASSERT(p != b);
    
    TMP_START;
-   t = TMP_ALLOC(6*m3 + 6);
+   t = (nn_t) TMP_ALLOC(6*m3 + 6);
 
 #define r1 p
 #define r2 t
@@ -204,7 +204,7 @@ void nn_mul_toom32(nn_t p, nn_src_t a, len_t m, nn_src_t b, len_t n)
    ASSERT(p != b);
 
    TMP_START;
-   t = TMP_ALLOC(4*m3 + 4);
+   t = (nn_t) TMP_ALLOC(4*m3 + 4);
 
 #define r1 p
 #define r2 t
@@ -297,13 +297,13 @@ void nn_mulmid_kara(nn_t ov, nn_t p, nn_src_t a, len_t m, nn_src_t b, len_t n)
 
   TMP_START;
 
-  s = TMP_ALLOC(2*n2 - 1);
-  p0 = TMP_ALLOC(n2 + 2);
-  p1 = TMP_ALLOC(n2 + 2);
-  p2 = TMP_ALLOC(n2 + 2);
-  f = TMP_ALLOC(n2 + 2);
+  s = (nn_t) TMP_ALLOC(2*n2 - 1);
+  p0 = (nn_t) TMP_ALLOC(n2 + 2);
+  p1 = (nn_t) TMP_ALLOC(n2 + 2);
+  p2 = (nn_t) TMP_ALLOC(n2 + 2);
+  f = (nn_t) TMP_ALLOC(n2 + 2);
 
-  if (extra) ptr = tmp2, ex = TMP_ALLOC(extra);
+  if (extra) ptr = tmp2, ex = (nn_t) TMP_ALLOC(extra);
   else ptr = ov;
 
   if (odd) a++;
@@ -389,8 +389,8 @@ void nn_mullow_kara_m(nn_t ov, nn_t p, nn_src_t a, nn_src_t b, len_t n)
    
    TMP_START;
 
-   p1 = TMP_ALLOC(nh);
-   p2 = TMP_ALLOC(nl + 2);
+   p1 = (nn_t) TMP_ALLOC(nh);
+   p2 = (nn_t) TMP_ALLOC(nl + 2);
    
    nn_mullow_m(ov, p1, a + nl, b, nh);
    nn_mullow_m(p2 + nl, p2, a, b + nh, nl);
@@ -433,8 +433,8 @@ void nn_mullow_kara(nn_t ov, nn_t p, nn_src_t a, len_t m, nn_src_t b, len_t n)
    
    TMP_START;
 
-   p1 = TMP_ALLOC(mh);
-   p2 = TMP_ALLOC(ml + 2);
+   p1 = (nn_t) TMP_ALLOC(mh);
+   p2 = (nn_t) TMP_ALLOC(ml + 2);
 
    nn_mullow_kara(ov, p1, a + ml, mh, b, mh);
    nn_mullow_kara(p2 + ml, p2, a, ml, b + nl, nh);
@@ -493,7 +493,7 @@ word_t nn_divapprox_divconquer_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d,
    ci = nn_divapprox_preinv_c(q + sl, a + sl, n + sh - 1, d, n, dinv, ci);
 
    TMP_START;
-   t = TMP_ALLOC(sl + 2);
+   t = (nn_t) TMP_ALLOC(sl + 2);
 
    nn_mulmid_kara(t + sl, t, d + n - s - 1, s - 1, q + sl, sh);
    ci -= nn_sub_m(a + m - s - 1, a + m - s - 1, t, sl + 2);
@@ -563,7 +563,7 @@ void nn_divrem_divconquer_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d,
    ci = nn_divapprox_preinv_c(q, a, m, d, n, dinv, ci);
 
    TMP_START;
-   t = TMP_ALLOC(n);
+   t = (nn_t) TMP_ALLOC(n);
 
    if (s > 0)
    {
@@ -605,8 +605,8 @@ void nn_div_divconquer_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d,
 
    TMP_START;
    
-   t = TMP_ALLOC(s + 1);
-   t2 = TMP_ALLOC(m + 1);
+   t = (nn_t) TMP_ALLOC(s + 1);
+   t2 = (nn_t) TMP_ALLOC(m + 1);
 
    nn_copy(t2 + 1, a, m);
    t2[0] = 0;

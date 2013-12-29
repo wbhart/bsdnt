@@ -63,7 +63,7 @@ void nn_test_random2(nn_t a, rand_t state, len_t m)
    
    TMP_START;
 
-   b = TMP_ALLOC(m); 
+   b = (nn_t) TMP_ALLOC(m); 
 	
 	nn_test_random1(a, state, m);
 	nn_test_random1(b, state, m);

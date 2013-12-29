@@ -92,7 +92,7 @@ void nn_mul(nn_t p, nn_src_t a, len_t m, nn_src_t b, len_t n)
    nn_mul(p, b, n, a, r);
   
    TMP_START;
-   t = TMP_ALLOC(n + 1);
+   t = (nn_t) TMP_ALLOC(n + 1);
    while (m > r)
    {
       nn_copy(t, p + r, n); /* temporarily save top n + 1 limbs */
@@ -122,7 +122,7 @@ void nn_mullow(nn_t ov, nn_t p, nn_src_t a, len_t m, nn_src_t b, len_t n)
       
       TMP_START;
 
-      t = TMP_ALLOC(n + 2);
+      t = (nn_t) TMP_ALLOC(n + 2);
 
       nn_mullow(t + n, t, a + m - n, n, b, n);
       
@@ -153,7 +153,7 @@ void nn_divrem(nn_t q, nn_t a, len_t m, nn_src_t d, len_t n)
    {
       TMP_START;
          
-      t = TMP_ALLOC(n);
+      t = (nn_t) TMP_ALLOC(n);
       ci = nn_shl(a, a, m, norm);
       nn_shl(t, d, n, norm);
    } else
@@ -193,7 +193,7 @@ void nn_div(nn_t q, nn_t a, len_t m, nn_src_t d, len_t n)
       
    if ((norm = high_zero_bits(d[n - 1])))
    {   
-      t = TMP_ALLOC(n);
+      t = (nn_t) TMP_ALLOC(n);
       ci = nn_shl(a, a, m, norm);
       nn_shl(t, d, n, norm);
    } else
