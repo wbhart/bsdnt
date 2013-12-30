@@ -1,18 +1,17 @@
 /* Copyright 2010 (C) Gonzalo Tornaria, Antony Vennard, Brian Gladman, William Hart */
 
-#ifndef HAVE_ARCH_nn_add_mc
-#define HAVE_ARCH_nn_add_mc
-
 #ifdef __cplusplus
  extern "C" {
 #endif
+
+#ifndef HAVE_ARCH_nn_add_mc
+#define HAVE_ARCH_nn_add_mc
 
 word_t nn_add_mc(nn_t a, nn_src_t b, nn_src_t c, len_t m, word_t ci)
 {
    __asm__ __volatile__ (
 
-   "movq %%r8, %%rax; \
-    jrcxz 3f; \
+   "jrcxz 3f; \
     leaq (%%rdi,%%rcx,8), %%rdi; \
     leaq (%%rsi,%%rcx,8), %%rsi; \
     leaq (%%rdx,%%rcx,8), %%rdx; \
@@ -30,7 +29,7 @@ word_t nn_add_mc(nn_t a, nn_src_t b, nn_src_t c, len_t m, word_t ci)
 3:;"
 
    : "=a" (ci)
-   : "c" (m), "d" (c), "S" (b), "D" (a)
+   : "a" (ci), "c" (m), "d" (c), "S" (b), "D" (a)
    );
 
    return ci;
@@ -45,8 +44,7 @@ word_t nn_sub_mc(nn_t a, nn_src_t b, nn_src_t c, len_t m, word_t ci)
 {
    __asm__ __volatile__ (
 
-   "mov %%r8, %%rax; \
-    jrcxz 3f; \
+   "jrcxz 3f; \
     leaq (%%rdi,%%rcx,8), %%rdi; \
     leaq (%%rsi,%%rcx,8), %%rsi; \
     leaq (%%rdx,%%rcx,8), %%rdx; \
@@ -64,14 +62,14 @@ word_t nn_sub_mc(nn_t a, nn_src_t b, nn_src_t c, len_t m, word_t ci)
 3:;"
 
    : "=a" (ci)
-   : "c" (m), "d" (c), "S" (b), "D" (a)
+   : "a" (ci), "c" (m), "d" (c), "S" (b), "D" (a)
    );
 
    return ci;
 }
 
-#ifdef __cplusplus
- }
 #endif
 
+#ifdef __cplusplus
+ }
 #endif
