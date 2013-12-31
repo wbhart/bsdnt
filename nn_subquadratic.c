@@ -272,7 +272,7 @@ void nn_mul_toom32(nn_t p, nn_src_t a, len_t m, nn_src_t b, len_t n)
 void nn_mulmid_kara(nn_t ov, nn_t p, nn_src_t a, len_t m, nn_src_t b, len_t n)
 {
   len_t i, n2 = n/2, odd = (n & 1), extra = m - 4*n2 + 1 - odd;
-  nn_t s, p0, p1, p2, f, ex;
+  nn_t s, p0, p1, p2, f, ex = NULL;
   int neg = 0;
   nn_t ptr;
   dword_t t;

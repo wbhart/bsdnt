@@ -149,10 +149,10 @@ void nn_divrem(nn_t q, nn_t a, len_t m, nn_src_t d, len_t n)
    ASSERT(n > 0);
    ASSERT(m >= n);
    
+   TMP_START;
+      
    if ((norm = high_zero_bits(d[n - 1])))
-   {
-      TMP_START;
-         
+   {   
       t = (nn_t) TMP_ALLOC(n);
       ci = nn_shl(a, a, m, norm);
       nn_shl(t, d, n, norm);
@@ -170,10 +170,9 @@ void nn_divrem(nn_t q, nn_t a, len_t m, nn_src_t d, len_t n)
    }
 
    if (norm)
-   {
       nn_shr(a, a, n, norm);
-      TMP_END;
-   }
+
+   TMP_END;
 }
 
 void nn_div(nn_t q, nn_t a, len_t m, nn_src_t d, len_t n)
