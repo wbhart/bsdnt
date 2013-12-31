@@ -24,7 +24,7 @@ Features
 Requirements
 ============
 
-Currently we require bash, gnu make and gcc or clang.
+Currently we require bash, gnu make and gcc 4 or later or clang.
 
 Installation
 ============
@@ -56,6 +56,10 @@ Future improvements
 * Support OSX (probably just need to name library .dylib) 
 * Support Sparc 32/64 (??)
 
+Contributors
+============
+
+William Hart, Brian Gladman, Antony Vennard, Gonzalo Tornaria.
 ----
 
 See the LICENSE file for legal info and warranty information.
