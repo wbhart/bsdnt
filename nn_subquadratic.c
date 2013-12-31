@@ -69,6 +69,8 @@ void nn_mul_kara(nn_t p, nn_src_t a, len_t m, nn_src_t b, len_t n)
 
 #ifndef HAVE_ARCH_nn_mul_toom33
 
+#pragma GCC diagnostic ignored "-Wunused-value"
+
 void nn_mul_toom33(nn_t p, nn_src_t a, len_t m, nn_src_t b, len_t n)
 {
    len_t m3 = (m + 2)/3;
@@ -158,9 +160,7 @@ void nn_mul_toom33(nn_t p, nn_src_t a, len_t m, nn_src_t b, len_t n)
    ninv = precompute_inverse1(WORD(3) << norm);
    r3[2*m3 + 1] = nn_shl(r3, r3, 2*m3 + 1, norm);
 
-#pragma GCC diagnostic ignored "-Wunused-value"
    ASSERT_ALWAYS(nn_divrem1_preinv(r3, r3, 2*m3 + 2, WORD(3) << norm, ninv) == 0);
-#pragma GCC diagnostic warning "-Wunused-value"
 
    nn_shr(r3, r3, 2*m3 + 1, 1);
    nn_sub_m(r2, r2, r3, 2*m3 + 1);
@@ -183,9 +183,13 @@ void nn_mul_toom33(nn_t p, nn_src_t a, len_t m, nn_src_t b, len_t n)
 #undef s1
 }
 
+#pragma GCC diagnostic warning "-Wunused-value"
+
 #endif
 
 #ifndef HAVE_ARCH_nn_mul_toom32
+
+#pragma GCC diagnostic ignored "-Wunused-value"
 
 void nn_mul_toom32(nn_t p, nn_src_t a, len_t m, nn_src_t b, len_t n)
 {
@@ -244,9 +248,7 @@ void nn_mul_toom32(nn_t p, nn_src_t a, len_t m, nn_src_t b, len_t n)
    ci = nn_submul1(r3, r4, h1 + h2, 6);
    nn_sub1(r3 + h1 + h2, r3 + h1 + h2, 2*m3 - h1 - h2 + 1, ci);
 
-#pragma GCC diagnostic ignored "-Wunused-value"
    ASSERT_ALWAYS(nn_shr(r3, r3, 2*m3 + 1, 1) == 0);
-#pragma GCC diagnostic warning "-Wunused-value"
 
    nn_sub(r2, r2, 2*m3 + 1, r4, h1 + h2);
    nn_sub_m(r2, r2, r3, 2*m3 + 1);
@@ -264,6 +266,8 @@ void nn_mul_toom32(nn_t p, nn_src_t a, len_t m, nn_src_t b, len_t n)
 #undef r4
 #undef s1
 }
+
+#pragma GCC diagnostic warning "-Wunused-value"
 
 #endif
 
