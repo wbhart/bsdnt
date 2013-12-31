@@ -181,7 +181,7 @@ void talker(const char * str);
 
 #endif
 
-#ifndef HAVE_ARCH_divapprox21_preinv1
+#ifndef HAVE_ARCH_divrem21_preinv1
 
 /*
    Given a double word u, a normalised divisor d and a precomputed
