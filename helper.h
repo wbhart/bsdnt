@@ -32,9 +32,17 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include <alloca.h>
 #include <limits.h>
 #include <assert.h>
+
+#if !defined(BSD) && !defined(__MINGW64__) && !defined(__MINGW32__) 
+/* MinGW and FreeBSD have alloca, but not alloca.h */
+#include <alloca.h>
+#endif
+#if defined(__MINGW32__)
+#include <malloc.h> /* for alloca on MinGW */
+#endif
+
 #include "config.h"
 #include "types_arch.h"
 #include "tuning.h"
