@@ -128,7 +128,7 @@ word_t nn_mul1_c(nn_t a, nn_src_t b, len_t m, word_t c, word_t ci)
         movq %%r8, %%rax;"
 
    : "=r" (r8)
-   : "r" (r8), "d" (m), "S" (b), "D" (a)
+   : "r" (r8), "c" (c), "d" (m), "S" (b), "D" (a)
    );
 
    return r8;
@@ -165,7 +165,7 @@ word_t nn_addmul1_c(nn_t a, nn_src_t b, len_t m, word_t c, word_t ci)
         movq %%r8, %%rax;"
 
    : "=r" (r8)
-   : "r" (r8), "d" (m), "S" (b), "D" (a)
+   : "r" (r8), "c" (c), "d" (m), "S" (b), "D" (a)
    );
 
    return r8;
@@ -202,7 +202,7 @@ word_t nn_submul1_c(nn_t a, nn_src_t b, len_t m, word_t c, word_t ci)
         movq %%r8, %%rax;"
 
    : "=r" (r8)
-   : "r" (r8), "d" (m), "S" (b), "D" (a)
+   : "r" (r8), "c" (c), "d" (m), "S" (b), "D" (a)
    );
 
    return r8;
