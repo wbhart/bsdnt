@@ -1,3 +1,6 @@
+BSDNT version 1.0
+=================
+
 BSDNT is a BSD licensed bignum library, suitable for use by languages which
 need to provide bignum support and for other projects requiring relatively
 fast bignums.
@@ -7,27 +10,24 @@ well-documented code, whilst retaining reasonable performance. It is not
 a goal to insanely optimise where that would make the code less readable
 and maintainable.
 
-The project will be developed in numerous stages:
+Features
+========
 
-i) A C only phase, implementing nothing but basecase algorithms, which will
-serve to map out the interface. This code will eventually be used as test 
-code and fallback C code for architectures without assembly support.
+* Support for Linux, BSD, MinGW32, Cygwin, Cygwin64
+* Inline assembly optimisation for 64 bit Intel and AMD x86_64 processors
+* Low level multiprecision natural numbers interface (nn.h)
+* High level multiprecision integer interface (zz.h)
+* Very extensive test code
+* SHA1 implementation
+* KISS / SuperKISS / Mersenne_twister random number generators
 
-ii) Addition of algorithms to make the library efficient up to a few hundred 
-limbs and inline assembly code for x86 and x86_64.
+Requirements
+============
 
-iii) Addition of asymptotically fast algorithms for huge operands.
+Currently we require bash, gnu make and gcc or clang.
 
-iv) Addition of assembly code for other platforms.
-
-At least the first phase of the project will be completed as a github social
-coding project, with a blog every few days which interested parties can 
-follow along with their own github fork in the language of their choice.
-
-It's expected that step 1 will take a few weeks. Step 2 will take 6 months to
-a year.
-
-----
+Installation
+============
 
 To build bsdnt and run the test code
 
@@ -35,9 +35,33 @@ $ cd bsdnt
 $ ./configure
 $ make check
 
+Documentation
+=============
+
+The user will most likely use the interfaces in nn.h and zz.h.
+
+All of the functions are documented in those two files.
+
+Future improvements
+===================
+
+* Unroll assembly loops
+* Assembly support for more processors
+* Multiprecision rational number interface
+* Multiprecision floating point interface
+* Simplify and merge the BSD licensed fft found here:
+  https://github.com/wbhart/flint2/tree/trunk/fft
+* Asymptotically fast algorithms for GCD, get_str, set_str, division (??)
+* Square root and n-th root code
+* Support OSX (probably just need to name library .dylib) 
+* Support Sparc 32/64 (??)
+
 ----
 
 See the LICENSE file for legal info and warranty information.
 
+Contributions are welcome.
+
 Enjoy!!
 
+William Hart - 1-1-2014
