@@ -19,7 +19,7 @@ Features
 * High level multiprecision integer interface (zz.h)
 * Very extensive test code
 * SHA1 implementation
-* KISS / SuperKISS / Mersenne_twister random number generators
+* KISS / SuperKISS / Mersenne_twister pseudorandom number generators
 
 Requirements
 ============
