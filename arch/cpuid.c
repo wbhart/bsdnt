@@ -52,8 +52,16 @@ int main(void)
       else switch (fms.family)
       {
          case 15: printf("k8\n"); break;
-         case 16: printf("k10\n"); break;
+         case 16: 
+            if (fms.model >= 4)
+               printf("k102\n");
+            else
+               printf("k10\n");
+            break;
          case 17: printf("k8\n"); break;
+         case 18: printf("k103\n"); break;
+         case 20: printf("bobcat\n"); break;
+         case 21: printf("bulldozer\n"); break;
          default: printf("unknown\n");
       }
    } else if (strcmp(VendorID, "GenuineIntel") == 0)
@@ -80,7 +88,17 @@ int main(void)
                case 28: printf("atom\n"); break;
                case 29: printf("core2\n"); break;
                case 30: printf("nehalem\n"); break;
-               case 37: printf("nehalem\n"); break;
+               case 31: printf("nehalem\n"); break;
+               case 37: printf("westmere\n"); break;
+               case 38: printf("atom\n"); break;
+               case 39: printf("atom\n"); break;
+               case 42: printf("sandybridge\n"); break;
+               case 44: printf("westmere\n"); break;
+               case 45: printf("sandybridge\n"); break;
+               case 46: printf("nehalem\n"); break;
+               case 47: printf("westmere\n"); break;
+               case 54: printf("atom\n"); break;
+               case 58: printf("sandybridge\n"); break;
                default: printf("unknown\n");
                }
             break;
