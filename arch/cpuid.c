@@ -2,12 +2,12 @@
 #include <stdlib.h>
 #include <limits.h>
 
-typedef struct cpuid_t
+typedef struct bsdnt_cpuid_t
 {
    int family;
    int model;
    int stepping;
-} cpuid_t;
+} bsdnt_cpuid_t;
 
 void cpuid(unsigned int index, unsigned int *v1, 
            unsigned int *v2, unsigned int *v3, unsigned int *v4)
@@ -26,7 +26,7 @@ int main(void)
    unsigned int regs[4];
    unsigned int val;
    unsigned int dummy;
-   cpuid_t fms;
+   bsdnt_cpuid_t fms;
 
    #define VendorID ((char *) regs)
 
