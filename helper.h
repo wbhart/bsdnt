@@ -34,6 +34,7 @@
 #include <stdio.h>
 #include <limits.h>
 #include <assert.h>
+#include <sys/param.h> /* for BSD define */
 
 #if !defined(BSD) && !defined(__MINGW64__) && !defined(__MINGW32__) 
 /* MinGW and FreeBSD have alloca, but not alloca.h */
