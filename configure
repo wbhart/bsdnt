@@ -104,12 +104,24 @@ arch_handler()
         case $ARCH in
         k10)
             EXTS="_k10 _k8";;
+        k102)
+            EXTS="_k102 _k10 _k8";;
+        k103)
+            EXTS="_k103 _k102 _k10 _k8";;
+        bobcat)
+            EXTS="_bobcat _k10 _k8";;
+        bulldozer)
+            EXTS="_bulldozer _k10 _k8";;
         k8)
             EXTS="_k8";;
         atom)
             EXTS="_atom";;
         nehalem)
             EXTS="_nehalem _core2";;
+        westmere)
+            EXTS="_iwestmere _core2";;
+        sandybridge)
+            EXTS="_sndybridge _core2";;
         core2)
             EXTS="_core2";;
         p4)
