@@ -416,6 +416,10 @@ void nn_div_hensel_preinv(nn_t ov, nn_t q, nn_t a, len_t m,
    ov[1] = (t >> WORD_BITS);
 }
 
+#endif
+
+#ifndef HAVE_ARCH___get_bits_lehmer
+
 #define __get_bits_lehmer(rr1, rr2, a, m, b, n) \
    do { \
       word_t __ah = (a)[(m) - 1]; \
@@ -444,6 +448,10 @@ void nn_div_hensel_preinv(nn_t ov, nn_t q, nn_t a, len_t m,
          } \
       } \
    } while (0)
+
+#endif
+
+#ifndef HAVE_ARCH_nn_xgcd_lehmer
 
 len_t nn_xgcd_lehmer(nn_t g, nn_t v, nn_t a, len_t m, nn_t b, len_t n)
 {
@@ -608,6 +616,10 @@ len_t nn_xgcd_lehmer(nn_t g, nn_t v, nn_t a, len_t m, nn_t b, len_t n)
    return m;
 }
 
+#endif
+
+#ifndef HAVE_ARCH_nn_gcd_lehmer
+
 len_t nn_gcd_lehmer(nn_t g, nn_t a, len_t m, nn_t b, len_t n)
 {
    nn_t q, r, s;
@@ -717,6 +729,10 @@ len_t nn_gcd_lehmer(nn_t g, nn_t a, len_t m, nn_t b, len_t n)
    return m;
 }
 
+#endif
+
+#ifndef HAVE_ARCH_nn_get_str
+
 char * nn_get_str(nn_src_t a, len_t m)
 {
    /* 9.63... is log_10(2^32) */
@@ -760,6 +776,10 @@ char * nn_get_str(nn_src_t a, len_t m)
    return str;
 }
 
+#endif
+
+#ifndef HAVE_ARCH_set_str
+
 size_t nn_set_str(nn_t a, len_t * len, const char * str)
 {
    len_t m = 1;
@@ -783,6 +803,10 @@ size_t nn_set_str(nn_t a, len_t * len, const char * str)
    *len = m;
    return digits;
 }
+
+#endif
+
+#ifndef HAVE_ARCH_nn_print
 
 void nn_print(nn_src_t a, len_t m)
 {
