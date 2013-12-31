@@ -43,6 +43,8 @@
  extern "C" {
 #endif
 
+#ifndef HAVE_ARCH_types
+
 typedef unsigned long word_t;
 typedef long sword_t;
 typedef long len_t;
@@ -63,6 +65,8 @@ typedef unsigned int dword_t __attribute__((mode(DI)));
 typedef unsigned int dword_t __attribute__((mode(TI)));
 #define WORD_BITS 64
 #define WORD(x) (x##UL)
+
+#endif
 
 #endif
 
