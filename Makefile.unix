@@ -29,6 +29,7 @@ AFLAGS=__AFLAGS__
 CFLAGS=__CFLAGS__
 LIBS=-L$(CURDIR)
 INCS=-I$(CURDIR) 
+PREFIX=__PREFIX__
 
 # QUIET MAKE
 QUIET_AS         = @echo '   ' AS '   ' $@;
@@ -49,7 +50,7 @@ TESTS = $(patsubst %.c, build/%, $(TSOURCES))
 
 BINARIES = __BINARIES__ $(TESTS)
 
-LIBRARIES = __LIBRARIES__ dist/lib/libbsdnt.a dist/lib/libbsdnt.so
+LIBRARIES = __LIBRARIES__
 
 # PROFILE FILES
 PSOURCES = __PSOURCES__
@@ -57,15 +58,13 @@ PSOURCES = __PSOURCES__
 PROFS = $(patsubst %.c, build/%, $(PSOURCES))
 
 # PHONY SPEC
-.PHONY: all dist
+.PHONY: all clean distclean check strip profile install
 
 # RULES
-all: $(OBJS) $(BINARIES)
-
-dist: $(LIBRARIES)
+all: $(OBJS) $(BINARIES) $(LIBRARIES)
 
 clean:
-	rm -f $(OBJS) $(BINARIES)
+	rm -f $(OBJS) $(BINARIES) $(LIBRARIES)
 	rm -f cpuid
 	rm -f endian
 
@@ -76,15 +75,25 @@ distclean: clean
 check: $(OBJS) $(BINARIES)
 	$(foreach prog, $(TESTS), $(prog);)	
 
+install:
+	cp $(LIBRARIES) $(PREFIX)/lib
+	cp $(HEADERS) $(PREFIX)/include
+
 strip:
 	strip $(BINARIES)
 
 profile: $(OBJS) $(PROFS)
 
-dist/lib/libbsdnt.a: $(OBJS)
+libbsdnt.a: $(OBJS)
 	$(QUIET_AR)$(AR) rcs $@ $(OBJS)
 
-dist/lib/libbsdnt.so: $(OBJS)
+libbsdnt.so: $(OBJS)
+	$(QUIET_CC)$(CC) -shared $(OBJS) -lm -o $@
+
+libsdnt.dylib: $(OBJS)
+	$(QUIET_CC)$(CC) -shared $(OBJS) -lm -o $@
+
+libbsdnt.dll: $(OBJS)
 	$(QUIET_CC)$(CC) -shared $(OBJS) -lm -o $@
 
 build/arch/%.o: %.asm

@@ -23,47 +23,124 @@
 # BSDNT UNIX Build System.
 
 
-AS="gcc"
+AS=
 ASFILES=
-AR="ar"
-CC="gcc"
-AFLAGS=""
-CFLAGS="-pedantic -O2 -g -Wall"
-OS=`uname -s`
-
-case "$OS" in
-   CYGWIN* | MINGW*)
-      PIC_FLAG="";;
-   *)
-      PIC_FLAG="-fPIC";;
-esac
+AR=
+CC=gcc
+AFLAGS=
+CFLAGS=
+PIC_FLAG=
+PREFIX=
+SHARED=1
+STATIC=1
+ASSERT=0
+REDZONES=1
+BUILD=
+ABI=
+LIBRARIES=
 
 # Header 
 echo "BSDNT Unix Build Script."
-echo "BSDNT is a BSD-Licensed BigNum Library."
+echo "BSDNT is a BSD-Licensed Bignum Library."
 echo "BSDNT is Copyright (C) its contributors. See LICENSE."
 echo "====================================================="
 
+usage()
+{
+   echo "Usage: ./configure <options> <args>"
+   echo "   where <options> can be"
+   echo "     -h display help"
+   echo "   and <args> can be:"
+   echo "     --build=arch-os      Specify arch/OS combination"
+   echo "     --prefix=<path>      Use path as installation location (default: /usr/local)"
+   echo "     --enable-shared      Build a shared library (default)"
+   echo "     --disable-shared     Don't build a shared library"
+   echo "     --enable-static      Build a static library (default)"
+   echo "     --disable-static     Don't build a static library"
+   echo "     --enable-assert      Enable use of asserts (use for debug builds only)"
+   echo "     --disable-assert     Disable use of asserts (default)"
+   echo "     --enable-redzones    Enable redzones in test code (default)"
+   echo "     --disable-redzones   Disable redzones in test code"
+   echo "     AS=<name>            Use the given assembler (default gcc)"
+   echo "     CC=<name>            Use the given C compiler (default: gcc)"
+   echo "     CXX=<name>           Use the given C++ compiler (default: g++)"
+   echo "     AR=<name>            Use the given AR lib builder (default: ar)"
+   echo "     CFLAGS=<flags>       Specify the given compiler flags"
+   echo "     ABI=[32|64]          Use given ABI (default: empty)"
+}
+
+input_handler()
+{
+   while [ "$1" != "" ]; do
+      PARAM=`echo $1 | sed 's/=.*//'`
+      VALUE=`echo $1 | sed 's/[^=]*//; s/=//'`
+      case "$PARAM" in
+         -h|--help)
+            usage
+            exit 0
+            ;;
+         --build)
+            BUILD="$VALUE"
+            ;;
+         --prefix)
+            PREFIX=$VALUE
+            ;;
+         --enable-shared)
+            SHARED=1
+            ;;
+         --disable-shared)
+            SHARED=0
+            ;;
+         --enable-static)
+            STATIC=1
+            ;;
+         --disable-static)
+            STATIC=0
+            ;;
+         --enable-assert)
+            ASSERT=1
+            ;;
+         --disable-assert)
+            ASSERT=0
+            ;;
+         --enable-redzones)
+            ASSERT=1
+            ;;
+         --disable-redzones)
+            ASSERT=0
+            ;;
+         AR)
+            AR="$VALUE"
+            ;;
+         AS)
+            AS="$VALUE"
+            ;;
+         CC)
+            CC="$VALUE"
+            ;;
+         CXX)
+            CXX="$VALUE"
+            ;;
+         CFLAGS)
+            CFLAGS="$VALUE"
+            ;;
+         ABI)
+            ABI="$VALUE"
+            ;;
+         *)
+            usage
+            exit 1
+            ;;
+      esac
+      shift
+   done
+}
+
 create_config_h()
 {
-    WANT_ASSERT=0
-    WANT_REDZONES=1
+    echo "#define WANT_ASSERT ${ASSERT}" > config.h
+    echo "#define WANT_REDZONES ${REDZONES}" >> config.h
 
-    while test "$1" != "" ; do
-	if test "$1" = "-assert"
-        then
-           WANT_ASSERT=1
-        fi
-        if test "$1" = "-noredzones"
-        then
-           WANT_REDZONES=0
-        fi
-        shift
-    done
-    
-    echo "#define WANT_ASSERT ${WANT_ASSERT}" > config.h
-    echo "#define WANT_REDZONES ${WANT_REDZONES}" >> config.h
-    
     echo "#define IS_LITTLE_ENDIAN 0x10" >> config.h
     echo "#define IS_BIG_ENDIAN 0x20" >> config.h
 
@@ -75,103 +152,234 @@ create_config_h()
         big)
             echo "#define PLATFORM_BYTE_ORDER IS_BIG_ENDIAN" >> config.h;;
         *)
-	    echo "#error Machine must be either big or little endian!" >> config.h;;
-	esac
+            echo "#error Machine must be either big or little endian!" >> config.h;;
+        esac
+}
+
+os_handler()
+{
+   # Set Operating system
+   if [ -z "$BUILD" ]; then
+      OS=`uname -s`
+   else
+      OS=`echo "$BUILD" | cut -d- -f2`
+   fi
+
+   case "$OS" in
+      CYGWIN*)
+         if [ "$ABI" = "32" ]; then
+            OS="CYGWIN32"
+         elif [ "$ABI" = "64" ]; then
+            OS="CYGWIN64"
+         else
+            OS="CYGWIN"
+         fi
+      ;;
+      MINGW*)
+         if [ "$ABI" = "64" ]; then
+            OS="MINGW64"
+         else
+            OS="MINGW"
+         fi
+      ;;
+      *)
+         PIC_FLAG="-fPIC"
+      ;;
+   esac
+
+   # Libraries
+
+   if [ -z "$LIBRARIES" ]; then
+      if [ "$SHARED" = "1" ]; then
+         case "$OS" in
+            Darwin)
+               LIBRARIES="libbsdnt.dylib";;
+            CYGWIN* | MINGW*)
+               LIBRARIES="libbsdnt.dll";;
+            *)
+               LIBRARIES="libbsdnt.so";;
+         esac
+      fi
+ 
+      if [ "$STATIC" = "1" ]; then
+         LIBRARIES="${LIBRARIES} libbsdnt.a"
+      fi
+   fi
 }
 
 arch_handler()
 {
-    # Set Architecture
-    ARCH=`uname -m`
+   # Set Architecture
+   if [ -z "$BUILD" ]; then
+      ARCH=`uname -m`
+   else
+      ARCH=`echo "$BUILD" | cut -d- -f1`
+   fi
 
-    case $ARCH in
-    x86_64 | amd64)
-       MACHINE="x86_64";;
-    x86 | i*86 | pc)
-       MACHINE="x86";;
-    *)
-       MACHINE="unknown";;
-    esac
+   # Canonicalise machine name
+   case $ARCH in
+      x86_64 | amd64)
+         MACHINE="x86_64"
+         if [ "$OS" = "CYGWIN" ]; then
+            OS="CYGWIN64"
+         fi
+      ;;
+      x86 | i*86 | pc)
+         MACHINE="x86"
+         if [ "$OS" = "CYGWIN" ]; then
+            OS="CYGWIN32"
+         fi
+      ;;
+      *)
+         MACHINE="unknown"
+      ;;
+      ia64)
+         MACHINE="ia64";;
+      sparc | sun4*)
+         MACHINE="sparc";;
+      sparc64)
+         MACHINE="sparc64";;
+      ppc64 | powerpc64)
+         MACHINE="ppc64";;
+      ppc | powerpc | [P|p]ower*)
+         MACHINE="ppc";;
+      *)
+         MACHINE="unknown";;
+   esac
 
-    # Create ARCH headers. 
+   # ABI flag
 
-    echo "" > helper_arch.h
+   if [ "$ABI" = "32" ]; then
+      ABI_FLAG="-m32"
+      case "$MACHINE" in
+         x86_64)
+            MACHINE="x86";;
+         sparc64)
+            MACHINE="sparc";;
+         ppc64)
+            MACHINE="ppc";;
+         *)
+            ;;
+      esac
+   elif [ "$ABI" = "64" ]; then
+      ABI_FLAG="-m64"
+      if [ "$MACHINE" = "sparc" ]; then
+         MACHINE="sparc64"
+      fi
+      if [ "$MACHINE" = "x86" ]; then
+         MACHINE="x86_64"
+      fi
+   fi
 
-    if [ $MACHINE = "x86" -o $MACHINE = "x86_64" ]
-    then
-	$CC arch/cpuid.c -o cpuid 
-        ARCH=`./cpuid`
-        case $ARCH in
-        k10)
+   # Sparc fix
+   if [ "$MACHINE" = "sparc" ] || [ "$MACHINE" = "sparc64" ]; then
+      if [ "$CC" = "gcc" ]; then
+         CC="gcc -mno-relax"
+      fi
+   fi
+
+   # Create ARCH headers. 
+
+   echo "" > helper_arch.h
+
+   if [ $MACHINE = "x86" -o $MACHINE = "x86_64" ]
+   then
+      $CC arch/cpuid.c -o cpuid 
+      ARCH=`./cpuid`
+      case $ARCH in
+         k10)
             EXTS="_k10 _k8";;
-        k102)
+         k102)
             EXTS="_k102 _k10 _k8";;
-        k103)
+         k103)
             EXTS="_k103 _k102 _k10 _k8";;
-        bobcat)
+         bobcat)
             EXTS="_bobcat _k10 _k8";;
-        bulldozer)
+         bulldozer)
             EXTS="_bulldozer _k10 _k8";;
-        k8)
+         k8)
             EXTS="_k8";;
-        atom)
+         atom)
             EXTS="_atom";;
-        nehalem)
+         nehalem)
             EXTS="_nehalem _core2";;
-        westmere)
+         westmere)
             EXTS="_iwestmere _core2";;
-        sandybridge)
+         sandybridge)
             EXTS="_sndybridge _core2";;
-        core2)
+         core2)
             EXTS="_core2";;
-        p4)
+         p4)
             EXTS="_p4";;
-        * | x86)
+         * | x86)
             EXTS="";;
-        esac
+      esac
 
-        if [ $MACHINE = "x86_64" ]
-        then
-            ASFLAGS="-felf64"
-        elif [ $MACHINE = "x86" ]
-        then
-            ASFLAGS="-felf32"
-        fi
+      if [ $MACHINE = "x86_64" ]
+      then
+         ASFLAGS="-felf64"
+      elif [ $MACHINE = "x86" ]
+      then
+         ASFLAGS="-felf32"
+      fi
 
-        for file in nn*.c
-        do
-            name=${file%\.*}
-            #echo "   Writing ${name}_arch.h"
-            echo "#ifndef ${name}_H" > ${name}_arch.h
-            echo "#define ${name}_H" >> ${name}_arch.h
-            for ext in $EXTS
-            do
-                hname=arch/inline/$name"_"$MACHINE$ext.h
-                if [ -f $hname ]
-                then
-                    echo "#include \"${hname}\"" >> ${name}_arch.h
-                fi
-                hname=arch/inline/$name"_"$MACHINE.h
-                if [ -f $hname ]
-                then
-                    echo "#include \"${hname}\"" >> ${name}_arch.h
-                fi
-            done
-            echo "#endif" >> ${name}_arch.h
-        done
-    fi
+      for file in nn*.c
+      do
+         name=${file%\.*}
+         #echo "   Writing ${name}_arch.h"
+         echo "#ifndef ${name}_H" > ${name}_arch.h
+         echo "#define ${name}_H" >> ${name}_arch.h
+         for ext in $EXTS
+         do
+            hname=arch/inline/$name"_"$MACHINE$ext.h
+            if [ -f $hname ]
+            then
+               echo "#include \"${hname}\"" >> ${name}_arch.h
+            fi
+            hname=arch/inline/$name"_"$MACHINE.h
+            if [ -f $hname ]
+            then
+               echo "#include \"${hname}\"" >> ${name}_arch.h
+            fi
+         done
+         echo "#endif" >> ${name}_arch.h
+      done
+   else
+      for file in nn*.c
+      do
+         name=${file%\.*}
+         echo "#ifndef ${name}_H" > ${name}_arch.h
+         echo "#define ${name}_H" >> ${name}_arch.h
+         echo "#endif" >> ${name}_arch.h
+      done
+   fi
+}
 
-    if [ $MACHINE = "unknown" ]
-    then
-        for file in nn*.c
-        do
-           name=${file%\.*}
-           echo "#ifndef ${name}_H" > ${name}_arch.h
-           echo "#define ${name}_H" >> ${name}_arch.h
-           echo "#endif" >> ${name}_arch.h
-        done
-    fi
+defaults()
+{
+   if [ -z "$CC" ]; then
+      CC=gcc
+   fi
 
+   if [ -z "$CXX" ]; then
+      CXX=g++
+   fi
+
+   if [ -z "$AR" ]; then
+      AR=ar
+   fi
+
+   if [ -z "$AS" ]; then
+      AS=gcc
+   fi
+
+   if [ -z "$CFLAGS" ]; then
+      CFLAGS="-pedantic -O2 -g -Wall ${ABI_FLAG} ${PIC_FLAG}"
+   fi
+
+   if [ -z "$PREFIX" ]; then
+      PREFIX="/usr/local"
+   fi
 }
 
 fill_makefile_wireframe()
@@ -215,7 +423,7 @@ sed_makefile()
     sed "s|__ARCHIVE__|${AR}|g" Makefile.tmp > Makefile
     sed "s|__COMPILER__|${CC}|g" Makefile > Makefile.tmp
     sed "s|__AFLAGS__|${ASFLAGS}|g" Makefile.tmp > Makefile
-    sed "s|__CFLAGS__|${CFLAGS} ${PIC_FLAG}|g" Makefile > Makefile.tmp
+    sed "s|__CFLAGS__|${CFLAGS}|g" Makefile > Makefile.tmp
     sed "s|__ASFILES__|${ASFILES}|g" Makefile.tmp > Makefile
     sed "s|__SOURCES__|${CFILES}|g" Makefile > Makefile.tmp
     sed "s|__HEADERS__|${HFILES}|g" Makefile.tmp > Makefile
@@ -224,7 +432,8 @@ sed_makefile()
     sed "s|__PSOURCES__|${PFILES}|g" Makefile > Makefile.tmp
     sed "s|__BINARIES__|${BINARIES}|g" Makefile.tmp > Makefile
     sed "s|__LIBRARIES__|${LIBRARIES}|g" Makefile > Makefile.tmp
-    mv Makefile.tmp Makefile
+    sed "s|__PREFIX__|${PREFIX}|g" Makefile.tmp > Makefile
+    rm Makefile.tmp
 }
 
 
@@ -242,8 +451,11 @@ create_types_arch_h()
     echo "" >> types_arch.h
 }
 
-create_config_h $@
+input_handler $@
+create_config_h
+os_handler
 arch_handler
+defaults
 fill_makefile_wireframe
 sed_makefile
 make_directory_structure
