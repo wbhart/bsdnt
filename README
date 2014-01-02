@@ -13,7 +13,7 @@ and maintainable.
 Features
 ========
 
-* Support for Linux, BSD, MinGW32, Cygwin, Cygwin64
+* Support for Linux, OSX, BSD, MinGW32, Cygwin, Cygwin64
 * Inline assembly optimisation for 64 bit Intel and AMD x86_64 processors
 * Low level multiprecision natural numbers interface (nn.h)
 * High level multiprecision integer interface (zz.h)
@@ -53,8 +53,6 @@ Future improvements
   https://github.com/wbhart/flint2/tree/trunk/fft
 * Asymptotically fast algorithms for GCD, get_str, set_str, division (??)
 * Square root and n-th root code
-* Support OSX (probably just need to name library .dylib) 
-* Support Sparc 32/64 (??)
 
 Contributors
 ============
