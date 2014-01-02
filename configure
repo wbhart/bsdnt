@@ -388,6 +388,7 @@ fill_makefile_wireframe()
 
     CFILESARR=`ls -1 *.c rand/*.c`
     HFILESARR=`ls -1 *.h`
+    ARCHHFILESARR=`ls -1 arch/inline/*.h`
     TFILESARR=`ls -1 test/t-*.c`
     PFILESARR=`ls -1 profile/p-*.c`
 
@@ -399,6 +400,11 @@ fill_makefile_wireframe()
     for H in `echo ${HFILESARR[*]}`;
     do
         HFILES="$HFILES $H"
+    done
+
+    for AH in `echo ${ARCHHFILESARR[*]}`;
+    do
+        ARCHHFILES="$ARCHHFILES $AH"
     done
 
     for T in `echo ${TFILESARR[*]}`;
@@ -433,7 +439,8 @@ sed_makefile()
     sed "s|__BINARIES__|${BINARIES}|g" Makefile.tmp > Makefile
     sed "s|__LIBRARIES__|${LIBRARIES}|g" Makefile > Makefile.tmp
     sed "s|__PREFIX__|${PREFIX}|g" Makefile.tmp > Makefile
-    rm Makefile.tmp
+    sed "s|__ARCHHEADERS__|${ARCHHFILES}|g" Makefile > Makefile.tmp
+    mv Makefile.tmp Makefile
 }
 
 
@@ -456,10 +463,10 @@ create_config_h
 os_handler
 arch_handler
 defaults
+create_types_arch_h
 fill_makefile_wireframe
 sed_makefile
 make_directory_structure
-create_types_arch_h
 
 echo "Done. "
 echo " "
