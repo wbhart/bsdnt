@@ -41,6 +41,7 @@ QUIET_SO         = @echo '   ' SO '   ' $@;
 # FILES
 SOURCES = __SOURCES__
 HEADERS = __HEADERS__
+ARCHHEADERS = __ARCHHEADERS__
 OBJS = $(patsubst %.c, build/%.o, $(SOURCES))
 
 # TEST FILES
@@ -76,8 +77,10 @@ check: $(OBJS) $(BINARIES)
 	$(foreach prog, $(TESTS), $(prog);)	
 
 install:
+	mkdir -p $(PREFIX)/lib $(PREFIX)/include/bsdnt/arch/inline
 	cp $(LIBRARIES) $(PREFIX)/lib
-	cp $(HEADERS) $(PREFIX)/include
+	cp $(HEADERS) $(PREFIX)/include/bsdnt
+	cp $(ARCHHEADERS) $(PREFIX)/include/bsdnt/arch/inline
 
 strip:
 	strip $(BINARIES)
