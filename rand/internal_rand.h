@@ -30,7 +30,9 @@
 
 #include <stdint.h>
 #include <stdlib.h>
-#include <malloc.h>
+#if defined(__MINGW32__)
+	#include <malloc.h>
+#endif
 
 #include "helper.h"
 #include "rand.h"
