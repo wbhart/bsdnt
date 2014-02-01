@@ -270,7 +270,7 @@ int test_divapprox_classical_preinv(void)
       nn_divrem_classical_preinv_c(q1, r1, m + n - 1, d, n, inv, r1[m + n - 1]);
 
       nn_divapprox_classical_preinv_c(q2, r2, m + n - 1, d, n, inv, r2[m + n - 1]);
-
+      
       result = nn_equal_m(q1, q2, m);
       nn_add1(q1, q1, m, 1);
       result |= nn_equal_m(q1, q2, m);

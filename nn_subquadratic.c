@@ -504,7 +504,7 @@ word_t nn_divapprox_divconquer_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d,
 
    TMP_END;
 
-   while ((sword_t) ci < 0)
+   if ((sword_t) ci < 0)
    {
       
       nn_sub1(q + sl, q + sl, sh, 1); /* ensure quotient is not too big */
@@ -519,7 +519,7 @@ word_t nn_divapprox_divconquer_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d,
          ci += nn_add1(a + m - s - 1, a + m - s - 1, sl + 2, d[n - sl - 3 - i]);
    }
    
-   if (ci != 0) /* special case: unable to canonicalise */
+   if (ci != 0 || nn_cmp_m(a + sl, d, n) >= 0) /* special case: unable to canonicalise */
       return _nn_divapprox_helper(q, a + m - s - 1, d + n - sl - 1, sl);
 
    ci = nn_divapprox_preinv_c(q, a, n + sl - 1, d, n, dinv, a[m - sh]);

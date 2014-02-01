@@ -656,11 +656,11 @@ void nn_divrem_classical_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d,
 
 /*
    As per nn_divrem_classical_preinv_c however only a partial remainder is
-   computed. It is equal to a - sum_{i + j >= m - s + 1} q_i*d_j where q_i
-   are the s = m - n + 1 words of the quotient and d_j are the words of d.
-   If q1 is the actual quotient and q2 the computed quotient, then we have
-   q1 + 1 >= q2 >= q1 - 1. The partial remainder is stored in the first 
-   m - s + 1 words of a, the other words being destroyed. 
+   computed. It is equal to a - sum_{i + j >= m - s - 1} q_i*d_j*B^{i+j} 
+   where q_i are the s = m - n + 1 words of the quotient and d_j are the 
+   words of d. If q1 is the actual quotient and q2 the computed quotient, 
+   then we have q1 + 1 >= q2 >= q1. The partial remainder is stored in 
+   place in a, the high words of a being destroyed. 
    We require that q may not alias a or d and a must not alias d.
    Due to successive truncation, it is possible that the partial remainder 
    may exceed d, in which case the extra word is returned by this function.
