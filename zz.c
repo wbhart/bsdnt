@@ -34,6 +34,18 @@ void zz_init(zz_ptr r)
    r->alloc = 0;
 }
 
+void zz_inits(zz_ptr num, ...)
+{
+   va_list arglst;
+   va_start(arglst, num);
+   while(num != '\0')
+   {
+      zz_init(num);
+      num = va_arg(arglst, zz_ptr);
+   }
+   va_end(arglst);
+}
+
 void zz_init_fit(zz_ptr r, len_t m)
 {
    r->n = (nn_t) malloc(sizeof(word_t)*m);
@@ -44,6 +56,18 @@ void zz_init_fit(zz_ptr r, len_t m)
 void zz_clear(zz_ptr r)
 {
    free(r->n);
+}
+
+void zz_clears(zz_ptr num, ...)
+{
+   va_list arglst;
+   va_start(arglst, num);
+   while(num != '\0')
+   {
+      zz_clear(num);
+      num = va_arg(arglst, zz_ptr);
+   }
+   va_end(arglst);
 }
 
 void zz_fit(zz_ptr r, len_t m)
