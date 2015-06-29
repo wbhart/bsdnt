@@ -30,6 +30,7 @@
 
 #include <math.h>
 #include <string.h> /* strspn */
+#include <stdarg.h> /* variadic functions */
 #include "helper.h"
 #include "rand.h"
 #include "nn.h"
@@ -83,6 +84,14 @@ typedef const zz_struct * zz_srcptr;
 void zz_init(zz_ptr r);
 
 /*
+   Initialize a null-terminated list of zz_ts for use.
+
+   E.g.: given num1, num2 and num3, they can be initialized as
+       zz_inits(num1, num2, num3, '\0');
+*/
+void zz_inits(zz_ptr num, ...);
+
+/*
    Initialise a zz_t for use and ensure it has space for an integer
    whose absolute value has m words. This is included for performance
    reasons only. Usually it is sufficient to call zz_init.
@@ -93,6 +102,15 @@ void zz_init_fit(zz_ptr r, len_t m);
    Free any memory used by a zz_t.
 */
 void zz_clear(zz_ptr r);
+
+/*
+   Free the memory used by every variable in a null-terminated list of
+   zz_ts.
+
+   E.g.: given num1, num2 and num3, they can be freed as
+       zz_clears(num1, num2, num3, '\0');
+*/
+void zz_clears(zz_ptr num, ...);
 
 /*
    Ensure a zz_t has space for an integer whose absolute value has m
