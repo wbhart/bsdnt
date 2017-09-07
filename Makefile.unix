@@ -93,7 +93,7 @@ libbsdnt.a: $(OBJS)
 libbsdnt.so: $(OBJS)
 	$(QUIET_CC)$(CC) -shared $(OBJS) -lm -o $@
 
-libsdnt.dylib: $(OBJS)
+libbsdnt.dylib: $(OBJS)
 	$(QUIET_CC)$(CC) -shared $(OBJS) -lm -o $@
 
 libbsdnt.dll: $(OBJS)
