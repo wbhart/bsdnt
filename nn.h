@@ -534,8 +534,8 @@ int nn_cmp(nn_src_t a, len_t am, nn_src_t b, len_t bm)
 }
 
 /**********************************************************************
- 
-    Logical operations
+
+    Bit operations
 
 **********************************************************************/
 
@@ -551,6 +551,52 @@ void nn_not(nn_t a, nn_src_t b, len_t m)
       a[i] = ~b[i];
 }
 
+/*
+   Return the count of bits in a that are set to 1.
+*/
+static inline
+bits_t nn_popcount(nn_src_t a, len_t m)
+{
+   len_t i;
+   bits_t count = 0;
+
+   for (i = 0; i < m; i++)
+      count += popcount_bits(a[i]);
+
+  return count;
+}
+
+/*
+   After the low 'skip' bits, find the next bit position that is set to 1,
+   or return -1 if there is no bit set to 1 after b.
+   It must hold that skip < m.
+*/
+bits_t nn_scan1(bits_t skip, nn_src_t a, len_t m);
+
+/*
+   Return the Hamming distance of {a, m} and {b, m}.
+   Equivalent to popcount(a ^ b).
+*/
+static inline
+bits_t nn_hamdist_m(nn_src_t a, nn_src_t b, len_t m)
+{
+   len_t i;
+   bits_t count = 0;
+
+   for (i = 0; i < m; i++)
+     count += popcount_bits(a[i] ^ b[i]);
+
+  return count;
+}
+
+/* Bitwise xor. */
+static inline
+void nn_xor_m(nn_t a, nn_src_t b, nn_src_t c, len_t m)
+{
+   len_t i;
+   for (i = 0; i < m; i++)
+     a[i] = b[i] ^ c[i];
+}
 
 /**********************************************************************
  

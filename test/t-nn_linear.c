@@ -1207,6 +1207,100 @@ int test_not(void)
    return result;
 }
 
+int test_popcount(void)
+{
+   int result = 1;
+   nn_t a;
+   len_t m;
+   bits_t i, count1, count2;
+
+   printf("nn_popcount...");
+
+   /* test popcount against naive nn_bit_test algorithm */
+   TEST_START(1, ITER)
+   {
+      randoms_upto(100, ANY, state, &m, NULL);
+      randoms_of_len(m, ANY, state, &a, NULL);
+
+      count1 = nn_popcount(a, m);
+      count2 = 0;
+      for (i = 0; i < m * WORD_BITS; i++)
+         count2 += !!nn_bit_test(a, i);
+
+      result = (count1 == count2);
+      if (!result)
+         print_debug(a, m);
+   } TEST_END;
+
+   return result;
+}
+
+int test_scan1(void)
+{
+   int result = 1;
+   nn_t a;
+   len_t m;
+   bits_t skip, b1, b2;
+
+   printf("nn_scan1...");
+
+   /* test scan1 against naive nn_bit_test algorithm */
+   TEST_START(1, ITER)
+   {
+      randoms_upto(100, NONZERO, state, &m, NULL);
+      randoms_upto(m * WORD_BITS, ANY, state, &skip, NULL);
+      randoms_of_len(m, ANY, state, &a, NULL);
+
+      b1 = nn_scan1(skip, a, m);
+      for (b2 = skip; b2 < m * WORD_BITS; b2++)
+      {
+         if (nn_bit_test(a, b2))
+            break;
+      }
+      if (b2 == m * WORD_BITS)
+         b2 = -1;
+
+      result = (b1 == b2);
+      if (!result)
+      {
+         printf(BITS_FMT " " BITS_FMT "\n", b1, b2);
+         print_debug(a, m);
+      }
+   } TEST_END;
+
+   return result;
+}
+
+int test_hamdist_m(void)
+{
+   int result = 1;
+   nn_t a, b, r1;
+   len_t m;
+   bits_t dist1, dist2;
+
+   printf("nn_hamdist_m...");
+
+   /* test hamdist against xor & popcount */
+   TEST_START(1, ITER)
+   {
+      randoms_upto(100, ANY, state, &m, NULL);
+      randoms_of_len(m, ANY, state, &a, &b, &r1, NULL);
+
+      dist1 = nn_hamdist_m(a, b, m);
+      nn_xor_m(r1, a, b, m);
+      dist2 = nn_popcount(r1, m);
+
+      result = (dist1 == dist2);
+      if (!result)
+      {
+         print_debug(a, m);
+         print_debug_diff(r1, a, m);
+      }
+   } TEST_END;
+
+   return result;
+}
+
 int test_neg(void)
 {
    int result = 1;
@@ -1653,6 +1747,9 @@ int test_linear(void)
    RUN(test_bit_set);
    RUN(test_bit_clear);
    RUN(test_not);
+   RUN(test_popcount);
+   RUN(test_scan1);
+   RUN(test_hamdist_m);
    RUN(test_neg);
    RUN(test_add1);
    RUN(test_add_m);

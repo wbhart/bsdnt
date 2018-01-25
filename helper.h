@@ -59,6 +59,9 @@ typedef long sword_t;
 typedef long len_t;
 typedef long bits_t;
 
+#define LEN_MAX LONG_MAX
+#define BITS_MAX LONG_MAX
+
 #define WORD_FMT "%l"
 #define LEN_FMT "%ld"
 #define BITS_FMT "%ld"
@@ -168,6 +171,8 @@ void talker(const char * str);
 #ifndef HAVE_ARCH_INTRINSICS
 
 #define high_zero_bits __builtin_clzl
+#define low_zero_bits __builtin_ctzl
+#define popcount_bits __builtin_popcountl
 
 #endif
 
