@@ -29,6 +29,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "nn.h"
+#include "zz.h"
 #include "test.h"
 
 #undef ITER
@@ -607,6 +608,66 @@ int test_get_set_str(void)
    return result;
 }
 
+int test_get_set_str_raw(void)
+{
+   int result = 1;
+   len_t base;
+   len_t m, n;
+   nn_t r1, r1c, r2;
+   const int max_words = 60;
+   unsigned char *str = malloc(max_words * WORD_BITS + 1);
+   size_t i, str_len;
+   zz_t val;
+   zz_init(val);
+
+   printf("get/set_str_raw...");
+
+   TEST_START(1, 1000)
+   {
+      randoms_upto(254, ANY, state, &base, NULL);
+      base += 2; /* base from 2 to 256 */
+
+      randoms_upto(max_words, ANY, state, &m, NULL);
+      randoms_of_len(m, FULL, state, &r1, &r1c, &r2, NULL);
+      nn_copy(r1c, r1, m);
+
+      str_len = nn_get_str_raw(str, base, r1c, m);
+      n = nn_set_str_raw(r2, str, str_len, base);
+
+      /* Test round-trip */
+      if (n != m || !nn_equal_m(r1, r2, m))
+      {
+         printf("FAIL round-trip\n");
+         print_debug(r1, m); print_debug(r2, n);
+         result = 0;
+      }
+
+      /* Test against simple str -> bignum process. */
+      zz_zero(val);
+      for (i = 0; i < str_len; i++)
+      {
+         zz_muli(val, val, base);
+         zz_addi(val, val, str[i]);
+      }
+      if (val[0].size < 0)
+      {
+         printf("FAIL reference negative?!?\n");
+      }
+      else if (val[0].size != n || !nn_equal_m(val[0].n, r2, n))
+      {
+         printf("FAIL reference\n");
+         print_debug(val[0].n, val[0].size); print_debug(r2, n);
+         result = 0;
+      }
+
+   } TEST_END;
+
+   zz_clear(val);
+
+   return result;
+}
+
+
 int test_quadratic(void)
 {
    long pass = 0;
@@ -621,6 +682,7 @@ int test_quadratic(void)
    RUN(test_gcd_lehmer);
    RUN(test_xgcd_lehmer);
    RUN(test_get_set_str);
+   RUN(test_get_set_str_raw);
    
    printf("%ld of %ld tests pass.\n", pass, pass + fail);
 

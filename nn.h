@@ -146,6 +146,25 @@ char * nn_get_str(nn_src_t a, len_t m);
 size_t nn_set_str(nn_t a, len_t * len, const char * str);
 
 /*
+   Convert {a, len} to the given base. Digits are output into str, which must
+   be long enough to store the result, i.e. floor(log_[base]({a, len})+1).
+   The output is not ASCII digits, and is big-endian. For example, the nn_t
+   value 0x12340078 becomes [0x12, 0x34, 0x00, 0x78]. The return value is the
+   number of output digits. base must be from 2 to 256 inclusive. {a, len} is
+   destroyed in the process.
+*/
+size_t nn_get_str_raw(unsigned char *str, int base, nn_t a, len_t len);
+
+/*
+   Read str (of length size) as a big-endian number in the given base, and
+   output into a. a must be large enough to store the result. The return
+   value is the number of words in a that were written to. This is the
+   inverse of nn_get_str_raw.
+*/
+len_t nn_set_str_raw(nn_t a, const unsigned char * str, size_t size, int base);
+
+
+/*
    Print {a, m} in decimal to stdout. If m == 0 then 0 is printed.
 */
 void nn_print(nn_src_t a, len_t m);
