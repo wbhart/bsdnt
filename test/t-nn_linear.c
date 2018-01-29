@@ -623,7 +623,7 @@ int test_shr(void)
       
       r1[m] = nn_shl(r1, a, m, sh1);
       
-      nn_shr_c(r2, r1, m, sh1, r1[m] << (WORD_BITS - sh1));
+      nn_shr_c(r2, r1, m, sh1, sh1 == 0 ? 0 : r1[m] << (WORD_BITS - sh1));
       
       result = nn_equal_m(a, r2, m);
 

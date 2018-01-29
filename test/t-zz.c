@@ -95,7 +95,7 @@ int test_seti_equali(void)
          c2 = (sword_t) randword(state);
       } while (c2 == 0);
 
-      zz_seti(r1, c1 + c2);
+      zz_seti(r1, (sword_t) ((word_t) c1 + (word_t) c2));
       
       result = !zz_equali(r1, c1);
 
