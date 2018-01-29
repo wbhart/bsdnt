@@ -1200,6 +1200,8 @@ int test_divrem(void)
       zz_add(t1, t1, r);
 
       result = (zz_equal(a, t1) && zz_cmpabs(r, b) < 0);
+      /* remainder is zero or sign is same as that of b */
+      result &= (zz_is_zero(r) || ((zz_cmpi(r, 0) ^ zz_cmpi(b, 0)) >= 0));
 
       if (!result) 
       {
@@ -1225,7 +1227,7 @@ int test_divrem(void)
       zz_divrem(q, r, t1, b);
 
       result = (zz_equal(a, q) && zz_is_zero(r));
-
+      
       if (!result) 
       {
          zz_print_debug(a); zz_print_debug(b); 

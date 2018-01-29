@@ -349,6 +349,8 @@ void zz_sub(zz_ptr r, zz_srcptr a, zz_srcptr b)
 
 void zz_mul_2exp(zz_ptr r, zz_srcptr a, bits_t exp)
 {
+   ASSERT(exp >= 0);
+   
    if (a->size == 0)
       r->size = 0;
    else
@@ -392,6 +394,8 @@ void zz_div_2exp(zz_ptr r, zz_srcptr a, bits_t exp)
    len_t usize = BSDNT_ABS(a->size);
    len_t rsize = usize - words;
    
+   ASSERT(exp >= 0);
+
    if (rsize <= 0)
       r->size = 0;
    else 
@@ -447,6 +451,8 @@ sword_t zz_divremi(zz_ptr q, zz_srcptr a, sword_t b)
    word_t norm, binv, babs, ci;
    zz_t t;
 
+   ASSERT(b != 0);
+
    if (asize == 0) 
    {
       q->size = 0;
@@ -465,11 +471,11 @@ sword_t zz_divremi(zz_ptr q, zz_srcptr a, sword_t b)
       r = nn_divrem1_preinv_c(q->n, t->n, asize, babs << norm, binv, ci) >> norm;
          
       qsize -= q->n[qsize - 1] == 0;
-      
-      q->size = (a->size ^ b) >= 0 ? qsize : -qsize;
-      r = a->size >= 0 ? r : -r;
 
-      if (q->size < 0 && r != 0) 
+      r = a->size >= 0 ? r : -r;
+      q->size = (a->size ^ b) >= 0 ? qsize : -qsize;
+
+      if ((r ^ b) < 0 && r != 0) 
       {
          zz_subi(q, q, 1);
          r += b;
@@ -521,12 +527,15 @@ void zz_mul(zz_ptr r, zz_srcptr a, zz_srcptr b)
 
 void zz_divrem(zz_ptr q, zz_ptr r, zz_srcptr a, zz_srcptr b)
 {
-   long asize = BSDNT_ABS(a->size);
-   long bsize = BSDNT_ABS(b->size);
-   long rsize = bsize;
-   long qsize = asize - bsize + 1;
+   len_t asize = BSDNT_ABS(a->size);
+   len_t bsize = BSDNT_ABS(b->size);
+   len_t rsize = bsize;
+   len_t qsize = asize - bsize + 1;
+   len_t qsign = (a->size ^ b->size);
    zz_ptr t, u;
    TMP_INIT;
+
+   ASSERT(bsize != 0);
 
    TMP_START;
    if (r == b)
@@ -542,8 +551,15 @@ void zz_divrem(zz_ptr q, zz_ptr r, zz_srcptr a, zz_srcptr b)
    zz_set(t, a);
 
    if (asize < bsize)
-      u->size = 0;
-   else 
+   {
+      if (qsign >= 0 || asize == 0)
+         u->size = 0;
+      else
+      {
+         zz_seti(u, -(sword_t) 1);
+         zz_add(t, t, b);
+      }
+   } else 
    {
       zz_fit(u, qsize);
    
@@ -552,10 +568,10 @@ void zz_divrem(zz_ptr q, zz_ptr r, zz_srcptr a, zz_srcptr b)
       qsize -= u->n[qsize - 1] == 0;
       rsize = nn_normalise(t->n, rsize);
 
-      u->size = (a->size ^ b->size) >= 0 ? qsize : -qsize;
       t->size = a->size >= 0 ? rsize : -rsize;
-
-      if (u->size < 0 && t->size != 0) 
+      u->size = qsign >= 0 ? qsize : -qsize;
+      
+      if ((t->size ^ b->size) < 0 && t->size != 0) 
       {
          zz_subi(u, u, 1);
          zz_add(t, t, b);
@@ -586,9 +602,16 @@ void zz_div(zz_ptr q, zz_srcptr a, zz_srcptr b)
    len_t qsign = (a->size ^ b->size);
    zz_t r;
 
+   ASSERT(bsize != 0);
+
    if (asize < bsize)
-      q->size = 0;
-   else {
+   {
+      if (qsign >= 0 || asize == 0)
+         q->size = 0;
+      else
+         zz_seti(q, -(sword_t) 1);
+   } else 
+   {
       zz_ptr t;
       TMP_INIT;
       
@@ -612,9 +635,13 @@ void zz_div(zz_ptr q, zz_srcptr a, zz_srcptr b)
          nn_div(t->n, r->n, asize, b->n, bsize);
       
       qsize -= t->n[qsize - 1] == 0;
+
+      if (a->size < 0)
+         rsize = -rsize;
+
       t->size = qsign >= 0 ? qsize : -qsize;
-      
-      if (t->size < 0 && rsize != 0)
+
+      if ((rsize ^ b->size) < 0 && rsize != 0)
          zz_subi(t, t, 1);
       
       zz_clear(r);
