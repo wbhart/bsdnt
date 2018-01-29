@@ -285,6 +285,12 @@ void zz_divrem(zz_ptr q, zz_ptr r, zz_srcptr a, zz_srcptr b);
 void zz_div(zz_ptr q, zz_srcptr a, zz_srcptr b);
 
 /*
+   Set r = a ^ b.
+   b must be non-negative.
+*/
+void zz_powi(zz_ptr r, zz_srcptr a, sword_t b);
+
+/*
    Set g to the greatest common divisor of a and b. If both are
    negative or zero then g will be negative or zero, otherwise g will
    be positive. If a = 0 then g = b, and similarly if b = 0 then g = a.

@@ -1360,6 +1360,131 @@ int test_div(void)
    return result;
 }
 
+void _test_powi_print_helper(zz_t r)
+{
+   if (r->size > 100)
+      printf(WORD_FMT "x..."WORD_FMT "x (" LEN_FMT ")\n", r->n[r->size - 1], r->n[0], r->size);
+   else
+      zz_print_debug(r);
+}
+
+int test_powi(void)
+{
+   int result = 1, explicit_test;
+   zz_t a, r, r2, r3;
+   len_t m;
+   sword_t power, px, py, i;
+
+   printf("zz_powi...");
+
+   /* compare with trivial algorithm */
+   TEST_START(1, ITER)
+   {
+      randoms_upto(10, ANY, state, &m, NULL);
+      randoms_signed(m, ANY, state, &a, &r, &r2, NULL);
+
+      randoms_upto(50, NONZERO, state, &power, NULL);
+
+      zz_powi(r, a, power);
+
+      zz_seti(r2, 1);
+      for (i = 0; i < power; i++)
+         zz_mul(r2, r2, a);
+
+      /* Make sure that over-alloc isn't huge. */
+      result = zz_equal(r, r2) && (r->alloc <= m || r->alloc/2 <= BSDNT_ABS(r->size));
+
+      if (!result)
+      {
+         printf("size:" LEN_FMT " alloc:" LEN_FMT "\n", r->size, r->alloc);
+         zz_print_debug(a);
+         printf("^" WORD_FMT "d\n", power);
+         zz_print_debug(r); zz_print_debug(r2);
+      }
+
+      gc_cleanup();
+   } TEST_END;
+
+   /* test small bases & larger powers */
+   TEST_START(2, 5)
+   {
+      result = 1;
+      randoms_signed(1, ANY, state, &a, &r, &r2, &r3, NULL);
+      randoms_upto(99999, ANY, state, &power, NULL);
+
+      for (i = 0; i < 100 && result; i++)
+      {
+         sword_t base = i & 1 ? -i/2 : i/2;
+         zz_seti(a, base);
+         zz_powi(r, a, power);
+
+         /* explicit tests, only for particular bases. */
+         explicit_test = 1;
+         switch (BSDNT_ABS(base))
+         {
+            case 0:
+               zz_seti(r2, 0);
+               break;
+            case 1:
+               zz_seti(r2, 1);
+               break;
+            case 2: case 4: case 8: case 16: case 32: case 64:
+               zz_seti(r2, 1);
+               zz_mul_2exp(r2, r2, power * low_zero_bits(BSDNT_ABS(base)));
+               break;
+            default:
+               explicit_test = 0;
+               break;
+         }
+
+         if (explicit_test)
+         {
+            if (base < 0 && power % 2 == 1)
+               zz_neg(r2, r2);
+
+            if (!zz_equal(r, r2))
+            {
+               result = 0;
+               printf(WORD_FMT "d^" WORD_FMT "d\n", base, power);
+               _test_powi_print_helper(r);
+               _test_powi_print_helper(r2);
+            }
+         }
+
+         /* test base^x * base^y == base^(x+y) identity */
+         randoms_upto(power, ANY, state, &px, NULL);
+         py = power - px;
+         zz_powi(r2, a, px);
+         zz_powi(r3, a, py);
+         zz_mul(r2, r2, r3);
+         if (!zz_equal(r, r2))
+         {
+            printf("base = " WORD_FMT "d\n", base);
+            printf("base^" WORD_FMT "d != base^" WORD_FMT "d * base^" WORD_FMT "d\n", power, px, py);
+            _test_powi_print_helper(r);
+            _test_powi_print_helper(r2);
+         }
+      }
+
+      gc_cleanup();
+   } TEST_END;
+
+   /* test aliasing */
+   TEST_START(aliasing, ITER)
+   {
+      randoms_upto(10, ANY, state, &m, NULL);
+      randoms_signed(m, ANY, state, &r, &a, NULL);
+
+      randoms_upto(50, ANY, state, &power, NULL);
+
+      test_zz_aliasing_12i(zz_powi, r, a, power);
+
+      gc_cleanup();
+   } TEST_END;
+
+   return result;
+}
+
 int test_gcd(void)
 {
    int result = 1;
@@ -1561,6 +1686,7 @@ int test_zz(void)
    RUN(test_mul);
    RUN(test_divrem);
    RUN(test_div);
+   RUN(test_powi);
    RUN(test_gcd);
    RUN(test_xgcd);
    RUN(test_get_set_str);
