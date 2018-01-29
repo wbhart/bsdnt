@@ -35,8 +35,7 @@ void nn_mul_kara(nn_t p, nn_src_t a, len_t m, nn_src_t b, len_t n)
    len_t m2 = (m + 1)/2;
    len_t h1 = m - m2;
    len_t h2 = n - m2;
-   word_t ci;
-
+   
    nn_t t;
    TMP_INIT;
 
@@ -57,10 +56,11 @@ void nn_mul_kara(nn_t p, nn_src_t a, len_t m, nn_src_t b, len_t n)
    nn_mul_m(p, a, b, m2);
    nn_mul(p + 2*m2, a + m2, h1, b + m2, h2);
    
-   ci = -nn_sub(t, t, 2*m2 + 1, p, 2*m2);
-   t[2*m2 + 1] = ci - nn_sub(t, t, 2*m2 + 1, p + 2*m2, h1 + h2);
+   nn_sub(t, t, 2*m2 + 1, p, 2*m2);
+   nn_sub(t, t, 2*m2 + 1, p + 2*m2, h1 + h2);
    
-   nn_add(p + m2, p + m2, m + h2, t, 2*m2 + 1);
+   /* add a_hi*b_lo + a_lo*b_hi, cannot exceed m + 1 words */
+   nn_add(p + m2, p + m2, m + h2, t, m + 1);
    
    TMP_END;
 }

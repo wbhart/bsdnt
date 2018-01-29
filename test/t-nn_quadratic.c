@@ -189,7 +189,7 @@ int test_divrem_classical_preinv(void)
       if (m >= n) nn_mul_classical(r1, a, m, d, n);
       else nn_mul_classical(r1, d, n, a, m);
 
-	   inv = precompute_inverse2(d[n - 1], d[n - 2]);
+      inv = precompute_inverse2(d[n - 1], d[n - 2]);
       
       nn_divrem_classical_preinv_c(q, r1, m + n - 1, d, n, inv, r1[m + n - 1]);
 	   

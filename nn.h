@@ -311,6 +311,7 @@ static inline
 word_t nn_add_c(nn_t a, nn_src_t b, len_t bm, 
                             nn_src_t c, len_t cm, word_t ci)
 {
+   ASSERT(bm >= cm);
    ci = nn_add_mc(a, b, c, cm, ci);
    return nn_add1(a + cm, b + cm, bm - cm, ci);
 }
@@ -331,6 +332,7 @@ static inline
 word_t nn_sub_c(nn_t a, nn_src_t b, len_t bm, 
                             nn_src_t c, len_t cm, word_t ci)
 {
+   ASSERT(bm >= cm);
    ci = nn_sub_mc(a, b, c, cm, ci);
    return nn_sub1(a + cm, b + cm, bm - cm, ci);
 }
