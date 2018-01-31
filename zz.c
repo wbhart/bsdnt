@@ -656,31 +656,32 @@ void zz_div(zz_ptr q, zz_srcptr a, zz_srcptr b)
    }
 }
 
-void zz_powi(zz_ptr r, zz_srcptr a, sword_t b)
+void zz_powi(zz_ptr r, zz_srcptr a, sword_t signed_b)
 {
    word_t i;
+   word_t b = (word_t) signed_b;
    len_t bound;
    len_t asize = BSDNT_ABS(a->size);
    zz_ptr t1, t2;
    int r_neg = a->size < 0 && (b & 1);
    TMP_INIT;
 
-   ASSERT(b >= 0);
+   ASSERT(signed_b >= 0);
 
    /* Degenerate cases that the rest of the code breaks on */
-   if (!b)
+   if (b == 0)
    {
       zz_seti(r, 1);
-      return;
-   }
-   if (asize == 0)
-   {
-      zz_seti(r, 0);
       return;
    }
    if (b == 1)
    {
       zz_set(r, a);
+      return;
+   }
+   if (asize == 0 || signed_b < 0) /* negative b disallowed, but handle it. */
+   {
+      zz_seti(r, 0);
       return;
    }
 
