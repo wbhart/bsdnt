@@ -552,3 +552,31 @@ int nn_cmp_m(nn_src_t a, nn_src_t b, len_t m)
 }
 
 #endif
+
+/**********************************************************************
+
+    Bit operations
+
+**********************************************************************/
+
+#ifndef HAVE_ARCH_nn_scan1
+
+bits_t nn_scan1(bits_t skip, nn_src_t a, len_t m)
+{
+   len_t i = skip / WORD_BITS;
+   int rem = skip % WORD_BITS;
+
+   word_t x = a[i] >> rem;
+   if (x)
+      return skip + low_zero_bits(x);
+
+   for (i++; i < m; i++)
+   {
+      if (a[i])
+         return (bits_t)i * WORD_BITS + low_zero_bits(a[i]);
+   }
+
+  return -1;
+}
+
+#endif

@@ -806,6 +806,64 @@ size_t nn_set_str(nn_t a, len_t * len, const char * str)
 
 #endif
 
+
+#ifndef HAVE_ARCH_get_str_raw
+
+size_t nn_get_str_raw(unsigned char *str, int base, nn_t a, len_t len)
+{
+   size_t i = 0;
+
+   len = nn_normalise(a, len);
+
+   if (len == 0)
+      return 0;
+
+   while (len > 0)
+   {
+      str[i++] = nn_divrem1_simple(a, a, len, base);
+      len = nn_normalise(a, len);
+   }
+
+   /* Reverse str to big-endian order */
+   unsigned char *x = str;
+   unsigned char *y = str + i - 1;
+   while (x < y)
+   {
+      char c = *x;
+      *(x++) = *y;
+      *(y--) = c;
+   }
+
+  return i;
+}
+
+#endif
+
+#ifndef HAVE_ARCH_set_str_raw
+
+len_t nn_set_str_raw(nn_t a, const unsigned char * str, size_t size, int base)
+{
+   size_t i;
+   len_t m = 1;
+   word_t ci;
+
+   if (size == 0)
+      return 0;
+
+   a[0] = (word_t) str[0];
+   for (i = 1; i < size; i++)
+   {
+      ci = nn_mul1(a, a, m, base);
+      ci += nn_add1(a, a, m, (word_t)str[i]);
+      if (ci)
+         a[m++] = ci;
+   }
+
+  return m;
+}
+
+#endif
+
 #ifndef HAVE_ARCH_nn_print
 
 void nn_print(nn_src_t a, len_t m)

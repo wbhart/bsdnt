@@ -656,6 +656,110 @@ void zz_div(zz_ptr q, zz_srcptr a, zz_srcptr b)
    }
 }
 
+void zz_powi(zz_ptr r, zz_srcptr a, sword_t b)
+{
+   word_t i;
+   len_t bound;
+   len_t asize = BSDNT_ABS(a->size);
+   zz_ptr t1, t2;
+   int r_neg = a->size < 0 && (b & 1);
+   TMP_INIT;
+
+   ASSERT(b >= 0);
+
+   /* Degenerate cases that the rest of the code breaks on */
+   if (!b)
+   {
+      zz_seti(r, 1);
+      return;
+   }
+   if (asize == 0)
+   {
+      zz_seti(r, 0);
+      return;
+   }
+   if (b == 1)
+   {
+      zz_set(r, a);
+      return;
+   }
+
+   /*
+      The rest of the code would handle tiny values of a correctly, but
+      particularly inefficently. Special-case the most common small values.
+   */
+   if (asize == 1)
+   {
+      switch (a->n[0])
+      {
+         case 1:
+         {
+            zz_seti(r, 1);
+            r->size = r_neg ? -1 : 1;
+            return;
+         }
+         case 2:
+         {
+            len_t size = b/WORD_BITS + 1;
+            zz_fit(r, size);
+            nn_zero(r->n, size - 1);
+            r->n[size - 1] = (word_t) 1 << (b % WORD_BITS);
+            r->size = r_neg ? -size : size;
+            return;
+         }
+         default:
+            break;
+      }
+   }
+
+   /*
+      Upper bound on the output size. Explaination:
+         base := 1<<WORD_BITS
+         frac := as below
+         a <= 2^frac * base^(asize - 1)
+         log_base(a^b) <= b * (log_base(2^frac) + asize - 1)
+         log_base(a^b) <= b * (frac / WORD_BITS + asize - 1)
+         max digits <= ceil(b*frac/WORD_BITS + b*(asize - 1))
+      TODO: A tighter bound when asize == 1 would help, because this
+      overestimates the size of some small integer 'a's by ~50%.
+   */
+   unsigned frac = WORD_BITS - high_zero_bits(a->n[asize - 1]);
+   bound = (b*frac + WORD_BITS - 1) / WORD_BITS;
+   bound += b * (asize - 1);
+
+   TMP_START;
+   if (r != a && r->alloc >= bound + 1)
+      t1 = r;
+   else
+      TMP_ZZ(t1);
+   TMP_ZZ(t2);
+
+   /* without +1, zz_mul will sometimes (unnecessarily) realloc */
+   zz_fit(t1, bound + 1);
+   zz_fit(t2, bound + 1);
+
+   zz_set(t1, a);
+   /* NB: b > 1, so high_zero_bits(b) <= WORD_BITS - 2 */
+   i = (word_t) 1 << (WORD_BITS - 2 - high_zero_bits(b));
+   do {
+      zz_mul(t2, t1, t1);
+      if (b & i)
+         zz_mul(t1, t2, a);
+      else
+         zz_swap(t1, t2);
+   } while ((i >>= 1));
+
+   ASSERT(r_neg ? t1->size <= 0 : t1->size >= 0);
+
+   if (t1 != r)
+   {
+      zz_swap(t1, r);
+      zz_clear(t1);
+   }
+   zz_clear(t2);
+   TMP_END;
+}
+
 void zz_gcd(zz_ptr g, zz_srcptr a, zz_srcptr b)
 {
    len_t asize = BSDNT_ABS(a->size);
