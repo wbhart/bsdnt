@@ -2,3 +2,16 @@ build/
 
 /arch/nn_linear_x86_64_core2.h
 /arch/nn_linear_x86_64_k8.h
+
+Makefile
+config.h
+cpuid
+endian
+helper_arch.h
+libbsdnt.a
+libbsdnt.so
+nn_arch.h
+nn_linear_arch.h
+nn_quadratic_arch.h
+nn_subquadratic_arch.h
+types_arch.h
