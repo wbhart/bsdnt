@@ -38,7 +38,7 @@ void zz_inits(zz_ptr num, ...)
 {
    va_list arglst;
    va_start(arglst, num);
-   while(num != '\0')
+   while(num != NULL)
    {
       zz_init(num);
       num = va_arg(arglst, zz_ptr);
@@ -62,7 +62,7 @@ void zz_clears(zz_ptr num, ...)
 {
    va_list arglst;
    va_start(arglst, num);
-   while(num != '\0')
+   while(num != NULL)
    {
       zz_clear(num);
       num = va_arg(arglst, zz_ptr);
