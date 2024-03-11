@@ -62,7 +62,7 @@ typedef long bits_t;
 #define LEN_MAX LONG_MAX
 #define BITS_MAX LONG_MAX
 
-#define WORD_FMT "%l"
+#define WORD_FMT "%lu"
 #define LEN_FMT "%ld"
 #define BITS_FMT "%ld"
 
@@ -170,9 +170,17 @@ void talker(const char * str);
 
 #ifndef HAVE_ARCH_INTRINSICS
 
+#if WORD_BITS == 32
+#define high_zero_bits __builtin_clz
+#define low_zero_bits __builtin_ctz
+#define popcount_bits __builtin_popcount
+#elif WORD_BITS == 64
 #define high_zero_bits __builtin_clzl
 #define low_zero_bits __builtin_ctzl
 #define popcount_bits __builtin_popcountl
+#else
+#error "Unsupported WORD_BITS"
+#endif
 
 #endif
 

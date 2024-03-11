@@ -471,7 +471,7 @@ word_t nn_divapprox_divconquer_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d,
    ASSERT(n >= 2);
    ASSERT((ci < d[n - 1]) 
       || ((ci == d[n - 1]) && (nn_cmp_m(a + m - n + 1, d, n - 1) < 0)));
-   ASSERT((long) d[n - 1] < 0);
+   ASSERT((sword_t) d[n - 1] < 0);
 
    /* special case, s <= 3 */
    if (s <= 3 || n <= 5) return nn_divapprox_classical_preinv_c(q, a, m, d, n, dinv, ci);
@@ -545,7 +545,7 @@ void nn_divrem_divconquer_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d,
    ASSERT(n >= 2);
    ASSERT((ci < d[n - 1]) 
       || ((ci == d[n - 1]) && (nn_cmp_m(a + m - n + 1, d, n - 1) < 0)));
-   ASSERT((long) d[n - 1] < 0);
+   ASSERT((sword_t) d[n - 1] < 0);
 
    /* Base case */
    if (n <= 3 || s <= 1)
@@ -605,7 +605,7 @@ void nn_div_divconquer_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d,
    ASSERT(n >= 2);
    ASSERT((ci < d[n - 1]) 
       || ((ci == d[n - 1]) && (nn_cmp_m(a + m - n + 1, d, n - 1) < 0)));
-   ASSERT((long) d[n - 1] < 0);
+   ASSERT((sword_t) d[n - 1] < 0);
 
    TMP_START;
    

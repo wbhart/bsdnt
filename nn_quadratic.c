@@ -250,7 +250,7 @@ void nn_divrem_classical_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d,
    ASSERT(n > 1);
    ASSERT((ci < d1) 
       || ((ci == d1) && (nn_cmp_m(a + m - n + 1, d, n - 1) < 0)));
-   ASSERT((long) d1 < 0);
+   ASSERT((sword_t) d1 < 0);
 
    a += m;
 
@@ -319,7 +319,7 @@ word_t nn_divapprox_classical_preinv_c(nn_t q, nn_t a, len_t m, nn_src_t d,
    ASSERT(n > 1);
    ASSERT((ci < d1) 
       || ((ci == d1) && (nn_cmp_m(a + m - n + 1, d, n - 1) < 0)));
-   ASSERT((long) d1 < 0);
+   ASSERT((sword_t) d1 < 0);
 
    a += m;
 

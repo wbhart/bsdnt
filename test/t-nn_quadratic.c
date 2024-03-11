@@ -198,7 +198,7 @@ int test_divrem_classical_preinv(void)
 
       if (!result) 
       {
-         printf("inv = %lu\n", inv);
+         printf("inv = " WORD_FMT "\n", inv);
          print_debug(a, m); print_debug(q, m); print_debug(d, n);  print_debug(r1, n);
          print_debug_diff(q, a, m);
       }

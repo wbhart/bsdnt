@@ -74,13 +74,13 @@ void free_redzoned_nn(nn_t a, len_t n)
       if (redzone1[i] != REDZONE_BYTE)
       {
          fprintf(stderr, "Underrun detected in nn_t at %p of "
-         "length %ld at byte %ld\n", (void *) a, n, i);
+         "length " LEN_FMT " at byte %ld\n", (void *) a, n, i);
          abort();
       }
       if (redzone2[i] != REDZONE_BYTE)
       {
          fprintf(stderr, "Overrun detected in nn_t at %p of "
-         "length %ld at byte %ld\n", (void *) a, n, i);
+         "length " LEN_FMT " at byte %ld\n", (void *) a, n, i);
          abort();
       }
    }
