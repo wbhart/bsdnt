@@ -211,72 +211,83 @@ void zz_zero(zz_ptr a)
 void zz_addi(zz_ptr r, zz_srcptr a, sword_t c)
 {
    if (c < 0)
-      zz_subi(r, a, -c);
+      zz_subu(r, a, (word_t)-c);
    else 
-   {
-      len_t usize = BSDNT_ABS(a->size);
-
-      zz_fit(r, usize + 1);
-   
-      if (a->size >= 0) 
-      {
-         r->n[usize] = nn_add1(r->n, a->n, usize, c);
-         r->size = usize + (r->n[usize] != 0);
-      } else if (usize == 1) 
-      {
-         word_t d = a->n[0];
-
-         if (d == (word_t) c)
-            r->size = 0;
-         else
-         {
-            r->n[0] = d > (word_t) c ? d - c : c - d;
-            r->size = d > (word_t) c ? -1 : 1;
-         } 
-      } else 
-      {
-         nn_sub1(r->n, a->n, usize, c);
-         r->size = -usize + (r->n[usize - 1] == 0);
-      }
-   }
+      zz_addu(r, a, (word_t)c);
 }
 
 void zz_subi(zz_ptr r, zz_srcptr a, sword_t c)
 {
    if (c < 0)
-      zz_addi(r, a, -c);
+      zz_addu(r, a, (word_t)-c);
    else
+      zz_subu(r, a, (word_t)c);
+}
+
+void zz_addu(zz_ptr r, zz_srcptr a, word_t c)
+{
+   len_t usize = BSDNT_ABS(a->size);
+
+   zz_fit(r, usize + 1);
+
+   if (a->size >= 0) 
+   {
+      r->n[usize] = nn_add1(r->n, a->n, usize, c);
+      r->size = usize + (r->n[usize] != 0);
+   } else if (usize == 1) 
+   {
+      word_t d = a->n[0];
+
+      if (d == c)
+         r->size = 0;
+      else
+      {
+         r->n[0] = d > c ? d - c : c - d;
+         r->size = d > c ? -1 : 1;
+      } 
+   } else 
+   {
+      nn_sub1(r->n, a->n, usize, c);
+      r->size = -usize + (r->n[usize - 1] == 0);
+   }
+}
+
+void zz_subu(zz_ptr r, zz_srcptr a, word_t c)
+{
+   if (a->size == 0) 
+   {
+      if (c != 0)
+      {
+          zz_fit(r, 1);
+          r->n[0] = c;
+          r->size = -1;
+      } else
+          r->size = 0;
+   } else 
    {
       long usize = BSDNT_ABS(a->size);
 
       zz_fit(r, usize + 1);
-   
-      if (a->size == 0) 
+
+      if (a->size < 0) 
       {
-         r->size = -1;
-         r->n[0] = c;
+         r->n[usize] = nn_add1(r->n, a->n, usize, c);
+         r->size = -usize - (r->n[usize] != 0);
+      } else if (usize == 1) 
+      {
+         word_t d = a->n[0];
+
+         if (d == c)
+            r->size = 0;
+         else
+         {
+            r->n[0] = d > c ? d - c : c - d;
+            r->size = d > c ? 1 : -1;
+         }
       } else 
       {
-         if (a->size < 0) 
-         {
-            r->n[usize] = nn_add1(r->n, a->n, usize, c);
-            r->size = -usize - (r->n[usize] != 0);
-         } else if (usize == 1) 
-         {
-            word_t d = a->n[0];
-
-            if (d == (word_t) c)
-               r->size = 0;
-            else
-            {
-               r->n[0] = d > (word_t) c ? d - c : c - d;
-               r->size = d > (word_t) c ? 1 : -1;
-            }
-         } else 
-         {
-            nn_sub1(r->n, a->n, usize, c);
-            r->size = usize - (r->n[usize - 1] == 0);
-         }
+         nn_sub1(r->n, a->n, usize, c);
+         r->size = usize - (r->n[usize - 1] == 0);
       }
    }
 }

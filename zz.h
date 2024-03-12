@@ -237,6 +237,16 @@ void zz_addi(zz_ptr r, zz_srcptr a, sword_t c);
 void zz_subi(zz_ptr r, zz_srcptr a, sword_t c);
 
 /*
+   Set r = a + c, where c is an unsigned word.
+*/
+void zz_addu(zz_ptr r, zz_srcptr a, word_t c);
+
+/*
+   Set r = a - c, where c is an unsigned word.
+*/
+void zz_subu(zz_ptr r, zz_srcptr a, word_t c);
+
+/*
    Set r = a + b.
 */
 void zz_add(zz_ptr r, zz_srcptr a, zz_srcptr b);
